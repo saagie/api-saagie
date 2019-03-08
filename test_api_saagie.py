@@ -7,10 +7,14 @@ my_api_saagie = query_saagie_api.query_sagie_api(url_saagie='https://vallourec-m
 
 #print(my_api_saagie.get_plateform_env_vars().text)
 
-print(query_saagie_api.get_plateforms_info())
+"""
+def create_job(self, job_name, file, capsule_code='python', category='processing',
+               template="python {file} arg1 arg2", language_version='3.5.2', cpu=0.3,
+               memory=512, disk=512):
+"""
 
-r = my_api_saagie.upload_file('test.py')
-r.json()
+r = my_api_saagie.create_job(job_name='test_api', file='test.py')
+
 print(r)
 print(r.text)
 

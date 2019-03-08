@@ -92,7 +92,7 @@ class query_sagie_api:
                              auth=self.auth,
                              verify=False)
 
-    def upload_file(self, file):
+    def __upload_file(self, file):
         """
 
         :param code:
@@ -104,16 +104,18 @@ class query_sagie_api:
         else:
             print("This file extension is not supported at the moment. Contact augustin.peyridieux@saagie.com "
                   "to add it to the roadmap")
+            return -1
 
         random_13dig = random.randint(1000000000000, 9999999999999)
-        payload = "-----------------------------" + str(random_13dig) + \
-                  "Content-Disposition: form-data; name=\"file\"; filename=\"" + str(file) + "\"\
-                Content-Type: text/plain\
-                \
-                " + str(file) + \
+        payload = "-----------------------------" + str(random_13dig) + '\n' + \
+                  "Content-Disposition: form-data; name=\"file\"; filename=\"" + str(file) + "\" \n" + \
+                  "Content-Type: text/plain\n" + \
+                  "\n" + \
+                  str(my_code) + "\n" +\
                   "-----------------------------" + str(random_13dig) + "--"
 
         headers = {
+            #  Content-Type: multipart/form-data; boundary=---------------------------222042934130865
             'Content-Type': 'multipart/form-data; boundary=---------------------------' + str(random_13dig)
         }
 
@@ -124,7 +126,9 @@ class query_sagie_api:
                       verify=False)
         return r
 
-    def create_job(self, job_name, file, cpu=0.3, memory=512, disk=512):
+    def create_job(self, job_name, file, capsule_code='python', category='processing',
+                   template="python {file} arg1 arg2", language_version='3.5.2', cpu=0.3,
+                   memory=512, disk=512):
         """
 
         :param job_name:
@@ -134,6 +138,61 @@ class query_sagie_api:
         :param disk:
         :return:
         """
+        """
+        {"platform_id":"9","capsule_code":"python","category":"processing","current":{"options":{"language_version":"3.5.2"},
+        "releaseNote":"","template":"python {file} arg1 arg2","cpu":0.3,"memory":512,"disk":512,"file":"5c765d9739b05/test.py",
+        "isInternalSubDomain":false,"isInternalPort":false},"always_email":false,"manual":true,"retry":"",
+        "schedule":"R0/2019-02-27T09:51:11.607Z/P0Y0M1DT0H0M0S","name":"testtt"}
+        """
 
+        response = self.__upload_file(file)
 
-        path_to_code = self.upload_file(my_code)
+        if response == -1:
+            return -1
+        else:
+            fileName = json.loads(response.text)['fileName']
+
+        print("#################################################")
+        print(fileName)
+        print("#################################################")
+
+        headers = {
+            "platform_id": '"' + str(self.id_plateform) + '"',
+            "capsule_code": '"' + str(capsule_code) + '"',
+            "category": '"' + str(category) + '"',
+            "current": {
+                "options": {"language_version": '"' + language_version + '"'},
+                "releaseNote": '""',
+                "template": '"' + str(template) + '"',
+                "memory": '"' + str(memory) + '"',
+                "cpu": '"' + str(cpu) + '"',
+                "disk": '"' + str(disk) + '"',
+                "file": '"' + fileName + '"',
+                "isInternalSubDomain": "false",
+                "isInternalPort": "false"
+                },
+            "always_email": "false",
+            "manual": "true",
+            "retry": '""',
+            "schedule": '"R0/2019-02-27T09:51:11.607Z/P0Y0M1DT0H0M0S"',
+            "name": '"' + job_name + '"'
+        }
+
+        print("#################################################")
+        print(headers)
+
+        """
+        r = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/job/upload",
+                      data=payload,
+                      headers=headers,
+                      auth=self.auth,
+                      verify=False)
+        
+
+        r = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/job",
+                          headers=headers,
+                          auth=self.auth,
+                          verify=False
+                          )
+        """
+        return 1
