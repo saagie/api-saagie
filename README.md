@@ -1,4 +1,4 @@
-# Saagie API class inPython
+# Saagie API class in Python
 
 For now:
  - Get platforms info
