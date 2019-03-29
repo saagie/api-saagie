@@ -6,4 +6,4 @@ For now:
  - Get platform environment variables
  - Create platform environment variables
  - Run job
- - Create job (not finished yet)
+ - Create job (working for .py files)
