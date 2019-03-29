@@ -4,10 +4,10 @@ import json
 import sys
 
 
-class query_sagie_api:
+class querySaagieApi:
     def __init__(self, url_saagie, id_plateform, user, password):
         """
-
+        Exemple d'URL: https://saagie-manager.prod.saagie.io/api/doc
         :param url_saagie:
         :param id_plateform:
         :param user:
@@ -156,26 +156,29 @@ class query_sagie_api:
         print(fileName)
         print("#################################################")
 
+        current = {
+                    "options": {"language_version": str(language_version)},
+                    "releaseNote": "",
+                    "template": str(template),
+                    "memory": str(memory),
+                    "cpu": str(cpu),
+                    "disk": str(disk),
+                    "file": str(fileName),
+                    "isInternalSubDomain": "false",
+                    "isInternalPort": "false"
+                }
+
+
         headers = {
-            "platform_id": '"' + str(self.id_plateform) + '"',
-            "capsule_code": '"' + str(capsule_code) + '"',
-            "category": '"' + str(category) + '"',
-            "current": {
-                "options": {"language_version": '"' + language_version + '"'},
-                "releaseNote": '""',
-                "template": '"' + str(template) + '"',
-                "memory": '"' + str(memory) + '"',
-                "cpu": '"' + str(cpu) + '"',
-                "disk": '"' + str(disk) + '"',
-                "file": '"' + fileName + '"',
-                "isInternalSubDomain": "false",
-                "isInternalPort": "false"
-                },
+            'platform_id': str(self.id_plateform),
+            "capsule_code": str(capsule_code),
+            "category": str(category),
+            "current": str(current),
             "always_email": "false",
             "manual": "true",
-            "retry": '""',
-            "schedule": '"R0/2019-02-27T09:51:11.607Z/P0Y0M1DT0H0M0S"',
-            "name": '"' + job_name + '"'
+            "retry": "",
+            "schedule": "R0/2019-02-27T09:51:11.607Z/P0Y0M1DT0H0M0S",
+            "name": str(job_name)
         }
 
         print("#################################################")
@@ -187,12 +190,12 @@ class query_sagie_api:
                       headers=headers,
                       auth=self.auth,
                       verify=False)
-        
 
+        """
         r = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/job",
                           headers=headers,
                           auth=self.auth,
                           verify=False
                           )
-        """
-        return 1
+
+        return r
