@@ -27,7 +27,6 @@ class querySaagieApi:
         Getting information on all installed platform (eg: id, datamart IP, datamart Port, Datalake IP etC..c)
         requests.models.Response :return: the platforms informations
         """
-        print(self.url_saagie + self.suffix_api + 'platform')
         return requests.get(self.url_saagie + self.suffix_api + 'platform', auth=self.auth, verify=False)
 
     def get_plateform_info(self):
@@ -35,7 +34,6 @@ class querySaagieApi:
         Getting information on a platform (eg: id, datamart IP, datamart Port, Datalake IP etC..c)
         requests.models.Response: return: platform informations
         """
-        print(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform))
         return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform)
                             , auth=self.auth
                             , verify=False)
@@ -45,7 +43,6 @@ class querySaagieApi:
         Getting all environment variables available on the platform
         requests.models.Response: return: platform environment variables
         """
-        print(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/envvars')
         return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/envvars'
                             , auth=self.auth
                             , verify=False)
