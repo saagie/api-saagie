@@ -34,9 +34,20 @@ class querySaagieApi:
         Getting information on a platform (eg: id, datamart IP, datamart Port, Datalake IP etC..c)
         requests.models.Response: return: platform informations
         """
+        print(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform))
         return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform)
                             , auth=self.auth
                             , verify=False)
+
+    def get_impala_connection_info(self):
+        """
+        Getting information on a platform (eg: id, datamart IP, datamart Port, Datalake IP etC..c)
+        requests.models.Response: return: platform informations
+        """
+        return requests.get(
+            self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/connectioninfo/impala'
+            , auth=self.auth
+            , verify=False)
 
     def get_plateform_env_vars(self):
         """
@@ -183,5 +194,3 @@ class querySaagieApi:
                           )
 
         return r
-
-
