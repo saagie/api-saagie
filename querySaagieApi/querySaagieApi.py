@@ -4,7 +4,7 @@ import json
 import sys
 
 
-class querySaagieApi:
+class QuerySaagieApi:
     def __init__(self, url_saagie, id_plateform, user, password):
         """
         Initialize the class
