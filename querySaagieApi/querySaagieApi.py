@@ -2,6 +2,7 @@ import requests
 import random
 import json
 import sys
+import time
 
 
 class QuerySaagieApi:
@@ -104,6 +105,44 @@ class QuerySaagieApi:
                              + str(job_id) + '/run',
                              auth=self.auth,
                              verify=False)
+
+
+    def get_job_detail(self, job_id):
+        """
+        Get the status of a job
+        int or string:param job_id:
+        request.models.Response: return
+        """
+        return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job/' + str(job_id),
+                            auth=self.auth,
+                            verify=False)
+
+    def run_job_callback(self, job_id, freq, timeout = -1):
+        """
+        Run a job and wait for the final status (KILLED, FAILED or SUCCESS)
+        int or string:param job_id:
+        int:param freq: Sec between two state ckecks
+        int:param timeout: Sec before timeout
+        string: return: the final state of this job
+        """
+        self.run_job(job_id)
+        state = ''
+        sec = 0
+        to = False
+
+        while(state != "STOPPED"):
+            to = False if timeout == -1 else sec >= timeout
+            if to:
+                raise TimeoutError("Last state known : " + state)
+            time.sleep(freq)
+            sec += freq
+            res = self.get_job_detail(job_id)
+            state = json.loads(res.text)['last_state']['state']
+            print('Current state : ' + state)
+
+        return json.loads(res.text)['last_state']['lastTaskStatus'] 
+
+            
 
     def __upload_file(self, file):
         """
