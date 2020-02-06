@@ -106,7 +106,6 @@ class QuerySaagieApi:
                              auth=self.auth,
                              verify=False)
 
-
     def get_job_detail(self, job_id):
         """
         Get the status of a job
@@ -142,8 +141,6 @@ class QuerySaagieApi:
 
         return json.loads(res.text)['last_state']['lastTaskStatus'] 
 
-            
-
     def __upload_file(self, file):
         """
         Private method to upload a file before create a job
@@ -151,31 +148,10 @@ class QuerySaagieApi:
         string: return: path to the file in SAAGIE
         """
 
-        if str(file).endswith('.py'):
-            my_code = open(file, 'rt').read()
-        else:
-            print("This file extension is not supported at the moment. Contact augustin.peyridieux@saagie.com "
-                  "to add it to the roadmap")
-            return -1
-
-        random_13dig = random.randint(1000000000000, 9999999999999)
-        payload = "-----------------------------" + str(random_13dig) + '\n' + \
-                  "Content-Disposition: form-data; name=\"file\"; filename=\"" + str(file) + "\" \n" + \
-                  "Content-Type: text/plain\n" + \
-                  "\n" + \
-                  str(my_code) + "\n" + \
-                  "-----------------------------" + str(random_13dig) + "--"
-
-        headers = {
-            #  Content-Type: multipart/form-data; boundary=---------------------------222042934130865
-            'Content-Type': 'multipart/form-data; boundary=---------------------------' + str(random_13dig)
-        }
-
         response = requests.post(
             self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/job/upload",
-            data=payload,
-            headers=headers,
             auth=self.auth,
+            files={'file': open(file, 'rb')},
             verify=False)
 
         if response == -1:
