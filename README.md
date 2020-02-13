@@ -7,4 +7,4 @@ For now:
  - Get platform environment variables
  - Create platform environment variables
  - Run job
- - Create job (working for .py files)
+ - Create job (working for .py/zip files)
