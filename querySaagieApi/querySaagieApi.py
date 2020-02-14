@@ -1,7 +1,5 @@
 import requests
-import random
 import json
-import sys
 import time
 
 
@@ -226,3 +224,15 @@ class QuerySaagieApi:
                           verify=False
                           )
         return r
+
+    def run_pipeline(self, pipeline_id):
+        """
+        Run a pipeline
+
+        :param pipeline_id: Id of the pipeline (int or str)
+        :return:
+        """
+        return requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/workflow/'
+                             + str(pipeline_id) + '/run',
+                             auth=self.auth,
+                             verify=False)
