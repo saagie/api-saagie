@@ -209,3 +209,20 @@ class QuerySaagieApi:
                           )
 
         return r
+
+    def create_pipeline(self, list_id_jobs):
+        dict_workflow = {}
+        dict_workflow['name'] = 'test_ap'
+        list_worklfow = []
+        position_job_workflow = 0
+        for id in list_id_jobs:
+            list_worklfow.append({"id": int(id), "position": position_job_workflow})
+            position_job_workflow += 1
+        dict_workflow['jobs'] = list_worklfow
+
+        r = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/workflow",
+                          data=json.dumps(dict_workflow),
+                          auth=self.auth,
+                          verify=False
+                          )
+        return r
