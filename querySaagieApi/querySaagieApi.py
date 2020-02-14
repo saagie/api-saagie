@@ -210,9 +210,9 @@ class QuerySaagieApi:
 
         return r
 
-    def create_pipeline(self, list_id_jobs):
+    def create_pipeline(self, list_id_jobs, pipeline_name):
         dict_workflow = {}
-        dict_workflow['name'] = 'test_ap'
+        dict_workflow['name'] = pipeline_name
         list_worklfow = []
         position_job_workflow = 0
         for id in list_id_jobs:

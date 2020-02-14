@@ -9,4 +9,4 @@ my_api_saagie = qsa.QuerySaagieApi(url_saagie='https://saagie-beta.prod.saagie.i
 
 list_jobs = [22320, 22321, 22322, 22323, 22324]
 
-print(my_api_saagie.create_pipeline(list_jobs).status_code)
+print(my_api_saagie.create_pipeline(list_jobs, 'my_test_ap').status_code)
