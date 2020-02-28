@@ -9,7 +9,7 @@ setup(
     license='GLWTPL',
     packages=['querySaagieApi'],
     install_requires=[
-          'requests'
+          'requests', 'gql'
       ],
     zip_safe=False
 )
