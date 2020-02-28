@@ -1,6 +1,6 @@
 # Saagie API class in Python
 
-Installation:
+Installation:  
 pip install git@gitlab.saagie.tech:42/service/api-saagie.git
 
 For now:
