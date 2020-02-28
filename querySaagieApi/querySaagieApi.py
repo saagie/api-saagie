@@ -248,3 +248,27 @@ class QuerySaagieApi:
                              + str(pipeline_id) + '/run',
                              auth=self.auth,
                              verify=False)
+
+    def delete_job(self, id_job):
+        """
+        Delete a job
+        int or string: param id_venv: id of the environment variable
+        requests.models.Response: return: status of the query (200: OK, other: KO -> available with
+        method return_variable.status_code)
+        """
+        return requests.delete(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job/' \
+                               + str(id_job),
+                               auth=self.auth,
+                               verify=False)
+
+    def delete_pipeline(self, id_pipeline):
+        """
+        Delete a pipeline
+        int or string: param id_venv: id of the environment variable
+        requests.models.Response: return: status of the query (200: OK, other: KO -> available with
+        method return_variable.status_code)
+        """
+        return requests.delete(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/workflow/' \
+                               + str(id_pipeline),
+                               auth=self.auth,
+                               verify=False)
