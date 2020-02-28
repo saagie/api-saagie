@@ -159,7 +159,7 @@ class QuerySaagieApi:
 
     def create_job(self, job_name, file, capsule_code='python', category='processing',
                    template="python {file} arg1 arg2", language_version='3.5.2', cpu=0.3,
-                   memory=512, disk=512):
+                   memory=512, disk=512, extra_language='python', extra_version='3.5.2'):
         """
         Create a job
         string: param job_name: job name
@@ -174,9 +174,21 @@ class QuerySaagieApi:
         # Before creating a job you need to upload the file containing the code into SAAGIE
         fileName = self.__upload_file(file)
 
+        # if you want to create a spark job, you need to specifye the extra language
+        if capsule_code == 'spark':
+            options = {
+                "language_version": str(language_version),
+                "extra_language": str(extra_language),
+                "extra_version": str(extra_version)
+            }
+        else:
+            options = {
+                "language_version": str(language_version)
+            }
+
         # Building data needed in the requests.post method
         current = {
-            "options": {"language_version": str(language_version)},
+            "options": options,
             "releaseNote": "",
             "template": str(template),
             "memory": str(memory),
