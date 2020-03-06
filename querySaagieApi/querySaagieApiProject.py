@@ -1,3 +1,5 @@
+import time
+
 from querySaagieApi.gql_template import *
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
@@ -123,4 +125,58 @@ class QuerySaagieApiProject:
         dict: return: List of global environment variables
         """
         query = gql(gql_get_global_env_vars)
+        return self.client.execute(query)
+
+    def run_job(self, job_id):
+        """
+        Run a specific job
+        :param job_id: String, Job ID
+        dict :return:
+        """
+        query = gql(gql_run_job.format(job_id))
+        return self.client.execute(query)
+
+    def run_job_callback(self, job_id, freq=10, timeout=-1):
+        """
+        Run a job and wait for the final status (KILLED, FAILED or SUCCESS)
+        string:param job_id:
+        int:param freq: Sec between two state ckecks
+        int:param timeout: Sec before timeout
+        string: return: the final state of this job
+        """
+        res = self.run_job(job_id)
+        job_instance_id = res.get("runJob").get("id")
+        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
+        query = gql(gql_get_job_instance.format(job_instance_id))
+        job_instance_info = self.client.execute(query)
+        state = job_instance_info.get("jobInstance").get("status")
+        sec = 0
+        to = False
+        while state not in final_status_list:
+            to = False if timeout == -1 else sec >= timeout
+            if to:
+                raise TimeoutError("Last state known : " + state)
+            time.sleep(freq)
+            sec += freq
+            job_instance_info = self.client.execute(query)
+            state = job_instance_info.get("jobInstance").get("status")
+            print('Current state : ' + state)
+        return state
+
+    def get_project_pipelines(self, project_id):
+        """
+        List pipelines of project get with project UUID.
+        String :param project_id: Project ID
+        dict :return: all pipelines in the project
+        """
+        query = gql(gql_get_pipelines.format(project_id))
+        return self.client.execute(query)
+
+    def get_project_pipeline(self, pipeline_id):
+        """
+        Get pipeline with given UUID or null if it doesn't exist.
+        String :param pipeline_id: Pipeline ID
+        dict :return: pipeline's information
+        """
+        query = gql(gql_get_pipeline.format(pipeline_id))
         return self.client.execute(query)

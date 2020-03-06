@@ -248,3 +248,60 @@ gql_get_global_env_vars = """
           }
         }
         """
+
+gql_run_job = """
+        mutation{{
+          runJob(jobId: "{0}"){{
+            id,
+            status
+          }}
+        }}
+"""
+
+gql_get_job_instance = """
+query{{
+  jobInstance(id: "{0}"){{
+    id,
+    status,
+    version {{
+      releaseNote
+      runtimeVersion
+      commandLine
+      isMajor
+      doesUseGPU
+    }}
+  }}
+}}
+"""
+
+gql_get_pipelines = """
+query{{
+  pipelines(projectId: "{0}"){{
+    id,
+    name,
+    creator,
+    description,
+    alerting{{
+      emails
+    }},
+    creationDate,
+    pipelineInstanceCount
+  }}
+}}
+"""
+
+gql_get_pipeline = """
+query{{
+  pipeline(id: "{0}"){{
+    id,
+    name,
+    creator,
+    description,
+    alerting{{
+      emails
+    }},
+    creationDate,
+    pipelineInstanceCount
+  }}
+}}
+"""
