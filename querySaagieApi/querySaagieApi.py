@@ -104,6 +104,27 @@ class QuerySaagieApi:
                              auth=self.auth,
                              verify=False)
 
+    def stop_job(self, job_id):
+        """
+        Stop a job
+        int or string:param job_id:
+        requests.models.Response: return: status of the query (200: OK, other: KO -> available with
+        method return_variable.status_code)
+        """
+        return requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job/'
+                             + str(job_id) + '/run',
+                             auth=self.auth,
+                             verify=False)
+
+    def get_all_jobs(self):
+        """
+        Get all the jobs on the platform
+        requests.models.Response: return: platform jobs
+        """
+        return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job',
+                            auth=self.auth,
+                            verify=False)
+
     def get_job_detail(self, job_id):
         """
         Get the status of a job
@@ -111,6 +132,19 @@ class QuerySaagieApi:
         request.models.Response: return
         """
         return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job/' + str(job_id),
+                            auth=self.auth,
+                            verify=False)
+
+    def modify_job_schedule(self, job_id, job):
+        """
+        Modify the schedule of the job. Need to send all the job object to proceed
+        int or string:param job_id
+        Object job: param job (get it with method get_job_detail)
+        requests.models.Response: return: status of the query (200: OK, other: KO -> available with
+        method return_variable.status_code)
+        """
+        return requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job/' + str(job_id),
+                            data=json.dumps(job),
                             auth=self.auth,
                             verify=False)
 
@@ -167,7 +201,7 @@ class QuerySaagieApi:
         string: param cpu: job's CPU
         int or string: param memory: job's Memory
         int or string: param disk: job's disk space
-        requests.models.Response: return: status of the query (200: OK, other: KO -> available with
+        requests.models.Response: return: status of the query (200, 204: OK, other: KO -> available with
         method return_variable.status_code)
         """
 
@@ -272,3 +306,47 @@ class QuerySaagieApi:
                                + str(id_pipeline),
                                auth=self.auth,
                                verify=False)
+
+    def get_all_pipelines(self):
+        """
+        Get all the pipelines on the platform
+        requests.models.Response: return: platform pipelines
+        """
+        return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/workflow',
+                            auth=self.auth,
+                            verify=False)
+
+    def get_pipeline_detail(self, pipeline_id):
+        """
+        Get the status of a pipeline
+        int or string:param pipeline_id:
+        request.models.Response: return
+        """
+        return requests.get(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/workflow/' + str(pipeline_id),
+                            auth=self.auth,
+                            verify=False)
+
+    def modify_pipeline_schedule(self, pipeline_id, pipeline):
+        """
+        Modify the schedule of the pipeline. Need to send all the pipeline object to proceed
+        int or string:param pipeline_id
+        Object pipeline: param pipeline (get it with method get_pipeline_detail)
+        requests.models.Response: return: status of the query (200: OK, other: KO -> available with
+        method return_variable.status_code)
+        """
+        return requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/workflow/' + str(pipeline_id),
+                            data=json.dumps(pipeline),
+                            auth=self.auth,
+                            verify=False)
+
+    def stop_pipeline(self, pipeline_id):
+        """
+        Stop a pipeline
+
+        :param pipeline_id: Id of the pipeline (int or str)
+        :return:
+        """
+        return requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/workflow/'
+                             + str(pipeline_id) + '/stop',
+                             auth=self.auth,
+                             verify=False)

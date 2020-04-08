@@ -4,7 +4,7 @@ setup(
     name='querySaagieApi',
     version='0.1',
     description='Python API to interact with Saagie',
-    url='git@gitlab.com:saagie-group/service/internal/api-saagie.git',
+    url='git@gitlab.com/saagie-group/service/internal/api-saagie.git',
     author='Service team',
     license='GLWTPL',
     packages=['querySaagieApi'],
