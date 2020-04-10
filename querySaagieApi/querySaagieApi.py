@@ -112,7 +112,7 @@ class QuerySaagieApi:
         method return_variable.status_code)
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + '/job/'
-                             + str(job_id) + '/run',
+                             + str(job_id) + '/stop',
                              auth=self.auth,
                              verify=False)
 
