@@ -32,80 +32,17 @@ class QuerySaagieApiProject:
             fetch_schema_from_transport=True
         )
 
-    def get_projects_info(self):
-        """
-        Getting information on all projects (eg: id, name, creator, description, jobsCount and status)
-        NB: You can only list projects you are rights on and projects you have created with less informations if you are project creator
-        dict :return: the project's information
-        """
-        query = gql_get_projects_info
-        return self.client.execute(query)
+#######################################################
+####                    env vars                   ####
+#######################################################
 
-    def get_project_info(self, project_id):
+    def get_global_env_vars(self):
         """
-        Get project information (eg: name, creator, description, jobsCount and status) with given Id or null if it doesn't exist.
-        string :param project_id: project ID
-        NB: You can only get project if you have at least role viewer on this project or on all projects.
-        dict :return: the project's information
+        List global environment variables
+        NB: You can only list environment variables if you have at least role viewer on the project or on all projects.
+        dict: return: List of global environment variables
         """
-        query = gql(gql_get_project_info.format(project_id))
-        return self.client.execute(query)
-
-    def get_project_jobs(self, project_id):
-        """
-        List jobs of project get with project UUID
-        string :param project_id: project ID
-        NB: You can only list jobs if you have at least role viewer on the project or on all projects.
-        dict :return: project's jobs information
-        """
-        query = gql(gql_get_project_jobs.format(project_id))
-        return self.client.execute(query)
-
-    def get_project_job(self, job_id):
-        """
-        Get job with given UUID or null if it doesn't exist.
-        String :param job_id: Job ID
-        dict :return: Job's information
-        """
-        query = gql(gql_get_project_job.format(job_id))
-        return self.client.execute(query)
-
-    def get_project_web_apps(self, project_id):
-        """
-        List webApps of project get with project UUID
-        string :param project_id: project ID
-        NB: You can only list webApps if you have at least role viewer on the project or on all projects.
-        dict :return: webApp's information
-        """
-        query = gql(gql_get_project_web_apps.format(project_id))
-        return self.client.execute(query)
-
-    def get_project_web_app(self, web_app_id):
-        """
-        Get webApp with given UUID or null if it doesn't exist.
-        String :param web_app_id: webApp ID
-        dict :return: webApp's information
-        """
-        query = gql(get_project_web_app.format(web_app_id))
-        return self.client.execute(query)
-
-    def get_project_apps(self, project_id):
-        """
-        List apps of project get with project UUID
-        string :param project_id: project ID
-        NB: You can only list apps if you have at least role viewer on the project or on all projects.
-        dict :return: webApp's information
-        """
-        query = gql(gql_get_project_apps.format(project_id))
-        return self.client.execute(query)
-
-    def get_project_app(self, app_id):
-        """
-        Get app with given UUID or null if it doesn't exist.
-        String :param app_id: App ID
-        dict :return: App's information
-        """
-        query = gql(gql_get_project_app.format(app_id))
+        query = gql(gql_get_global_env_vars)
         return self.client.execute(query)
 
     def get_project_env_vars(self, project_id):
@@ -118,13 +55,56 @@ class QuerySaagieApiProject:
         query = gql(gql_get_project_env_vars.format(project_id))
         return self.client.execute(query)
 
-    def get_global_env_vars(self):
+#######################################################
+####                    projects                   ####
+#######################################################
+
+    def get_projects_info(self):
         """
-        List global environment variables
-        NB: You can only list environment variables if you have at least role viewer on the project or on all projects.
-        dict: return: List of global environment variables
+        Getting information on all projects (eg: id, name, creator, description, jobsCount and status)
+        NB: You can only list projects you are rights on and projects you have created with less informations if you are project creator
+        dict :return: the project's information
         """
-        query = gql(gql_get_global_env_vars)
+        query = gql(gql_get_projects_info)
+        return self.client.execute(query)
+
+    def get_project_info(self, project_id):
+        """
+        Get project information (eg: name, creator, description, jobsCount and status) with given Id or null if it doesn't exist.
+        string :param project_id: project ID
+        NB: You can only get project if you have at least role viewer on this project or on all projects.
+        dict :return: the project's information
+        """
+        query = gql(gql_get_project_info.format(project_id))
+        return self.client.execute(query)
+
+#######################################################
+####                      jobs                     ####
+#######################################################
+
+    def get_project_jobs(self, project_id, instances_limit):
+        """
+        List jobs of project get with project UUID
+        string :param project_id: project ID
+        int: param instances_limit: number of instances loaded from the newer to the olders
+        NB: You can only list jobs if you have at least role viewer on the project or on all projects.
+        dict :return: project's jobs information
+        """
+        query = gql(gql_get_project_jobs.format(project_id, instances_limit))
+        return self.client.execute(query)
+
+    def get_project_job(self, job_id):
+        """
+        Get job with given UUID or null if it doesn't exist.
+        String :param job_id: Job ID
+        dict :return: Job's information
+        """
+        query = gql(gql_get_project_job.format(job_id))
+        return self.client.execute(query)
+
+    def get_job_instance(self, job_instance_id):
+
+        query = gql(gql_get_job_instance.format(job_instance_id))
         return self.client.execute(query)
 
     def run_job(self, job_id):
@@ -163,13 +143,78 @@ class QuerySaagieApiProject:
             print('Current state : ' + state)
         return state
 
-    def get_project_pipelines(self, project_id):
+    def stop_job(self, job_instance_id):
+        """
+        Stop a specific instance of job
+        :param job_instance_id, String
+        :dict: return:
+        """
+        query = gql(gql_stop_job_instance.format(job_instance_id))
+        return self.client.execute(query)
+
+    def edit_job(self, job):
+        """
+        Edit a job
+        job:param job
+        dict: return: job's information
+        """
+        query = gql(gql_edit_job.format(job))
+        return self.client.execute(query)
+
+#######################################################
+####                      apps                     ####
+#######################################################
+
+    def get_project_web_apps(self, project_id, instances_limit):
+        """
+        List webApps of project get with project UUID
+        string :param project_id: project ID
+        NB: You can only list webApps if you have at least role viewer on the project or on all projects.
+        dict :return: webApp's information
+        """
+        query = gql(gql_get_project_web_apps.format(project_id, instances_limit))
+        return self.client.execute(query)
+
+    def get_project_web_app(self, web_app_id):
+        """
+        Get webApp with given UUID or null if it doesn't exist.
+        String :param web_app_id: webApp ID
+        dict :return: webApp's information
+        """
+        query = gql(get_project_web_app.format(web_app_id))
+        return self.client.execute(query)
+
+    def get_project_apps(self, project_id):
+        """
+        List apps of project get with project UUID
+        string :param project_id: project ID
+        NB: You can only list apps if you have at least role viewer on the project or on all projects.
+        dict :return: webApp's information
+        """
+        query = gql(gql_get_project_apps.format(project_id))
+        return self.client.execute(query)
+
+    def get_project_app(self, app_id):
+        """
+        Get app with given UUID or null if it doesn't exist.
+        String :param app_id: App ID
+        dict :return: App's information
+        """
+        query = gql(gql_get_project_app.format(app_id))
+        return self.client.execute(query)
+
+#######################################################
+####                   pipelines                   ####
+#######################################################
+
+    def get_project_pipelines(self, project_id, instances_limit):
         """
         List pipelines of project get with project UUID.
         String :param project_id: Project ID
+        int: param instances_limit: number of instances loaded from the newer to the olders
         dict :return: all pipelines in the project
         """
-        query = gql(gql_get_pipelines.format(project_id))
+        query = gql(gql_get_pipelines.format(project_id, instances_limit))
         return self.client.execute(query)
 
     def get_project_pipeline(self, pipeline_id):
@@ -179,4 +224,22 @@ class QuerySaagieApiProject:
         dict :return: pipeline's information
         """
         query = gql(gql_get_pipeline.format(pipeline_id))
+        return self.client.execute(query)
+
+    def stop_pipeline(self, pipeline_instance_id):
+        """
+        Stop a specific instance of pipeline
+        :param pipeline_instance_id, String
+        :dict: return:
+        """
+        query = gql(gql_stop_pipeline_instance.format(pipeline_instance_id))
+        return self.client.execute(query)
+
+    def edit_pipeline(self, pipeline):
+        """
+        Edit a pipeline
+        pipeline:param pipeline
+        dict: return: pipeline's information
+        """
+        query = gql(gql_edit_pipeline.format(pipeline))
         return self.client.execute(query)
