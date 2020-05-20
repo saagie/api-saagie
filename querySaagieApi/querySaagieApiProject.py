@@ -25,7 +25,8 @@ class QuerySaagieApiProject:
         self._transport = RequestsHTTPTransport(
             url=self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/graphql",
             auth=self.auth,
-            use_json=True
+            use_json=True,
+            verify=False
         )
         self.client = Client(
             transport=self._transport,
