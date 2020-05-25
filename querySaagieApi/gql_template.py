@@ -391,3 +391,21 @@ gql_edit_pipeline = """
       }}
   }}
 """
+
+gql_get_pipeline_instance = """
+  query{{
+    pipelineInstance(id: "{0}"){{
+      id,
+      status
+    }}
+  }}
+  """
+
+gql_run_pipeline = """
+  mutation{{
+    runPipeline(pipelineId: "{0}"){{
+      id,
+      status
+    }}
+  }}
+"""
