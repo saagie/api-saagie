@@ -244,3 +244,39 @@ class QuerySaagieApiProject:
         """
         query = gql(gql_edit_pipeline.format(pipeline))
         return self.client.execute(query)
+
+    def run_pipeline(self, pipeline_id):
+        """
+        Run a specific pipeline
+        :param pipeline_id: String, Pipeline ID
+        dict :return:
+        """
+        query = gql(gql_run_pipeline.format(pipeline_id))
+        return self.client.execute(query)
+
+    def run_pipeline_callback(self, pipeline_id, freq=10, timeout=-1):
+        """
+        Run a pipeline and wait for the final status (KILLED, FAILED or SUCCESS)
+        string:param pipeline_id:
+        int:param freq: Sec between two state ckecks
+        int:param timeout: Sec before timeout
+        string: return: the final state of this pipeline
+        """
+        res = self.run_pipeline(pipeline_id)
+        pipeline_instance_id = res.get("runPipeline").get("id")
+        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
+        query = gql(gql_get_pipeline_instance.format(pipeline_instance_id))
+        pipeline_instance_info = self.client.execute(query)
+        state = pipeline_instance_info.get("pipelineInstance").get("status")
+        sec = 0
+        to = False
+        while state not in final_status_list:
+            to = False if timeout == -1 else sec >= timeout
+            if to:
+                raise TimeoutError("Last state known : " + state)
+            time.sleep(freq)
+            sec += freq
+            pipeline_instance_info = self.client.execute(query)
+            state = pipeline_instance_info.get("pipelineInstance").get("status")
+            print('Current state : ' + state)
+        return state
