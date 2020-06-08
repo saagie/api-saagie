@@ -79,6 +79,47 @@ class QuerySaagieApiProject:
         query = gql(gql_get_project_info.format(project_id))
         return self.client.execute(query)
 
+    def get_technologies(self):
+        """
+        List available technologies in plateform
+        """
+        query = gql(gql_get_technologies)
+        return self.client.execute(query)
+
+    def create_project(self, name, group, role="Manager", description=""):
+        """
+        Create a project with given name and description.
+        :param name: str - name of the project (musn't be an existing project name)
+        :param group: str - authorization management : group name to add role on the project to
+        Must be an existing group in saagie.
+        :param role: str - authorization management : role to give to group on the project
+        :param description: str - description of the project
+
+        NOTE:
+        - Currently add all plateform technologies for Extraction and Processing
+          Future improvement: pass a parameter dict of technologies
+        - Currently only take on group and one associated role to add to the project
+          Future improvement: possibility to pass in argument several group names with
+          several roles to add to the project
+        """
+        if role == 'Manager':
+            role = 'ROLE_PROJECT_MANAGER'
+        elif role == 'Editor':
+            role = 'ROLE_PROJECT_EDITOR'
+        elif role == 'Viewer':
+            role = 'ROLE_PROJECT_VIEWER'
+        else:
+            raise ValueError("'role' takes value in ('Manager', 'Editor', 'Viewer')")
+
+        technologies = [f'{{id: "{tech["id"]}"}}' for tech in self.get_technologies()["technologies"]]
+
+        query = gql(gql_create_project.format(name,
+                                              description,
+                                              group,
+                                              role,
+                                              ', '.join(technologies)))
+        return self.client.execute(query)
+
 #######################################################
 ####                      jobs                     ####
 #######################################################

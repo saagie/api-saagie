@@ -58,6 +58,48 @@ gql_get_project_info = """
   }}
   """
 
+gql_get_technologies = """
+{
+  technologies {
+    id
+    label
+  }
+}
+"""
+
+gql_create_project = """
+mutation {{
+  createProject(project: {{
+                    name: "{0}",
+                    description: "{1}",
+                    authorizedGroups: [
+                      {{
+                        name: "{2}",
+                        role: {3}
+                      }}
+                    ]
+                    technologiesByCategory: [
+                      {{
+                        jobCategory: "Extraction",
+                        technologies: [
+                          {4}
+                        ]
+                      }},
+                      {{
+                        jobCategory: "Processing",
+                        technologies: [
+                          {4}
+                        ]
+                      }}
+                    ]
+                }}) {{
+    id
+    name
+    creator
+  }}
+}}
+"""
+
 #######################################################
 ####                      jobs                     ####
 #######################################################
