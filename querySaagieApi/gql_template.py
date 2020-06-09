@@ -231,6 +231,40 @@ gql_edit_job = """
       }}
   }}
 """
+
+gql_create_job = '{{"operationName": "createJobMutation",\
+                   "variables": {{\
+                       "job": {{\
+                           "projectId": "{1}",\
+                           "name": "{0}",\
+                           "description": "{2}",\
+                           "category": "{3}",\
+                           "technology": {{"id":"{4}"}},\
+                           "isStreaming": false,\
+                           "isScheduled": false\
+                       }},\
+                       "jobVersion": {{\
+                           "runtimeVersion": "{5}",\
+                           "commandLine": "{6}",\
+                           {8}\
+                           "dockerInfo": null,\
+                           "resources": {{\
+                               "cpu": 0.3,\
+                               "disk": 512,\
+                               "memory": 512\
+                           }},\
+                           "releaseNote": "{7}",\
+                           "doesUseGPU": false\
+                       }},\
+                       "file":null\
+                   }},\
+                   "query": "mutation createJobMutation($job: JobInput!, $jobVersion: JobVersionInput!, $file: Upload) {{\\n  createJob(job: $job, jobVersion: $jobVersion, file: $file) {{\\n    id\\n    versions {{\\n      number\\n      __typename\\n    }}\\n    __typename\\n  }}\\n}}\\n"}}'
+
+gql_extra_technology = '"extraTechnology": {{\
+                           "language": "{0}",\
+                           "version": "{1}"\
+                       }},'
+
 #######################################################
 ####                      apps                     ####
 #######################################################

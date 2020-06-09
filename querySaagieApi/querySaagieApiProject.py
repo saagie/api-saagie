@@ -1,4 +1,7 @@
 import time
+import requests
+from pathlib import Path
+import json
 
 from querySaagieApi.gql_template import *
 from gql import gql, Client
@@ -202,6 +205,72 @@ class QuerySaagieApiProject:
         """
         query = gql(gql_edit_job.format(job))
         return self.client.execute(query)
+
+    def create_job(self, job_name, project_id, file, description='', category='Processing',
+                   technology='python', runtime_version='3.6', command_line='python {file} arg1 arg2',
+                   release_note='', extra_technology='', extra_technology_version=''):
+        """
+        Create Job in given project
+        :param job_name: job name - must not already exist in project
+        :param project_id: id of the project in which one want to create the job
+        :param file: local file path to upload
+        :param description: description of the job
+        :param category: category to create the job into. Must be 'Extraction',
+        'Processing' or 'Smart App'
+        :param technology: technology of the job to create. See self.get_technologies()
+        for a list of available technologies
+        :param runtime_version: technology version of the job
+        :param command_line: command line of the job
+        :param release_note: release note of the job
+        :param extra_technology: extra technology when needed (spark jobs). If not
+        needed, leave to empty string or the request will not work
+        :param extra_technology_version: version of the extra technology. Leave to
+        empty string when not needed
+
+        NOTE:
+        - Since gql does not support multipart graphQL requests, requests module is used for now.
+          The create job graphQL API takes a multipart graphQL request to upload a file.
+          See https://github.com/jaydenseric/graphql-multipart-request-spec for more details
+        - 2020-06-08 : multipart graphQL support will probably be implemented in gql in the
+          near future. See https://github.com/graphql-python/gql/issues/68 to follow this
+          work.
+        - Tested with python and spark jobs
+        """
+        file = Path(file)
+
+        technology = technology.lower()
+        technologies = self.get_technologies()['technologies']
+        technology_id = [tech['id'] for tech in technologies if tech['label'].lower() == technology][0]
+
+        if extra_technology != '':
+            extra_technology = extra_technology.capitalize()
+            extra_tech = gql_extra_technology.format(extra_technology,
+                                                     extra_technology_version)
+        else:
+            extra_tech = ''
+
+        files = {
+            '1': (file.name, file.open(mode='rb')),
+            'operations': (None, gql_create_job.format(job_name,
+                                                       project_id,
+                                                       description,
+                                                       category,
+                                                       technology_id,
+                                                       runtime_version,
+                                                       command_line,
+                                                       release_note,
+                                                       extra_tech)),
+            'map': (None, '{ "1": ["variables.file"] }'),
+        }
+
+        response = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/graphql",
+                                 files=files,
+                                 auth=self.auth)
+
+        if response:
+            return json.loads(response.content)
+        else:
+            raise requests.exceptions.RequestException(f"Requests failed with status_code :'{response.status_code}'")
 
 #######################################################
 ####                      apps                     ####
