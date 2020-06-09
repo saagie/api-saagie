@@ -249,23 +249,24 @@ class QuerySaagieApiProject:
         else:
             extra_tech = ''
 
-        files = {
-            '1': (file.name, file.open(mode='rb')),
-            'operations': (None, gql_create_job.format(job_name,
-                                                       project_id,
-                                                       description,
-                                                       category,
-                                                       technology_id,
-                                                       runtime_version,
-                                                       command_line,
-                                                       release_note,
-                                                       extra_tech)),
-            'map': (None, '{ "1": ["variables.file"] }'),
-        }
+        with file.open(mode='rb') as f:
+            files = {
+                '1': (file.name, f),
+                'operations': (None, gql_create_job.format(job_name,
+                                                           project_id,
+                                                           description,
+                                                           category,
+                                                           technology_id,
+                                                           runtime_version,
+                                                           command_line,
+                                                           release_note,
+                                                           extra_tech)),
+                'map': (None, '{ "1": ["variables.file"] }'),
+            }
 
-        response = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/graphql",
-                                 files=files,
-                                 auth=self.auth)
+            response = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/graphql",
+                                     files=files,
+                                     auth=self.auth)
 
         if response:
             return json.loads(response.content)
