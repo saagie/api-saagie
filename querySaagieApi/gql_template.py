@@ -110,6 +110,14 @@ gql_get_project_jobs = """
       id,
       name,
       description,
+      alerting{{
+        emails,
+        loginEmails{{
+          login,
+          email
+        }},
+        statusList
+      }},
       countJobInstance,
       instances(limit: {1}){{
         id,
@@ -149,6 +157,14 @@ gql_get_project_job = """
       id,
       name,
       description,
+      alerting{{
+        emails,
+        loginEmails{{
+          login,
+          email
+        }},
+        statusList
+      }},
       countJobInstance,
       instances{{
         id,
@@ -400,7 +416,12 @@ gql_get_pipelines = """
       name,
       description,
       alerting{{
-        emails
+        emails,
+        loginEmails{{
+          login,
+          email
+        }},
+        statusList
       }},
       pipelineInstanceCount,
       instances(limit: {1}){{
@@ -425,7 +446,12 @@ gql_get_pipeline = """
       name,
       description,
       alerting{{
-        emails
+        emails,
+        loginEmails{{
+          login,
+          email
+        }},
+        statusList
       }},
       pipelineInstanceCount,
       instances(limit: {1}){{
