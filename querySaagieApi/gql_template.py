@@ -72,23 +72,18 @@ mutation {{
   createProject(project: {{
                     name: "{0}",
                     description: "{1}",
-                    authorizedGroups: [
-                      {{
-                        name: "{2}",
-                        role: {3}
-                      }}
-                    ]
+                    {2}
                     technologiesByCategory: [
                       {{
                         jobCategory: "Extraction",
                         technologies: [
-                          {4}
+                          {3}
                         ]
                       }},
                       {{
                         jobCategory: "Processing",
                         technologies: [
-                          {4}
+                          {3}
                         ]
                       }}
                     ]
@@ -98,6 +93,15 @@ mutation {{
     creator
   }}
 }}
+"""
+
+group_block_template = """
+authorizedGroups: [
+                      {{
+                        name: "{0}",
+                        role: {1}
+                      }}
+                    ]
 """
 
 #######################################################
