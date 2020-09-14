@@ -89,7 +89,7 @@ class QuerySaagieApiProject:
         query = gql(gql_get_technologies)
         return self.client.execute(query)
 
-    def create_project(self, name, group, role="Manager", description=""):
+    def create_project(self, name, group=None, role="Manager", description=""):
         """
         Create a project with given name and description.
         :param name: str - name of the project (musn't be an existing project name)
@@ -115,11 +115,14 @@ class QuerySaagieApiProject:
             raise ValueError("'role' takes value in ('Manager', 'Editor', 'Viewer')")
 
         technologies = [f'{{id: "{tech["id"]}"}}' for tech in self.get_technologies()["technologies"]]
+        
+        group_block = ""
+        if group is not None:
+            group_block = group_block_template.format(group, role)
 
         query = gql(gql_create_project.format(name,
                                               description,
-                                              group,
-                                              role,
+                                              group_block,
                                               ', '.join(technologies)))
         return self.client.execute(query)
 
