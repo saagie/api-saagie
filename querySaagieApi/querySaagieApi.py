@@ -254,6 +254,65 @@ class QuerySaagieApi:
 
         return r
 
+    def update_job(self, job_id, file, capsule_code='python', template="python {file} arg1 arg2",
+                   release_note="", language_version='3.5.2', cpu=0.3, memory=512, disk=512, 
+                   extra_language='python', extra_version='3.5.2'):
+        """
+        Update a job
+        int or string: param job_id: job id
+        string: param file: file path containing the code (only supporting .py file or .zip archives at the moment)
+        string: param capsule_code: type of job (only supporting 'python' or 'spark' at the moment)
+        string: param template: command to launch the job
+        string: param release_note: release note of the job
+        string: param language_version: main version of the techno
+        int or string: param cpu: job's CPU
+        int or string: param memory: job's Memory
+        int or string: param disk: job's disk space
+        string: param extra_language: extra language if required (for spark jobs to select python or java/scala)
+        string: param extra_version: version of the extra language if required (for saprk jobs to select the version of python or java/scala)
+        requests.models.Response: return: status of the query (200, 204: OK, other: KO -> available with
+        method return_variable.status_code)
+        """
+
+        # Before creating a job you need to upload the file containing the code into SAAGIE
+        fileName = self.__upload_file(file)
+
+        # if you want to create a spark job, you need to specifye the extra language
+        if capsule_code == 'spark':
+            options = {
+                "language_version": str(language_version),
+                "extra_language": str(extra_language),
+                "extra_version": str(extra_version)
+            }
+        else:
+            options = {
+                "language_version": str(language_version)
+            }
+
+        # Building data needed in the requests.post method
+        current = {
+            "options": options,
+            "releaseNote": str(release_note),
+            "template": str(template),
+            "memory": str(memory),
+            "cpu": str(cpu),
+            "disk": str(disk),
+            "file": str(fileName),
+            "isInternalSubDomain": False,
+            "isInternalPort": False
+        }
+
+        data = {"current": current}
+
+        # sending the request
+        r = requests.post(self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/job/" + str(job_id) + "/version",
+                          data=json.dumps(data),
+                          auth=self.auth,
+                          verify=False
+                          )
+
+        return r
+
     def create_pipeline(self, list_id_jobs, pipeline_name):
         dict_workflow = {}
         dict_workflow['name'] = pipeline_name
