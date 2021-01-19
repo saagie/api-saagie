@@ -6,25 +6,30 @@ import json
 from querySaagieApi.gql_template import *
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
+from querySaagieApi.utils import *
 
 
 class QuerySaagieApiProject:
-    def __init__(self, url_saagie, id_plateform, user, password):
+    def __init__(self, url_saagie, id_plateform, user, password, realm):
         """
         Initialize the class
         Doc Saagie URL example: https://saagie-manager.prod.saagie.io/api/doc
-        :param url_saagie: platform URL (eg: https://saagie-manager.prod.saagie.io)
+        :param url_saagie: platform URL (eg: https://saagie-workspace.prod.saagie.io)
         :param id_plateform: Platform Id (you can find in the URL when you are on your own
-        platform (eg, the id of the platform is 6: https://saagie-beta.prod.saagie.io/manager/platform/6/#/manager/6))
+        platform (eg, the id of the platform is 6: https://saagie-workspace.prod.saagie.io/manager/platform/6/#/manager/6))
         :param user: username to login with
         :param password: password to login with
+        :param realm: platform url prefix (eg: saagie)
         """
         if not url_saagie.endswith('/'):
             url_saagie += '/'
         self.url_saagie = url_saagie
         self.id_plateform = id_plateform
         self.suffix_api = 'api/v1/projects/'
-        self.auth = (user, password)
+        self.realm = realm
+        self.login = user
+        self.password = password
+        self.auth = BearerAuth(self.realm, self.url_saagie, self.id_plateform, self.login, self.password)
         self._transport = RequestsHTTPTransport(
             url=self.url_saagie + self.suffix_api + 'platform/' + str(self.id_plateform) + "/graphql",
             auth=self.auth,
