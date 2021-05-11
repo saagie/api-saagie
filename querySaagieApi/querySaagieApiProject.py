@@ -25,7 +25,7 @@ class QuerySaagieApiProject:
             url_saagie += '/'
         self.url_saagie = url_saagie
         self.id_plateform = id_plateform
-        self.suffix_api = 'api/v1/projects/'
+        self.suffix_api = 'projects/api/'
         self.realm = realm
         self.login = user
         self.password = password
