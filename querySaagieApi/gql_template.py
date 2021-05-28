@@ -367,26 +367,6 @@ get_project_web_app = """
   }}
   """
 
-gql_get_project_apps = """
-  {{
-    apps(projectId: "{0}"){{
-      id,
-      name,
-      description,
-      creationDate,
-      creator,
-      versions{{
-        number,
-        creationDate,
-        dockerInfo{{
-          image,
-          dockerCredentialsId
-        }},
-        isCurrent
-      }}
-    }}
-  }}
-  """
 
 gql_get_project_app = """
   {{
@@ -402,8 +382,7 @@ gql_get_project_app = """
         dockerInfo{{
           image,
           dockerCredentialsId
-        }},
-        isCurrent
+        }}
       }}
     }}
   }}
@@ -458,12 +437,6 @@ gql_get_pipeline = """
         statusList
       }},
       pipelineInstanceCount,
-      instances(limit: {1}){{
-        id,
-        status,
-        startTime,
-        endTime
-      }},
       creationDate,
       creator,
       isScheduled,
