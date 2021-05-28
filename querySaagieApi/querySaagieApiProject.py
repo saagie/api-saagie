@@ -304,16 +304,6 @@ class QuerySaagieApiProject:
         query = gql(get_project_web_app.format(web_app_id))
         return self.client.execute(query)
 
-    def get_project_apps(self, project_id):
-        """
-        List apps of project get with project UUID
-        string :param project_id: project ID
-        NB: You can only list apps if you have at least role viewer on the project or on all projects.
-        dict :return: webApp's information
-        """
-        query = gql(gql_get_project_apps.format(project_id))
-        return self.client.execute(query)
-
     def get_project_app(self, app_id):
         """
         Get app with given UUID or null if it doesn't exist.
