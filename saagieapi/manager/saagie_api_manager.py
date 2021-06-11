@@ -3,7 +3,7 @@ import json
 import time
 
 
-class QuerySaagieApi:
+class SaagieApiManager:
     def __init__(self, url_saagie, id_plateform, user, password):
         """
         Initialize the class
