@@ -3,13 +3,14 @@ import requests
 from pathlib import Path
 import json
 
-from querySaagieApi.gql_template import *
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
-from querySaagieApi.utils import *
+
+from .gql_template import *
+from .auth import *
 
 
-class QuerySaagieApiProject:
+class SaagieApi:
     def __init__(self, url_saagie, id_plateform, user, password, realm):
         """
         Initialize the class
