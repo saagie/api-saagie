@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='saagieapi',
@@ -7,7 +7,7 @@ setup(
     url='git@gitlab.com/saagie-group/service/internal/api-saagie.git',
     author='Service team',
     license='GLWTPL',
-    packages=['saagieapi'],
+    packages=find_packages(),
     install_requires=['requests', 'gql'],
     zip_safe=False
 )
