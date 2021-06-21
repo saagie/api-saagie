@@ -64,6 +64,19 @@ class SaagieApi:
             fetch_schema_from_transport=True
         )
 
+        # URL Gateway
+        self.url_gateway = self.url_saagie + 'gateway/api/graphql'
+        self._transport_gateway = RequestsHTTPTransport(
+            url=self.url_gateway,
+            auth=self.auth,
+            use_json=True,
+            verify=False
+        )
+        self.client_gateway = Client(
+            transport=self._transport_gateway,
+            fetch_schema_from_transport=True
+        )
+
     # ######################################################
     # ###                    env vars                   ####
     # ######################################################
@@ -105,6 +118,18 @@ class SaagieApi:
         """
         query = gql(gql_get_project_env_vars.format(project_id))
         return self.client.execute(query)
+
+    # ##########################################################
+    # ###                    repositories                   ####
+    # ##########################################################
+
+    def get_repositories_info(self):
+        """Get information for all repositories (id, name, technologies)
+        NB: You can only get repositories information if you have the right to
+        access the technology catalog
+        """
+        query = gql(gql_get_repositories_info)
+        return self.client_gateway.execute(query)
 
     # ######################################################
     # ###                    projects                   ####
@@ -161,9 +186,9 @@ class SaagieApi:
 
         NOTE
         ----
-        - Currently add all plateform technologies for Extraction and
-          Processing
-          Future improvement: pass dict of technologies as a parameter
+        - Currently add all JobTechnologies of the main technology repository
+          (the 'Saagie' technology repository)
+          Future improvement: pass a dict of technologies as a parameter
         - Currently only take on group and one associated role to add to the
           project
           Future improvement: possibility to pass in argument several group
@@ -202,8 +227,19 @@ class SaagieApi:
             raise ValueError("'role' takes value in ('Manager', 'Editor',"
                              " 'Viewer')")
 
-        technologies = [f'{{id: "{tech["id"]}"}}'
-                        for tech in self.get_technologies()["technologies"]]
+        # technologies = [f'{{id: "{tech["id"]}"}}'
+        #                 for tech in self.get_technologies()["technologies"]]
+
+        # Keep only JobTechnologies (discarding AppTechnologies) of main
+        # technology repository (Saagie repository)
+        repositories = self.get_repositories_info()['repositories']
+        for repo in repositories:
+            if repo['name'] == 'Saagie':
+                technologies = [techno for techno in repo['technologies']
+                                if techno['__typename'] == 'JobTechnology']
+
+        # Generate the technology graphQL string only with technologies id
+        technologies = [f'{{id: "{tech["id"]}"}}' for tech in technologies]
 
         group_block = ""
         if group is not None:
