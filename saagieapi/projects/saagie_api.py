@@ -1,4 +1,7 @@
-"""Saagie API object to interact with Saagie API in Python
+"""
+Saagie API object to interact with Saagie API in Python (API for
+Projects & Jobs - to interact with the manager API, see the manager subpackage)
+
 """
 import time
 import requests
@@ -13,7 +16,9 @@ from .auth import *
 
 
 class SaagieApi:
-    """Define several methods to interact with Saagie API in Python
+    """Define several methods to interact with Saagie API in Python (API for
+    Projects & Jobs - to interact with the manager API, see the manager
+    subpackage)
     """
 
     def __init__(self, url_saagie, id_platform, user, password, realm):

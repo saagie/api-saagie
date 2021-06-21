@@ -7,7 +7,7 @@ from graphql.language.parser import parse
 import sys
 sys.path.append("..")
 
-from gql_template import *
+from saagieapi.projects.gql_template import *
 
 
 def create_gql_client(schema_file="./schema.graphqls"):
