@@ -19,7 +19,7 @@ test:
  script:
    - python3 setup.py install
    - cd tests
-   - python3 -m unittest queryProjectTest.py
+   - python3 -m unittest projectTest.py
  tags:
   - "docker"
 
