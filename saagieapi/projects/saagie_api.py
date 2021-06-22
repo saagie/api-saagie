@@ -251,6 +251,26 @@ class SaagieApi:
                                               ', '.join(technologies)))
         return self.client.execute(query)
 
+    def delete_project(self, project_id):
+        """Delete a given project
+        NB: You can only delete projects where you have the manager role
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project. Can be found in the project URL after the
+            '/project' (eg: the project UUID is
+            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
+            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+
+        Returns
+        -------
+        TYPE
+            Description
+        """
+        query = gql(gql_delete_project.format(project_id))
+        return self.client.execute(query)
+
     # ######################################################
     # ###                      jobs                     ####
     # ######################################################
