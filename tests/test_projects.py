@@ -157,6 +157,13 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    def test_delete_job(self):
+        job_id = "1234"
+        query = gql(gql_delete_job.format(job_id))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
     # ######################################################
     # ###                      apps                     ####
     # ######################################################
