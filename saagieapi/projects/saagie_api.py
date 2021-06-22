@@ -543,6 +543,25 @@ class SaagieApi:
             m = f"Requests failed with status_code :'{response.status_code}'"
             raise requests.exceptions.RequestException(m)
 
+    def delete_job(self, job_id):
+        """Delete a given job
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job. Can be found in the project URL after the '/job/'
+            (eg: the job UUID is 'a85ac3db-bca1-4f15-b8f7-44731fba874b' in
+            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b)
+
+        Returns
+        -------
+        dict
+            Dict of deleted job
+
+        """
+        query = gql(gql_delete_job.format(job_id))
+        return self.client.execute(query)
+
     # ######################################################
     # ###                      apps                     ####
     # ######################################################
