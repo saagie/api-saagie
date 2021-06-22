@@ -265,8 +265,8 @@ class SaagieApi:
 
         Returns
         -------
-        TYPE
-            Description
+        dict
+            dict of archived project
         """
         query = gql(gql_delete_project.format(project_id))
         return self.client.execute(query)
