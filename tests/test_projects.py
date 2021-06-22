@@ -40,6 +40,17 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    def test_create_global_env_var(self):
+        name = 'test'
+        value = 'test'
+        description = ''
+        is_password = False
+        query = gql(gql_create_global_env_var.format(name, value, description,
+                                                     str(is_password).lower()))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
     def test_get_project_env_vars(self):
         project_id = "1234"
         query = gql(gql_get_project_env_vars.format(project_id))

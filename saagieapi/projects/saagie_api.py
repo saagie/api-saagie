@@ -94,9 +94,16 @@ class SaagieApi:
         query = gql(gql_get_global_env_vars)
         return self.client.execute(query)
 
-    def create_global_env_vars(self):
-        """Summary
+    def create_global_env_var(self, name, value,
+                              description='',
+                              is_password=False):
+        """Create a global environment variable
         """
+        query = gql(gql_create_global_env_var.format(name,
+                                                     value,
+                                                     description,
+                                                     str(is_password).lower()))
+        return self.client.execute(query)
 
     def get_project_env_vars(self, project_id):
         """Get project environment variables

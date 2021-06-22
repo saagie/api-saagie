@@ -16,6 +16,22 @@ gql_get_global_env_vars = """
   }
   """
 
+gql_create_global_env_var = """
+  mutation {{
+    saveEnvironmentVariable (
+      environmentVariable: {{
+        name: "{0}"
+        value: "{1}"
+        description: "{2}"
+        isPassword: {3}
+        scope: GLOBAL
+      }}
+    ) {{
+      id
+    }}
+  }}
+"""
+
 gql_get_project_env_vars = """
   {{
     projectEnvironmentVariables(projectId: "{0}"){{
