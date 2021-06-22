@@ -197,6 +197,47 @@ class TestIntegrationProject():
 
         assert job_instance_status in ['KILLED', 'KILLING']
 
+    @pytest.fixture
+    def create_global_env_var(self):
+        # Disable urllib3 InsecureRequestsWarnings
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        name = 'TEST_VIA_API'
+        value = 'VALUE_TEST_VIA_API'
+        description = 'DESCRIPTION_TEST_VIA_API'
+
+        self.saagie.create_global_env_var(name=name,
+                                          value=value,
+                                          description=description,
+                                          is_password=False)
+
+        return name
+
+    @pytest.fixture
+    def create_then_delete_global_env_var(self, create_global_env_var):
+        name = create_global_env_var
+
+        yield name
+
+        self.saagie.delete_global_env_var(name)
+
+    def test_create_global_env_var(self, create_then_delete_global_env_var):
+        name = create_then_delete_global_env_var
+
+        global_envs = self.saagie\
+            .get_global_env_vars()['globalEnvironmentVariables']
+
+        global_envs_names = [env['name'] for env in global_envs]
+
+        assert name in global_envs_names
+
+    def test_delete_global_env_var(self, create_global_env_var):
+        name = create_global_env_var
+
+        result = self.saagie.delete_global_env_var(name)
+
+        assert result == {'deleteEnvironmentVariable': True}
+
     def teardown_class(cls):
         # Delete Project
         cls.saagie.delete_project(cls.project_id)

@@ -98,11 +98,58 @@ class SaagieApi:
                               description='',
                               is_password=False):
         """Create a global environment variable
+
+        Parameters
+        ----------
+        name : str
+            Name of the environment variable to create
+        value : str
+            Value of the environment variable to create
+        description : str, optional
+            Description of the environment variable to create
+        is_password : bool, optional
+            Weather the environment variable to create is a password or not
+
+        Returns
+        -------
+        dict
+            Dict of created environment variable
         """
         query = gql(gql_create_global_env_var.format(name,
                                                      value,
                                                      description,
                                                      str(is_password).lower()))
+        return self.client.execute(query)
+
+    def delete_global_env_var(self, name):
+        """Delete the given global environment variable
+
+        Parameters
+        ----------
+        name : str
+            Name of the environment variable to delete
+
+        Returns
+        -------
+        dict
+            Dict of deleted environment variable
+
+        Raises
+        ------
+        ValueError
+            When the given name doesn't correspond to an existing environment
+            variable
+        """
+        global_envs = self.get_global_env_vars()['globalEnvironmentVariables']
+        global_env = [env for env in global_envs if env['name'] == name]
+
+        if len(global_env) == 0:
+            raise ValueError("'name' must be the name of an existing global "
+                             "environment variable")
+
+        global_env_id = global_env[0]['id']
+
+        query = gql(gql_delete_env_var.format(global_env_id))
         return self.client.execute(query)
 
     def get_project_env_vars(self, project_id):

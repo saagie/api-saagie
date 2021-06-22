@@ -32,6 +32,14 @@ gql_create_global_env_var = """
   }}
 """
 
+gql_delete_env_var = """
+  mutation {{
+    deleteEnvironmentVariable (
+      id: "{0}"
+    )
+  }}
+"""
+
 gql_get_project_env_vars = """
   {{
     projectEnvironmentVariables(projectId: "{0}"){{
