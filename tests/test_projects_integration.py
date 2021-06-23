@@ -238,6 +238,49 @@ class TestIntegrationProject():
 
         assert result == {'deleteEnvironmentVariable': True}
 
+    @pytest.fixture
+    def create_project_env_var(self):
+        # Disable urllib3 InsecureRequestsWarnings
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        name = 'TEST_VIA_API'
+        value = 'VALUE_TEST_VIA_API'
+        description = 'DESCRIPTION_TEST_VIA_API'
+
+        self.saagie.create_project_env_var(project_id=self.project_id,
+                                           name=name,
+                                           value=value,
+                                           description=description,
+                                           is_password=False)
+
+        return name
+
+    @pytest.fixture
+    def create_then_delete_project_env_var(self, create_project_env_var):
+        name = create_project_env_var
+
+        yield name
+
+        self.saagie.delete_project_env_var(project_id=self.project_id,
+                                           name=name)
+
+    def test_create_project_env_var(self, create_then_delete_project_env_var):
+        name = create_then_delete_project_env_var
+
+        project_envs = self.saagie\
+            .get_project_env_vars(self.project_id)
+        project_env_names = [env['name'] for env
+                             in project_envs['projectEnvironmentVariables']]
+
+        assert name in project_env_names
+
+    def test_delete_project_env_var(self, create_project_env_var):
+        name = create_project_env_var
+
+        result = self.saagie.delete_project_env_var(self.project_id, name)
+
+        assert result == {'deleteEnvironmentVariable': True}
+
     def teardown_class(cls):
         # Delete Project
         cls.saagie.delete_project(cls.project_id)
