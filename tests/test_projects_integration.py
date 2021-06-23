@@ -81,12 +81,6 @@ class TestIntegrationProject():
         password = os.environ['PWD_TEST_SAAGIE']
         realm = os.environ['REALM_TEST_SAAGIE']
 
-        url_saagie = 'https://saagie-workspace.prod.saagie.io/'
-        id_platform = '6'
-        user = 'technical.ci-saagieapi'
-        password = '2t2iL9gMm8g7UV'
-        realm = 'saagie'
-
         cls.saagie = SaagieApi(url_saagie=url_saagie,
                                id_platform=id_platform,
                                user=user,
