@@ -173,6 +173,40 @@ class SaagieApi:
         query = gql(gql_get_project_env_vars.format(project_id))
         return self.client.execute(query)
 
+    def create_project_env_var(self, project_id, name, value,
+                               description='', is_password=False):
+        """Create an environment variable in a given project
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project. Can be found in the project URL after the
+            '/project' (eg: the project UUID is
+            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
+            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+        name : str
+            Name of the environment variable to create
+        value : str
+            Value of the environment variable to create
+        description : str, optional
+            Description of the environment variable to create
+        is_password : bool, optional
+            Weather the environment variable to create is a password or not
+
+        Returns
+        -------
+        dict
+            Dict of created environment variable
+        """
+        query = gql(gql_create_project_env_var.format(
+            project_id,
+            name,
+            value,
+            description,
+            str(is_password).lower()
+        ))
+        return self.client.execute(query)
+
     # ##########################################################
     # ###                    repositories                   ####
     # ##########################################################

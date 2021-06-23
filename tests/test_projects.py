@@ -65,6 +65,22 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    def test_create_project_env_var(self):
+        project_id = '1234'
+        name = 'test'
+        value = 'test'
+        description = ''
+        is_password = False
+        query = gql(gql_create_project_env_var.format(
+            project_id,
+            name,
+            value, description,
+            str(is_password).lower()
+        ))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
     # ######################################################
     # ###                    projects                   ####
     # ######################################################

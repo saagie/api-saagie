@@ -53,6 +53,23 @@ gql_get_project_env_vars = """
   }}
   """
 
+gql_create_project_env_var = """
+  mutation {{
+    saveEnvironmentVariable (
+      entityId: "{0}"
+      environmentVariable: {{
+        name: "{1}"
+        value: "{2}"
+        description: "{3}"
+        isPassword: {4}
+        scope: PROJECT
+      }}
+    ) {{
+      id
+    }}
+  }}
+"""
+
 ###########################################################
 ####                    repositories                   ####
 ###########################################################
