@@ -18,9 +18,8 @@ test:
  stage: test
  script:
    - python3 setup.py install
-   - cd querySaagieApi
-   - cd tests
-   - python3 -m unittest queryProjectTest.py
+   - pip3 install pytest==6.2.4
+   - pytest
  tags:
   - "docker"
 

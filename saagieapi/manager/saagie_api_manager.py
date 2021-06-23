@@ -1,9 +1,14 @@
+"""
+Saagie API object to interact with Saagie API in Python (API for Manager - to
+interact with the Projects & Jobs API, see the projects subpackage)
+
+"""
 import requests
 import json
 import time
 
 
-class QuerySaagieApi:
+class SaagieApiManager:
     def __init__(self, url_saagie, id_plateform, user, password):
         """
         Initialize the class
