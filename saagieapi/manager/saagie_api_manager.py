@@ -226,7 +226,7 @@ class SaagieApiManager:
         else:
             return json.loads(response.text)['fileName']
 
-    def create_job(self, job_name, file, capsule_code='python',
+    def create_job(self, job_name, file="", capsule_code='python',
                    category='processing', template="python {file} arg1 arg2",
                    language_version='3.5.2', cpu=0.3, memory=512, disk=512,
                    extra_language='python', extra_version='3.5.2'):
@@ -243,9 +243,8 @@ class SaagieApiManager:
         method return_variable.status_code)
         """
 
-        # Before creating a job you need to upload the file containing the
-        # code into SAAGIE
-        fileName = self.__upload_file(file)
+        if file != "":
+            fileName = self.__upload_file(file)
 
         # if you want to create a spark job, you need to specify
         # the extra language
@@ -268,7 +267,7 @@ class SaagieApiManager:
             "memory": str(memory),
             "cpu": str(cpu),
             "disk": str(disk),
-            "file": str(fileName),
+            "file": str(file if file == "" else fileName),
             "isInternalSubDomain": False,
             "isInternalPort": False
         }
@@ -295,7 +294,7 @@ class SaagieApiManager:
 
         return r
 
-    def update_job(self, job_id, file, capsule_code='python',
+    def update_job(self, job_id, file="", capsule_code='python',
                    template="python {file} arg1 arg2", release_note="",
                    language_version='3.5.2', cpu=0.3, memory=512, disk=512,
                    extra_language='python', extra_version='3.5.2'):
@@ -321,9 +320,8 @@ class SaagieApiManager:
         method return_variable.status_code)
         """
 
-        # Before creating a job you need to upload the file containing
-        # the code into SAAGIE
-        fileName = self.__upload_file(file)
+        if file != "":
+            fileName = self.__upload_file(file)
 
         # if you want to create a spark job, you need to specifye the extra
         # language
@@ -346,7 +344,7 @@ class SaagieApiManager:
             "memory": str(memory),
             "cpu": str(cpu),
             "disk": str(disk),
-            "file": str(fileName),
+            "file": str(file if file == "" else fileName),
             "isInternalSubDomain": False,
             "isInternalPort": False
         }
