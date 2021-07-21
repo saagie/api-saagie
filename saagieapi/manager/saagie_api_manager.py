@@ -10,16 +10,19 @@ import time
 
 class SaagieApiManager:
     def __init__(self, url_saagie, id_plateform, user, password):
-        """
-        Initialize the class
+        """Initialize the class
         Doc Saagie URL example: https://saagie-manager.prod.saagie.io/api/doc
-        :param url_saagie: platform URL
-        (eg: https://saagie-manager.prod.saagie.io)
-        :param id_plateform: Platform Id (you can find in the URL when you are
-        on your own platform(eg, the id of the platform is 6:
-        https://saagie-beta.prod.saagie.io/manager/platform/6/#/manager/6))
-        :param user: username to login with
-        :param password: password to login with
+
+        Parameters
+        ----------
+        url_saagie : str
+            platform URL (eg: https://saagie-manager.prod.saagie.io)
+        id_plateform : int
+            Platform Id (you can find in the URL when you are on your own
+        user : str
+            username to login with
+        password : str
+            password to login with
         """
         if not url_saagie.endswith('/'):
             url_saagie += '/'
@@ -29,10 +32,13 @@ class SaagieApiManager:
         self.auth = (user, password)
 
     def get_plateforms_info(self):
-        """
-        Getting information on all installed platform (eg: id, datamart IP,
-        datamart Port, Datalake IP etC..c)
-        requests.models.Response :return: the platforms informations
+        """Getting information on all installed platform
+        (eg: id, datamart IP, datamart Port, Datalake IP etc.)
+
+        Returns
+        -------
+        requests.models.Response
+            the platforms informations
         """
         return requests.get(
             self.url_saagie + self.suffix_api + 'platform',
@@ -41,10 +47,13 @@ class SaagieApiManager:
         )
 
     def get_plateform_info(self):
-        """
-        Getting information on a platform
-        (eg: id, datamart IP, datamart Port, Datalake IP etC..c)
-        requests.models.Response: return: platform informations
+        """Getting information on a platform
+        (eg: id, datamart IP, datamart Port, Datalake IP etc.)
+
+        Returns
+        -------
+        requests.models.Response
+            platform informations
         """
         print(self.url_saagie + self.suffix_api + 'platform/'
               + str(self.id_plateform))
@@ -54,10 +63,13 @@ class SaagieApiManager:
                             verify=False)
 
     def get_impala_connection_info(self):
-        """
-        Getting information on a platform
-        (eg: id, datamart IP, datamart Port, Datalake IP etC..c)
-        requests.models.Response: return: platform informations
+        """Getting information on a platform
+        (eg: id, datamart IP, datamart Port, Datalake IP etc.)
+
+        Returns
+        -------
+        requests.models.Response
+            platform informations
         """
         return requests.get(
             self.url_saagie + self.suffix_api + 'platform/'
@@ -66,9 +78,12 @@ class SaagieApiManager:
             verify=False)
 
     def get_plateform_env_vars(self):
-        """
-        Getting all environment variables available on the platform
-        requests.models.Response: return: platform environment variables
+        """Getting all environment variables available on the platform
+
+        Returns
+        -------
+        requests.models.Response
+            platform environment variables
         """
         return requests.get(self.url_saagie + self.suffix_api + 'platform/'
                             + str(self.id_plateform) + '/envvars',
@@ -77,13 +92,21 @@ class SaagieApiManager:
 
     def create_plateform_env_vars(self, name_envvar, value_envvar,
                                   is_password=False):
-        """
-        Create an environment variable
-        string: param name_envvar: name of the environment variable
-        string: param value_envvar: parameter of the environment variable
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Create an environment variable
+
+        Parameters
+        ----------
+        name_envvar : str
+            name of the environment variable
+        value_envvar : str
+            parameter of the environment variable
+        is_password : bool, optional
+            is the variable a password, by default False
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         if is_password:
             the_password = 'true'
@@ -102,12 +125,17 @@ class SaagieApiManager:
                              verify=False)
 
     def delete_plateform_env_vars(self, id_venv):
-        """
-        Delete an environement variable environment variable
-        int or string: param id_venv: id of the environment variable
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Delete an environement variable environment variable
+
+        Parameters
+        ----------
+        id_venv : int
+            id of the environment variable
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.delete(self.url_saagie + self.suffix_api + 'platform/'
                                + str(self.id_plateform) + '/envvars/'
@@ -116,12 +144,17 @@ class SaagieApiManager:
                                verify=False)
 
     def run_job(self, job_id):
-        """
-        Run a job
-        int or string:param job_id:
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Run a job
+
+        Parameters
+        ----------
+        job_id : int
+            The id of the job
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/'
                              + str(self.id_plateform) + '/job/'
@@ -130,12 +163,17 @@ class SaagieApiManager:
                              verify=False)
 
     def stop_job(self, job_id):
-        """
-        Stop a job
-        int or string:param job_id:
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Stop a job
+
+        Parameters
+        ----------
+        job_id : int
+            The id of the job
+
+        Returns
+        -------
+        requests.models.Response
+            The result of the query
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/'
                              + str(self.id_plateform) + '/job/'
@@ -144,9 +182,12 @@ class SaagieApiManager:
                              verify=False)
 
     def get_all_jobs(self):
-        """
-        Get all the jobs on the platform
-        requests.models.Response: return: platform jobs
+        """Get all the jobs on the platform
+
+        Returns
+        -------
+         requests.models.Response
+            The result of the query
         """
         return requests.get(self.url_saagie + self.suffix_api + 'platform/'
                             + str(self.id_plateform) + '/job',
@@ -154,10 +195,17 @@ class SaagieApiManager:
                             verify=False)
 
     def get_job_detail(self, job_id):
-        """
-        Get the status of a job
-        int or string:param job_id:
-        request.models.Response: return
+        """Get the status of a job
+
+        Parameters
+        ----------
+        job_id : int
+            The id of the job
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.get(self.url_saagie + self.suffix_api + 'platform/'
                             + str(self.id_plateform) + '/job/' + str(job_id),
@@ -165,14 +213,19 @@ class SaagieApiManager:
                             verify=False)
 
     def modify_job_schedule(self, job_id, job):
-        """
-        Modify the schedule of the job. Need to send all the job object to
-        proceed
-        int or string:param job_id
-        Object job: param job (get it with method get_job_detail)
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Modify the schedule of the job. Need to send all the job object to proceed
+
+        Parameters
+        ----------
+        job_id : int
+            The job id
+        job : Object
+            param job (get it with method get_job_detail)
+
+        Returns
+        -------
+        requests.models.Response
+            The result of the query
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/'
                              + str(self.id_plateform) + '/job/' + str(job_id),
@@ -181,12 +234,27 @@ class SaagieApiManager:
                              verify=False)
 
     def run_job_callback(self, job_id, freq, timeout=-1):
-        """
-        Run a job and wait for the final status (KILLED, FAILED or SUCCESS)
-        int or string:param job_id:
-        int:param freq: Sec between two state ckecks
-        int:param timeout: Sec before timeout
-        string: return: the final state of this job
+        """Run a job and wait for the final status (KILLED, FAILED or SUCCESS)
+
+        Parameters
+        ----------
+        job_id : int
+            The id of the job to run
+        freq : int
+            The number of seconds between two state checks
+        timeout : int, optional
+            The number of seconds before timeout, by default -1
+
+        Returns
+        -------
+        str
+            The final state of the job
+
+        Raises
+        ------
+        TimeoutError
+            Raised if job job execution required more seconds than the value 
+            provided by the timeout variable
         """
         self.run_job(job_id)
         state = ''
@@ -206,10 +274,22 @@ class SaagieApiManager:
         return json.loads(res.text)['last_state']['lastTaskStatus']
 
     def __upload_file(self, file):
-        """
-        Private method to upload a file before create a job
-        string: file: file path
-        string: return: path to the file in SAAGIE
+        """Private method to upload a file before create a job
+
+        Parameters
+        ----------
+        file : str
+            The file path
+
+        Returns
+        -------
+        str
+            The file path in Saagie
+
+        Raises
+        ------
+        NameError
+            Unexpected error
         """
 
         response = requests.post(
@@ -230,17 +310,38 @@ class SaagieApiManager:
                    category='processing', template="python {file} arg1 arg2",
                    language_version='3.5.2', cpu=0.3, memory=512, disk=512,
                    extra_language='python', extra_version='3.5.2'):
-        """
-        Create a job
-        string: param job_name: job name
-        string: param file: file path containing the code
-        (only supporting .py file at the moment)
-        string: param cpu: job's CPU
-        int or string: param memory: job's Memory
-        int or string: param disk: job's disk space
-        requests.models.Response: return: status of the query
-        (200, 204: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Create a job on Saagie
+
+        Parameters
+        ----------
+        job_name : str
+            The name of the job
+        file : str, optional
+            The path of the file containing the code.
+            Note that this is not required for sqoop jobs, by default ""
+        capsule_code : str, optional
+            The type of the capsule, by default 'python'
+        category : str, optional
+            The category of the job, by default 'processing'
+        template : str, optional
+            The code to launch the job, by default "python {file} arg1 arg2"
+        language_version : str, optional
+            Version of the language used, by default '3.5.2'
+        cpu : float, optional
+            Number of CPU(s) to allocate, by default 0.3
+        memory : int, optional
+            Quantity of memory to allocate (in MB), by default 512
+        disk : int, optional
+            Quantity of disk space to allocate (in MB), by default 512
+        extra_language : str, optional
+            The extra language, by default 'python'
+        extra_version : str, optional
+            The version of the extra language, by default '3.5.2'
+
+        Returns
+        -------
+        requests.models.Response
+            The request response
         """
 
         if file != "":
@@ -298,26 +399,38 @@ class SaagieApiManager:
                    template="python {file} arg1 arg2", release_note="",
                    language_version='3.5.2', cpu=0.3, memory=512, disk=512,
                    extra_language='python', extra_version='3.5.2'):
-        """
-        Update a job
-        int or string: param job_id: job id
-        string: param file: file path containing the code
-        (only supporting .py file or .zip archives at the moment)
-        string: param capsule_code: type of job
-        (only supporting 'python' or 'spark' at the moment)
-        string: param template: command to launch the job
-        string: param release_note: release note of the job
-        string: param language_version: main version of the techno
-        int or string: param cpu: job's CPU
-        int or string: param memory: job's Memory
-        int or string: param disk: job's disk space
-        string: param extra_language: extra language if required
-        (for spark jobs to select python or java/scala)
-        string: param extra_version: version of the extra language if required
-        (for saprk jobs to select the version of python or java/scala)
-        requests.models.Response: return: status of the query
-        (200, 204: OK, other: KO -> available with
-        method return_variable.status_code)
+        """[summary]
+
+        Parameters
+        ----------
+        job_name : str
+            The name of the job
+        file : str, optional
+            The path of the file containing the code.
+            Note that this is not required for sqoop jobs, by default ""
+        capsule_code : str, optional
+            The type of the capsule, by default 'python'
+        category : str, optional
+            The category of the job, by default 'processing'
+        template : str, optional
+            The code to launch the job, by default "python {file} arg1 arg2"
+        language_version : str, optional
+            Version of the language used, by default '3.5.2'
+        cpu : float, optional
+            Number of CPU(s) to allocate, by default 0.3
+        memory : int, optional
+            Quantity of memory to allocate (in MB), by default 512
+        disk : int, optional
+            Quantity of disk space to allocate (in MB), by default 512
+        extra_language : str, optional
+            The extra language, by default 'python'
+        extra_version : str, optional
+            The version of the extra language, by default '3.5.2'
+
+        Returns
+        -------
+        requests.models.Response
+            The query response
         """
 
         if file != "":
@@ -363,6 +476,20 @@ class SaagieApiManager:
         return r
 
     def create_pipeline(self, list_id_jobs, pipeline_name):
+        """Create a pipeline on Saagie
+
+        Parameters
+        ----------
+        list_id_jobs : List[int]
+            A list of job ids
+        pipeline_name : string
+            The name of the pipeline
+
+        Returns
+        -------
+        requests.models.Response
+            Tje response of the query
+        """
         dict_workflow = {}
         dict_workflow['name'] = pipeline_name
         list_worklfow = []
@@ -382,11 +509,17 @@ class SaagieApiManager:
         return r
 
     def run_pipeline(self, pipeline_id):
-        """
-        Run a pipeline
+        """Run a pipeline
 
-        :param pipeline_id: Id of the pipeline (int or str)
-        :return:
+        Parameters
+        ----------
+        pipeline_id : int
+            The id of the pipeline
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/'
                              + str(self.id_plateform) + '/workflow/'
@@ -395,12 +528,17 @@ class SaagieApiManager:
                              verify=False)
 
     def delete_job(self, id_job):
-        """
-        Delete a job
-        int or string: param id_venv: id of the environment variable
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Delete a job on Saagie
+
+        Parameters
+        ----------
+        id_job : int
+            The ID of the job to delete
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.delete(self.url_saagie + self.suffix_api + 'platform/'
                                + str(self.id_plateform) + '/job/'
@@ -409,12 +547,17 @@ class SaagieApiManager:
                                verify=False)
 
     def delete_pipeline(self, id_pipeline):
-        """
-        Delete a pipeline
-        int or string: param id_venv: id of the environment variable
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Delete a pipeline on Saagie
+
+        Parameters
+        ----------
+        id_pipeline : int
+            The pipeline ID
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.delete(self.url_saagie + self.suffix_api + 'platform/'
                                + str(self.id_plateform) + '/workflow/'
@@ -423,9 +566,12 @@ class SaagieApiManager:
                                verify=False)
 
     def get_all_pipelines(self):
-        """
-        Get all the pipelines on the platform
-        requests.models.Response: return: platform pipelines
+        """The all the pipeline(s) from Saagie
+
+        Returns
+        -------
+        requests.models.Response
+            The query response
         """
         return requests.get(self.url_saagie + self.suffix_api + 'platform/'
                             + str(self.id_plateform) + '/workflow',
@@ -433,10 +579,17 @@ class SaagieApiManager:
                             verify=False)
 
     def get_pipeline_detail(self, pipeline_id):
-        """
-        Get the status of a pipeline
-        int or string:param pipeline_id:
-        request.models.Response: return
+        """The the details of a pipeline
+
+        Parameters
+        ----------
+        pipeline_id : int
+            The id of the pipeline
+
+        Returns
+        -------
+        request.models.Response
+            The query response
         """
         return requests.get(self.url_saagie + self.suffix_api + 'platform/'
                             + str(self.id_plateform) +
@@ -445,15 +598,19 @@ class SaagieApiManager:
                             verify=False)
 
     def modify_pipeline_schedule(self, pipeline_id, pipeline):
-        """
-        Modify the schedule of the pipeline. Need to send all the pipeline
-        object to proceed
-        int or string:param pipeline_id
-        Object pipeline: param pipeline
-        (get it with method get_pipeline_detail)
-        requests.models.Response: return: status of the query
-        (200: OK, other: KO -> available with
-        method return_variable.status_code)
+        """Update the schedule of a pipeline
+
+        Parameters
+        ----------
+        pipeline_id : int
+            The pipeline ID
+        pipeline : Object
+            param pipeline (get it with method get_pipeline_detail)
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/'
                              + str(self.id_plateform) +
@@ -463,11 +620,17 @@ class SaagieApiManager:
                              verify=False)
 
     def stop_pipeline(self, pipeline_id):
-        """
-        Stop a pipeline
+        """Stop a pipeline
 
-        :param pipeline_id: Id of the pipeline (int or str)
-        :return:
+        Parameters
+        ----------
+        pipeline_id : int
+            The id of the pipeline to update
+
+        Returns
+        -------
+        requests.models.Response
+            The response of the query
         """
         return requests.post(self.url_saagie + self.suffix_api + 'platform/'
                              + str(self.id_plateform) + '/workflow/'
