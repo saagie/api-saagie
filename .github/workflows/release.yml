@@ -1,0 +1,35 @@
+name: Release and Publish to PyPi
+
+# Only when PR are merged to MASTER
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+      - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
+        run: |
+          # Upgrade pip
+          python3 -m pip install --upgrade pip
+          # Install build deps
+          python3 -m pip install setuptools wheel twine pytest
+          # If requirements.txt exists, install from it
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Install the package from setup.py
+          python3 setup.py install
+
+      - name: Bump versionn push to Git, release to Github and Publish to PyPi
+        run: |
+          semantic-release version
+        env:
+          PYPI_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          TWINE_REPOSITORY: api-saagie
