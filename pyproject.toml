@@ -4,6 +4,8 @@ version = "0.4.10"
 description = "Python API to interact with Saagie"
 authors = ["Saagie"]
 license = "GLWTPL"
+readme = "README.md"
+repository = "https://github.com/saagie/api-saagie"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -21,4 +23,3 @@ build-backend = "poetry.core.masonry.api"
 version_toml = "pyproject.toml:tool.poetry.version"
 tag_format = "{version}"
 build_command = "$HOME/.poetry/bin/poetry build"
-upload_to_pypi = false
