@@ -29,7 +29,7 @@ jobs:
           git config --local user.email "service@saagie.com"
           git config --local user.name "Team Service"
           python3 -m pip install python-semantic-release
-          semantic-release publish --minor
+          semantic-release publish --patch
         env:
           PYPI_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
