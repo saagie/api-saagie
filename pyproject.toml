@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "api-saagie"
+version = "0.3.0"
+description = "Python API to interact with Saagie"
+authors = ["Saagie"]
+license = "GLWTPL"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.26.0"
+gql = "^2.0.0"
+python-semantic-release = "^7.19.2"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.semantic_release]
+version_toml = "pyproject.toml:tool.poetry.version"
