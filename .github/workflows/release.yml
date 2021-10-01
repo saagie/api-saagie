@@ -2,15 +2,15 @@ name: Release and Publish to PyPi
 
 # Only when PR are merged to MASTER
 on:
-  push:
-    #types: [closed]
+  pull_request:
     branches:
       - master
+    types: [closed]
 
 jobs:
-  build:
+  release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -24,7 +24,7 @@ jobs:
         run:
           $HOME/.poetry/bin/poetry install
 
-      - name: Bump version push to Git and release to Github
+      - name: Bump version, push to Git and release to Github
         run: |
           git config --local user.email "service@saagie.com"
           git config --local user.name "Team Service"
