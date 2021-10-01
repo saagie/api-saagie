@@ -22,7 +22,7 @@ jobs:
 
       - name: "Installs the packages from pyproject.toml"
         run:
-          $HOME/.poetry/bin/poetry install
+          poetry install
 
       - name: Bump version, push to Git and release to Github
         run: |
