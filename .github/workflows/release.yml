@@ -20,11 +20,8 @@ jobs:
         run:
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 
-      - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
-        run: |
-          # Upgrade pip
-          python3 -m pip install --upgrade pip
-          python3 -m pip install setuptools wheel twine pytest
+      - name: "Installs the packages from pyproject.toml"
+        run:
           $HOME/.poetry/bin/poetry install
 
       - name: Bump version push to Git, release to Github and Publish to PyPi
