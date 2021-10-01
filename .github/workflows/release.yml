@@ -2,15 +2,15 @@ name: Release and Publish to PyPi
 
 # Only when PR are merged to MASTER
 on:
-  push:
-    #types: [closed]
+  pull_request:
     branches:
       - master
+    types: [closed]
 
 jobs:
-  build:
+  release:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
@@ -18,18 +18,18 @@ jobs:
           python-version: 3.7
       - name: Install Poetry
         run:
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
 
       - name: "Installs the packages from pyproject.toml"
         run:
-          $HOME/.poetry/bin/poetry install
+          poetry install
 
-      - name: Bump version push to Git and release to Github
+      - name: Bump version, push to Git and release to Github
         run: |
           git config --local user.email "service@saagie.com"
           git config --local user.name "Team Service"
           python3 -m pip install python-semantic-release
-          semantic-release publish --patch
+          semantic-release publish
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
