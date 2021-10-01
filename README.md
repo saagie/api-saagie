@@ -73,11 +73,3 @@ job_id = job_dict['data']['createJob']['id']
 saagie.run_job_callback(job_id=job_id, freq=10, timeout=-1)
 
 ```
-
-
-## Notes
-To install from github via pip :
-
-```bash
-pip install git+ssh://git@github.com:saagie/api-saagie.git
-```
