@@ -34,3 +34,9 @@ jobs:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+      - name: Publish to PyPi
+        run:
+          $HOME/.poetry/bin/poetry  publish
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
