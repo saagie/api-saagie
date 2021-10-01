@@ -1,5 +1,15 @@
 # Saagie API wrapper in Python
 
+[![GitHub release](https://img.shields.io/github/release/saagie/api-saagie?style=for-the-badge)][releases] 
+[![GitHub release date](https://img.shields.io/github/release-date/saagie/api-saagie?style=for-the-badge&color=blue)][releases]  
+
+
+[![Contributors](https://img.shields.io/github/contributors/saagie/api-saagie?style=for-the-badge&color=black)][contributors]
+
+[releases]: https://github.com/saagie/api-saagie/releases
+[contributors]: https://github.com/saagie/api-saagie/graphs/contributors
+
+
 - [Presentation](#presentation)
 - [Installation](#installation)
 - [Examples](#examples)
