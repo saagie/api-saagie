@@ -26,7 +26,7 @@ jobs:
           # Upgrade pip
           python3 -m pip install --upgrade pip
           python3 -m pip install setuptools wheel twine pytest
-          poetry install
+          $HOME/.poetry/bin/poetry install
 
       - name: Bump version push to Git, release to Github and Publish to PyPi
         run:
