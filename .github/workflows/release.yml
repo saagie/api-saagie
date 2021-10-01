@@ -3,6 +3,7 @@ name: Release and Publish to PyPi
 # Only when PR are merged to MASTER
 on:
   pull_request:
+    types: [closed]
     branches:
       - master
 
@@ -19,14 +20,10 @@ jobs:
         run: |
           # Upgrade pip
           python3 -m pip install --upgrade pip
-          # Install build deps
           python3 -m pip install setuptools wheel twine pytest
-          # If requirements.txt exists, install from it
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Install the package from setup.py
-          python3 setup.py install
 
-      - name: Bump versionn push to Git, release to Github and Publish to PyPi
+      - name: Bump version push to Git, release to Github and Publish to PyPi
         run: |
           semantic-release version
         env:
