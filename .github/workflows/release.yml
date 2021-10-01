@@ -24,7 +24,7 @@ jobs:
         run:
           $HOME/.poetry/bin/poetry install
 
-      - name: Bump version push to Git, release to Github and Publish to PyPi
+      - name: Bump version push to Git and release to Github
         run: |
           git config --local user.email "service@saagie.com"
           git config --local user.name "Team Service"
@@ -33,4 +33,4 @@ jobs:
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          TWINE_REPOSITORY: api-saagie
+
