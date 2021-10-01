@@ -2,14 +2,11 @@
 
 [![GitHub release](https://img.shields.io/github/release/saagie/api-saagie?style=for-the-badge)][releases] 
 [![GitHub release date](https://img.shields.io/github/release-date/saagie/api-saagie?style=for-the-badge&color=blue)][releases]  
-[![License](https://img.shields.io/github/license/saagie/api-saagie?style=for-the-badge&color=black)][license]
-
-
+![License](https://img.shields.io/pypi/l/saagieapi?style=for-the-badge&color=black)
 [![Contributors](https://img.shields.io/github/contributors/saagie/api-saagie?style=for-the-badge&color=black)][contributors]
 
 [releases]: https://github.com/saagie/api-saagie/releases
 [contributors]: https://github.com/saagie/api-saagie/graphs/contributors
-[license]: https://github.com/saagie/api-saagie/blob/master/LICENSE
 
 - [Presentation](#presentation)
 - [Installation](#installation)
