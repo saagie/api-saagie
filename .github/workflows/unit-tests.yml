@@ -19,26 +19,14 @@ jobs:
         with:
           python-version: 3.7 
 
-      - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
-        run: |
-          # Upgrade pip
-          python3 -m pip install --upgrade pip
-          # Install build deps
-          python3 -m pip install setuptools wheel twine pytest
-          # If requirements.txt exists, install from it
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          # Install the package from setup.py
-          python3 setup.py install
+      - name: Install Poetry
+        run:
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+      - name: "Installs the packages from pyproject.toml"
+        run:
+          $HOME/.poetry/bin/poetry install
 
       - name: Test with pytest
         run: |
           pytest
-
-      - name: Build and Upload to TestPyPI
-        run: |
-          python3 setup.py sdist bdist_wheel
-          python3 -m twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
-          TWINE_REPOSITORY: testpypi
