@@ -2,8 +2,8 @@ name: Release and Publish to PyPi
 
 # Only when PR are merged to MASTER
 on:
-  pull_request:
-    types: [closed]
+  push:
+    #types: [closed]
     branches:
       - master
 
@@ -16,6 +16,11 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: 3.7
+      - name: Install Poetry
+        run:
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+
       - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
         run: |
           # Upgrade pip
@@ -24,7 +29,7 @@ jobs:
           poetry install
 
       - name: Bump version push to Git, release to Github and Publish to PyPi
-        run: |
+        run:
           semantic-release publish
         env:
           PYPI_TOKEN: ${{ secrets.GH_TOKEN }}
