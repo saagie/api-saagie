@@ -26,6 +26,8 @@ jobs:
 
       - name: Bump version push to Git, release to Github and Publish to PyPi
         run: |
+          git config --local user.email "service@saagie.com"
+          git config --local user.name "Team Service"
           python3 -m pip install python-semantic-release
           semantic-release publish --minor
         env:
