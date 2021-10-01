@@ -27,7 +27,7 @@ jobs:
       - name: Bump version push to Git, release to Github and Publish to PyPi
         run: |
           python3 -m pip install python-semantic-release
-          semantic-release publish
+          semantic-release publish --minor
         env:
           PYPI_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
