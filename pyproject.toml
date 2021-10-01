@@ -21,4 +21,4 @@ build-backend = "poetry.core.masonry.api"
 version_toml = "pyproject.toml:tool.poetry.version"
 tag_format = "{version}"
 build_command = "$HOME/.poetry/bin/poetry build"
-upload_to_pypi = "False"
+upload_to_pypi = false
