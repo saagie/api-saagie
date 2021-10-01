@@ -18,7 +18,7 @@ jobs:
           python-version: 3.7
       - name: Install Poetry
         run:
-          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
 
       - name: "Installs the packages from pyproject.toml"
         run:
@@ -29,7 +29,7 @@ jobs:
           git config --local user.email "service@saagie.com"
           git config --local user.name "Team Service"
           python3 -m pip install python-semantic-release
-          semantic-release publish --patch
+          semantic-release publish
         env:
           PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
