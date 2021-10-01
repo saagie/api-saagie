@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "api-saagie"
-version = "0.3.0"
+version = "0.2.1"
 description = "Python API to interact with Saagie"
 authors = ["Saagie"]
 license = "GLWTPL"
