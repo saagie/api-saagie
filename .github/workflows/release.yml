@@ -17,9 +17,9 @@ jobs:
         with:
           python-version: 3.7
       - name: Install Poetry
-        run:
+        run: |
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
-
+          source $HOME/.poetry/env
 
       - name: "Installs and upgrades pip, installs other dependencies and installs the package from setup.py"
         run: |
