@@ -21,11 +21,11 @@ jobs:
           # Upgrade pip
           python3 -m pip install --upgrade pip
           python3 -m pip install setuptools wheel twine pytest
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          poetry install
 
       - name: Bump version push to Git, release to Github and Publish to PyPi
         run: |
-          semantic-release version
+          semantic-release publish
         env:
           PYPI_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
