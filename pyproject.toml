@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "saagie-api"
+name = "saagieapi"
 version = "0.4.12"
 description = "Python API to interact with Saagie"
 authors = ["Saagie"]
