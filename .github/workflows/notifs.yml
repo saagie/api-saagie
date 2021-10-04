@@ -13,6 +13,6 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.14.0
         with:
-          payload: "{\"text\":\"New release $GITHUB_REF\")\"}"
+          payload: "{\"text\":\"New release $GITHUB_REF \"}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
