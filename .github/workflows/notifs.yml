@@ -9,10 +9,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: "Send custom JSON data to Slack workflow"
         id: slack
         uses: slackapi/slack-github-action@v1.14.0
         with:
-          payload: "{\"text\":\"New release ${GITHUB_REF} \"}"
+          payload: "{\"text\":\"New release ${{ steps.get_version.outputs.VERSION }} \"}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
