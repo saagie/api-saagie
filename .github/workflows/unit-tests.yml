@@ -1,4 +1,4 @@
-name: Test & Upload to TestPyPI
+name: Test with pytest
 
 
 on:
@@ -30,3 +30,10 @@ jobs:
       - name: "Test with pytest"
         run: 
           poetry run pytest
+        env:
+          ID_PLATFORM_TEST_SAAGIE: ${{ secrets.ID_PLATFORM_TEST_SAAGIE }}
+          PWD_TEST_SAAGIE : ${{ secrets.PWD_TEST_SAAGIE }}
+          REALM_TEST_SAAGIE: ${{ secrets.REALM_TEST_SAAGIE }}
+          URL_TEST_SAAGIE: ${{ secrets.URL_TEST_SAAGIE }}
+          USER_GROUP_TEST_SAAGIE: ${{ secrets.USER_GROUP_TEST_SAAGIE }}
+          USER_TEST_SAAGIE: ${{ secrets.USER_TEST_SAAGIE }}
