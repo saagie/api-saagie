@@ -1,4 +1,4 @@
-# Saagie API wrapper in Python
+<p align="center"><img width=100% src="https://github.com/saagie/api-saagie/blob/chore/docs/.github/banner.png"></p>
 
 [![PyPI version](https://img.shields.io/pypi/v/saagieapi?style=for-the-badge)](https://pypi.org/project/saagieapi/)
 ![PyPI version](https://img.shields.io/pypi/pyversions/saagieapi?style=for-the-badge)
@@ -8,16 +8,14 @@
 [![Contributors](https://img.shields.io/github/contributors/saagie/api-saagie?style=for-the-badge&color=black)][contributors]
 ![License](https://img.shields.io/pypi/l/saagieapi?style=for-the-badge&color=black)
 
-[Alt text](.github/banner.png?raw=true "Optional Title")
-
 [releases]: https://github.com/saagie/api-saagie/releases
 [contributors]: https://github.com/saagie/api-saagie/graphs/contributors
 
 - [Presentation](#presentation)
 - [Installation](#installation)
-- [Examples](#examples)
+- [Usage](#usage)
   * [Projects](#projects)
-- [Notes](#notes)
+- [Contributing](#contributing)
 
 ## Presentation
 The `saagieapi` python package implements python API wrappers to easily interract with the Saagie platform in python.
