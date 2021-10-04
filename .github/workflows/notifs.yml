@@ -5,11 +5,10 @@ on:
     types: [ created ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get the version
+      - name: "Get the version"
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
       - name: "Send custom JSON data to Slack workflow"
