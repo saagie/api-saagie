@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.3 (2021-10-04)
+### Fix
+* **build:** Fixing Python minimal version to 3.6 and improving documentation    ([`ba5fb47`](https://github.com/saagie/api-saagie/commit/ba5fb47b981201e22a6d8808a623bc2b02ba2dcf))
+
 ## v0.5.2 (2021-10-04)
 ### Fix
 * **cicd:** Improving the release process ([`e05cf9b`](https://github.com/saagie/api-saagie/commit/e05cf9b0994280e31822d23d4e6b7978b04934bc))
