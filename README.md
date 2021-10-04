@@ -1,4 +1,4 @@
-<p align="center"><img width=100% src="https://github.com/saagie/api-saagie/blob/chore/docs/.github/banner.png"></p>
+<p align="center"><img width=100% src="https://github.com/saagie/api-saagie/blob/master/.github/banner.png"></p>
 
 [![PyPI version](https://img.shields.io/pypi/v/saagieapi?style=for-the-badge)](https://pypi.org/project/saagieapi/)
 ![PyPI version](https://img.shields.io/pypi/pyversions/saagieapi?style=for-the-badge)
