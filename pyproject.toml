@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saagieapi"
-version = "0.5.0"
+version = "0.5.2"
 description = "Python API to interact with Saagie"
 authors = ["Saagie"]
 license = "GLWTPL"
@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/saagie/api-saagie"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 requests = "^2.26.0"
 gql = "^2.0.0"
 python-semantic-release = "^7.19.2"

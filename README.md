@@ -86,4 +86,9 @@ Please follow the following steps:
 ### Commits Guidelines
 
 We're using the [Python Semantic Release library](https://python-semantic-release.readthedocs.io/en/latest/) to manage our versioning. 
-In order to work properly, you need to follow the [Angular commit style](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commits). 
+
+In order to work properly, you need to follow the [Angular commit style](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commits) when squashing the commits during the merge of the PR to master.  
+- Messages with a `fix` or `perf` commit type will make the release process to bump the patch version
+- Messages with a `feat` commit type will make the release process to bump the minor version
+- Messages including a  `BREAKING CHANGE` message in the commit body will make the release process to bump the major version
+
