@@ -1,12 +1,8 @@
 name: Send notification to Slack
 
-
 on:
-  push:
-    branches:
-      - '**'        # matches every branch
-      - '!master'   # excludes master
-
+  release:
+    types: [published]
 
 jobs:
 
@@ -17,6 +13,6 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.14.0
         with:
-          payload: "{\"text\":\"New release\"}"
+          payload: "{\"text\":\"New release $($env:GITHUB_REF -replace \"refs/tags/\")\"}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
