@@ -16,6 +16,6 @@ jobs:
         id: slack
         uses: slackapi/slack-github-action@v1.14.0
         with:
-          payload: "{\"text\":\"A new release *${{ steps.get_version.outputs.VERSION }}* has been published by *${{ github.actor }}* \"}"
+          payload: "{\"text\":\"A new release *${{ steps.get_version.outputs.VERSION }}* has been published by *${{ github.actor }}*. Here's the <https://github.com/saagie/api-saagie/blob/master/CHANGELOG.md|latest changelog>  \"}"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
