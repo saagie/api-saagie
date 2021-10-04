@@ -1,18 +1,21 @@
-# Saagie API wrapper in Python
+<p align="center"><img width=100% src="https://github.com/saagie/api-saagie/blob/chore/docs/.github/banner.png"></p>
 
-[![GitHub release](https://img.shields.io/github/release/saagie/api-saagie?style=for-the-badge)][releases] 
-[![GitHub release date](https://img.shields.io/github/release-date/saagie/api-saagie?style=for-the-badge&color=blue)][releases]  
-![License](https://img.shields.io/pypi/l/saagieapi?style=for-the-badge&color=black)
+[![PyPI version](https://img.shields.io/pypi/v/saagieapi?style=for-the-badge)](https://pypi.org/project/saagieapi/)
+![PyPI version](https://img.shields.io/pypi/pyversions/saagieapi?style=for-the-badge)
+
+[![GitHub release date](https://img.shields.io/github/release-date/saagie/api-saagie?style=for-the-badge&color=blue)][releases]
+
 [![Contributors](https://img.shields.io/github/contributors/saagie/api-saagie?style=for-the-badge&color=black)][contributors]
+![License](https://img.shields.io/pypi/l/saagieapi?style=for-the-badge&color=black)
 
 [releases]: https://github.com/saagie/api-saagie/releases
 [contributors]: https://github.com/saagie/api-saagie/graphs/contributors
 
 - [Presentation](#presentation)
 - [Installation](#installation)
-- [Examples](#examples)
+- [Usage](#usage)
   * [Projects](#projects)
-- [Notes](#notes)
+- [Contributing](#contributing)
 
 ## Presentation
 The `saagieapi` python package implements python API wrappers to easily interract with the Saagie platform in python.
@@ -22,14 +25,12 @@ There are two subpackages that each give access to a main class whose methods al
 * The `projects` subpackage implements the `SaagieApi` class whose methods can interract with the `Projects` interface in Saagie (current main interface)
 
 ## Installation
-Via pip :
 
 ```bash
-pip install git+http://git@github.com/saagie/api-saagie.git
+pip install saagieapi==<version>
 ```
 
-
-## Examples
+## Usage
 
 ### Projects
 
@@ -78,9 +79,9 @@ All contributions are made with the pull-request system.
 Please follow the following steps:
 
 - Create an issue with the correct label (i.e. Documentation/Bug/Feature)
-- Create a new branch starting with the issue type : `feature/...`, `bug/...` or `documentation/...`. GitHub Action (CI) will be triggered on each push on your branch. Warning, after the first push on your branch, an automatic commit/push will be made by the CI in order to increment the version. Thus, remember to update your repository after your first commit.
+- Create a new branch starting with the issue type : `feat/...`, `fix/...` or `doc/...`. GitHub Action (CI) will be triggered on each push on your branch. Warning, after the first push on your branch, an automatic commit/push will be made by the CI in order to increment the version. Thus, remember to update your repository after your first commit.
 - Implement your change
-- Open a Pull Request that uses our template (don't forget to link the PR to the issue)
+- Open a Pull Request (don't forget to link the PR to the issue)
 - PR will be reviewed by the Professional Service Team and merged if all the checks are successful
 
 ### Commits Guidelines
