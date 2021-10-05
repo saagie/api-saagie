@@ -88,6 +88,15 @@ gql_get_repositories_info = """
   }
 """
 
+gql_get_technologies = """
+{
+  technologies {
+    id
+    label
+  }
+}
+"""
+
 #######################################################
 ####                    projects                   ####
 #######################################################
@@ -117,13 +126,16 @@ gql_get_project_info = """
   }}
   """
 
-gql_get_technologies = """
-{
-  technologies {
-    id
-    label
-  }
-}
+gql_get_project_technologies = """
+{{
+   technologiesByCategory(projectId: "{0}"){{
+      jobCategory,
+      technologies{{
+        id,
+        label
+        }}
+   }}
+}} 
 """
 
 gql_create_project = """

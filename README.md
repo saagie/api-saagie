@@ -24,7 +24,7 @@ There are two subpackages that each give access to a main class whose methods al
 * The `manager` subpackage implements the `SaagieApiManager` class whose methods can interract with the `manager` interface in Saagie (Saagie leagacy)
 * The `projects` subpackage implements the `SaagieApi` class whose methods can interract with the `Projects` interface in Saagie (current main interface)
 
-## Installation
+## Installing
 
 ```bash
 pip install saagieapi==<version>
@@ -62,8 +62,8 @@ job_dict = saagie.create_job(job_name="Python test job",
                              runtime_version='3.6',
                              command_line='python {file} arg1 arg2',
                              release_note='',
-                             extra_technology='',
-                             extra_technology_vers='')
+                             extra_technology=''
+                             )
 
 # Save the job id
 job_id = job_dict['data']['createJob']['id']
@@ -73,7 +73,7 @@ saagie.run_job_callback(job_id=job_id, freq=10, timeout=-1)
 
 ```
 
-## CONTRIBUTING
+## Contributing
 
 All contributions are made with the pull-request system.
 Please follow the following steps:

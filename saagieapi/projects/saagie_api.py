@@ -3,16 +3,15 @@ Saagie API object to interact with Saagie API in Python (API for
 Projects & Jobs - to interact with the manager API, see the manager subpackage)
 
 """
-import time
-import requests
-from pathlib import Path
 import json
+import time
+from pathlib import Path
 
-from gql import gql, Client
+from gql import Client
 from gql.transport.requests import RequestsHTTPTransport
 
-from .gql_template import *
 from .auth import *
+from .gql_template import *
 
 
 class SaagieApi:
@@ -30,7 +29,7 @@ class SaagieApi:
         id_platform : int or str
             Platform Id (you can find it in the URL after the '/platform/' when
             you are on your own platform (eg, the platform'id is 6 in
-            https://saagie-workspace.prod.saagie.io/manager/platform/6/#/manager/6))
+            https://saagie-workspace.prod.saagie.io/projects/platform/6/))
         user : str
             username to login with
         password : str
@@ -296,15 +295,23 @@ class SaagieApi:
         query = gql(gql_get_project_info.format(project_id))
         return self.client.execute(query)
 
-    def get_technologies(self):
-        """List available technologies in the platform (Id and label)
+    def get_project_technologies(self, project_id):
+        """List available technologies (Id and label) for the project
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project. Can be found in the project URL after the
+            '/project' (eg: the project UUID is
+            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
+            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
 
         Returns
         -------
         dict
             Dict of available technologies
         """
-        query = gql(gql_get_technologies)
+        query = gql(gql_get_project_technologies.format(project_id))
         return self.client.execute(query)
 
     def create_project(self, name, group=None, role="Manager", description=""):
@@ -631,9 +638,16 @@ class SaagieApi:
         file = Path(file)
 
         technology = technology.lower()
-        technologies = self.get_technologies()['technologies']
-        technology_id = [tech['id'] for tech in technologies
-                         if tech['label'].lower() == technology][0]
+        technologies = self.get_project_technologies(project_id)['technologiesByCategory']
+        technologies_for_category = [tech['technologies'] for tech in technologies if tech['jobCategory'] == category][
+            0]
+        job_technology = [tech['id'] for tech in technologies_for_category
+                          if tech['label'].lower() == technology]
+        if not job_technology:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the target project {project_id} for the {category}category")
+        else:
+            technology_id = job_technology[0]
 
         if extra_technology != '':
             extra_technology = extra_technology.capitalize()
@@ -905,7 +919,7 @@ class SaagieApi:
             time.sleep(freq)
             sec += freq
             pipeline_instance_info = self.client.execute(query)
-            state = pipeline_instance_info.get("pipelineInstance")\
+            state = pipeline_instance_info.get("pipelineInstance") \
                 .get("status")
             print('Current state : ' + state)
         return state
