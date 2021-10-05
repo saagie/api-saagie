@@ -589,9 +589,8 @@ class SaagieApi:
           See https://github.com/graphql-python/gql/issues/68 to follow this
           work.
         - Tested with python and spark jobs
-        - The technology parameter must have issues now that the SDK is out and
-          that a platform can have multiple technology repositories (there
-          might be some overlap between the labels)
+        - In case of multiple technologies with the same name (if they're coming from different
+          catalogs), the first one configured, in the catalog order, will be fetched
 
         Parameters
         ----------
