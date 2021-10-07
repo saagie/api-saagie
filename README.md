@@ -24,7 +24,7 @@ There are two subpackages that each give access to a main class whose methods al
 * The `manager` subpackage implements the `SaagieApiManager` class whose methods can interract with the `manager` interface in Saagie (Saagie leagacy)
 * The `projects` subpackage implements the `SaagieApi` class whose methods can interract with the `Projects` interface in Saagie (current main interface)
 
-## Installation
+## Installing
 
 ```bash
 pip install saagieapi==<version>
@@ -62,8 +62,8 @@ job_dict = saagie.create_job(job_name="Python test job",
                              runtime_version='3.6',
                              command_line='python {file} arg1 arg2',
                              release_note='',
-                             extra_technology='',
-                             extra_technology_vers='')
+                             extra_technology=''
+                             )
 
 # Save the job id
 job_id = job_dict['data']['createJob']['id']
@@ -73,7 +73,7 @@ saagie.run_job_callback(job_id=job_id, freq=10, timeout=-1)
 
 ```
 
-## CONTRIBUTING
+## Contributing
 
 All contributions are made with the pull-request system.
 Please follow the following steps:
@@ -88,8 +88,8 @@ Please follow the following steps:
 
 We're using the [Python Semantic Release library](https://python-semantic-release.readthedocs.io/en/latest/) to manage our versioning. 
 
-In order to work properly, you need to follow the [Angular commit style](https://github.com/angular/angular.js/blob/master/DEVELOPERS.md#commits) when squashing the commits during the merge of the PR to master.  
-- Messages with a `fix` or `perf` commit type will make the release process to bump the patch version
-- Messages with a `feat` commit type will make the release process to bump the minor version
-- Messages including a  `BREAKING CHANGE` message in the commit body will make the release process to bump the major version
+In order to work properly, you need to follow the  [Emoji Parser commit style](https://python-semantic-release.readthedocs.io/en/latest/configuration.html#major-emoji) when squashing the commits during the merge of the PR to master.  
+- Messages with :ambulance:, :lock:, :bug:, :zap:, :goal_net:, :alien:, :wheelchair:, :speech_balloon:, :mag:, :apple:, :penguin:, :checkered_flag:, :robot:, :green_apple: emojis in the commit type will make the release process to bump the patch version
+- Messages with :sparkles:, :children_crossing:, :lipstick:, :iphone:, :egg:, :chart_with_upwards_trend: emojis in the commit type will make the release process to bump the minor version
+- Messages including a :boom: emoji in the commit will make the release process to bump the major version
 
