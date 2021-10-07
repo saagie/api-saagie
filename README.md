@@ -18,11 +18,11 @@
 - [Contributing](#contributing)
 
 ## Presentation
-The `saagieapi` python package implements python API wrappers to easily interract with the Saagie platform in python.
+The `saagieapi` python package implements python API wrappers to easily interact with the Saagie platform in python.
 
-There are two subpackages that each give access to a main class whose methods allows to interract with the API :
-* The `manager` subpackage implements the `SaagieApiManager` class whose methods can interract with the `manager` interface in Saagie (Saagie leagacy)
-* The `projects` subpackage implements the `SaagieApi` class whose methods can interract with the `Projects` interface in Saagie (current main interface)
+There are two subpackages that each give access to a main class whose methods allows to interact with the API :
+* The `manager` subpackage implements the `SaagieApiManager` class whose methods can interact with the `manager` interface in Saagie (Saagie legacy)
+* The `projects` subpackage implements the `SaagieApi` class whose methods can interact with the `Projects` interface in Saagie (current main interface)
 
 ## Installing
 
@@ -89,7 +89,7 @@ Please follow the following steps:
 We're using the [Python Semantic Release library](https://python-semantic-release.readthedocs.io/en/latest/) to manage our versioning. 
 
 In order to work properly, you need to follow the  [Emoji Parser commit style](https://python-semantic-release.readthedocs.io/en/latest/configuration.html#major-emoji) when squashing the commits during the merge of the PR to master.  
-- Messages with :ambulance:, :lock:, :bug:, :zap:, :goal_net:, :alien:, :wheelchair:, :speech_balloon:, :mag:, :apple:, :penguin:, :checkered_flag:, :robot:, :green_apple: emojis in the commit type will make the release process to bump the patch version
-- Messages with :sparkles:, :children_crossing:, :lipstick:, :iphone:, :egg:, :chart_with_upwards_trend: emojis in the commit type will make the release process to bump the minor version
-- Messages including a :boom: emoji in the commit will make the release process to bump the major version
+- Messages with :ambulance:, :lock:, :bug:, :zap:, :goal_net:, :alien:, :wheelchair:, :speech_balloon:, :mag:, :apple:, :penguin:, :checkered_flag:, :robot:, :green_apple: emojis in the commit will make the release process to bump the patch version
+- Messages with :sparkles:, :children_crossing:, :lipstick:, :iphone:, :egg:, :chart_with_upwards_trend: emojis in the commit will make the release process to bump the minor version
+- Messages with a :boom: emoji in the commit will make the release process to bump the major version
 

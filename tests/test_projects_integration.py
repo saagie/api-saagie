@@ -3,7 +3,6 @@ import urllib3
 
 import os
 import sys
-
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")
 sys.path.append(dir_path + '/..')
@@ -71,7 +70,7 @@ class TestIntegrationProjectCreationAndDeletion():
         assert result == {'archiveProject': True}
 
 
-class TestIntegrationProject():
+class TestIntegrationProject:
     def setup_class(cls):
         # Disable urllib3 InsecureRequestsWarnings
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -99,20 +98,16 @@ class TestIntegrationProject():
         cls.project_id = result['createProject']['id']
 
         # Waiting for the project to be ready
-        project_status = cls.saagie \
+        project_status = cls.saagie\
             .get_project_info(project_id=cls.project_id)['project']['status']
         waiting_time = 0
 
         # Safety: wait for 5min max for project initialisation
-        project_creation_timeout = 400
-        while project_status != 'READY' and waiting_time <= project_creation_timeout:
+        while project_status != 'READY' and waiting_time <= 300:
             time.sleep(10)
-            project_status = cls.saagie \
+            project_status = cls.saagie\
                 .get_project_info(cls.project_id)['project']['status']
             waiting_time += 10
-        if project_status != 'READY':
-            raise TimeoutError(
-                f"Project creation is taking longer than {project_creation_timeout} seconds, aborting integration tests")
 
     @pytest.fixture
     def create_job(self):
@@ -120,7 +115,6 @@ class TestIntegrationProject():
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         job_name = 'python_test'
-        dir_path = os.path.dirname(os.path.abspath(__file__))
         file = dir_path + '/hello_world.py'
 
         job = self.saagie.create_job(job_name=job_name,
@@ -191,7 +185,7 @@ class TestIntegrationProject():
 
         self.saagie.stop_job(job_instance_id)
 
-        job_instance_status = self.saagie \
+        job_instance_status = self.saagie\
             .get_job_instance(job_instance_id)['jobInstance']['status']
 
         assert job_instance_status in ['KILLED', 'KILLING']
@@ -223,7 +217,7 @@ class TestIntegrationProject():
     def test_create_global_env_var(self, create_then_delete_global_env_var):
         name = create_then_delete_global_env_var
 
-        global_envs = self.saagie \
+        global_envs = self.saagie\
             .get_global_env_vars()['globalEnvironmentVariables']
 
         global_envs_names = [env['name'] for env in global_envs]
@@ -266,7 +260,7 @@ class TestIntegrationProject():
     def test_create_project_env_var(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
 
-        project_envs = self.saagie \
+        project_envs = self.saagie\
             .get_project_env_vars(self.project_id)
         project_env_names = [env['name'] for env
                              in project_envs['projectEnvironmentVariables']]
