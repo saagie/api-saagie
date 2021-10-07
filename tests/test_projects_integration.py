@@ -70,7 +70,7 @@ class TestIntegrationProjectCreationAndDeletion():
         assert result == {'archiveProject': True}
 
 
-class TestIntegrationProject():
+class TestIntegrationProject:
     def setup_class(cls):
         # Disable urllib3 InsecureRequestsWarnings
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -115,7 +115,6 @@ class TestIntegrationProject():
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         job_name = 'python_test'
-        dir_path = os.path.dirname(os.path.abspath(__file__))
         file = dir_path + '/hello_world.py'
 
         job = self.saagie.create_job(job_name=job_name,

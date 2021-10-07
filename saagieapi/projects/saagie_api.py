@@ -520,7 +520,6 @@ class SaagieApi:
         job_instance_info = self.client.execute(query)
         state = job_instance_info.get("jobInstance").get("status")
         sec = 0
-        to = False
         while state not in final_status_list:
             to = False if timeout == -1 else sec >= timeout
             if to:
@@ -834,7 +833,7 @@ class SaagieApi:
     # TO DETAIL!
     # Detail pipeline dict parameters, or explode the number of parameters to
     # have a more comprehensible method
-    def edit_pipeline(self, pipeline):
+    def edit_pipeline(self, pipeline_id):
         """Edit a given pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
@@ -852,7 +851,7 @@ class SaagieApi:
         dict
             Dict of pipeline information
         """
-        query = gql(gql_edit_pipeline.format(pipeline))
+        query = gql(gql_edit_pipeline.format(pipeline_id))
         return self.client.execute(query)
 
     def run_pipeline(self, pipeline_id):
