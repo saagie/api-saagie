@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.4 (2021-10-07)
+### :zap:
+* :zap: Improving job creation and refactoring integration tests ([`db1a420`](https://github.com/saagie/api-saagie/commit/db1a42085e053b20c04d58cefb1f98e7ee87986f))
+
 ## v0.5.3 (2021-10-04)
 ### Fix
 * **build:** Fixing Python minimal version to 3.6 and improving documentation    ([`ba5fb47`](https://github.com/saagie/api-saagie/commit/ba5fb47b981201e22a6d8808a623bc2b02ba2dcf))
