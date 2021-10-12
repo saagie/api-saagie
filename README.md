@@ -37,7 +37,7 @@ pip install saagieapi==<version>
 ```python
 from saagieapi.projects import SaagieApi
 
-saagie = SaagieApi(url_saagie="https://saagie-workspace.prod.saagie.io",
+saagie = SaagieApi(url_saagie="<url>",
                    id_platform="1",
                    user="<saagie-user-name>",
                    password="<saagie-user-password>",
