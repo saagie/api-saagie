@@ -741,6 +741,8 @@ class SaagieApi:
                 raise Exception(str(result.errors[errors_matching.index(None)]))
             else:
                 return result.data
+        else:
+            return result.data
 
     def get_project_web_app(self, web_app_id):
         """Get webApp with given UUID or null if it doesn't exist.
