@@ -202,7 +202,7 @@ gql_get_project_jobs = """
         statusList
       }},
       countJobInstance,
-      instances(limit: {1}){{
+      instances{1}{{
         id,
         status,
         startTime,
@@ -383,7 +383,7 @@ gql_get_project_web_apps = """
       name,
       description,
       countJobInstance,
-      instances(limit: {1}){{
+      instances{1}{{
         id,
         status,
         startTime,
@@ -494,7 +494,7 @@ gql_get_pipelines = """
         statusList
       }},
       pipelineInstanceCount,
-      instances(limit: {1}){{
+      instances{1}{{
         id,
         status,
         startTime,
