@@ -5,6 +5,7 @@ Projects & Jobs - to interact with the manager API, see the manager subpackage)
 """
 import json
 import time
+import re
 from pathlib import Path
 
 from gql import Client
@@ -727,9 +728,19 @@ class SaagieApi:
         dict
             Dict of webApp information
         """
+        regex_error_missing_technology = "io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
+        
         query = gql(gql_get_project_web_apps.format(project_id,
                                                     instances_limit))
-        return self.client.execute(query)
+        result = self.client._get_result(query) 
+        
+        if result.errors:
+            # Matching errors with error missing technology message
+            errors_matching = [re.fullmatch(regex_error_missing_technology, e['message']) for e in result.errors]
+            if None in errors_matching:
+                raise Exception(str(result.errors[errors_matching.index(None)]))
+            else:
+                return result.data
 
     def get_project_web_app(self, web_app_id):
         """Get webApp with given UUID or null if it doesn't exist.
