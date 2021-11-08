@@ -430,7 +430,7 @@ class SaagieApi:
         dict
             Dict of jobs information
         """
-        instances_limit_request =  f" (limit: ${str(instances_limit)})" if instances_limit==-1 else ""
+        instances_limit_request =  f" (limit: ${str(instances_limit)})" if instances_limit!=-1 else ""
         query = gql(gql_get_project_jobs.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
@@ -729,7 +729,7 @@ class SaagieApi:
             Dict of webApp information
         """
         regex_error_missing_technology = "io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
-        instances_limit_request =  f" (limit: ${str(instances_limit)})" if instances_limit==-1 else ""
+        instances_limit_request =  f" (limit: ${str(instances_limit)})" if instances_limit!=-1 else ""
         
         query = gql(gql_get_project_web_apps.format(project_id,
                                                     instances_limit_request))
@@ -801,7 +801,7 @@ class SaagieApi:
         Dict
             Dict of pipelines information
         """
-        instances_limit_request =  f" (limit: ${str(instances_limit)})" if instances_limit==-1 else ""
+        instances_limit_request =  f" (limit: ${str(instances_limit)})" if instances_limit!=-1 else ""
         query = gql(gql_get_pipelines.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
