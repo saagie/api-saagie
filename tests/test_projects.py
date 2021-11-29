@@ -145,7 +145,7 @@ class TestGQLTemplate:
 
     def test_get_project_jobs(self):
         project_id = "1234"
-        instances_limit = "3"
+        instances_limit = 3
         query = gql(gql_get_project_jobs.format(project_id, instances_limit))
         result = self.client.validate(query)
         expected = None
@@ -204,7 +204,7 @@ class TestGQLTemplate:
 
     def test_get_project_web_apps(self):
         project_id = "1234"
-        instances_limit = "1"
+        instances_limit = 1
         query = gql(gql_get_project_web_apps.format(project_id,
                                                     instances_limit))
         result = self.client.validate(query)
@@ -231,7 +231,7 @@ class TestGQLTemplate:
 
     def test_get_pipelines(self):
         project_id = "1234"
-        instances_limit = "1"
+        instances_limit = 1
         query = gql(gql_get_pipelines.format(project_id, instances_limit))
         result = self.client.validate(query)
         expected = None
