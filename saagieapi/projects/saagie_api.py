@@ -409,7 +409,7 @@ class SaagieApi:
     # ###                      jobs                     ####
     # ######################################################
 
-    def get_project_jobs(self, project_id, instances_limit):
+    def get_project_jobs(self, project_id, instances_limit=-1):
         """List jobs in the given project with their instances.
         NB: You can only list jobs if you have at least the viewer role on the
         project
@@ -421,7 +421,7 @@ class SaagieApi:
             '/project/' (eg: the project UUID is
             '8321e13c-892a-4481-8552-5be4b6cc5df4' in
             https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
-        instances_limit : int
+        instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
 
@@ -430,8 +430,8 @@ class SaagieApi:
         dict
             Dict of jobs information
         """
-        instances_limit = str(instances_limit)
-        query = gql(gql_get_project_jobs.format(project_id, instances_limit))
+        instances_limit_request =  f" (limit: {str(instances_limit)})" if instances_limit!=-1 else ""
+        query = gql(gql_get_project_jobs.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
     def get_project_job(self, job_id):
@@ -707,7 +707,7 @@ class SaagieApi:
 
     # Difference between app and webapp in current graphQL API ?
     # Web App = Docker jobs ?
-    def get_project_web_apps(self, project_id, instances_limit):
+    def get_project_web_apps(self, project_id, instances_limit=-1):
         """List webApps of project with their instances.
         NB: You can only list webApps if you have at least the viewer role on
         the project.
@@ -719,7 +719,7 @@ class SaagieApi:
             '/project' (eg: the project UUID is
             '8321e13c-892a-4481-8552-5be4b6cc5df4' in
             https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
-        instances_limit : int
+        instances_limit : int, optional
             Maximum limit of instances to fetch per webapp. Fetch from most
             recent to oldest
 
@@ -729,9 +729,10 @@ class SaagieApi:
             Dict of webApp information
         """
         regex_error_missing_technology = "io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
+        instances_limit_request =  f" (limit: {str(instances_limit)})" if instances_limit!=-1 else ""
         
         query = gql(gql_get_project_web_apps.format(project_id,
-                                                    instances_limit))
+                                                    instances_limit_request))
         result = self.client._get_result(query) 
         
         if result.errors:
@@ -781,7 +782,7 @@ class SaagieApi:
     # ######################################################
     # ###                   pipelines                   ####
     # ######################################################
-    def get_project_pipelines(self, project_id, instances_limit):
+    def get_project_pipelines(self, project_id, instances_limit=-1):
         """List pipelines of project with their instances.
 
         Parameters
@@ -791,7 +792,7 @@ class SaagieApi:
             '/project' (eg: the project UUID is
             '8321e13c-892a-4481-8552-5be4b6cc5df4' in
             https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
-        instances_limit : int
+        instances_limit : int, optional
             Maximum limit of instances to fetch per pipelines. Fetch from most
             recent to oldest
 
@@ -800,7 +801,8 @@ class SaagieApi:
         Dict
             Dict of pipelines information
         """
-        query = gql(gql_get_pipelines.format(project_id, instances_limit))
+        instances_limit_request =  f" (limit: {str(instances_limit)})" if instances_limit!=-1 else ""
+        query = gql(gql_get_pipelines.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
     def get_project_pipeline(self, pipeline_id):
