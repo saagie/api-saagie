@@ -272,7 +272,7 @@ class TestGQLTemplate:
     def test_create_pipeline(self):
         project_id = "1"
         pipeline_name = "test"
-        job_id_list = "id1, id2, id3"
+        job_id_list = "[id1, id2, id3]"
         query = gql(gql_create_pipeline.format(pipeline_name, "", project_id, job_id_list))
         result = self.client.validate(query)
         expected = None
