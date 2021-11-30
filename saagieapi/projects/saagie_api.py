@@ -677,7 +677,8 @@ class SaagieApi:
                 }
                 response = requests.post(url,
                                         files=files,
-                                        auth=self.auth)
+                                        auth=self.auth,
+                                        verify=False)
         else:
             payload_str = gql_create_job.format(job_name,
                                         project_id,
@@ -691,7 +692,8 @@ class SaagieApi:
             payload = json.loads(payload_str)
             response = requests.post(url,
                                         json=payload,
-                                        auth=self.auth)
+                                        auth=self.auth,
+                                        verify=False)
 
         if response:
             return json.loads(response.content)
