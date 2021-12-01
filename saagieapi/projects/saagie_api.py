@@ -77,6 +77,35 @@ class SaagieApi:
             fetch_schema_from_transport=True
         )
 
+    @classmethod
+    def easy_connect(cls, url_saagie_platform, user, password):
+        """
+        Alternative constructor which uses the complete URL (eg: 
+        https://saagie-workspace.prod.saagie.io/projects/platform/6/) and will 
+        parse it in order to retrieve the platform URL, platform id and the 
+        realm.
+
+        Parameters
+        ----------
+        url_saagie_platform : str
+            Complete platform URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)
+        user : str
+            username to login with
+        password : str
+            password to login with
+        """
+        url_regex = re.compile(
+            "(https:\/\/(\w+)-(?:\w|\.)+)\/projects\/platform\/(\d+)")
+        m = url_regex.match(url_saagie_platform)
+        if bool(m):
+            url_saagie = m.group(1)
+            realm = m.group(2)
+            id_platform = m.group(3)
+        else:
+            raise ValueError(
+                "Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)")
+        return cls(url_saagie, id_platform, user, password, realm)
+
     # ######################################################
     # ###                    env vars                   ####
     # ######################################################
