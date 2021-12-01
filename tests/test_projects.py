@@ -268,3 +268,19 @@ class TestGQLTemplate:
         result = self.client.validate(query)
         expected = None
         assert result == expected
+
+    def test_create_pipeline(self):
+        project_id = "1"
+        pipeline_name = "test"
+        job_id_list = "[id1, id2, id3]"
+        query = gql(gql_create_pipeline.format(pipeline_name, "", project_id, job_id_list))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
+    def test_get_pipeline_instance(self):
+        pipeline_instance_id = "1"
+        query = gql(gql_get_pipeline_instance.format(pipeline_instance_id))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected

@@ -370,7 +370,7 @@ class SaagieApi:
         for repo in repositories:
             if repo['name'] == 'Saagie':
                 technologies = [techno for techno in repo['technologies']
-                                if techno['__typename'] == 'JobTechnology']
+                                if techno['__typename'] == 'JobTechnology' or (techno['__typename'] == 'SparkTechnology')]
 
         # Generate the technology graphQL string only with technologies id
         technologies = [f'{{id: "{tech["id"]}"}}' for tech in technologies]
@@ -570,7 +570,7 @@ class SaagieApi:
         query = gql(gql_edit_job.format(job))
         return self.client.execute(query)
 
-    def create_job(self, job_name, project_id, file, description='',
+    def create_job(self, job_name, project_id, file=None, description='',
                    category='Processing', technology='python',
                    runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note='',
@@ -601,7 +601,7 @@ class SaagieApi:
             '/project' (eg: the project UUID is
             '8321e13c-892a-4481-8552-5be4b6cc5df4' in
             https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
-        file : str
+        file : str, optional
             Local path of the file to upload
         description : str, optional
             Description of the job
@@ -655,26 +655,45 @@ class SaagieApi:
         else:
             extra_tech = ''
 
-        with file.open(mode='rb') as f:
-            files = {
-                '1': (file.name, f),
-                'operations': (None, gql_create_job.format(job_name,
-                                                           project_id,
-                                                           description,
-                                                           category,
-                                                           technology_id,
-                                                           runtime_version,
-                                                           command_line,
-                                                           release_note,
-                                                           extra_tech)),
-                'map': (None, '{ "1": ["variables.file"] }'),
-            }
-
-            url = self.url_saagie + self.suffix_api + 'platform/'
-            url += str(self.id_platform) + "/graphql"
+        url = self.url_saagie + self.suffix_api + 'platform/'
+        url += str(self.id_platform) + "/graphql"
+        
+        if file:
+            file = Path(file)
+            #logging.debug("Creating jobs with archive ...")
+            with file.open(mode='rb') as f:
+                files = {
+                    '1': (file.name, f),
+                    'operations': (None, gql_create_job.format(job_name,
+                                                            project_id,
+                                                            description,
+                                                            category,
+                                                            technology_id,
+                                                            runtime_version,
+                                                            command_line,
+                                                            release_note,
+                                                            extra_tech)),
+                    'map': (None, '{ "1": ["variables.file"] }'),
+                }
+                response = requests.post(url,
+                                        files=files,
+                                        auth=self.auth,
+                                        verify=False)
+        else:
+            payload_str = gql_create_job.format(job_name,
+                                        project_id,
+                                        description,
+                                        category,
+                                        technology_id,
+                                        runtime_version,
+                                        command_line,
+                                        release_note,
+                                        extra_tech)
+            payload = json.loads(payload_str)
             response = requests.post(url,
-                                     files=files,
-                                     auth=self.auth)
+                                        json=payload,
+                                        auth=self.auth,
+                                        verify=False)
 
         if response:
             return json.loads(response.content)
@@ -936,3 +955,51 @@ class SaagieApi:
                 .get("status")
             print('Current state : ' + state)
         return state
+
+    def create_pipeline(self, name, project_id, jobs_id, description=""):
+        """
+        Create a pipeline in a given project
+
+        Parameters
+        ----------
+        name : str
+            Name of the pipeline. Must not already exist in the project
+        project_id : str
+            UUID of your project. Can be found in the project URL after the
+            '/project' (eg: the project UUID is
+            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
+            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+        jobs_id : List
+            Ordered list of job's id (example : ["id1", "id2", "id3"] will result in the following pipeline id1 -> id2 -> id3)
+        description : str, optional
+            Description of the pipeline
+
+        Returns
+        -------
+        dict
+            Dict of job information
+        """
+        query = gql(gql_create_pipeline.format(
+            name,
+            description,
+            project_id,
+            f"""["{'", "'.join(jobs_id)}"]"""
+        ))
+        return self.client.execute(query)
+
+    def get_pipeline_instance(self, pipeline_instance_id):
+        """
+        Get the information of a given pipeline instance id
+
+        Parameters
+        ----------
+        pipeline_instance_id : str
+            Pipeline instance id
+
+        Returns
+        -------
+        dict
+            Dict of job information
+        """
+        query = gql(gql_get_pipeline_instance.format(pipeline_instance_id))
+        return self.client.execute(query)

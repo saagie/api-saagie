@@ -575,3 +575,26 @@ gql_run_pipeline = """
     }}
   }}
 """
+
+gql_create_pipeline = """
+  mutation {{
+      createPipeline(pipeline: {{
+          name: "{0}",
+          description: "{1}",
+          projectId: "{2}",
+          jobsId: {3},
+          isScheduled: false
+      }}){{id}}
+  }}
+"""
+
+gql_get_pipeline_instance = """
+  query {{
+      pipelineInstance(id: "{0}"){{
+          id,
+          status,
+          startTime,
+          endTime
+      }}
+  }}
+"""
