@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.6 (2021-12-02)
+### :bug:
+* :bug: fixing extra technology name ([#34](https://github.com/saagie/api-saagie/issues/34)) ([`fa0c335`](https://github.com/saagie/api-saagie/commit/fa0c3350ce420fc6796816db88fa40429fe0139c))
+
 ## v0.5.5 (2021-12-02)
 ### :zap:
 * :zap: remove useless space ([#32](https://github.com/saagie/api-saagie/issues/32)) ([`9b00459`](https://github.com/saagie/api-saagie/commit/9b00459148d2f1187c0187349e8fee7bee76c1dc))
