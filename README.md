@@ -92,4 +92,3 @@ In order to work properly, you need to follow the  [Emoji Parser commit style](h
 - Messages with :ambulance:, :lock:, :bug:, :zap:, :goal_net:, :alien:, :wheelchair:, :speech_balloon:, :mag:, :apple:, :penguin:, :checkered_flag:, :robot:, :green_apple: emojis in the commit will make the release process to bump the patch version
 - Messages with :sparkles:, :children_crossing:, :lipstick:, :iphone:, :egg:, :chart_with_upwards_trend: emojis in the commit will make the release process to bump the minor version
 - Messages with a :boom: emoji in the commit will make the release process to bump the major version
-
