@@ -678,7 +678,6 @@ class SaagieApi:
             technology_id = job_technology[0]
 
         if extra_technology != '':
-            extra_technology = extra_technology.capitalize()
             extra_tech = gql_extra_technology.format(extra_technology,
                                                      extra_technology_version)
         else:
