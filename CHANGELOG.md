@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.5 (2021-12-02)
+### :zap:
+* :zap: remove useless space ([#32](https://github.com/saagie/api-saagie/issues/32)) ([`9b00459`](https://github.com/saagie/api-saagie/commit/9b00459148d2f1187c0187349e8fee7bee76c1dc))
+
 ## v0.5.4 (2021-10-07)
 ### :zap:
 * :zap: Improving job creation and refactoring integration tests ([`db1a420`](https://github.com/saagie/api-saagie/commit/db1a42085e053b20c04d58cefb1f98e7ee87986f))
