@@ -104,11 +104,16 @@ class TestIntegrationProject:
         waiting_time = 0
 
         # Safety: wait for 5min max for project initialisation
-        while project_status != 'READY' and waiting_time <= 300:
+        project_creation_timeout = 400
+        while project_status != 'READY' and waiting_time <= project_creation_timeout:
             time.sleep(10)
             project_status = cls.saagie \
                 .get_project_info(cls.project_id)['project']['status']
             waiting_time += 10
+        if project_status != 'READY':
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds")
 
     @pytest.fixture
     def create_job(self):
