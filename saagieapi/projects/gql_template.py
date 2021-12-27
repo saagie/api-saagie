@@ -131,8 +131,7 @@ gql_get_project_technologies = """
    technologiesByCategory(projectId: "{0}"){{
       jobCategory,
       technologies{{
-        id,
-        label
+        id
         }}
    }}
 }} 
@@ -216,8 +215,7 @@ gql_get_project_jobs = """
       }},
       category,
       technology {{
-        id,
-        label
+        id
       }},
       isScheduled,
       cronScheduling,
@@ -263,8 +261,7 @@ gql_get_project_job = """
       }},
       category,
       technology {{
-        id,
-        label
+        id
       }},
       isScheduled,
       cronScheduling,
@@ -397,8 +394,7 @@ gql_get_project_web_apps = """
       }},
       category,
       technology {{
-        id,
-        label
+        id
       }},
       isScheduled,
       cronScheduling,
@@ -436,8 +432,7 @@ get_project_web_app = """
       }},
       category,
       technology {{
-        id,
-        label
+        id
       }},
       isScheduled,
       cronScheduling,

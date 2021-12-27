@@ -1,14 +1,15 @@
-import time
-import urllib3
-
 import os
 import sys
+import time
+
+import pytest
+import urllib3
+
+from saagieapi.projects import SaagieApi
+
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")
 sys.path.append(dir_path + '/..')
-
-import pytest
-from saagieapi.projects import SaagieApi
 
 
 class TestIntegrationProjectCreationAndDeletion():
@@ -98,14 +99,14 @@ class TestIntegrationProject:
         cls.project_id = result['createProject']['id']
 
         # Waiting for the project to be ready
-        project_status = cls.saagie\
+        project_status = cls.saagie \
             .get_project_info(project_id=cls.project_id)['project']['status']
         waiting_time = 0
 
         # Safety: wait for 5min max for project initialisation
         while project_status != 'READY' and waiting_time <= 300:
             time.sleep(10)
-            project_status = cls.saagie\
+            project_status = cls.saagie \
                 .get_project_info(cls.project_id)['project']['status']
             waiting_time += 10
 
@@ -123,6 +124,7 @@ class TestIntegrationProject:
                                      description='',
                                      category='Processing',
                                      technology='python',
+                                     technology_catalog='Saagie',
                                      runtime_version='3.6',
                                      command_line='python {file} arg1 arg2',
                                      release_note='',
@@ -185,7 +187,7 @@ class TestIntegrationProject:
 
         self.saagie.stop_job(job_instance_id)
 
-        job_instance_status = self.saagie\
+        job_instance_status = self.saagie \
             .get_job_instance(job_instance_id)['jobInstance']['status']
 
         assert job_instance_status in ['KILLED', 'KILLING']
@@ -217,7 +219,7 @@ class TestIntegrationProject:
     def test_create_global_env_var(self, create_then_delete_global_env_var):
         name = create_then_delete_global_env_var
 
-        global_envs = self.saagie\
+        global_envs = self.saagie \
             .get_global_env_vars()['globalEnvironmentVariables']
 
         global_envs_names = [env['name'] for env in global_envs]
@@ -260,7 +262,7 @@ class TestIntegrationProject:
     def test_create_project_env_var(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
 
-        project_envs = self.saagie\
+        project_envs = self.saagie \
             .get_project_env_vars(self.project_id)
         project_env_names = [env['name'] for env
                              in project_envs['projectEnvironmentVariables']]

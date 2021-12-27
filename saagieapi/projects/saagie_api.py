@@ -399,7 +399,8 @@ class SaagieApi:
         for repo in repositories:
             if repo['name'] == 'Saagie':
                 technologies = [techno for techno in repo['technologies']
-                                if techno['__typename'] == 'JobTechnology' or (techno['__typename'] == 'SparkTechnology')]
+                                if
+                                techno['__typename'] == 'JobTechnology' or (techno['__typename'] == 'SparkTechnology')]
 
         # Generate the technology graphQL string only with technologies id
         technologies = [f'{{id: "{tech["id"]}"}}' for tech in technologies]
@@ -459,7 +460,7 @@ class SaagieApi:
         dict
             Dict of jobs information
         """
-        instances_limit_request =  f" (limit: {str(instances_limit)})" if instances_limit!=-1 else ""
+        instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
         query = gql(gql_get_project_jobs.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
@@ -601,6 +602,7 @@ class SaagieApi:
 
     def create_job(self, job_name, project_id, file=None, description='',
                    category='Processing', technology='python',
+                   technology_catalog='Saagie',
                    runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note='',
                    extra_technology='', extra_technology_version=''):
@@ -618,8 +620,6 @@ class SaagieApi:
           See https://github.com/graphql-python/gql/issues/68 to follow this
           work.
         - Tested with python and spark jobs
-        - In case of multiple technologies with the same name (if they're coming from different
-          catalogs), the first one configured, in the catalog order, will be fetched
 
         Parameters
         ----------
@@ -640,6 +640,8 @@ class SaagieApi:
         technology : str, optional
             Technology label of the job to create. See self.get_technologies()
             for a list of available technologies
+        technology_catalog : str, optional
+            Technology catalog containing the technology to use for this job
         runtime_version : str, optional
             Technology version of the job
         command_line : str, optional
@@ -665,17 +667,37 @@ class SaagieApi:
         """
         file = Path(file)
 
-        technology = technology.lower()
-        technologies = self.get_project_technologies(project_id)['technologiesByCategory']
-        technologies_for_category = [tech['technologies'] for tech in technologies if tech['jobCategory'] == category][
-            0]
-        job_technology = [tech['id'] for tech in technologies_for_category
-                          if tech['label'].lower() == technology]
-        if not job_technology:
+        technologies_for_project = self.get_project_technologies(project_id)['technologiesByCategory']
+        technologies_for_project_and_category = [
+            tech['id'] for tech in
+            [
+                tech['technologies'] for tech in technologies_for_project
+                if tech['jobCategory'] == category
+            ][0]
+        ]
+        all_technologies_in_catalog = [
+            catalog['technologies'] for catalog in self.get_repositories_info()['repositories']
+            if catalog['name'] == technology_catalog
+        ]
+        if not all_technologies_in_catalog:
             raise RuntimeError(
-                f"Technology {technology} does not exist in the target project {project_id} for the {category}category")
+                f"Catalog {technology_catalog} does not exist or does not contain technologies")
+
+        technology_in_catalog = [tech['id'] for tech in
+                                 all_technologies_in_catalog[0]
+                                 if tech["label"].lower() == technology.lower()]
+
+        if not technology_in_catalog:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the catalog {technology_catalog}")
+
+        if technology_in_catalog[0] not in technologies_for_project_and_category:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the target project {project_id} "
+                f"for the {category} category "
+                f"and for the {technology_catalog} catalog")
         else:
-            technology_id = job_technology[0]
+            technology_id = technology_in_catalog[0]
 
         if extra_technology != '':
             extra_tech = gql_extra_technology.format(extra_technology,
@@ -685,43 +707,43 @@ class SaagieApi:
 
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + "/graphql"
-        
+
         if file:
             file = Path(file)
-            #logging.debug("Creating jobs with archive ...")
+            # logging.debug("Creating jobs with archive ...")
             with file.open(mode='rb') as f:
                 files = {
                     '1': (file.name, f),
                     'operations': (None, gql_create_job.format(job_name,
-                                                            project_id,
-                                                            description,
-                                                            category,
-                                                            technology_id,
-                                                            runtime_version,
-                                                            command_line,
-                                                            release_note,
-                                                            extra_tech)),
+                                                               project_id,
+                                                               description,
+                                                               category,
+                                                               technology_id,
+                                                               runtime_version,
+                                                               command_line,
+                                                               release_note,
+                                                               extra_tech)),
                     'map': (None, '{ "1": ["variables.file"] }'),
                 }
                 response = requests.post(url,
-                                        files=files,
-                                        auth=self.auth,
-                                        verify=False)
+                                         files=files,
+                                         auth=self.auth,
+                                         verify=False)
         else:
             payload_str = gql_create_job.format(job_name,
-                                        project_id,
-                                        description,
-                                        category,
-                                        technology_id,
-                                        runtime_version,
-                                        command_line,
-                                        release_note,
-                                        extra_tech)
+                                                project_id,
+                                                description,
+                                                category,
+                                                technology_id,
+                                                runtime_version,
+                                                command_line,
+                                                release_note,
+                                                extra_tech)
             payload = json.loads(payload_str)
             response = requests.post(url,
-                                        json=payload,
-                                        auth=self.auth,
-                                        verify=False)
+                                     json=payload,
+                                     auth=self.auth,
+                                     verify=False)
 
         if response:
             return json.loads(response.content)
@@ -776,12 +798,12 @@ class SaagieApi:
             Dict of webApp information
         """
         regex_error_missing_technology = "io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
-        instances_limit_request =  f" (limit: {str(instances_limit)})" if instances_limit!=-1 else ""
-        
+        instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
+
         query = gql(gql_get_project_web_apps.format(project_id,
                                                     instances_limit_request))
-        result = self.client._get_result(query) 
-        
+        result = self.client._get_result(query)
+
         if result.errors:
             # Matching errors with error missing technology message
             errors_matching = [re.fullmatch(regex_error_missing_technology, e['message']) for e in result.errors]
@@ -848,7 +870,7 @@ class SaagieApi:
         Dict
             Dict of pipelines information
         """
-        instances_limit_request =  f" (limit: {str(instances_limit)})" if instances_limit!=-1 else ""
+        instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
         query = gql(gql_get_pipelines.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
