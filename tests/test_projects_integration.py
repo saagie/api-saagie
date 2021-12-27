@@ -1,15 +1,15 @@
-import time
-import urllib3
-
 import os
 import sys
+import time
+
+import pytest
+import urllib3
+
+from saagieapi.projects import SaagieApi
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")
 sys.path.append(dir_path + '/..')
-
-import pytest
-from saagieapi.projects import SaagieApi
 
 
 class TestIntegrationProjectCreationAndDeletion():
@@ -124,6 +124,7 @@ class TestIntegrationProject:
                                      description='',
                                      category='Processing',
                                      technology='python',
+                                     technology_catalog='Saagie',
                                      runtime_version='3.6',
                                      command_line='python {file} arg1 arg2',
                                      release_note='',

@@ -2,6 +2,7 @@ import gql
 from gql import Client
 from graphql import build_ast_schema
 from graphql.language.parser import parse
+from saagieapi.projects.gql_template import *
 
 import os
 import sys
@@ -10,26 +11,24 @@ dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")
 sys.path.append(dir_path + '/..')
 
-from saagieapi.projects.gql_template import *
+
+def create_gql_client(schema_file):
+    """
+    Return a GQL Client with a defined schema
+    :param schema_file: String, File path of schema
+    :return: GQL Client
+    """
+    with open(schema_file) as source:
+        document = parse(source.read())
+    schema = build_ast_schema(document)
+    client = Client(schema=schema)
+    return client
 
 
 class TestGQLTemplate:
 
-    def create_gql_client(self, schema_file):
-        """
-        Return a GQL Client with a defined schema
-        :param schema_file: String, File path of schema
-        :return: GQL Client
-        """
-        with open(schema_file) as source:
-            document = parse(source.read())
-        schema = build_ast_schema(document)
-        client = Client(schema=schema)
-        return client
-
     def setup_method(self):
-        dir_path = os.path.dirname(os.path.abspath(__file__))
-        self.client = self.create_gql_client(dir_path + '/schema.graphqls')
+        self.client = create_gql_client(dir_path + '/schema.graphqls')
 
     # ######################################################
     # ###                    env vars                   ####
@@ -53,8 +52,8 @@ class TestGQLTemplate:
         assert result == expected
 
     def test_delete_env_var(self):
-        id = '1234'
-        query = gql(gql_delete_env_var.format(id))
+        env_var_id = '1234'
+        query = gql(gql_delete_env_var.format(env_var_id))
         result = self.client.validate(query)
         expected = None
         assert result == expected
