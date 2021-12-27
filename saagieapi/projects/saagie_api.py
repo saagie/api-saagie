@@ -641,7 +641,7 @@ class SaagieApi:
             Technology label of the job to create. See self.get_technologies()
             for a list of available technologies
         technology_catalog : str, optional
-            Catalog of Technology containing the technology to use
+            Technology catalog containing the technology to use for this job
         runtime_version : str, optional
             Technology version of the job
         command_line : str, optional
@@ -667,31 +667,37 @@ class SaagieApi:
         """
         file = Path(file)
 
-        technology = technology.lower()
-        configured_technologies = self.get_project_technologies(project_id)['technologiesByCategory']
-        configured_technology_ids_for_category = [tech['id'] for tech in
-                                                  [tech['technologies'] for tech in configured_technologies if
-                                                   tech['jobCategory'] == category][0]]
-        all_technologies = self.get_repositories_info()['repositories']
-        technos_for_catalog = [catalog['technologies'] for catalog in all_technologies if
-                               catalog['name'] == technology_catalog]
-        if not technos_for_catalog:
+        technologies_for_project = self.get_project_technologies(project_id)['technologiesByCategory']
+        technologies_for_project_and_category = [
+            tech['id'] for tech in
+            [
+                tech['technologies'] for tech in technologies_for_project
+                if tech['jobCategory'] == category
+            ][0]
+        ]
+        all_technologies_in_catalog = [
+            catalog['technologies'] for catalog in self.get_repositories_info()['repositories']
+            if catalog['name'] == technology_catalog
+        ]
+        if not all_technologies_in_catalog:
             raise RuntimeError(
                 f"Catalog {technology_catalog} does not exist or does not contain technologies")
-        technologies_for_catalog = [tech['id'] for tech in
-                                    technos_for_catalog[0]
-                                    if tech["label"].lower() == technology]
 
-        if not technologies_for_catalog:
+        technology_in_catalog = [tech['id'] for tech in
+                                 all_technologies_in_catalog[0]
+                                 if tech["label"].lower() == technology.lower()]
+
+        if not technology_in_catalog:
             raise RuntimeError(
                 f"Technology {technology} does not exist in the catalog {technology_catalog}")
-        if technologies_for_catalog[0] not in configured_technology_ids_for_category:
+
+        if technology_in_catalog[0] not in technologies_for_project_and_category:
             raise RuntimeError(
                 f"Technology {technology} does not exist in the target project {project_id} "
                 f"for the {category} category "
                 f"and for the {technology_catalog} catalog")
         else:
-            technology_id = technologies_for_catalog[0]
+            technology_id = technology_in_catalog[0]
 
         if extra_technology != '':
             extra_tech = gql_extra_technology.format(extra_technology,
