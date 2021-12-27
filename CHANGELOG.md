@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.7 (2021-12-27)
+### :zap:
+* :zap: Catalog name can be specified on job creation ([#37](https://github.com/saagie/api-saagie/issues/37)) ([`2ddfd9f`](https://github.com/saagie/api-saagie/commit/2ddfd9f73bd92db27b144acde40a3c787efcc141))
+
 ## v0.5.6 (2021-12-02)
 ### :bug:
 * :bug: fixing extra technology name ([#34](https://github.com/saagie/api-saagie/issues/34)) ([`fa0c335`](https://github.com/saagie/api-saagie/commit/fa0c3350ce420fc6796816db88fa40429fe0139c))
