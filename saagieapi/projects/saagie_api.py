@@ -189,10 +189,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
 
         Returns
         -------
@@ -209,10 +206,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         name : str
             Name of the environment variable to create
         value : str
@@ -242,10 +236,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         name : str
             Name of the environment variable to delete inside the given project
 
@@ -312,10 +303,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
 
         Returns
         -------
@@ -331,10 +319,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
 
         Returns
         -------
@@ -422,10 +407,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
 
         Returns
         -------
@@ -447,10 +429,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project/' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
@@ -470,9 +449,7 @@ class SaagieApi:
         Parameters
         ----------
         job_id : str
-            UUID of your job. Can be found in the project URL after the '/job/'
-            (eg: the job UUID is 'a85ac3db-bca1-4f15-b8f7-44731fba874b' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b)
+            UUID of your job (see README on how to find it)
 
         Returns
         -------
@@ -488,10 +465,7 @@ class SaagieApi:
         Parameters
         ----------
         job_instance_id : str
-            UUID of your job instance. Can be found in the job instance URL
-            after the '/instances/' (eg: the job instance UUID is
-            '6ff448ae-3770-4639-b0f8-079e5c614ab6' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b/instances/6ff448ae-3770-4639-b0f8-079e5c614ab6)
+            UUID of your job instance (see README on how to find it)
 
         Returns
         -------
@@ -507,9 +481,7 @@ class SaagieApi:
         Parameters
         ----------
         job_id : str
-            UUID of your job. Can be found in the project URL after the '/job/'
-            (eg: the job UUID is 'a85ac3db-bca1-4f15-b8f7-44731fba874b' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b)
+            UUID of your job (see README on how to find it)
 
         Returns
         -------
@@ -526,9 +498,7 @@ class SaagieApi:
         Parameters
         ----------
         job_id : str
-            UUID of your job. Can be found in the project URL after the '/job/'
-            (eg: the job UUID is 'a85ac3db-bca1-4f15-b8f7-44731fba874b' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b)
+            UUID of your job (see README on how to find it)
         freq : int, optional
             Seconds to wait between two state checks
         timeout : int, optional
@@ -568,10 +538,7 @@ class SaagieApi:
         Parameters
         ----------
         job_instance_id : str
-            UUID of your job instance. Can be found in the job instance URL
-            after the '/instances/' (eg: the job instance UUID is
-            '6ff448ae-3770-4639-b0f8-079e5c614ab6' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b/instances/6ff448ae-3770-4639-b0f8-079e5c614ab6)
+            UUID of your job instance (see README on how to find it)
 
         Returns
         -------
@@ -626,10 +593,7 @@ class SaagieApi:
         job_name : str
             Name of the job. Must not already exist in the project
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         file : str, optional
             Local path of the file to upload
         description : str, optional
@@ -757,9 +721,7 @@ class SaagieApi:
         Parameters
         ----------
         job_id : str
-            UUID of your job. Can be found in the project URL after the '/job/'
-            (eg: the job UUID is 'a85ac3db-bca1-4f15-b8f7-44731fba874b' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b)
+            UUID of your job (see README on how to find it)
 
         Returns
         -------
@@ -784,10 +746,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         instances_limit : int, optional
             Maximum limit of instances to fetch per webapp. Fetch from most
             recent to oldest
@@ -836,9 +795,7 @@ class SaagieApi:
         Parameters
         ----------
         app_id : str
-            UUID of your app. Can be found in the project URL after the '/app/'
-            (eg: the app UUID is '02c01d47-8a29-47d0-a53c-235add43c885' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/app/02c01d47-8a29-47d0-a53c-235add43c885)
+            UUID of your app (see README on how to find it)
 
         Returns
         -------
@@ -857,10 +814,7 @@ class SaagieApi:
         Parameters
         ----------
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         instances_limit : int, optional
             Maximum limit of instances to fetch per pipelines. Fetch from most
             recent to oldest
@@ -880,10 +834,7 @@ class SaagieApi:
         Parameters
         ----------
         pipeline_id : str
-            UUID of your pipeline. Can be found in the URL after the
-            '/pipeline' (eg: the pipeline UUID is
-            '4da29f25-e7c9-4410-869e-40b9ba0074d1' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/pipeline/4da29f25-e7c9-4410-869e-40b9ba0074d1)
+            UUID of your pipeline  (see README on how to find it)
 
         Returns
         -------
@@ -901,10 +852,7 @@ class SaagieApi:
         Parameters
         ----------
         pipeline_instance_id : str
-            UUID of your pipeline instance. Can be found in the URL after the
-            '/pipeline' (eg: the pipeline UUID is
-            'b26bebf1-46fe-481e-8fb7-ddd4d8cdd798' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/pipeline/4da29f25-e7c9-4410-869e-40b9ba0074d1/instances/b26bebf1-46fe-481e-8fb7-ddd4d8cdd798)
+            UUID of your pipeline instance  (see README on how to find it)
 
         Returns
         -------
@@ -925,10 +873,7 @@ class SaagieApi:
         Parameters
         ----------
         pipeline_id : str
-            UUID of your pipeline. Can be found in the URL after the
-            '/pipeline' (eg: the pipeline UUID is
-            '4da29f25-e7c9-4410-869e-40b9ba0074d1' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/pipeline/4da29f25-e7c9-4410-869e-40b9ba0074d1)
+            UUID of your pipeline  (see README on how to find it)
 
         Returns
         -------
@@ -946,10 +891,7 @@ class SaagieApi:
         Parameters
         ----------
         pipeline_id : str
-            UUID of your pipeline. Can be found in the URL after the
-            '/pipeline' (eg: the pipeline UUID is
-            '4da29f25-e7c9-4410-869e-40b9ba0074d1' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/pipeline/4da29f25-e7c9-4410-869e-40b9ba0074d1)
+            UUID of your pipeline  (see README on how to find it)
 
         Returns
         -------
@@ -968,10 +910,7 @@ class SaagieApi:
         Parameters
         ----------
         pipeline_id : str
-            UUID of your pipeline. Can be found in the URL after the
-            '/pipeline' (eg: the pipeline UUID is
-            '4da29f25-e7c9-4410-869e-40b9ba0074d1' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/pipeline/4da29f25-e7c9-4410-869e-40b9ba0074d1)
+            UUID of your pipeline  (see README on how to find it)
         freq : int, optional
             Number of seconds between 2 state checks
         timeout : int, optional
@@ -1015,10 +954,7 @@ class SaagieApi:
         name : str
             Name of the pipeline. Must not already exist in the project
         project_id : str
-            UUID of your project. Can be found in the project URL after the
-            '/project' (eg: the project UUID is
-            '8321e13c-892a-4481-8552-5be4b6cc5df4' in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs)
+            UUID of your project (see README on how to find it)
         jobs_id : List
             Ordered list of job's id (example : ["id1", "id2", "id3"] will result in the following pipeline id1 -> id2 -> id3)
         description : str, optional
