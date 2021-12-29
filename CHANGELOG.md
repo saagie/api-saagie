@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.8 (2021-12-29)
+### :green_apple:
+* :green_apple: Refactoring ([#40](https://github.com/saagie/api-saagie/issues/40)) ([`e2f2131`](https://github.com/saagie/api-saagie/commit/e2f2131a6c6984b8acaa39b42b1bc57d8b927533))
+
 ## v0.5.7 (2021-12-27)
 ### :zap:
 * :zap: Catalog name can be specified on job creation ([#37](https://github.com/saagie/api-saagie/issues/37)) ([`2ddfd9f`](https://github.com/saagie/api-saagie/commit/2ddfd9f73bd92db27b144acde40a3c787efcc141))
