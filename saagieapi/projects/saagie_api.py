@@ -8,6 +8,7 @@ import time
 import re
 from pathlib import Path
 
+from gql import gql
 from gql import Client
 from gql.transport.requests import RequestsHTTPTransport
 
@@ -28,18 +29,13 @@ class SaagieApi:
         url_saagie : str
             platform base URL (eg: https://saagie-workspace.prod.saagie.io)
         id_platform : int or str
-            Platform Id (you can find it in the URL after the '/platform/' when
-            you are on your own platform (eg, the platform'id is 6 in
-            https://saagie-workspace.prod.saagie.io/projects/platform/6/))
+            Platform Id  (see README on how to find it)
         user : str
             username to login with
         password : str
             password to login with
         realm : str
-            Saagie realm, which is the prefix that was determined during Saagie
-            installation. One can find it in the base url before the first '-'
-            (eg, the platform's realm is 'saagie' in
-            https://saagie-workspace.prod.saagie.io)
+            Saagie realm  (see README on how to find it)
         """
         if not url_saagie.endswith('/'):
             url_saagie += '/'
@@ -95,7 +91,7 @@ class SaagieApi:
             password to login with
         """
         url_regex = re.compile(
-            "(https:\/\/(\w+)-(?:\w|\.)+)\/projects\/platform\/(\d+)")
+            r"(https:\/\/(\w+)-(?:\w|\.)+)\/projects\/platform\/(\d+)")
         m = url_regex.match(url_saagie_platform)
         if bool(m):
             url_saagie = m.group(1)
@@ -111,7 +107,7 @@ class SaagieApi:
     # ######################################################
 
     def get_global_env_vars(self):
-        """Get global environmnet variables
+        """Get global environment variables
         NB: You can only list environment variables if you have at least the
         viewer role on the platform
 
@@ -248,7 +244,7 @@ class SaagieApi:
         Raises
         ------
         ValueError
-            When the given name doesn't correspond to an existing environmnent
+            When the given name doesn't correspond to an existing environment
             variable inside the given project
         """
         project_envs = self.get_project_env_vars(project_id)
@@ -381,6 +377,7 @@ class SaagieApi:
         # Keep only JobTechnologies (discarding AppTechnologies) of main
         # technology repository (Saagie repository)
         repositories = self.get_repositories_info()['repositories']
+        technologies = []
         for repo in repositories:
             if repo['name'] == 'Saagie':
                 technologies = [techno for techno in repo['technologies']
@@ -502,7 +499,7 @@ class SaagieApi:
         freq : int, optional
             Seconds to wait between two state checks
         timeout : int, optional
-            Seconds before timeout for a status'check call
+            Seconds before timeout for a status check call
 
         Returns
         -------
@@ -756,12 +753,12 @@ class SaagieApi:
         dict
             Dict of webApp information
         """
-        regex_error_missing_technology = "io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
+        regex_error_missing_technology = r"io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
         instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
 
         query = gql(gql_get_project_web_apps.format(project_id,
                                                     instances_limit_request))
-        result = self.client._get_result(query)
+        result = self.client.execute(query)
 
         if result.errors:
             # Matching errors with error missing technology message
@@ -932,7 +929,7 @@ class SaagieApi:
         pipeline_instance_info = self.client.execute(query)
         state = pipeline_instance_info.get("pipelineInstance").get("status")
         sec = 0
-        to = False
+
         while state not in final_status_list:
             to = False if timeout == -1 else sec >= timeout
             if to:
@@ -956,7 +953,8 @@ class SaagieApi:
         project_id : str
             UUID of your project (see README on how to find it)
         jobs_id : List
-            Ordered list of job's id (example : ["id1", "id2", "id3"] will result in the following pipeline id1 -> id2 -> id3)
+            Ordered list of job's id (example : ["id1", "id2", "id3"]
+            will result in the following pipeline id1 -> id2 -> id3)
         description : str, optional
             Description of the pipeline
 

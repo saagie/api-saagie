@@ -1,4 +1,4 @@
-import gql
+from gql import gql
 from gql import Client
 from graphql import build_ast_schema
 from graphql.language.parser import parse
