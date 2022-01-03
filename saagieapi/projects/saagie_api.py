@@ -371,9 +371,6 @@ class SaagieApi:
             raise ValueError("'role' takes value in ('Manager', 'Editor',"
                              " 'Viewer')")
 
-        # technologies = [f'{{id: "{tech["id"]}"}}'
-        #                 for tech in self.get_technologies()["technologies"]]
-
         # Keep only JobTechnologies (discarding AppTechnologies) of main
         # technology repository (Saagie repository)
         repositories = self.get_repositories_info()['repositories']
@@ -599,8 +596,7 @@ class SaagieApi:
             Category to create the job into. Must be 'Extraction', 'Processing'
             or 'Smart App'
         technology : str, optional
-            Technology label of the job to create. See self.get_technologies()
-            for a list of available technologies
+            Technology label of the job to create.
         technology_catalog : str, optional
             Technology catalog containing the technology to use for this job
         runtime_version : str, optional

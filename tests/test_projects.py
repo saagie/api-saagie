@@ -98,12 +98,6 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
-    def test_gql_get_technologies(self):
-        query = gql(gql_get_technologies)
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
-
     def test_gql_create_project_without_group_block(self):
         name = "test_project"
         description = ""
