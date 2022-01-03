@@ -97,16 +97,21 @@ type Query {
       skip:Int
     ): [EnvironmentVariable!]
 
-    # List technologies, grouped by category, in a given project by providing its UUID. In addition, technologies can be filtered by category.
+    # List technologies. All technologies in all projects will be listed if no argument is set, assuming that you have a creator role. Alternatively, list technologies in a given project by providing its UUID, assuming that you have at least the viewer role in the project or in all projects.
+    #
+    # In addition, when listing technologies within a project, technologies can be filtered by category.
+    technologies(projectId: UUID, jobCategory: String): [Technology!] @deprecated(reason: "Use gateway queries instead")
+
+    technology(id: UUID): Technology @deprecated(reason: "Use gateway queries instead")
+
+    # List job technologies, grouped by category, in a given project by providing its UUID. In addition, technologies can be filtered by category.
     #
     # You can only list technologies if you have at least the viewer role in the project or in all projects.
-    @deprecated(reason: "use project(id: UUID!).technologiesByCategory")
     technologiesByCategory(projectId: UUID!, jobCategory: String): [TechnologyByCategory!]
 
     # List app technologies in a given project by providing its UUID.
     #
     # You can only list app technologies if you have at least the viewer role in the project or in all projects.
-    @deprecated(reason: "use project(id: UUID!).appTechnologies")
     appTechnologies(projectId: UUID!): [Technology!]
 
     # List logs of a job instance by providing its UUID.
@@ -143,6 +148,11 @@ type Query {
     #
     # You can only list jobs categories if you have project creator role.
     jobCategories: [String!]!
+
+    # List available versions for a given technology.
+    #
+    # You can list technology versions only if you have at least the editor role in at least one project.
+    technologiesVersions(technologyId: UUID!): [TechnologyVersion!]! @deprecated(reason: "Use gateway queries instead")
 
     # Get a job instance's details by providing its UUID.
     #
@@ -740,6 +750,19 @@ input VolumeEditionInput {
     description: String
 }
 
+type TechnologyVersion {
+    id: ID!
+    technologyLabel: String!
+    versionLabel: String!
+    defaultResources: JobResources!
+    isRecommended: Boolean!
+    deprecated: Boolean!
+    isAvailable: Boolean!
+    secondaryTechnologies: [SecondaryTechnology!]
+    features: [Feature!]
+    lastUpdate: DateTime
+}
+
 type Feature {
     field: String!
     label: String!
@@ -784,8 +807,6 @@ type Project {
     # Volumes associated to this project
     volumes: [Volume!]!
     pipelines: [Pipeline!]!
-    technologiesByCategory: [TechnologyByCategory]!
-    appTechnologies: [Technology]!
 }
 
 type Volume {
@@ -1027,6 +1048,12 @@ type ExposedPort {
 
 type Technology {
     id: UUID!
+    label: String! @deprecated(reason: "Use gateway queries instead")
+    isAvailable: Boolean! @deprecated(reason: "Use gateway queries instead")
+    icon: String @deprecated(reason: "Use gateway queries instead")
+    pipelineAllowed: Boolean @deprecated(reason: "Use gateway queries instead")
+    portExpositionAllowed: Boolean @deprecated(reason: "Use gateway queries instead")
+    features: [Feature!] @deprecated(reason: "Use gateway queries instead")
 }
 
 type JobsCountByTechnology {
