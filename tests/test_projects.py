@@ -174,13 +174,9 @@ class TestGQLTemplate:
         assert result == expected
 
     def test_edit_job(self):
-        job_update = """
-        {
-            id: "1234",
-            storageSizeInMB: 1579
-        }"""
+        job_id = "job_1234"
 
-        query = gql(gql_edit_job.format(job_update))
+        query = gql(gql_edit_job.format(job_id, ""))
         result = self.client.validate(query)
         expected = None
         assert result == expected

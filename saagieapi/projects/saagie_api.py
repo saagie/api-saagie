@@ -6,7 +6,9 @@ Projects & Jobs - to interact with the manager API, see the manager subpackage)
 import json
 import time
 import re
+import pytz
 from pathlib import Path
+from croniter import croniter
 
 from gql import gql
 from gql import Client
@@ -542,10 +544,8 @@ class SaagieApi:
         query = gql(gql_stop_job_instance.format(job_instance_id))
         return self.client.execute(query)
 
-    # TO DETAIL!
-    # Detail job dict parameter, or explode the number of parameters to have
-    # a more comprehensible method
-    def edit_job(self, job):
+    def edit_job(self, job_id, job_name=None, description=None, is_scheduled=False, 
+                 cron_scheduling=None, schedule_timezone="UTC"):
         """Edit a job
 
         Parameters
@@ -558,7 +558,31 @@ class SaagieApi:
         dict
             Dict of job information
         """
-        query = gql(gql_edit_job.format(job))
+        gql_payload = []
+        if job_name:
+            gql_payload.append(f'name: "{job_name}"')
+
+        if description:
+            gql_payload.append(f'description: "{description}"')
+
+        if is_scheduled:
+            gql_payload.append(f'isScheduled: true')
+
+            if cron_scheduling and croniter.is_valid(cron_scheduling):
+                gql_payload.append(f'cronScheduling: "{cron_scheduling}"')
+            else:
+                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
+
+            if schedule_timezone in list(pytz.all_timezones):
+                gql_payload.append(f'scheduleTimezone: "{schedule_timezone}"')
+            else:
+                raise RuntimeError("Please specify a correct timezone")
+        
+        else:
+            gql_payload.append(f'isScheduled: false')
+
+        gql_payload_str = ", ".join(gql_payload)
+        query = gql(gql_edit_job.format(job_id, gql_payload_str))
         return self.client.execute(query)
 
     def create_job(self, job_name, project_id, file=None, description='',
@@ -566,7 +590,8 @@ class SaagieApi:
                    technology_catalog='Saagie',
                    runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note='',
-                   extra_technology='', extra_technology_version=''):
+                   extra_technology='', extra_technology_version='', 
+                   cron_scheduling=None, schedule_timezone="UTC"):
         """Create job in given project
 
         NOTE
@@ -611,6 +636,10 @@ class SaagieApi:
         extra_technology_version : str, optional
             Version of the extra technology. Leave to empty string when not
             needed
+        cronScheduling : str, optional
+            Scheduling CRON format
+        scheduleTimezone : str, optional
+
 
         Returns
         -------
@@ -622,7 +651,6 @@ class SaagieApi:
         requests.exceptions.RequestException
             When requests fails
         """
-        file = Path(file)
 
         technologies_for_project = self.get_project_technologies(project_id)['technologiesByCategory']
         technologies_for_project_and_category = [
@@ -665,6 +693,27 @@ class SaagieApi:
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + "/graphql"
 
+        gql_scheduling_payload = []
+
+        if cron_scheduling:
+            gql_scheduling_payload.append(f'"isScheduled": true')
+
+            if croniter.is_valid(cron_scheduling):
+                gql_scheduling_payload.append(f'"cronScheduling": "{cron_scheduling}"')
+            else:
+                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
+
+            if schedule_timezone in list(pytz.all_timezones):
+                gql_scheduling_payload.append(f'"scheduleTimezone": "{schedule_timezone}"')
+            else:
+                raise RuntimeError("Please specify a correct timezone")
+        
+        else:
+            gql_scheduling_payload.append(f'"isScheduled": false')
+
+        gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
+
+
         if file:
             file = Path(file)
             # logging.debug("Creating jobs with archive ...")
@@ -679,7 +728,8 @@ class SaagieApi:
                                                                runtime_version,
                                                                command_line,
                                                                release_note,
-                                                               extra_tech)),
+                                                               extra_tech,
+                                                               gql_scheduling_payload_str)),
                     'map': (None, '{ "1": ["variables.file"] }'),
                 }
                 response = requests.post(url,
@@ -695,7 +745,8 @@ class SaagieApi:
                                                 runtime_version,
                                                 command_line,
                                                 release_note,
-                                                extra_tech)
+                                                extra_tech,
+                                                gql_scheduling_payload_str)
             payload = json.loads(payload_str)
             response = requests.post(url,
                                      json=payload,
