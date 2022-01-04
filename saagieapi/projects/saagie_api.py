@@ -264,6 +264,16 @@ class SaagieApi:
         return self.client.execute(query)
 
     # ##########################################################
+    # ###                    cluster                        ####
+    # ##########################################################
+
+    def get_cluster_capacity(self):
+        """Get information for cluster (cpu, gpu, memory)
+        """
+        query = gql(gql_get_cluster_info)
+        return self.client_gateway.execute(query)
+
+    # ##########################################################
     # ###                    repositories                   ####
     # ##########################################################
 
@@ -544,7 +554,7 @@ class SaagieApi:
         query = gql(gql_stop_job_instance.format(job_instance_id))
         return self.client.execute(query)
 
-    def edit_job(self, job_id, job_name=None, description=None, is_scheduled=False, 
+    def edit_job(self, job_id, job_name=None, description=None, is_scheduled=False,
                  cron_scheduling=None, schedule_timezone="UTC"):
         """Edit a job
 
@@ -577,7 +587,7 @@ class SaagieApi:
                 gql_payload.append(f'scheduleTimezone: "{schedule_timezone}"')
             else:
                 raise RuntimeError("Please specify a correct timezone")
-        
+
         else:
             gql_payload.append(f'isScheduled: false')
 
@@ -590,8 +600,8 @@ class SaagieApi:
                    technology_catalog='Saagie',
                    runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note='',
-                   extra_technology='', extra_technology_version='', 
-                   cron_scheduling=None, schedule_timezone="UTC"):
+                   extra_technology='', extra_technology_version='',
+                   cron_scheduling=None, schedule_timezone="UTC", resources=None):
         """Create job in given project
 
         NOTE
@@ -636,10 +646,12 @@ class SaagieApi:
         extra_technology_version : str, optional
             Version of the extra technology. Leave to empty string when not
             needed
-        cronScheduling : str, optional
+        cron_scheduling : str, optional
             Scheduling CRON format
-        scheduleTimezone : str, optional
-
+        schedule_timezone : str, optional
+        resources : dict, optional
+            Resources limit of the job.
+            Example: {"cpu":{"request":1.0},"memory":{"request":1.0}}
 
         Returns
         -------
@@ -707,12 +719,23 @@ class SaagieApi:
                 gql_scheduling_payload.append(f'"scheduleTimezone": "{schedule_timezone}"')
             else:
                 raise RuntimeError("Please specify a correct timezone")
-        
+
         else:
             gql_scheduling_payload.append(f'"isScheduled": false')
 
         gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
-
+        resources_str = json.dumps(resources)
+        payload_str = gql_create_job.format(job_name,
+                                            project_id,
+                                            description,
+                                            category,
+                                            technology_id,
+                                            runtime_version,
+                                            command_line,
+                                            release_note,
+                                            extra_tech,
+                                            gql_scheduling_payload_str,
+                                            resources_str)
 
         if file:
             file = Path(file)
@@ -720,16 +743,7 @@ class SaagieApi:
             with file.open(mode='rb') as f:
                 files = {
                     '1': (file.name, f),
-                    'operations': (None, gql_create_job.format(job_name,
-                                                               project_id,
-                                                               description,
-                                                               category,
-                                                               technology_id,
-                                                               runtime_version,
-                                                               command_line,
-                                                               release_note,
-                                                               extra_tech,
-                                                               gql_scheduling_payload_str)),
+                    'operations': (None, payload_str),
                     'map': (None, '{ "1": ["variables.file"] }'),
                 }
                 response = requests.post(url,
@@ -737,16 +751,7 @@ class SaagieApi:
                                          auth=self.auth,
                                          verify=False)
         else:
-            payload_str = gql_create_job.format(job_name,
-                                                project_id,
-                                                description,
-                                                category,
-                                                technology_id,
-                                                runtime_version,
-                                                command_line,
-                                                release_note,
-                                                extra_tech,
-                                                gql_scheduling_payload_str)
+
             payload = json.loads(payload_str)
             response = requests.post(url,
                                      json=payload,

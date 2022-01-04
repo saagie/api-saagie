@@ -81,6 +81,16 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    # ##########################################################
+    # ###                    cluster                        ####
+    # ##########################################################
+
+    def test_get_cluster_capacity(self):
+        query = gql(gql_get_cluster_info)
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
     # ######################################################
     # ###                    projects                   ####
     # ######################################################
