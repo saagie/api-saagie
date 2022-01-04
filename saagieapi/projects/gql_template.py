@@ -92,15 +92,6 @@ gql_get_repositories_info = """
   }
 """
 
-gql_get_technologies = """
-{
-  technologies {
-    id
-    label
-  }
-}
-"""
-
 #                        _              _
 #  _ __   _ __   ___    (_)  ___   ___ | |_  ___
 # | '_ \ | '__| / _ \   | | / _ \ / __|| __|/ __|

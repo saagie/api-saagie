@@ -98,7 +98,7 @@ saagie = SaagieApi(url_saagie="<url>",
         parse it in order to retrieve the platform URL, platform id and the 
         realm.
 ```python
-saagie = easy_connect(url_saagie_platform="<url>",
+saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
                    user="<saagie-user-name>",
                    password="<saagie-user-password>")
 ```

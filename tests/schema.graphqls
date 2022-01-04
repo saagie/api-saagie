@@ -3,346 +3,475 @@ schema {
     mutation: Mutation
 }
 
+directive @preview(reason: String = "This endpoint is in beta version, it may change in future versions") on FIELD_DEFINITION | ENUM_VALUE
+
 type Query {
     # List projects in platform.
     #
-    # You can only list projects you are rights on and projects you have created with less informations
-    # if you are project creator.
+    # You can only list projects you belong to and projects you have created.
     #
-    # Arguments are not yet implemented.
-    projects(search: String, first: Int, skip:Int): [Project!]
+    # Arguments are not implemented yet and may be removed or changed in future releases, which is why they are deprecated.
+    projects(
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      search: String,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      first: Int,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      skip:Int
+    ): [Project!]
 
-    # Get project with given Id or null if it doesn't exist.
+    # Get a project's details from its UUID. Project details include the pipelines and apps contained in the project.
     #
-    # You can only get project if you have at least role viewer on this project or on all projects.
+    # You can only get a project's details if you have at least the viewer role in this project or in all projects.
+    #
     project(id: UUID!): Project
 
-    # List jobs of project get with project UUID.
+    # List jobs in a given project.
     #
-    # You can only list jobs if you have at least role viewer on the project or on all projects.
+    # The list can be filtered by job category or technology.
     #
-    # Other arguments are not yet implemented.
-    jobs(projectId: UUID!, search: String, first: Int, skip:Int, category: String, technologyId: UUID): [Job!]
+    # You can only list jobs if you have at least the viewer role in this project or in all projects.
+    jobs(projectId: UUID!, category: String, technologyId: UUID): [Job!]
 
-    # Get job with given UUID or null if it doesn't exist.
+    # Get a job's details from its UUID.
     #
-    # You can only get job if you have at least role viewer on the project associated to the job or on all projects.
+    # You can only get a job's details if you have at least the viewer role in the project associated to the job or in all projects.
     job(id: UUID!): Job
 
-    # List webApps of project get with project UUID.
+    # List webApps in a given project.
     #
-    # You can only list jobs if you have at least role viewer on the project or on all projects.
+    # You can only list webApps if you have at least the viewer role in this project or in all projects.
     labWebApps(projectId: UUID!): [Job!]
 
-    # List webApps of project get with project UUID.
+    # Get a webApp's details from its UUID.
     #
-    # You can only list jobs if you have at least role viewer on the project or on all projects.
+    # You can only get a webApp's details if you have at least the viewer role in the project associated to the webApp or in all projects.
     labWebApp(id: UUID!): Job
 
-    # List apps of project get with project UUID.
+    # Get an app's details from its UUID.
     #
-    # You can only list apps if you have at least role viewer on the project or on all projects.
+    # You can only get an app's details if you have at least the viewer role in the project associated to the app or in all projects.
     app(id: UUID!): App
 
-    # List environment variables of a specific project according to its projectId.
+    # List environment variables in a given project.
     #
-    # You can only list environment variables if you have at least role viewer on the project or on all projects.
+    # You can only list environment variables if you have at least the viewer role in this project or in all projects.
     #
-    projectEnvironmentVariables(projectId: UUID!, search: String, first: Int, skip:Int): [EnvironmentVariable!]
+    # Several optional arguments are not yet implemented and may be removed or changed in future versions, so they are deprecated.
+    projectEnvironmentVariables(
+      projectId: UUID!,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      search: String,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      first: Int,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      skip:Int
+    ): [EnvironmentVariable!]
 
-    # List environment variables of a specific job according to its jobId.
+    # List environment variables of a specific job.
     #
-    # You can only list environment variables if you have at least role viewer on the project or on all projects.
+    # You can only list environment variables if you have at least the viewer role in the project associated to the job or in all projects.
     #
-    # Other arguments are not yet implemented.
-    jobEnvironmentVariables(jobId: UUID!, search: String, first: Int, skip:Int): [EnvironmentVariable!]
+    # Several optional arguments are not yet implemented and may be removed or changed in future versions, so they are deprecated.
+    jobEnvironmentVariables(
+      jobId: UUID!,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      search: String,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      first: Int,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      skip:Int
+    ): [EnvironmentVariable!]
 
     # List global environment variables.
     #
-    # You can only list environment variables if you have at least role viewer on the project or on all projects.
+    # You can only list global environment variables if you have a creator role.
     #
-    # Other arguments are not yet implemented.
-    globalEnvironmentVariables(search: String, first: Int, skip:Int): [EnvironmentVariable!]
+    # Several optional arguments are not yet implemented and may be removed or changed in future versions, so they are deprecated.
+    globalEnvironmentVariables(
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      search: String,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      first: Int,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      skip:Int
+    ): [EnvironmentVariable!]
 
-
-    # List all technologies in Projects&Jobs if no arguments are given.
+    # List technologies, grouped by category, in a given project by providing its UUID. In addition, technologies can be filtered by category.
     #
-    # List technologies for a project get with projectId if it's given.
-    #
-    # If JobCategory is also given, it will give technologies included in project with this category.
-    #
-    # JobCategory paremeter needs to have a ProjectId parameter given to work.
-    #
-    # If no arguments are given, you can only list technologies if you have creator role.
-    #
-    # If projectId is given, you can only list technologies if you have at
-    # least role viewer on the project or on all projects.
-    technologies(projectId: UUID, jobCategory: String): [Technology!] @deprecated(reason: "Use gateway queries instead")
-
-    technology(id: UUID): Technology @deprecated(reason: "Use gateway queries instead")
-
-    # List technologies of project get with projectId groupes by jobCategory.
-    #
-    # You can only list technologies if you have at least role viewer on the project or on all projects.
-    #
-    # if jobCategory argument is given, it will filter to give technologies associated to this jobCategory.
+    # You can only list technologies if you have at least the viewer role in the project or in all projects.
+    @deprecated(reason: "use project(id: UUID!).technologiesByCategory")
     technologiesByCategory(projectId: UUID!, jobCategory: String): [TechnologyByCategory!]
 
-    # List logs of jobInstance get with its UUID.
+    # List app technologies in a given project by providing its UUID.
     #
-    # You can only list logs if you have at least role viewer on the project
-    # associated to the job instance or on all projects.
+    # You can only list app technologies if you have at least the viewer role in the project or in all projects.
+    @deprecated(reason: "use project(id: UUID!).appTechnologies")
+    appTechnologies(projectId: UUID!): [Technology!]
+
+    # List logs of a job instance by providing its UUID.
+    #
+    # You can only list logs if you have at least the viewer role in the project or in all projects.
     logs(jobInstanceID: UUID!, limit: Int, skip: Int, stream: LogStream): Logs
 
-    # Count logs of jobInstance get with its UUID.
+    # Count logs of a job instance by providing its UUID.
     #
-    # You can only count logs if you have at least role viewer on the project
-    # associated to the job instance or on all projects.
+    # You can only count logs if you have at least the viewer role in the project or in all projects.
     countLogs(jobInstanceID: UUID!, stream: LogStream): Int
 
-    # Give job count for categories and technologies in project get with projectId.
+    # Get job count by category in a project by providing its UUID.
     #
-    # You can only get jobs count if you have at least role viewer on the project or on all projects.
+    # You can only get jobs count if you have at least the viewer role in the project or in all projects.
     #
-    # Other arguments are not implemented yet.
-    countJobs(projectId: UUID!, search: String, jobCategory: String, technologyId: UUID): [JobsCountByCategory]
+    # Several optional arguments are not yet implemented and may be removed or changed in future versions, so they are deprecated.
+    countJobs(
+      projectId: UUID!,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      search: String,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      jobCategory: String,
+      # Argument is deprecated : it is not implemented and may be removed or changed in future releases
+      technologyId: UUID
+    ): [JobsCountByCategory]
 
-    # Give default job categories.
+    # Get app count in a project by providing its UUID.
     #
-    # You can only get jobs categories if you have project creator role.
+    # You can only get apps count if you have at least the viewer role in the project or in all projects.
+    countApps(projectId: UUID!): [AppsCountByTechnology]
+
+    # List job categories.
     #
-    # Can be override at project creation in future.
+    # You can only list jobs categories if you have project creator role.
     jobCategories: [String!]!
 
-    # Give versions available for a technology given.
+    # Get a job instance's details by providing its UUID.
     #
-    # You can only get technologies versions if you have at least role editor on minimum one project.
-    technologiesVersions(technologyId: UUID!): [TechnologyVersion!]! @deprecated(reason: "Use gateway queries instead")
-
-    # Get job instance with given UUID or null if it doesn't exist.
-    #
-    # You can only get job instance if you have at least role viewer on the project associated to the job instance or on all projects.
+    # You can only get a job instance if you have at least the viewer role in the project associated to the job instance or in all projects.
     jobInstance(id: UUID!): JobInstance
 
-    # get rights associated to a given project.
+    # List rights associated to a given project by providing its UUID.
     #
-    # You can only get rights if you have at least role manager on the project or on all projects.
+    # You can only list rights if you have at least the manager role in the project or in all projects.
     rights(projectId: UUID!): [SecurityGroup!]
 
-    # get version with the given number associated to a given job
+    # Get a specific job version's details.
     #
-    # You can only get job instance if you have at least role viewer on the project associated to the job or on all projects.
+    # You can only get a job version if you have at least the viewer role in the project associated to the job or in all projects.
     jobVersion(jobId: UUID!, number: Int!): JobVersion
 
-    # get version with the given number associated to a given app
+    # Get a specific app version's details.
     #
-    # You can only get app instance if you have at least role viewer on the project associated to the app or on all projects.
+    # You can only get an app version if you have at least the viewer role in the project associated to the app or in all projects.
     appVersion(appId: UUID!, number: Int!): AppVersion
 
-    pipelines(projectId: UUID!): [Pipeline]
+    # List pipelines in a given project.
+    #
+    # You can only list pipelines if you have at least the viewer role in the project or in all projects.
+    #
+    # This deprecated endpoint allows to retrieve a pipeline having only linear versions without graph. To get all pipelines in linear or graph format, use endpoint `project` instead.
+    pipelines(projectId: UUID!): [Pipeline] @deprecated(reason: "Only for linears pipelines without graph, use project instead")
 
-    pipeline(id: UUID!): Pipeline
+    # Get a pipeline's details from its UUID.
+    #
+    # You can only get a pipeline's details if you have at least the viewer role in the project associated to the pipeline or in all projects.
+    #
+    # This deprecated endpoint allows to retrieve a pipeline having only linear versions without graph.
+    # If you try to fetch a pipeline with at least one graph version, you won't get any result, use the endpoint `graphPipeline` instead.
+    pipeline(id: UUID!): Pipeline @deprecated(reason: "Only for linear pipeline without graph, use graphPipeline instead")
 
+    # Get a pipeline's details from its UUID.
+    #
+    # You can only get a pipeline's details if you have at least the viewer role in the project associated to the pipeline or in all projects.
+    #
+    # This endpoint allows to retrieve a pipeline with versions in linear or graph format.
+    #
+    # This endpoint is currently in technical preview.
+    graphPipeline(id: UUID!): Pipeline @preview
+
+    # List users by realm.
     usersByRealm: [UserEmail]
 
+    # Get a specific pipeline version's details.
+    #
+    # You can only get pipeline version if you have at least the viewer role in the project associated to the pipeline or in all projects.
     pipelineVersion(pipelineId: UUID!, number: Int!): PipelineVersion
 
-    # Get pipeline instance with given UUID or null if it doesn't exist.
+    # Get a specific pipeline instance's details.
     #
-    # You can only get pipeline instance if you have at least role viewer on the project associated to the pipeline instance or on all projects.
+    # You can only get pipeline instance if you have at least the viewer role in the project associated to the pipeline or in all projects.
     pipelineInstance(id: UUID!): PipelineInstance
 
-    # Get all Docker credentials associated to the project.
+    # List all Docker credentials associated to a specific project by providing its UUID.
     allDockerCredentials(projectId: UUID!): [DockerCredentials!]
 
-    # Get Docker credentials associated to the project.
+    # Get specific Docker credentials by providing their UUID and the project they belong to.
     dockerCredentials(id: UUID!, projectId: UUID!): DockerCredentials
+
+    # Get Cluster Capacity in order to size correctly resource requests and limits.
+    getClusterCapacity: [ClusterNodeCapacity]
+
+    # List job and pipeline instances across all accessible projects in a timeframe
+    projectReports(timeSlot: Int!, limit: Int!, skip: Int!): ProjectReports!
 }
 
 type Mutation {
-    # Allow to run jobs and give an instance in return.
+    # Run a job and get a job instance in response.
     #
-    # You can only run job if you have at least role editor on the project associated to the job or on all projects.
+    # You can only run job if you have at least the editor role in the project associated to the job or in all projects.
     runJob(jobId: UUID!): JobInstance!
 
-    # Allow to stop job instance and give an instance in return.
+    # Stop a job instance and get a job instance in return.
     #
-    # You can only stop job instance if you have at least role editor on the project
-    # associated to the job instance or on all projects.
+    # You can only stop a job instance if you have at least the editor role in the project associated to the job instance or in all projects.
     stopJobInstance(jobInstanceId: UUID!): JobInstance!
 
-    # Allow to create a project.
+    # Create a project.
     #
-    # You can only create project if you have project creator role.
+    # You can only create a project if you have the project creator role.
     #
-    # **Fields validation :**
-    # - name: must be unique insensitive case in platform, smaller than 255 character and not empty
-    # - technology: must exist in Projects&Jobs and be available. Use 'technologies' query to see available technologies
+    # **Fields validation:**
+    # - name: must be unique (case insensitive) in the whole platform, shorter than 255 characters and cannot be empty.
+    # - technology: must exist and be available. Use 'technologies' query to list all available technologies.
     createProject(project: ProjectInput!): Project!
 
-    # Allow to edit a project.
+    # Edit a project.
     #
-    # You can only edit project if you have project manager role on the edited project.
+    # You can only edit a project if you have the project manager role in the project you wish to edit.
     #
-    # If a field is null or not specified, it doesn't change in project. If it is empty ("" or []), it changes the value ogf the field
-    # to this value.
+    # If a field is null or unspecified in the request, it will remain unchanged in the project.
     #
-    # **Fields validation :**
-    # - name: must be unique insensitive case in platform, smaller than 255 character and not empty
-    # - technology: must exist in Projects&Jobs and be available and be empty. Use 'technologies' query to see available technologies
+    # If a field is empty ("" or []) in the request, it will be set to empty in the project.
+    #
+    # **Fields validation:**
+    # - name: must be unique (case insensitive) in the whole platform, shorter than 255 characters and cannot be empty.
+    # - technology: must exist and be available. Use 'technologies' query to list all available technologies.
     editProject(project: ProjectEditionInput!): Project!
 
-    # Allow to create a job.
+    # Create a job.
     #
-    # You can only create job if you have at least role editor on the project associated to the job or on all projects.
+    # You can only create a job if you have at least the editor role in the project associated to the job or in all projects.
     #
-    # **Fields validation :**
-    # - name: must be unique insensitive case in project, smaller than 255 character and not empty
-    # - project: must exist. Use 'projects' query to see projects
-    # - category: must exist in project. Use 'technologiesByCategory(projectId: UUID!)' to see categories in project
-    # - technology: must exist in project. Use 'technologiesByCategory(projectId: UUID!)' to see technologies in project
-    # - version: must exist in given technology and be available and not deprecated. Use 'technologiesVersions(technologyId: UUID!)' to see available versions in a technology
-    # - features : must be fill if technology version allow them. must not be fill if not. Use 'technologiesVersions(technologyId: UUID!)' to see if it's allowed
-    # - resources : must not be smaller than 0
-    createJob(job: JobInput!, jobVersion: JobVersionInput!, file: Upload) : Job!
+    # **Fields validation:**
+    # - name: must be unique (case insensitive) in the project, shorter than 255 characters and cannot be empty.
+    # - project: must exist. Use 'projects' query to list projects.
+    # - category: must exist in the project. Use 'technologiesByCategory(projectId: UUID!)' to list categories in the project
+    # - technology: must exist in the project. Use 'technologies' query to list all available technologies.
+    # - version: must exist in the given technology, be available and not deprecated. Use 'technologiesVersions(technologyId: UUID!)' to list available versions in a technology.
+    # - features: must be filled if the technology version allows them, otherwise it must not be populated. Use 'technologiesVersions(technologyId: UUID!)' to check if it is allowed for this technology version.
+    createJob(job: JobInput!, jobVersion: JobVersionInput!, file: Upload): Job!
 
-    # Allow to create a app.
+    # Create an app.
     #
-    # You can only create app if you have at least role editor on the project associated to the app or on all projects.
+    # You can only create an app if you have at least the editor role in the project associated to the app or in all projects.
     #
-    # **Fields validation :**
-    # - name: must be unique insensitive case in project, smaller than 255 character and not empty
-    # - project: must exist. Use 'projects' query to see projects
-    createApp(app: AppInput!) : App!
+    # **Fields validation:**
+    # - name: must be unique (case insensitive) in the project, shorter than 255 characters and cannot be empty.
+    # - project: must exist. Use 'projects' query to list projects.
+    createApp(app: AppInput!): App!
 
-    # Allow to add a version to an app.
+    # Install an app.
     #
-    # You can add a new version to an app if you have at least role editor
-    # on the project associated to the app or on all projects.
-    addAppVersion(appId: UUID!, version: AppVersionInput!) : AppVersion!
+    # You can only install an app if you have at least the editor role in the project associated to the app or in all projects.
+    installApp(projectId: UUID!, technologyId: UUID!, contextId: String!): App!
+
+    # Add a version to an app.
+    #
+    # You can add a new version to an app if you have at least the editor role in the project associated to the app or in all projects.
+    addAppVersion(appId: UUID!, version: AppVersionInput!): AppVersion!
+
+    # Edit an app name and description
+    #
+    # You can only edit an app name and description if you have at least the editor role in the project associated to the app or in all projects.
+    editApp(appEdition: AppEditionInput!): App!
 
     # Rollback an app to a specific version.
-    rollbackAppVersion(appId: UUID!, versionNumber: Int!): App
+    #
+    # You can rollback an app to a previous version if you have at least the editor role in the project associated to the app or in all projects.
+    rollbackAppVersion(appId: UUID!, versionNumber: Int!, volumesWithPath: [VolumeWithPathInput]): App
 
+    # Set/unset an app version as major.
+    #
+    # You can set/unset an app version as major if you have at least the editor role in the project associated to the app or in all projects.
     setMajorAppVersion(appId: UUID!, versionNumber: Int!, isMajor: Boolean!): AppVersion
 
-    # Allow to create a job.
+    # Start an app. Returns the launched app.
     #
-    # You can only create job if you have at least role editor on the project associated to the job or on all projects.
-    editJob(job: JobEditionInput!) : Job!
+    # You can only run an app if you have at least the editor role in the project associated to the app or in all projects.
+    runApp(id: UUID!): App!
 
-    # Allow to add a job version.
+    # Stop an app. Returns the stopped app.
     #
-    # **Fields validation :**
-    # - version: must exist in given technology and be available and not deprecated. Use 'technologiesVersions(technologyId: UUID!)' to see available versions in a technology
-    # - features : must be fill if technology version allow them. must not be fill if not. Use 'technologiesVersions(technologyId: UUID!)' to see if it's allowed
-    # - resources : must not be smaller than 0
-    addJobVersion(jobId: UUID!, jobVersion: JobVersionInput!, file: Upload) : JobVersion!
+    # You can only stop an app if you have at least the editor role in the project associated to the app or in all projects.
+    stopApp(id: UUID!): App
 
-    # Allow to archive a job.
+    # Edit a job.
     #
-    # You can only archive job if you have at least role editor on the project associated to the job or on all projects.
-    archiveJob(jobId: UUID!): Boolean
+    # You can only edit a job if you have at least the editor role in the project associated to the job or in all projects.
+    editJob(job: JobEditionInput!): Job!
 
-    # Allow to delete a app.
+    # Add a job version.
     #
-    # You can only delete app if you have at least role editor on the project associated to the app or on all projects.
+    # **Fields validation:**
+    # - version: must exist in the given technology, be available and not deprecated. Use 'technologiesVersions(technologyId: UUID!)' to list available versions in a technology.
+    # - features: must be filled if the technology version allows them, otherwise it must not be populated. Use 'technologiesVersions(technologyId: UUID!)' to check if it is allowed for this technology version.
+    # - resources: must be greater than or equal to 0.
+    addJobVersion(jobId: UUID!, jobVersion: JobVersionInput!, file: Upload): JobVersion!
+
+    # Archive a job.
+    #
+    # You can only archive a job if you have at least the editor role in the project associated to the job or in all projects.
+    archiveJob(jobId: UUID!): Boolean @deprecated(reason: "Use deleteJob mutation instead")
+
+    # Delete an app.
+    #
+    # You can only delete an app if you have at least the editor role in the project associated to the app or in all projects.
     deleteApp(appId: UUID!): App
 
-    # Allow to archive a project.
+    # Archive a project.
     #
-    # You can only archive project if you have at least role manager on the project or on all projects.
-    archiveProject(projectId: UUID!): Boolean
+    # You can only archive a project if you have at least the manager role in the project or in all projects.
+    archiveProject(projectId: UUID!): Boolean @deprecated(reason: "Use deleteProject mutation instead")
+
+    # Allow to delete a project.
+    #
+    # You can only delete project if you have at least role manager on the project or on all projects.
+    deleteProject(projectId: UUID!): Boolean
 
     # Rollback a job to a specific version.
+    #
+    # You can rollback a job to a previous version if you have at least the editor role in the project associated to the job or in all projects.
     rollbackJobVersion(jobId: UUID!, versionNumber: Int!): Job
 
     # Save an environment variable.
     #
-    # Entity id is required for non GLOBAL environment variable.
+    # Entity ID is required for project-specific environment variables.
     saveEnvironmentVariable(entityId: UUID, environmentVariable: EnvironmentVariableInput!): EnvironmentVariable!
 
     # Delete an environment variable.
     #
-    # Entity id is required for non GLOBAL environment variable.
+    # Entity ID is required for project-specific environment variables.
     deleteEnvironmentVariable(id: UUID!): Boolean!
 
+    # Set/unset a job version as major.
+    #
+    # You can set/unset a job version as major if you have at least the editor role in the project associated to the job or in all projects.
     setMajorJobVersion(jobId: UUID!, versionNumber: Int!, isMajor: Boolean!): JobVersion
 
-    # Allow to move job from a project to another.
+    # Move jobs from a project to another.
     #
-    # You can only move jobs if you have at least role editor on the  two projects or on all projects.
+    # You can only move jobs if you have at least the editor role in both the source and target projects or in all projects.
     #
-    # **Fields validation :**
-    # - jobs: must exist, must have same technology and same project, must not be deletable (not in pipeline),
-    #   must not be in migration state, streaming or scheduled
-    # - target project: must exist, must not be the same as base project, must be ready
-    # - category: must exist in target project and have jobs technology
-
+    # **Fields validation:**
+    # - jobs: must exist, must rely on the same technology and belong to the same project, must be deletable (not in pipeline),
+    #   must not be in migration state, streaming or scheduled.
+    # - target project: must exist, must not be the same as the source project, must be ready.
+    # - category: must exist in the target project and have the appropriate job technologies.
     moveJobs(jobIds: [UUID!]!, projectId: UUID, category: String): Boolean
 
-    # Allow to delete a job (irreversible).
+    # Delete a job.
     #
-    # You can only delete job if you have global role Super-Admin.
-    deleteJob(id: UUID!): Boolean!
+    # You can only delete a job if you have at least role editor on the project associated to the job or on all projects.
+    deleteJob(jobId: UUID!): Boolean
 
-    createPipeline(pipeline: PipelineInput): Pipeline!
+    # Create a linear pipeline.
+    #
+    # You can only create a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
+    #
+    # This deprecated endpoint allows to create only linear pipeline. To create graph pipelines, use the endpoint `createGraphPipeline` instead.
+    createPipeline(pipeline: PipelineInput): Pipeline! @deprecated(reason: "Only for old linears pipelines without graph, use createGraphPipeline instead")
 
+    # Create a pipeline in a graph format based on DAG model (Directed Acyclic Graph)
+    #
+    # You can only create a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
+    #
+    # This endpoint is currently in technical preview.
+    createGraphPipeline(pipeline: GraphPipelineInput): Pipeline! @preview
+
+    # Edit a pipeline.
+    #
+    # You can only edit a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
     editPipeline(pipeline: PipelineEditionInput): Pipeline!
 
-    # Allow to run pipeline and give an instance in return.
+    # Run a pipeline and get a pipeline instance in response.
     #
-    # You can only run pipeline if you have at least role editor on the project associated to the job or on all projects.
+    # You can only run a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
     runPipeline(pipelineId: UUID!): PipelineInstance!
 
+    # Delete a pipeline.
+    #
+    # **Warning:** This operation cannot be undone.
+    #
+    # You can only delete a pipeline if you have the global Super-Admin role.
     deletePipeline(id: UUID!): Boolean!
 
-    addPipelineVersion(pipelineId: UUID!, jobsId: [UUID!]!, releaseNote: String) : PipelineVersion!
+    # Add a new pipeline version in linear format to an existing pipeline.
+    #
+    # You can only add a version to a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
+    #
+    # This deprecated endpoint allows to add a version to a linear pipeline. To add a graph pipeline version, use the endpoint `addGraphPipelineVersion` instead.
+    addPipelineVersion(pipelineId: UUID!, jobsId: [UUID!]!, releaseNote: String): PipelineVersion! @deprecated(reason: "Only for old linears pipelines without graph, use addGraphPipelineVersion instead")
 
-    # Rollback a job to a specific version.
+    # Add a new pipeline version in graph format based on DAG model (Directed Acyclic Graph) to an existing pipeline.
+    #
+    # You can only add a version to a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
+    #
+    # This endpoint is currently in technical preview.
+    addGraphPipelineVersion(pipelineId: UUID!, graph: PipelineGraphInput!, releaseNote: String): PipelineVersion! @preview
+
+    # Rollback a pipeline to a specific version.
+    #
+    # You can rollback a pipeline to a previous version if you have at least the editor role in the project associated to the pipeline or in all projects.
     rollbackPipelineVersion(pipelineId: UUID!, versionNumber: Int!): Pipeline
 
+    # Set/unset a pipeline version as major.
+    #
+    # You can set/unset a pipeline version as major if you have at least the editor role in the project associated to the pipeline or in all projects.
     setMajorPipelineVersion(pipelineId: UUID!, versionNumber: Int!, isMajor: Boolean!): PipelineVersion
 
-    # Allow to stop pipeline instance and give an instance in return.
+    # Stop a pipeline instance and get a pipeline instance in return.
     #
-    # You can only stop pipeline instance if you have at least role editor on the project
-    # associated to the pipeline instance or on all projects.
+    # You can only stop a pipeline instance if you have at least the editor role in the project associated to the pipeline instance or in all projects.
     stopPipelineInstance(pipelineInstanceId: UUID!): PipelineInstance!
 
-    # create a docker credentials. the couple registry / username must be unique in project.
-    # If you not set a registry, the registry will be docker hub.
+    # Create Docker credentials. The couple registry/username must be unique within the project.
+    # If you do not set a registry, the registry will be Docker Hub.
     createDockerCredentials(dockerCredentials: DockerCredentialsInput): DockerCredentials
 
-    # update a docker connexion informations. Password is mandatory to update credentials.
-    # If you not set a registry, the registry will be docker hub.
+    # Update Docker credentials. Password is mandatory to update credentials.
+    # If you do not set a registry, the registry will be updated to Docker Hub.
     updateDockerCredentials(dockerCredentialsUpdate: DockerCredentialsUpdate): DockerCredentials
 
-    # delete a docker credentials.
+    # Delete Docker credentials.
     deleteDockerCredentials(id: UUID!, projectId: UUID!): Boolean
 
-    # Allow to create a volume.
+    # Create a volume.
     #
-    # You can only create volume if you have at least role editor on the project associated to the volume or on all projects.
+    # You can only create a volume if you have at least the editor role in the project associated to the volume or in all projects.
     #
-    # **Fields validation :**
-    # - name: must be unique insensitive case in project, smaller than 255 character and not empty
-    # - project: must exist. Use 'projects' query to see projects
-    # - size: size in Mb, must be between 64Mb and max set by your administrator
-    createVolume(volume: VolumeInput!) : Volume!
+    # **Fields validation:**
+    # - name: must be unique (case insensitive) in the project, shorter than 255 characters and cannot be empty.
+    # - project: must exist. Use 'projects' query to list all projects.
+    # - size: size in MB, must be between 64MB and the maximum value set by your administrator.
+    createVolume(volume: VolumeInput!): Volume!
 
-    # Allow to delete a volume.
+    # Delete a volume.
     #
-    # You can only delete volume if you have at least role editor on the project associated to the volume or on all projects.
+    # You can only delete a volume if you have at least the editor role in the project associated to the volume or in all projects.
     deleteVolume(id: UUID!): Volume
 
+    # Edit a volume.
+    #
+    # You can only edit a volume if you have at least the editor role in the project associated to the volume or in all projects.
     editVolume(volumeEdition: VolumeEditionInput!): Volume!
+
+    unlinkVolume(id: UUID!): Volume
 }
 
 input ProjectInput {
     name: String!
     description: String
     technologiesByCategory: [TechnologyByCategoryInput!]
+    appTechnologies: [TechnologyInput!]
     authorizedGroups: [SecurityGroupInput]
 }
 
@@ -352,6 +481,7 @@ input ProjectEditionInput {
     description: String
     authorizedGroups: [SecurityGroupInput]
     technologiesByCategory: [TechnologyByCategoryInput!]
+    appTechnologies: [TechnologyInput!]
 }
 
 input TechnologyByCategoryInput {
@@ -371,9 +501,12 @@ input JobInput {
     technology: TechnologyInput!
     isScheduled: Boolean!
     cronScheduling: Cron
-    alerting: AlertingInput
+    scheduleTimezone: TimeZone
+    alerting: JobPipelineAlertingInput
     isStreaming: Boolean!
     storageSizeInMB: Int
+    doesUseGPU: Boolean
+    resources: JobResourceInput
 }
 
 input JobEditionInput {
@@ -382,26 +515,31 @@ input JobEditionInput {
     description: String
     isScheduled: Boolean
     cronScheduling: Cron
-    alerting: AlertingInput
+    scheduleTimezone: TimeZone
+    alerting: JobPipelineAlertingInput
     isStreaming: Boolean
     storageSizeInMB: Int
+    doesUseGPU: Boolean
+    resources: JobResourceInput
 }
 
 input JobVersionInput {
     releaseNote: String
     runtimeVersion: String
     commandLine: String
-    # if true: previous version artifact will be used (no need to upload it again)
-    #   default = false
+    # if true: previous version artifact will be used (no need to upload it again).
+    # default = false
     usePreviousArtifact: Boolean
-    # DEPRECATED. it's used to upload file via Rest after this mutation.
-    # Now you can use the 'file' field in the mutation to upload file
+    # DEPRECATED. Used to upload a file via REST after this mutation.
+    # Now you can use the 'file' field in the mutation to upload file.
     packageInfo: JobPackageInput
     dockerInfo: JobDockerInput
-    resources: JobResourcesInput!
+    # DEPRECATED. resources attribute is ignored.
+    resources: JobResourcesInput
     extraTechnology: ExtraTechnologyInput
     storagePaths: [String!]
     exposedPorts: [ExposedPortInput!]
+    # DEPRECATED. Use JobInput.doesUseGPU instead.
     doesUseGPU: Boolean
 }
 
@@ -417,30 +555,44 @@ input JobDockerInput {
 }
 
 input AppInput {
-  projectId: UUID!
-  name: String!
-  description: String
-  technologyId: UUID!
-  version: AppVersionInput!
+    projectId: UUID!
+    name: String!
+    description: String
+    technologyId: UUID!
+    version: AppVersionInput!
+    alerting: AppAlertingInput
 }
 
 input AppVersionInput {
-  dockerInfo: AppDockerInput
-  ports: [PortInput!]!
-  releaseNote: String
+    dockerInfo: AppDockerInput
+    ports: [PortInput!]!
+    volumesWithPath: [VolumeWithPathInput]
+    releaseNote: String
+}
+
+input AppEditionInput {
+    id: UUID!
+    name: String
+    description: String
+    alerting: AppAlertingInput
 }
 
 input PortInput {
-  name: String
-  number: Int!
-  isRewriteUrl: Boolean!
-  basePathVariableName: String
-  scope: ExpositionScope
+    name: String
+    number: Int!
+    isRewriteUrl: Boolean!
+    basePathVariableName: String
+    scope: ExpositionScope
+}
+
+input VolumeWithPathInput {
+    path: String!
+    volumeId: UUID!
 }
 
 input AppDockerInput {
-  image: String!
-  dockerCredentialsId: UUID
+    image: String!
+    dockerCredentialsId: UUID
 }
 
 input ExposedPortInput {
@@ -451,16 +603,34 @@ input ExposedPortInput {
     isAuthenticationRequired: Boolean
 }
 
+# DEPRECATED Use JobResourceInput instead
 input JobResourcesInput {
     cpu: Float!
     memory: Int!
     disk: Int!
 }
 
-input AlertingInput {
+input JobResourceInput {
+  cpu: ResourceRequestLimitInput
+  memory: ResourceRequestLimitInput
+  gpu: ResourceRequestLimitInput
+}
+
+input ResourceRequestLimitInput {
+  request: Float
+  limit: Float
+}
+
+input JobPipelineAlertingInput {
     emails: [Email!]
     logins: [String!]
     statusList: [InstanceStatus!]!
+}
+
+input AppAlertingInput {
+    emails: [Email!]
+    logins: [String!]
+    statusList: [AppStatus!]!
 }
 
 input ExtraTechnologyInput {
@@ -476,21 +646,69 @@ input SecurityGroupInput {
 input PipelineInput {
     name: String!
     description: String
-    alerting: AlertingInput
+    alerting: JobPipelineAlertingInput
     projectId: UUID!
     jobsId: [UUID!]!
     releaseNote: String
     isScheduled: Boolean!
     cronScheduling: Cron
+    scheduleTimezone: TimeZone
+}
+
+# Input to create a pipeline with a Directed Acyclic Graph
+input GraphPipelineInput {
+    name: String!
+    description: String
+    alerting: JobPipelineAlertingInput
+    projectId: UUID!
+    graph: PipelineGraphInput!
+    releaseNote: String
+    isScheduled: Boolean!
+    cronScheduling: Cron
+    scheduleTimezone: TimeZone
+}
+
+# Input for a Directed Acyclic Graph (DAG) of nodes of jobs and conditions of a pipeline in graph format
+input PipelineGraphInput {
+    jobNodes: [JobNodeInput!]
+    conditionNodes: [ConditionNodeInput!]
+}
+
+# Input for a graph node of a job in a pipeline
+input JobNodeInput {
+    id: UUID!
+    job: JobInGraphPipelineInput!
+    position: NodePositionInput
+    nextNodes: [UUID!]
+}
+
+# Input for a job in a job node input in a graph pipeline
+input JobInGraphPipelineInput {
+    id: UUID!
+}
+
+# Input for a graph node of a condition in a graph pipeline
+input ConditionNodeInput {
+    id: UUID!
+    position: NodePositionInput
+    nextNodesSuccess: [UUID!]
+    nextNodesFailure: [UUID!]
+}
+
+# Input for a position of the node of a graph pipeline in the GUI
+input NodePositionInput {
+    x: Float!
+    y: Float!
 }
 
 input PipelineEditionInput {
     id: UUID!
     name: String
     description: String
-    alerting: AlertingInput
+    alerting: JobPipelineAlertingInput
     isScheduled: Boolean
     cronScheduling: Cron
+    scheduleTimezone: TimeZone
 }
 
 input DockerCredentialsInput {
@@ -509,30 +727,17 @@ input DockerCredentialsUpdate {
 }
 
 input VolumeInput {
-  name: String!
-  description: String
-  # The volume size in Mb
-  size: DataSize!
-  projectId: UUID!
+    name: String!
+    description: String
+    # The volume size in MB
+    size: DataSize!
+    projectId: UUID!
 }
 
 input VolumeEditionInput {
-  id: UUID!
-  name: String
-  description: String
-}
-
-type TechnologyVersion {
-    id: ID!
-    technologyLabel: String!
-    versionLabel: String!
-    defaultResources: JobResources!
-    isRecommended: Boolean!
-    deprecated: Boolean!
-    isAvailable: Boolean!
-    secondaryTechnologies: [SecondaryTechnology!]
-    features: [Feature!]
-    lastUpdate: DateTime
+    id: UUID!
+    name: String
+    description: String
 }
 
 type Feature {
@@ -552,11 +757,10 @@ type SecondaryTechnology {
 }
 
 type SecondaryTechnologyContext {
-  id: String!
-  label: String!
-  lastUpdate: DateTime!
+    id: String!
+    label: String!
+    lastUpdate: DateTime!
 }
-
 
 type TechnologyByCategory {
     jobCategory: String!
@@ -579,17 +783,20 @@ type Project {
     apps: [App!]!
     # Volumes associated to this project
     volumes: [Volume!]!
-
+    pipelines: [Pipeline!]!
+    technologiesByCategory: [TechnologyByCategory]!
+    appTechnologies: [Technology]!
 }
 
 type Volume {
-  id: UUID!
-  name: String!
-  creator: String!
-  description: String
-  size: DataSize!
-  projectId: UUID!
-  creationDate: DateTime!
+    id: UUID!
+    name: String!
+    creator: String!
+    description: String
+    size: DataSize!
+    projectId: UUID!
+    creationDate: DateTime!
+    linkedApp: App
 }
 
 type Job {
@@ -597,34 +804,99 @@ type Job {
     name: String!
     description: String
     countJobInstance: Int
-    instances(limit: Int, skip: Int, checkInPipelineInstance: Boolean): [JobInstance!]
-    versions(limit: Int): [JobVersion!]!
+    instances(limit: Int, skip: Int, checkInPipelineInstance: Boolean, lastExecution: Boolean): [JobInstance!]
+      @deprecated(reason: "Attribute checkInPipelineInstance is now deprecated")
+    versions(limit: Int, onlyCurrent: Boolean): [JobVersion!]!
     category: String!
     technology: Technology
     isScheduled: Boolean!
     cronScheduling: Cron
     scheduleStatus: ScheduleStatus
-    alerting: Alerting
+    scheduleTimezone: TimeZone,
+    alerting: JobPipelineAlerting
     isStreaming: Boolean!
     creationDate: DateTime!
     migrationStatus: MigrationStatus
     migrationProjectId: UUID
     isDeletable: Boolean!
     pipelines(isCurrent: Boolean): [Pipeline!]
+    graphPipelines(isCurrent: Boolean): [Pipeline!]
     storageSizeInMB: Int
+    doesUseGPU: Boolean
+    resources: JobResourceRequestLimit
 }
 
 type App {
-  id: UUID!
-  name: String!
-  description: String
-  creationDate: DateTime!
-  creator: String!
-  versions: [AppVersion!]!
-  currentVersion: AppVersion
-  technology: Technology
-  project: Project!
-  isGenericApp: Boolean!
+    id: UUID!
+    name: String!
+    description: String
+    creationDate: DateTime!
+    creator: String!
+    versions: [AppVersion!]!
+    currentVersion: AppVersion
+    technology: Technology
+    project: Project!
+    linkedVolumes: [Volume!]
+    isGenericApp: Boolean!
+    history: AppHistory
+    alerting: AppAlerting
+}
+
+type AppHistory {
+    id: UUID!
+    events: [StatusHistory!]!
+    runningVersionNumber: Int!
+    currentStatus: AppStatus!
+    startTime: DateTime
+    stopTime: DateTime
+}
+
+type StatusHistory {
+    event: AppEvent!
+    transitionTime: DateTime!
+}
+
+interface AppEvent {
+    recordAt: DateTime!
+}
+
+type StatusRetrieve implements AppEvent {
+    recordAt: DateTime!
+    status: AppStatus!
+}
+
+type RunAction implements AppEvent {
+    recordAt: DateTime!
+    author: String!
+}
+
+type RollbackAction implements AppEvent {
+    recordAt: DateTime!
+    versionNumber: Int!
+    author: String!
+}
+
+type UpgradeAction implements AppEvent {
+    recordAt: DateTime!
+    versionNumber: Int!
+    author: String!
+}
+
+type StopAction implements AppEvent {
+    recordAt: DateTime!
+    author: String!
+}
+
+enum AppStatus {
+    STARTED
+    STARTING
+    RECOVERING
+    UPGRADING
+    ROLLING_BACK
+    STOPPING
+    STOPPED
+    FAILED
+    UNKNOWN
 }
 
 type Logs {
@@ -677,6 +949,7 @@ type JobInstance {
     pipelineInstanceId: UUID
     pipelineInstance: PipelineInstance
     jobId: UUID!
+    jobNodeId: UUID
     effectiveDockerImage: String!
     sparkuiUrl: String
 }
@@ -689,14 +962,14 @@ type JobVersion {
     commandLine: String
     packageInfo: JobPackage
     dockerInfo: JobDocker
-    resources: JobResources!
+    resources: JobResources @deprecated(reason: "Use Job.resources instead")
     extraTechnology: ExtraTechnology
     isCurrent: Boolean!
     isMajor: Boolean
     creator: String!
     exposedPorts: [ExposedPort!]
     storagePaths: [String!]
-    doesUseGPU: Boolean
+    doesUseGPU: Boolean @deprecated(reason: "Use Job.doesUseGPU instead")
 }
 
 type JobPackage {
@@ -710,31 +983,38 @@ type JobDocker {
 }
 
 type AppVersion {
-  number: Int!
-  creationDate: DateTime!
-  releaseNote: String
-  dockerInfo: AppDocker
-  creator: String!
-  ports: [Port!]!
-  isMajor: Boolean
+    number: Int!
+    creationDate: DateTime!
+    releaseNote: String
+    dockerInfo: AppDocker
+    creator: String!
+    ports: [Port!]!
+    isMajor: Boolean
+    volumesWithPath: [VolumeWithPath!]
+}
+
+type VolumeWithPath {
+    path: String!
+    volume: Volume
 }
 
 type AppDocker {
-  image: String!
-  dockerCredentialsId: UUID
+    image: String!
+    dockerCredentialsId: UUID
 }
 
 type Port {
-  name: String
-  number: Int!
-  isRewriteUrl: Boolean!
-  basePathVariableName: String
-  scope: ExpositionScope
+    name: String
+    number: Int!
+    isRewriteUrl: Boolean!
+    basePathVariableName: String
+    scope: ExpositionScope
+    internalUrl: String!
 }
 
 enum ExpositionScope {
-  PROJECT
-  PUBLIC
+    PROJECT
+    PUBLIC
 }
 
 type ExposedPort {
@@ -745,18 +1025,16 @@ type ExposedPort {
     isAuthenticationRequired: Boolean
 }
 
-
 type Technology {
     id: UUID!
-    label: String! @deprecated(reason: "Use gateway queries instead")
-    isAvailable: Boolean! @deprecated(reason: "Use gateway queries instead")
-    icon: String @deprecated(reason: "Use gateway queries instead")
-    pipelineAllowed : Boolean @deprecated(reason: "Use gateway queries instead")
-    portExpositionAllowed : Boolean @deprecated(reason: "Use gateway queries instead")
-    features: [Feature!] @deprecated(reason: "Use gateway queries instead")
 }
 
 type JobsCountByTechnology {
+    technology: Technology!
+    count: Int!
+}
+
+type AppsCountByTechnology {
     technology: Technology!
     count: Int!
 }
@@ -767,7 +1045,24 @@ type JobResources {
     disk: Int!
 }
 
-type Alerting {
+type JobResourceRequestLimit {
+  cpu: ResourceRequestLimit
+  memory: ResourceRequestLimit
+  gpu: ResourceRequestLimit
+}
+
+type ResourceRequestLimit {
+  request: Float
+  limit: Float
+}
+
+type AppAlerting {
+    emails: [String!]!
+    statusList: [AppStatus!]!
+    loginEmails: [UserEmail!]
+}
+
+type JobPipelineAlerting {
     emails: [String!]!
     statusList: [InstanceStatus!]!
     loginEmails: [UserEmail!]
@@ -788,37 +1083,104 @@ type Pipeline {
     id: UUID!
     name: String!
     description: String
-    alerting: Alerting
+    alerting: JobPipelineAlerting
     pipelineInstanceCount: Int!
     instances(limit: Int, skip: Int): [PipelineInstance!]
-    versions(limit: Int): [PipelineVersion!]!
-    projectId: UUID!
+    versions(limit: Int, onlyCurrent: Boolean): [PipelineVersion!]!
+    projectId: UUID! @deprecated(reason: "Use project instead")
+    project: Project!
     creationDate: DateTime!
     creator: String!
     isScheduled: Boolean!
     cronScheduling: Cron
     scheduleStatus: ScheduleStatus
+    scheduleTimezone: TimeZone
+    # Indicates whether this pipeline version is a linear pipeline or not
+    isLegacyPipeline: Boolean
 }
 
 type PipelineVersion {
     number: Int!
     releaseNote: String
-    jobs: [Job!]!
+    # List of jobs in a linear pipeline
+    #
+    # This field is deprecated and used only for linear pipelines, use `graph` instead
+    jobs: [Job!] @deprecated(reason: "Use graph instead")
+    # Corresponds to the graph of jobs and conditions of a pipeline in graph format
+    # For a linear pipeline, it returns a graph corresponding to the list of jobs.
+    graph: PipelineGraph
     creationDate: DateTime!
     creator: String!
     isCurrent: Boolean!
     isMajor: Boolean!
 }
 
+# Directed Acyclic Graph (DAG) of nodes of jobs and conditions of a pipeline in graph format
+type PipelineGraph {
+    # List of job nodes composing the graph of a pipeline
+    jobNodes: [JobNode!]
+    # List of condition nodes composing the graph of a pipeline
+    conditionNodes: [ConditionNode!]
+}
+
+# Graph node for a condition in a pipeline
+type ConditionNode {
+    id: UUID!
+    position: NodePosition
+    # List of output nodes of this node in case of success of the previous node
+    nextNodesSuccess: [UUID!]
+    # List of output nodes of this node in case of failure of the previous node
+    nextNodesFailure: [UUID!]
+}
+
+# Graph node for a job in a pipeline
+type JobNode {
+    id: UUID!
+    job: Job!
+    position: NodePosition
+    # List of output nodes of this node
+    nextNodes: [UUID!]
+}
+
+# Position of the node of a graph in the GUI
+type NodePosition {
+    x: Float!
+    y: Float!
+}
+
 type PipelineInstance {
     id: UUID!
     number: Int!
     status: InstanceStatus!
-    jobsInstance: [JobInstance!]!
+    jobsInstance(limit: Int, skip: Int): [JobInstance!]!
+    # Allows you to know if the condition is successful or not depending on the success of the previous node linked to this condition
+    #
+    # This field is null for a linear pipeline version and returns an empty list when graph doesn't have conditions.
+    #
+    # This type is currently in technical preview.
+    conditionsInstance: [ConditionInstance] @preview
+    nodeStatuses: [NodeStatus!]! @preview
     version: PipelineVersion!
     startTime: DateTime!
     endTime: DateTime
     pipelineId: UUID
+}
+
+# The status of a node in a graph pipeline
+#
+# This type is currently in technical preview.
+type NodeStatus {
+  nodeId: UUID!
+  status: InstanceStatus!
+}
+
+# Allows you to know if the condition is successful or not depending on the success of the previous node linked to this condition
+#
+# This type is currently in technical preview.
+type ConditionInstance {
+    conditionNodeId: UUID!
+    # Set with `true` if previous node is in SUCCEEDED status ; `false` if previous is in FAILED status ; and otherwise null
+    isSuccess: Boolean
 }
 
 type DockerCredentials {
@@ -830,10 +1192,58 @@ type DockerCredentials {
 }
 
 type UserEmail{
-  login: String
-  email: String!
+    login: String
+    email: String!
 }
 
+type ClusterNodeCapacity{
+  cpu: Float!
+  gpu: Float!
+  memory: Float!
+}
+
+type ProjectReports {
+  countInstances: Long!
+  projects: [ProjectReport!]!
+}
+
+type ProjectReport {
+  id: UUID!
+  jobs: [JobReport!]!
+  name: String!
+  pipelines: [PipelineReport!]!
+}
+
+type JobReport {
+  id: UUID!
+  jobInstances: [JobInstanceReport!]!
+  name: String!
+}
+
+type JobInstanceReport {
+  id: UUID!
+  jobId: UUID!
+  name: String!
+  startTime: DateTime!
+  endTime: DateTime
+  status: InstanceStatus!
+}
+
+type PipelineReport {
+  id: UUID!
+  name: String!
+  pipelineInstances: [PipelineInstanceReport!]!
+}
+
+type PipelineInstanceReport {
+  endTime: DateTime
+  id: UUID!
+  jobInstances: [JobInstanceReport!]!
+  startTime: DateTime!
+  status: InstanceStatus!
+}
+
+scalar Long
 
 scalar Upload
 
@@ -847,6 +1257,8 @@ scalar Email
 
 # size with unit. If no unit is specified, The default unit is Byte
 scalar DataSize
+
+scalar TimeZone
 
 enum EnvVarScope {
     GLOBAL
@@ -863,6 +1275,8 @@ enum InstanceStatus {
     KILLING
     SUCCEEDED
     UNKNOWN
+    AWAITING
+    SKIPPED
 }
 
 enum ProjectStatus {
