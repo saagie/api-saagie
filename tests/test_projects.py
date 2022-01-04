@@ -185,7 +185,6 @@ class TestGQLTemplate:
 
     def test_edit_job(self):
         job_id = "job_1234"
-
         query = gql(gql_edit_job.format(job_id, ""))
         result = self.client.validate(query)
         expected = None

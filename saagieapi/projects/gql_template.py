@@ -351,6 +351,14 @@ gql_edit_job = """
         isScheduled,
         cronScheduling,
         scheduleTimezone
+        resources{{
+        cpu {{
+            request,
+            limit}},
+        memory{{
+            request,
+            limit}}
+        }}
       }}
   }}
 """

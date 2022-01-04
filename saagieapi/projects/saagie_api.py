@@ -555,13 +555,26 @@ class SaagieApi:
         return self.client.execute(query)
 
     def edit_job(self, job_id, job_name=None, description=None, is_scheduled=False,
-                 cron_scheduling=None, schedule_timezone="UTC"):
+                 cron_scheduling=None, schedule_timezone="UTC", resources=None):
         """Edit a job
 
         Parameters
         ----------
-        job : TYPE
-            Job
+        job_id : str
+            UUID of your job (see README on how to find it)
+        job_name : str, optional
+            Seconds to wait between two state checks
+        description : str, optional
+            Seconds before timeout for a status check call
+        is_scheduled : bool, optional
+            True if the job is scheduled, else False
+        cron_scheduling : str, optional
+            Scheduling cron format
+        schedule_timezone : str, optional
+            Timezone of the scheduling
+        resources : dict, optional
+            CPU, memory limit and requests
+            Example: {"cpu":{"request":0.5, "limit":2.6},"memory":{"request":1.0}}
 
         Returns
         -------
@@ -590,6 +603,10 @@ class SaagieApi:
 
         else:
             gql_payload.append(f'isScheduled: false')
+
+        if resources:
+            resources_str = json.dumps(resources).replace("\"", "")
+            gql_payload.append(f'resources: {resources_str}')
 
         gql_payload_str = ", ".join(gql_payload)
         query = gql(gql_edit_job.format(job_id, gql_payload_str))
@@ -650,8 +667,8 @@ class SaagieApi:
             Scheduling CRON format
         schedule_timezone : str, optional
         resources : dict, optional
-            Resources limit of the job.
-            Example: {"cpu":{"request":1.0},"memory":{"request":1.0}}
+            CPU, memory limit and requests
+            Example: {"cpu":{"request":0.5, "limit":2.6},"memory":{"request":1.0}}
 
         Returns
         -------
@@ -705,6 +722,8 @@ class SaagieApi:
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + "/graphql"
 
+        if resources is None:
+            resources = {}
         gql_scheduling_payload = []
 
         if cron_scheduling:
