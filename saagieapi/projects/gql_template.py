@@ -321,12 +321,17 @@ gql_stop_job_instance = """
 
 gql_edit_job = """
   mutation{{
-    editJob(job: {0}) {{
+    editJob(job: {{
+      id: "{0}"
+      {1}
+    }}
+    ) {{
         id,
         name,
         description,
         isScheduled,
-        cronScheduling
+        cronScheduling,
+        scheduleTimezone
       }}
   }}
 """
@@ -340,7 +345,7 @@ gql_create_job = '{{"operationName": "createJobMutation",\
                            "category": "{3}",\
                            "technology": {{"id":"{4}"}},\
                            "isStreaming": false,\
-                           "isScheduled": false\
+                           {9} \
                        }},\
                        "jobVersion": {{\
                            "runtimeVersion": "{5}",\

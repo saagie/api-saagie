@@ -11,6 +11,8 @@ repository = "https://github.com/saagie/api-saagie"
 python = "^3.6"
 requests = "^2.26.0"
 gql = "^2.0.0"
+pytz = "^2019.1"
+croniter = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 python-semantic-release = "^7.19.2"
