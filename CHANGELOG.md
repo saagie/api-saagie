@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (2022-01-04)
+### :sparkles:
+* :sparkles: change the file schema.graphqls ([#46](https://github.com/saagie/api-saagie/issues/46)) ([`1ca1f3c`](https://github.com/saagie/api-saagie/commit/1ca1f3c6537d062efd9dd78f37cadfa71db418d1))
+
 ## v0.5.8 (2021-12-29)
 ### :green_apple:
 * :green_apple: Refactoring ([#40](https://github.com/saagie/api-saagie/issues/40)) ([`e2f2131`](https://github.com/saagie/api-saagie/commit/e2f2131a6c6984b8acaa39b42b1bc57d8b927533))
