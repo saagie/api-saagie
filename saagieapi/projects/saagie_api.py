@@ -565,7 +565,7 @@ class SaagieApi:
         job_name : str, optional
             Seconds to wait between two state checks
         description : str, optional
-            Seconds before timeout for a status check call
+            Description of job
         is_scheduled : bool, optional
             True if the job is scheduled, else False
         cron_scheduling : str, optional
@@ -666,6 +666,7 @@ class SaagieApi:
         cron_scheduling : str, optional
             Scheduling CRON format
         schedule_timezone : str, optional
+            Timezone of the scheduling
         resources : dict, optional
             CPU, memory limit and requests
             Example: {"cpu":{"request":0.5, "limit":2.6},"memory":{"request":1.0}}
