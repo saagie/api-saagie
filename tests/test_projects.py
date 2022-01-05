@@ -81,6 +81,16 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    # ##########################################################
+    # ###                    cluster                        ####
+    # ##########################################################
+
+    def test_get_cluster_capacity(self):
+        query = gql(gql_get_cluster_info)
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
     # ######################################################
     # ###                    projects                   ####
     # ######################################################
@@ -175,7 +185,6 @@ class TestGQLTemplate:
 
     def test_edit_job(self):
         job_id = "job_1234"
-
         query = gql(gql_edit_job.format(job_id, ""))
         result = self.client.validate(query)
         expected = None

@@ -70,6 +70,25 @@ gql_create_project_env_var = """
   }}
 """
 
+
+#   ____ _           _
+#  / ___| |_   _ ___| |_ ___ _ __
+# | |   | | | | / __| __/ _ \ '__|
+# | |___| | |_| \__ \ ||  __/ |
+#  \____|_|\__,_|___/\__\___|_|
+
+
+gql_get_cluster_info = """
+{
+  getClusterCapacity {
+    cpu
+    gpu
+    memory
+  }
+}
+"""
+
+
 #                                 _  _                 _
 #  _ __   ___  _ __    ___   ___ (_)| |_   ___   _ __ (_)  ___  ___
 # | '__| / _ \| '_ \  / _ \ / __|| || __| / _ \ | '__|| | / _ \/ __|
@@ -332,11 +351,19 @@ gql_edit_job = """
         isScheduled,
         cronScheduling,
         scheduleTimezone
+        resources{{
+        cpu {{
+            request,
+            limit}},
+        memory{{
+            request,
+            limit}}
+        }}
       }}
   }}
 """
 
-gql_create_job = '{{"operationName": "createJobMutation",\
+gql_create_job = """{{"operationName": "createJobMutation",\
                    "variables": {{\
                        "job": {{\
                            "projectId": "{1}",\
@@ -345,27 +372,23 @@ gql_create_job = '{{"operationName": "createJobMutation",\
                            "category": "{3}",\
                            "technology": {{"id":"{4}"}},\
                            "isStreaming": false,\
-                           {9} \
+                           {9}, \
+                           "resources": {10}, \
+                           "doesUseGPU": false\
                        }},\
                        "jobVersion": {{\
                            "runtimeVersion": "{5}",\
                            "commandLine": "{6}",\
                            {8}\
                            "dockerInfo": null,\
-                           "resources": {{\
-                               "cpu": 0.3,\
-                               "disk": 512,\
-                               "memory": 512\
-                           }},\
-                           "releaseNote": "{7}",\
-                           "doesUseGPU": false\
+                           "releaseNote": "{7}"\
                        }},\
                        "file":null\
                    }},\
                    "query": "mutation createJobMutation($job: JobInput!, $jobVersion: JobVersionInput!, $file: Upload) \
                    {{\\n  createJob(job: $job, jobVersion: $jobVersion, file: $file) \
                    {{\\n    id\\n    versions {{\\n      number\\n      __typename\\n    }}\\n   \
-                    __typename\\n  }}\\n}}\\n"}}'
+                    __typename\\n  }}\\n}}\\n"}}"""
 
 gql_extra_technology = '"extraTechnology": {{\
                            "language": "{0}",\
