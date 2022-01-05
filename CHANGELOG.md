@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.1 (2022-01-05)
+### :zap:
+* :zap: Add CPU/RAM limit and timezone scheduling per job ([#48](https://github.com/saagie/api-saagie/issues/48)) ([`0db08cb`](https://github.com/saagie/api-saagie/commit/0db08cb8eddbc0dff3221c933535488bef8fc10f))
+
 ## v0.6.0 (2022-01-04)
 ### :sparkles:
 * :sparkles: change the file schema.graphqls ([#46](https://github.com/saagie/api-saagie/issues/46)) ([`1ca1f3c`](https://github.com/saagie/api-saagie/commit/1ca1f3c6537d062efd9dd78f37cadfa71db418d1))
