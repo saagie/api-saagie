@@ -372,7 +372,7 @@ gql_create_job = """{{"operationName": "createJobMutation",\
                            "category": "{3}",\
                            "technology": {{"id":"{4}"}},\
                            "isStreaming": false,\
-                           {9} \
+                           {9}, \
                            "resources": {10}, \
                            "doesUseGPU": false\
                        }},\
