@@ -830,9 +830,9 @@ class SaagieApi:
         job_id : str
             UUID of your job
         file: str (optional)
-            Path
+            Path to your file
         use_previous_artifact: bool (optional)
-            Use
+            Use previous artifact
         runtime_version: str (optional)
             Runtime version
         command_line: str (optional)
@@ -925,9 +925,9 @@ class SaagieApi:
         project_name : str
             Name of your project
         file: str (optional)
-            Path
+            Path to your file
         use_previous_artifact: bool (optional)
-            Use
+            Use previous artifact
         runtime_version: str (optional)
             Runtime version
         command_line: str (optional)
