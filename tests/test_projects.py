@@ -95,12 +95,13 @@ class TestGQLTemplate:
     # ###                    techno                         ####
     # ##########################################################
 
-    def test_get_runtimes(self):
-        technology_id = "techno_id"
-        query = gql(gql_get_runtimes.format(technology_id))
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
+    # Schema is included in gateway schema
+    # def test_get_runtimes(self):
+    #     technology_id = "techno_id"
+    #     query = gql(gql_get_runtimes.format(technology_id))
+    #     result = self.client.validate(query)
+    #     expected = None
+    #     assert result == expected
 
     # ######################################################
     # ###                    projects                   ####
