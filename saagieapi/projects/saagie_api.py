@@ -777,32 +777,7 @@ class SaagieApi:
                                             gql_scheduling_payload_str,
                                             resources_str)
 
-        if file:
-            file = Path(file)
-            # logging.debug("Creating jobs with archive ...")
-            with file.open(mode='rb') as f:
-                files = {
-                    '1': (file.name, f),
-                    'operations': (None, payload_str),
-                    'map': (None, '{ "1": ["variables.file"] }'),
-                }
-                response = requests.post(self._url,
-                                         files=files,
-                                         auth=self.auth,
-                                         verify=False)
-        else:
-
-            payload = json.loads(payload_str)
-            response = requests.post(self._url,
-                                     json=payload,
-                                     auth=self.auth,
-                                     verify=False)
-
-        if response:
-            return json.loads(response.content)
-        else:
-            m = f"Requests failed with status_code :'{response.status_code}'"
-            raise requests.exceptions.RequestException(m)
+        return self.__launch_request(file, payload_str)
 
     def get_job_info(self, job_id):
         """Get job's info
@@ -859,6 +834,9 @@ class SaagieApi:
 
         payload_str = gql_upgrade_job.format(job_id, runtime_version, command_line, release_note, use_previous_artifact_str)
 
+        return self.__launch_request(file, payload_str)
+
+    def __launch_request(self, file, payload_str):
         if file:
             file = Path(file)
             with file.open(mode='rb') as f:
@@ -872,7 +850,6 @@ class SaagieApi:
                                          auth=self.auth,
                                          verify=False)
         else:
-
             payload = json.loads(payload_str)
             response = requests.post(self._url,
                                      json=payload,
