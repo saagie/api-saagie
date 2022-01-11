@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.2 (2022-01-11)
+### :zap:
+* :zap: Add the ability to upgrade a job ([#51](https://github.com/saagie/api-saagie/issues/51)) ([`c77c734`](https://github.com/saagie/api-saagie/commit/c77c7347c4ca119e6f0f253be067f79398950db9))
+
 ## v0.6.1 (2022-01-05)
 ### :zap:
 * :zap: Add CPU/RAM limit and timezone scheduling per job ([#48](https://github.com/saagie/api-saagie/issues/48)) ([`0db08cb`](https://github.com/saagie/api-saagie/commit/0db08cb8eddbc0dff3221c933535488bef8fc10f))
