@@ -91,6 +91,18 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    # ##########################################################
+    # ###                    techno                         ####
+    # ##########################################################
+
+    # Schema is included in gateway schema
+    # def test_get_runtimes(self):
+    #     technology_id = "techno_id"
+    #     query = gql(gql_get_runtimes.format(technology_id))
+    #     result = self.client.validate(query)
+    #     expected = None
+    #     assert result == expected
+
     # ######################################################
     # ###                    projects                   ####
     # ######################################################
@@ -193,6 +205,13 @@ class TestGQLTemplate:
     def test_delete_job(self):
         job_id = "1234"
         query = gql(gql_delete_job.format(job_id))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+    
+    def test_get_job_info(self):
+        job_id = "1234"
+        query = gql(gql_get_info_job.format(job_id))
         result = self.client.validate(query)
         expected = None
         assert result == expected

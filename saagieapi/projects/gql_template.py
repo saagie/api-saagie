@@ -111,6 +111,13 @@ gql_get_repositories_info = """
   }
 """
 
+gql_get_runtimes = """{{technology(id: "{0}"){{
+  __typename 
+  ... on JobTechnology {{contexts{{label}}}}
+  ... on SparkTechnology {{contexts{{label}}}}
+  }}}}
+"""
+
 #                        _              _
 #  _ __   _ __   ___    (_)  ___   ___ | |_  ___
 # | '_ \ | '__| / _ \   | | / _ \ / __|| __|/ __|
@@ -389,6 +396,62 @@ gql_create_job = """{{"operationName": "createJobMutation",\
                    {{\\n  createJob(job: $job, jobVersion: $jobVersion, file: $file) \
                    {{\\n    id\\n    versions {{\\n      number\\n      __typename\\n    }}\\n   \
                     __typename\\n  }}\\n}}\\n"}}"""
+
+gql_upgrade_job = """{{"operationName": "addJobVersionMutation",\
+    "variables": {{\
+        "jobId": "{0}",\
+        "jobVersion": {{\
+            "runtimeVersion": "{1}",\
+            "commandLine": "{2}",\
+            {4}\
+            "dockerInfo": null,\
+            "releaseNote": "{3}"\
+        }},\
+        "file": null\
+    }},\
+    "query": "mutation addJobVersionMutation($jobId: UUID!, $jobVersion: JobVersionInput!, $file: Upload) \
+    {{\\n  addJobVersion(jobId: $jobId, jobVersion: $jobVersion, file: $file) \
+    {{\\n    number\\n    __typename\\n  }}\\n}}\\n"}}"""
+
+gql_get_info_job = """query {{
+  job(id:"{0}"){{
+    id,
+    name,
+    description,
+    creationDate,
+    isScheduled,
+    cronScheduling,
+    scheduleStatus,
+    scheduleTimezone,
+    isStreaming,
+    isDeletable,
+    graphPipelines(isCurrent: true){{
+      id
+    }},
+    category,
+    technology{{
+      id
+    }},
+    alerting{{
+      emails,
+      statusList,
+      loginEmails{{
+        email
+      }}
+    }},
+    resources{{
+      cpu{{
+        request,
+        limit
+      }}
+      memory{{
+        request,
+        limit
+      }}
+    }}
+  }}
+}}
+"""
 
 gql_extra_technology = '"extraTechnology": {{\
                            "language": "{0}",\

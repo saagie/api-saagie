@@ -4,6 +4,7 @@ Projects & Jobs - to interact with the manager API, see the manager subpackage)
 
 """
 import json
+import logging
 import time
 import re
 import pytz
@@ -51,6 +52,7 @@ class SaagieApi:
                                self.id_platform, self.login, self.password)
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + '/graphql'
+        self._url = url
         self._transport = RequestsHTTPTransport(
             url=url,
             auth=self.auth,
@@ -284,6 +286,27 @@ class SaagieApi:
         """
         query = gql(gql_get_repositories_info)
         return self.client_gateway.execute(query)
+
+    # ##########################################################
+    # ###                    technologies                   ####
+    # ##########################################################
+
+    def get_runtimes(self, technology_id):
+        """Get the list of runtimes for a technology id
+
+        Parameters
+        ----------
+        technology_id : str
+            UUID of the technology
+
+        Returns
+        -------
+        dict
+            Dict of runtime labels
+
+        """
+        query = gql_get_runtimes.format(technology_id)
+        return self.client_gateway.execute(gql(query))
 
     # ######################################################
     # ###                    projects                   ####
@@ -720,9 +743,6 @@ class SaagieApi:
         else:
             extra_tech = ''
 
-        url = self.url_saagie + self.suffix_api + 'platform/'
-        url += str(self.id_platform) + "/graphql"
-
         if resources is None:
             resources = {}
         gql_scheduling_payload = []
@@ -757,32 +777,149 @@ class SaagieApi:
                                             gql_scheduling_payload_str,
                                             resources_str)
 
+        return self.__launch_request(file, payload_str)
+
+    def get_job_info(self, job_id):
+        """Get job's info
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job
+
+        Returns
+        -------
+        dict
+            Dict of job's info
+
+        """
+        query = gql_get_info_job.format(job_id)
+        return self.client.execute(gql(query))
+        
+    def upgrade_job(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.6',
+                   command_line='python {file} arg1 arg2', release_note=None):
+        """Ugrade a job
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job
+        file: str (optional)
+            Path to your file
+        use_previous_artifact: bool (optional)
+            Use previous artifact
+        runtime_version: str (optional)
+            Runtime version
+        command_line: str (optional)
+            Command line
+        release_note: str (optional)
+            Release note
+
+        Returns
+        -------
+        dict
+            Dict with version number
+
+        """
+
+        # Verify if specified runtime exists
+        technology_id = self.get_job_info(job_id)["job"]["technology"]["id"]
+        available_runtimes = [c["label"] for c in self.get_runtimes(technology_id)["technology"]["contexts"]]
+        if runtime_version not in available_runtimes:
+            raise RuntimeError(f"Specified runtime does not exist ({runtime_version}). Available runtimes : {','.join(available_runtimes)}.")
+
+        if file and use_previous_artifact:
+            logging.warn("You can not specify a file and use the previous artifact. By default, the specified file will be used.")
+        use_previous_artifact_str = f'"usePreviousArtifact": {"null" if use_previous_artifact else "false"},'
+
+        payload_str = gql_upgrade_job.format(job_id, runtime_version, command_line, release_note, use_previous_artifact_str)
+
+        return self.__launch_request(file, payload_str)
+
+    def __launch_request(self, file, payload_str):
         if file:
             file = Path(file)
-            # logging.debug("Creating jobs with archive ...")
             with file.open(mode='rb') as f:
                 files = {
                     '1': (file.name, f),
                     'operations': (None, payload_str),
                     'map': (None, '{ "1": ["variables.file"] }'),
                 }
-                response = requests.post(url,
+                response = requests.post(self._url,
                                          files=files,
                                          auth=self.auth,
                                          verify=False)
         else:
-
             payload = json.loads(payload_str)
-            response = requests.post(url,
+            response = requests.post(self._url,
                                      json=payload,
                                      auth=self.auth,
                                      verify=False)
-
+        
         if response:
             return json.loads(response.content)
         else:
             m = f"Requests failed with status_code :'{response.status_code}'"
             raise requests.exceptions.RequestException(m)
+
+    def get_job_id(self, job_name, project_name):
+        """Get the job id with the job name and project name
+
+        Parameters
+        ----------
+        job_name : str
+            Name of your job
+        project_name : str
+            Name of your project
+
+        Returns
+        -------
+        dict
+            Job UUID
+
+        """
+        projects = self.get_projects_info()["projects"]
+        project = list(filter(lambda p: p["name"] == project_name, projects))
+        if project:
+            project_id = project[0]["id"]
+            jobs = self.get_project_jobs(project_id, instances_limit=1)["jobs"]
+            job = list(filter(lambda j: j["name"] == job_name, jobs))
+            if job:
+                return job[0]["id"]
+            else:
+                raise NameError(f"Job {job_name} does not exist.")
+        else:
+            raise NameError(f"Project {project_name} does not exist.")
+    
+    def upgrade_job_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
+                   command_line='python {file} arg1 arg2', release_note=None):
+        """Ugrade a job
+
+        Parameters
+        ----------
+        job_name : str
+            Name of your job
+        project_name : str
+            Name of your project
+        file: str (optional)
+            Path to your file
+        use_previous_artifact: bool (optional)
+            Use previous artifact
+        runtime_version: str (optional)
+            Runtime version
+        command_line: str (optional)
+            Command line
+        release_note: str (optional)
+            Release note
+
+        Returns
+        -------
+        dict
+            Dict with version number
+
+        """
+        job_id = self.get_job_id(job_name, project_name)
+        return self.upgrade_job(job_id, file, use_previous_artifact, runtime_version, command_line, release_note)
 
     def delete_job(self, job_id):
         """Delete a given job
