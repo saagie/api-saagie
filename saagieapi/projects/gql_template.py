@@ -692,7 +692,6 @@ gql_create_graph_pipeline = """
   createGraphPipeline(pipeline:  {{
     name: "{0}",
     description: "{1}",
-    isScheduled: false,
     projectId: "{2}",
     releaseNote : "{3}",
     {4}
@@ -702,5 +701,13 @@ gql_create_graph_pipeline = """
   ) {{
     id
   }}
+}}
+"""
+
+gql_delete_pipeline = """
+  mutation {{
+  deletePipeline (
+    id: "{0}"
+  )
 }}
 """

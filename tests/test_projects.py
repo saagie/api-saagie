@@ -302,3 +302,22 @@ class TestGQLTemplate:
         result = self.client.validate(query)
         expected = None
         assert result == expected
+    
+    def test_create_graph_pipeline(self):
+        pipeline_name = "test"
+        project_id = "1"
+        description = "test"
+        release_note = "test"
+        schedule_string = 'isScheduled: true, cronScheduling: "0 0 * * *", scheduleTimezone: "Pacific/Fakaofo"'
+        query = gql(gql_create_graph_pipeline.format(pipeline_name, description, project_id, release_note, schedule_string))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
+    def test_delete_pipeline(self):
+        pipeline_id = "1"
+        query = gql(gql_delete_pipeline.format(pipeline_id))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected        
+

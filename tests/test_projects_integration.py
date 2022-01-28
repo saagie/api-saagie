@@ -6,6 +6,7 @@ import pytest
 import urllib3
 
 from saagieapi.projects import SaagieApi
+from saagieapi.projects.graph_pipeline import *
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")
@@ -280,6 +281,61 @@ class TestIntegrationProject:
         result = self.saagie.delete_project_env_var(self.project_id, name)
 
         assert result == {'deleteEnvironmentVariable': True}
+    
+    @pytest.fixture
+    def create_graph_pipeline(self, create_job):
+        job_id = create_job
+        yield job_id
+        job_node1 = JobNode(job_id)
+        job_node2 = JobNode(job_id)
+        condition_node_1 = ConditionNode()
+        job_node1.add_next_node(condition_node_1)
+        condition_node_1.add_success_node(job_node2)
+        graph_pipeline = GraphPipeline()
+        graph_pipeline.add_root_node(job_node1)
+
+        name = 'TEST_VIA_API'
+        description = 'DESCRIPTION_TEST_VIA_API'
+        cron_scheduling="0 0 * * *"
+        schedule_timezone="Pacific/Fakaofo"
+        result = self.saagie.create_graph_pipeline(project_id=self.project_id,
+                                        graph_pipeline=graph_pipeline,
+                                        name=name,
+                                        description=description,
+                                        cron_scheduling=cron_scheduling,
+                                        schedule_timezone=schedule_timezone
+                                        )
+
+        return result["createGraphPipeline"]["id"]
+
+    @pytest.fixture
+    def create_then_delete_graph_pipeline(self, create_graph_pipeline):
+        pipeline_id = create_graph_pipeline
+
+        yield pipeline_id
+
+        self.saagie.delete_pipeline(pipeline_id)
+
+
+    def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
+        pipeline_id = create_then_delete_graph_pipeline
+
+        list_pipelines = self.saagie.get_project_pipelines(self.project_id)
+
+        list_pipelines_id = [pipeline['id'] for pipeline in list_pipelines['pipelines']] 
+
+        assert pipeline_id in list_pipelines_id
+
+
+    def test_delete_graph_pipeline(self, create_graph_pipeline):
+        pipeline_id = create_graph_pipeline
+
+        result = self.saagie.delete_pipeline(pipeline_id)
+
+        assert result=={'deletePipeline': True}
+
+    
+
 
     def teardown_class(cls):
         # Delete Project

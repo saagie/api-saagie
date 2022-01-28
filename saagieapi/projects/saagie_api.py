@@ -1257,3 +1257,20 @@ class SaagieApi:
 
         query = gql(query_str)
         return self.client.execute(query, variable_values=params)
+
+    def delete_pipeline(self, pipeline_id):
+        """Delete a pipeline given pipeline id
+
+        Parameters
+        ----------
+        pipeline_id : str
+            Pipeline id
+
+        Returns
+        -------
+        dict
+            Dict containing status of deletion
+        """
+        query = gql(gql_delete_pipeline.format(pipeline_id))
+
+        return self.client.execute(query)
