@@ -686,3 +686,21 @@ gql_get_pipeline_instance = """
       }}
   }}
 """
+
+gql_create_graph_pipeline = """
+  mutation($jobNodes: [JobNodeInput!], $conditionsNodes: [ConditionNodeInput!]) {{
+  createGraphPipeline(pipeline:  {{
+    name: "{0}",
+    description: "{1}",
+    isScheduled: false,
+    projectId: "{2}",
+    releaseNote : "{3}",
+    {4}
+    graph: {{jobNodes: $jobNodes,
+                conditionNodes: $conditionsNodes}}
+    }}
+  ) {{
+    id
+  }}
+}}
+"""

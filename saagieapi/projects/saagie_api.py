@@ -17,6 +17,7 @@ from gql.transport.requests import RequestsHTTPTransport
 
 from .auth import *
 from .gql_template import *
+from .graph_pipeline import *
 
 
 class SaagieApi:
@@ -1196,3 +1197,63 @@ class SaagieApi:
         """
         query = gql(gql_get_pipeline_instance.format(pipeline_instance_id))
         return self.client.execute(query)
+
+    def create_graph_pipeline(self, name, project_id, graph_pipeline, description="", release_note="",
+                              cron_scheduling=None, schedule_timezone="UTC"):
+        """
+        Create a pipeline in a given project
+
+        Parameters
+        ----------
+        name : str
+            Name of the pipeline. Must not already exist in the project
+        project_id : str
+            UUID of your project (see README on how to find it)
+        graph_pipeline : GraphPipeline
+
+        description : str, optional
+            Description of the pipeline
+        release_note: str, optional
+            Release note of the pipeline
+        cron_scheduling : str, optional
+            Scheduling CRON format
+        schedule_timezone : str, optional
+            Timezone of the scheduling
+
+        Returns
+        -------
+        dict
+            Dict of job information
+        """
+        gql_scheduling_payload = []
+        if not graph_pipeline.list_job_nodes:
+            graph_pipeline.to_pipeline_graph_input()
+        if cron_scheduling:
+            gql_scheduling_payload.append(f'isScheduled: true')
+
+            if croniter.is_valid(cron_scheduling):
+                gql_scheduling_payload.append(f'cronScheduling: "{cron_scheduling}"')
+            else:
+                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
+
+            if schedule_timezone in list(pytz.all_timezones):
+                gql_scheduling_payload.append(f'scheduleTimezone: "{schedule_timezone}"')
+            else:
+                raise RuntimeError("Please specify a correct timezone")
+
+        else:
+            gql_scheduling_payload.append(f'"isScheduled": false')
+
+        gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
+
+        query_str = gql_create_graph_pipeline.format(
+            name,
+            description,
+            project_id,
+            release_note,
+            gql_scheduling_payload_str
+        )
+        params = {'jobNodes': graph_pipeline.list_job_nodes, 'conditionsNodes': graph_pipeline.list_conditions_nodes}
+
+        query = gql(query_str)
+        return self.client.execute(query, variable_values=params)
