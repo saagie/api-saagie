@@ -1032,7 +1032,6 @@ class SaagieApi:
             Dict of pipelines information
         """
         instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
-        print(gql_get_pipelines.format(project_id, instances_limit_request))
         query = gql(gql_get_pipelines.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
@@ -1073,23 +1072,39 @@ class SaagieApi:
     # TO DETAIL!
     # Detail pipeline dict parameters, or explode the number of parameters to
     # have a more comprehensible method
-    def edit_pipeline(self, pipeline_id):
+    def edit_pipeline(self, pipeline_id, name=None, description=None, emails=None, status_list=None, is_scheduled=None,
+             cron_scheduling=None, schedule_timezone=None):
         """Edit a given pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
 
-        Parameters
-        ----------
-        pipeline_id : str
-            UUID of your pipeline  (see README on how to find it)
+        Args:
+            pipeline_id (str): mandatory pipeline id to edit
+            name (str): if not filled, defaults to current value
+            description (str): if not filled, defaults to current value
+            emails (list, optional): if not filled, defaults to current value
+            status_list (list, optional): if not filled, defaults to current value
+            is_scheduled (bool, optional): if not filled, defaults to current value
+            cron_scheduling (str, optional): if not filled, defaults to current value
+            schedule_timezone (str, optional): if not filled, defaults to current value
 
-        Returns
-        -------
-        dict
-            Dict of pipeline information
+        Returns:
+            [type]: [description]
         """
-        query = gql(gql_edit_pipeline.format(pipeline_id))
-        return self.client.execute(query)
+        pipeline_info = self.get_project_pipeline(pipeline_id)
+        if not name: name = pipeline_info["graphPipeline"]["name"]
+        if not description: description = pipeline_info["graphPipeline"]["description"]
+        if not emails: emails = pipeline_info["graphPipeline"]["alerting"]["emails"]
+        if not status_list: status_list = pipeline_info["graphPipeline"]["alerting"]["statusList"]
+        if not is_scheduled: is_scheduled = pipeline_info["graphPipeline"]["isScheduled"]
+        if not cron_scheduling: cron_scheduling = pipeline_info["graphPipeline"]["cronScheduling"]
+        if not schedule_timezone: schedule_timezone = pipeline_info["graphPipeline"]["scheduleTimezone"]
+
+        params = {'id': pipeline_id, 'name': name, 'description': description, 'emails': emails, 'statusList': status_list,
+                'isScheduled': is_scheduled, 'cronScheduling': cron_scheduling, 'scheduleTimezone': schedule_timezone}
+
+        query = gql(gql_edit_pipeline)
+        return self.client.execute(query, variable_values=params)
 
     def run_pipeline(self, pipeline_id):
         """Run a given pipeline
@@ -1224,7 +1239,7 @@ class SaagieApi:
         Returns
         -------
         dict
-            Dict of job information
+            Dict of pipeline information
         """
         gql_scheduling_payload = []
         if not graph_pipeline.list_job_nodes:
@@ -1254,7 +1269,7 @@ class SaagieApi:
             release_note,
             gql_scheduling_payload_str
         )
-        params = {'jobNodes': graph_pipeline.list_job_nodes, 'conditionsNodes': graph_pipeline.list_conditions_nodes}
+        params = {'jobNodes': graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes}
 
         query = gql(query_str)
         return self.client.execute(query, variable_values=params)
@@ -1275,3 +1290,25 @@ class SaagieApi:
         query = gql(gql_delete_pipeline.format(pipeline_id))
 
         return self.client.execute(query)
+
+    def upgrade_pipeline(self, pipeline_id, graph_pipeline, release_note=""):
+        """
+        Create a pipeline in a given project
+
+        Parameters
+        ----------
+        graph_pipeline : GraphPipeline
+        release_note: str, optional
+            Release note of the pipeline
+
+        Returns
+        -------
+        dict
+            Dict of pipeline information
+        """
+        if not graph_pipeline.list_job_nodes:
+            graph_pipeline.to_pipeline_graph_input()
+
+        params = {'id': pipeline_id, 'jobNodes': graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes, 'releaseNote': release_note}
+
+        return self.client.execute(gql(gql_upgrade_pipeline), variable_values=params)

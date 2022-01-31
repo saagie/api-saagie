@@ -270,12 +270,8 @@ class TestGQLTemplate:
         assert result == expected
 
     def test_gql_edit_pipeline(self):
-        pipeline = """
-        {
-            id: "1234",
-            name: "new_name"
-        }"""
-        query = gql(gql_edit_pipeline.format(pipeline))
+
+        query = gql(gql_edit_pipeline)
         result = self.client.validate(query)
         expected = None
         assert result == expected
@@ -319,5 +315,11 @@ class TestGQLTemplate:
         query = gql(gql_delete_pipeline.format(pipeline_id))
         result = self.client.validate(query)
         expected = None
-        assert result == expected        
+        assert result == expected
+
+    def test_upgrade_pipeline(self):
+        query = gql(gql_upgrade_pipeline)
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
 

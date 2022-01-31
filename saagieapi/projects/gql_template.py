@@ -611,7 +611,7 @@ gql_get_pipelines = """
 
 gql_get_pipeline = """
   query{{
-    pipeline(id: "{0}"){{
+    graphPipeline(id: "{0}"){{
       id,
       name,
       description,
@@ -628,7 +628,9 @@ gql_get_pipeline = """
       creator,
       isScheduled,
       cronScheduling,
-      scheduleStatus
+      scheduleStatus,
+      scheduleTimezone,
+      isLegacyPipeline
     }}
   }}
   """
@@ -647,15 +649,33 @@ gql_stop_pipeline_instance = """
   """
 
 gql_edit_pipeline = """
-  mutation{{
-    editPipeline(pipeline: {0}) {{
-        id,
-        name,
-        description,
-        isScheduled,
-        cronScheduling
-      }}
-  }}
+  mutation($id: UUID!, $name: String, $description: String, $emails: [Email!], $statusList: [InstanceStatus!]!,
+          $isScheduled: Boolean, $cronScheduling: Cron, $scheduleTimezone:TimeZone)  {
+    editPipeline(pipeline: {
+        id: $id,
+        name: $name,
+        description: $description,
+        alerting: {
+          emails: $emails,
+          statusList: $statusList
+        }
+        isScheduled: $isScheduled,
+        cronScheduling: $cronScheduling,
+        scheduleTimezone: $scheduleTimezone
+      })
+    {
+      id,
+      name,
+      description,
+      alerting{
+        emails,
+        statusList
+      }
+      isScheduled,
+      cronScheduling,
+      scheduleTimezone
+    }
+  }
 """
 
 gql_run_pipeline = """
@@ -691,7 +711,7 @@ gql_get_pipeline_instance = """
 """
 
 gql_create_graph_pipeline = """
-  mutation($jobNodes: [JobNodeInput!], $conditionsNodes: [ConditionNodeInput!]) {{
+  mutation($jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!]) {{
   createGraphPipeline(pipeline:  {{
     name: "{0}",
     description: "{1}",
@@ -699,7 +719,7 @@ gql_create_graph_pipeline = """
     releaseNote : "{3}",
     {4}
     graph: {{jobNodes: $jobNodes,
-                conditionNodes: $conditionsNodes}}
+                conditionNodes: $conditionNodes}}
     }}
   ) {{
     id
@@ -713,4 +733,34 @@ gql_delete_pipeline = """
     id: "{0}"
   )
 }}
+"""
+
+gql_upgrade_pipeline = """
+  mutation($id: UUID!, $jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!], $releaseNote: String){
+  addGraphPipelineVersion(
+    pipelineId: $id,
+    graph: {jobNodes: $jobNodes,
+                conditionNodes: $conditionNodes},
+    releaseNote: $releaseNote
+    )
+    {
+      number,
+      releaseNote,
+      graph{
+        jobNodes {
+          id,
+          job {
+            id
+          }
+        },
+        conditionNodes{
+          id
+        }
+      },
+      creationDate,
+      creator,
+      isCurrent,
+      isMajor
+    }
+  }
 """
