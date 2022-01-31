@@ -62,7 +62,7 @@ class GraphPipeline:
                 dict_condition["id"] = str(node.id)
                 dict_condition["nextNodesSuccess"] = [str(nn.id) for nn in node.next_nodes_success]
                 dict_condition["nextNodesFailure"] = [str(nn.id) for nn in node.next_nodes_failure]
-                self.list_conditions_nodes.add(dict_condition)
+                self.list_conditions_nodes.append(dict_condition)
                 if node.next_nodes_success:
                     for n in node.next_nodes_success:
                         self.fill_nodes_lists(n)

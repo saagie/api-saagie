@@ -120,8 +120,7 @@ class TestIntegrationProject:
     def create_job(self):
         # Disable urllib3 InsecureRequestsWarnings
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-        job_name = 'python_test'
+        job_name = "python_test"
         file = dir_path + '/hello_world.py'
 
         job = self.saagie.create_job(job_name=job_name,
@@ -131,7 +130,7 @@ class TestIntegrationProject:
                                      category='Processing',
                                      technology='python',
                                      technology_catalog='Saagie',
-                                     runtime_version='3.6',
+                                     runtime_version='3.9',
                                      command_line='python {file} arg1 arg2',
                                      release_note='',
                                      extra_technology='',
@@ -285,7 +284,6 @@ class TestIntegrationProject:
     @pytest.fixture
     def create_graph_pipeline(self, create_job):
         job_id = create_job
-        yield job_id
         job_node1 = JobNode(job_id)
         job_node2 = JobNode(job_id)
         condition_node_1 = ConditionNode()
@@ -305,35 +303,36 @@ class TestIntegrationProject:
                                         cron_scheduling=cron_scheduling,
                                         schedule_timezone=schedule_timezone
                                         )
-
-        return result["createGraphPipeline"]["id"]
+        print(result)
+        return result["createGraphPipeline"]["id"], job_id
 
     @pytest.fixture
     def create_then_delete_graph_pipeline(self, create_graph_pipeline):
-        pipeline_id = create_graph_pipeline
+        pipeline_id, job_id = create_graph_pipeline
 
-        yield pipeline_id
+        yield pipeline_id, job_id
 
         self.saagie.delete_pipeline(pipeline_id)
+        self.saagie.delete_job(job_id)
 
 
     def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
-        pipeline_id = create_then_delete_graph_pipeline
-
+        pipeline_id, _ = create_then_delete_graph_pipeline
+        print(f'Pipeline id is {pipeline_id}')
+        print(f'Project id is {self.project_id}')
         list_pipelines = self.saagie.get_project_pipelines(self.project_id)
-
-        list_pipelines_id = [pipeline['id'] for pipeline in list_pipelines['pipelines']] 
+        print(f'list_pipelines : {list_pipelines}')
+        list_pipelines_id = [pipeline['id'] for pipeline in list_pipelines['project']['pipelines']] 
+        print(f'We found those pipelines {list_pipelines_id}')
 
         assert pipeline_id in list_pipelines_id
 
-
     def test_delete_graph_pipeline(self, create_graph_pipeline):
-        pipeline_id = create_graph_pipeline
+        pipeline_id, _ = create_graph_pipeline
 
         result = self.saagie.delete_pipeline(pipeline_id)
 
         assert result=={'deletePipeline': True}
-
     
 
 

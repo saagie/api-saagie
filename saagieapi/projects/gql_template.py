@@ -578,32 +578,35 @@ gql_get_project_app = """
 
 gql_get_pipelines = """
   query{{
-    pipelines(projectId: "{0}"){{
-      id,
-      name,
-      description,
-      alerting{{
-        emails,
-        loginEmails{{
-          login,
-          email
-        }},
-        statusList
-      }},
-      pipelineInstanceCount,
-      instances{1}{{
+    project(id: "{0}"){{
+      pipelines{{
         id,
-        status,
-        startTime,
-        endTime
-      }},
-      creationDate,
-      creator,
-      isScheduled,
-      cronScheduling,
-      scheduleStatus
-    }}
-  }}
+        name,
+        description,
+        alerting{{
+          emails,
+          loginEmails{{
+            login,
+            email
+          }},
+          statusList
+        }},
+        pipelineInstanceCount,
+        instances{1}{{
+          id,
+          status,
+          startTime,
+          endTime
+        }},
+        creationDate,
+        creator,
+        isScheduled,
+        cronScheduling,
+        scheduleStatus,
+        scheduleTimezone,
+        isLegacyPipeline
+      }}
+  }}}}
   """
 
 gql_get_pipeline = """
