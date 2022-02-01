@@ -44,9 +44,7 @@ class GraphPipeline:
         if str(node.id) not in [jn.get("id") for jn in self.list_job_nodes] and str(node.id) not in [cn.get("id") for cn in
                                                                                                 self.list_conditions_nodes]:
 
-            print(type(node))
             if type(node) == JobNode:
-                print(f"job node: {node.id}")
                 dict_job = {}
                 dict_job["id"] = str(node.id)
                 dict_job["nextNodes"] = [str(nn.id) for nn in node.next_nodes]
@@ -57,7 +55,6 @@ class GraphPipeline:
                     for n in node.next_nodes:
                         self.fill_nodes_lists(n)
             elif type(node) == ConditionNode:
-                print(f"condition node: {node.id}")
                 dict_condition = {}
                 dict_condition["id"] = str(node.id)
                 dict_condition["nextNodesSuccess"] = [str(nn.id) for nn in node.next_nodes_success]
