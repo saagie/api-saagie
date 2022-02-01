@@ -6,6 +6,7 @@ import pytest
 import urllib3
 
 from saagieapi.projects import SaagieApi
+from saagieapi.projects.graph_pipeline import *
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")
@@ -119,8 +120,7 @@ class TestIntegrationProject:
     def create_job(self):
         # Disable urllib3 InsecureRequestsWarnings
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-        job_name = 'python_test'
+        job_name = "python_test"
         file = dir_path + '/hello_world.py'
 
         job = self.saagie.create_job(job_name=job_name,
@@ -130,17 +130,13 @@ class TestIntegrationProject:
                                      category='Processing',
                                      technology='python',
                                      technology_catalog='Saagie',
-                                     runtime_version='3.6',
+                                     runtime_version='3.9',
                                      command_line='python {file} arg1 arg2',
                                      release_note='',
                                      extra_technology='',
                                      extra_technology_version='')
 
-        print(job)
-
         job_id = job['data']['createJob']['id']
-
-        print(job_id)
 
         return job_id
 
@@ -280,6 +276,108 @@ class TestIntegrationProject:
         result = self.saagie.delete_project_env_var(self.project_id, name)
 
         assert result == {'deleteEnvironmentVariable': True}
+    
+    @pytest.fixture
+    def create_graph_pipeline(self, create_job):
+        job_id = create_job
+        job_node1 = JobNode(job_id)
+        job_node2 = JobNode(job_id)
+        condition_node_1 = ConditionNode()
+        job_node1.add_next_node(condition_node_1)
+        condition_node_1.add_success_node(job_node2)
+        graph_pipeline = GraphPipeline()
+        graph_pipeline.add_root_node(job_node1)
+
+        name = 'TEST_VIA_API'
+        description = 'DESCRIPTION_TEST_VIA_API'
+        cron_scheduling="0 0 * * *"
+        schedule_timezone="Pacific/Fakaofo"
+        result = self.saagie.create_graph_pipeline(project_id=self.project_id,
+                                        graph_pipeline=graph_pipeline,
+                                        name=name,
+                                        description=description,
+                                        cron_scheduling=cron_scheduling,
+                                        schedule_timezone=schedule_timezone
+                                        )
+        return result["createGraphPipeline"]["id"], job_id
+
+    @pytest.fixture
+    def create_then_delete_graph_pipeline(self, create_graph_pipeline):
+        pipeline_id, job_id = create_graph_pipeline
+
+        yield pipeline_id, job_id
+
+        self.saagie.delete_pipeline(pipeline_id)
+        self.saagie.delete_job(job_id)
+
+
+    def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
+        pipeline_id, _ = create_then_delete_graph_pipeline
+        list_pipelines = self.saagie.get_project_pipelines(self.project_id)
+        list_pipelines_id = [pipeline['id'] for pipeline in list_pipelines['project']['pipelines']] 
+
+        assert pipeline_id in list_pipelines_id
+
+    def test_delete_graph_pipeline(self, create_graph_pipeline):
+        pipeline_id, job_id = create_graph_pipeline
+
+        result = self.saagie.delete_pipeline(pipeline_id)
+        self.saagie.delete_job(job_id)
+
+        assert result=={'deletePipeline': True}
+    
+    def test_edit_graph_pipeline(self, create_then_delete_graph_pipeline):
+        pipeline_id, _ = create_then_delete_graph_pipeline
+        pipeline_input = {
+            'name': "test_edit_graph_pipeline",
+            'description': "test_edit_graph_pipeline",
+            'emails': ["test@mail.com"],
+            'status_list': ["FAILED"],
+            'is_scheduled': True,
+            'cron_scheduling': "0 0 * * *",
+            'schedule_timezone': "UTC"
+        }
+        self.saagie.edit_pipeline(pipeline_id, name=pipeline_input['name'], description=pipeline_input['description'], emails=pipeline_input['emails'],
+                                status_list=pipeline_input['status_list'], is_scheduled=pipeline_input['is_scheduled'], cron_scheduling=pipeline_input['cron_scheduling'], schedule_timezone=pipeline_input['schedule_timezone'])
+        pipeline_info = self.saagie.get_project_pipeline(pipeline_id)
+        to_validate = {}
+        to_validate['name'] = pipeline_info["graphPipeline"]["name"]
+        to_validate['description'] = pipeline_info["graphPipeline"]["description"]
+        to_validate['emails'] = pipeline_info["graphPipeline"]["alerting"]["emails"]
+        to_validate['status_list'] = pipeline_info["graphPipeline"]["alerting"]["statusList"]
+        to_validate['is_scheduled'] = pipeline_info["graphPipeline"]["isScheduled"]
+        to_validate['cron_scheduling'] = pipeline_info["graphPipeline"]["cronScheduling"]
+        to_validate['schedule_timezone']= pipeline_info["graphPipeline"]["scheduleTimezone"]
+
+        assert pipeline_input==to_validate
+
+    def test_upgrade_graph_pipeline(self, create_then_delete_graph_pipeline):
+        pipeline_id, job_id = create_then_delete_graph_pipeline
+        
+        job_node1 = JobNode(job_id)
+        job_node2 = JobNode(job_id)
+        job_node3 = JobNode(job_id)
+        condition_node_1 = ConditionNode()
+        job_node1.add_next_node(condition_node_1)
+        job_node2.add_next_node(job_node3)
+        condition_node_1.add_success_node(job_node2)
+        graph_pipeline = GraphPipeline()
+        graph_pipeline.add_root_node(job_node1)
+
+        release_note = "amazing new version !"
+
+        pipeline_version_info = self.saagie.upgrade_pipeline(pipeline_id, graph_pipeline, release_note)
+
+        job_nodes_id = [job_node['id'] for job_node in pipeline_version_info['addGraphPipelineVersion']['graph']['jobNodes']]
+        
+        result = (str(job_node3.id) in job_nodes_id) and (pipeline_version_info['addGraphPipelineVersion']['releaseNote'] == release_note)
+
+        assert result
+         
+        
+
+        
+
 
     def teardown_class(cls):
         # Delete Project
