@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.0 (2022-02-01)
+### :sparkles:
+* :sparkles: Add graph pipelines creation, deletion, upgrade, edit ([#55](https://github.com/saagie/api-saagie/issues/55)) ([`ee06cbe`](https://github.com/saagie/api-saagie/commit/ee06cbed1b5aa2e4f8e21ad6709a58784a0bf0f2))
+
 ## v0.6.2 (2022-01-11)
 ### :zap:
 * :zap: Add the ability to upgrade a job ([#51](https://github.com/saagie/api-saagie/issues/51)) ([`c77c734`](https://github.com/saagie/api-saagie/commit/c77c7347c4ca119e6f0f253be067f79398950db9))
