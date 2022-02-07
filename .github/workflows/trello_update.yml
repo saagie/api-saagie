@@ -12,7 +12,7 @@ jobs:
       - name: Call trello-github-actions
         uses: Yleisradio/github-action-trello-integration@v1.1.0
         with:
-          action: issue_opened_update_card
+          action: issue_opened_create_card
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
