@@ -724,21 +724,13 @@ class SaagieApi:
                    runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note='',
                    extra_technology='', extra_technology_version='',
-                   cron_scheduling=None, schedule_timezone="UTC", resources=None):
+                   cron_scheduling=None, schedule_timezone="UTC", resources=None,
+                   emails=None, status_list=["FAILED"]):
         """Create job in given project
 
         NOTE
         ----
-        - Since gql does not support multipart graphQL requests, requests
-          package is used for now. The create job graphQL API takes a multipart
-          graphQL request to upload a file.
-          See https://github.com/jaydenseric/graphql-multipart-request-spec
-          for more details
-        - 2020-06-08 : multipart graphQL support will probably be implemented
-          in gql in the near future.
-          See https://github.com/graphql-python/gql/issues/68 to follow this
-          work.
-        - Tested with python and spark jobs
+        - Only work for gql>=3.0.0
 
         Parameters
         ----------
@@ -771,22 +763,32 @@ class SaagieApi:
             needed
         cron_scheduling : str, optional
             Scheduling CRON format
+            Example: "0 0 * * *" (for every day At 00:00)
         schedule_timezone : str, optional
             Timezone of the scheduling
+            Example: "UTC", "Pacific/Pago_Pago"
         resources : dict, optional
             CPU, memory limit and requests
             Example: {"cpu":{"request":0.5, "limit":2.6},"memory":{"request":1.0}}
+        emails: List[String], optional
+            Emails to receive alerts for the job, each item should be a valid email
+        status_list: List[String], optional
+            Receive an email when the job status change to a specific status
+            Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
+            "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
 
         Returns
         -------
         dict
             Dict of job information
+            Example: {'createJob': {'id': 'e1ab3024-ee4b-4456-900a-d8903da596e0',
+                        'versions': [{'number': 1, '__typename': 'JobVersion'}],
+                        '__typename': 'Job'}}
 
-        Raises
-        ------
-        requests.exceptions.RequestException
-            When requests fails
         """
+        params = {
+            "projectId": project_id, "name": job_name, "description": description, "category": category,
+            "releaseNote": release_note, "runtimeVersion": runtime_version, "commandLine": command_line}
 
         technologies_for_project = self.get_project_technologies(project_id)['technologiesByCategory']
         technologies_for_project_and_category = [
@@ -819,6 +821,7 @@ class SaagieApi:
                 f"and for the {technology_catalog} catalog")
         else:
             technology_id = technology_in_catalog[0]
+            params["technologyId"] = technology_id
 
         if extra_technology != '':
             extra_tech = gql_extra_technology.format(extra_technology,
@@ -826,41 +829,54 @@ class SaagieApi:
         else:
             extra_tech = ''
 
-        if resources is None:
-            resources = {}
-        gql_scheduling_payload = []
+        if emails:
+            wrong_email_list = []
+            wrong_status_list = []
+
+            email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+            for email in emails:
+                if not re.fullmatch(email_regex, email):
+                    wrong_email_list.append(email)
+            if wrong_email_list:
+                raise RuntimeError(f"The following emails are not valid: {wrong_email_list}. "
+                                   f"Please check the format of these emails.")
+
+            for item in status_list:
+                if item not in self.valid_status_list:
+                    wrong_status_list.append(item)
+            if wrong_status_list:
+                raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
+                                   f"Please make sure that each item of the parameter status_list should be "
+                                   f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
+                                   f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'")
+
+            else:
+                params["alerting"] = {
+                    "emails": emails,
+                    "statusList": status_list
+                }
 
         if cron_scheduling:
-            gql_scheduling_payload.append(f'"isScheduled": true')
+            params["isScheduled"] = True
 
             if croniter.is_valid(cron_scheduling):
-                gql_scheduling_payload.append(f'"cronScheduling": "{cron_scheduling}"')
+                params["cronScheduling"] = cron_scheduling
             else:
                 raise RuntimeError(f"{cron_scheduling} is not valid cron format")
 
             if schedule_timezone in list(pytz.all_timezones):
-                gql_scheduling_payload.append(f'"scheduleTimezone": "{schedule_timezone}"')
+                params["scheduleTimezone"] = schedule_timezone
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
         else:
-            gql_scheduling_payload.append(f'"isScheduled": false')
+            params["isScheduled"] = False
 
-        gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
-        resources_str = json.dumps(resources)
-        payload_str = gql_create_job.format(job_name,
-                                            project_id,
-                                            description,
-                                            category,
-                                            technology_id,
-                                            runtime_version,
-                                            command_line,
-                                            release_note,
-                                            extra_tech,
-                                            gql_scheduling_payload_str,
-                                            resources_str)
+        if resources:
+            params["resources"] = resources
 
-        return self.__launch_request(file, payload_str)
+        payload_str = gql_create_job.format(extra_technology=extra_tech)
+        return self.__launch_request(file, payload_str, params)
 
     def get_job_info(self, job_id):
         """Get job's info
@@ -880,8 +896,9 @@ class SaagieApi:
         return self.client.execute(gql(query))
         
     def upgrade_job(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.6',
-                   command_line='python {file} arg1 arg2', release_note=None):
-        """Ugrade a job
+                    command_line='python {file} arg1 arg2', release_note=None,
+                    extra_technology='', extra_technology_version=''):
+        """Upgrade a job
 
         Parameters
         ----------
@@ -897,11 +914,18 @@ class SaagieApi:
             Command line
         release_note: str (optional)
             Release note
+        extra_technology: str (optional)
+            Extra technology when needed (spark jobs). If not needed, leave to
+            empty string or the request will not work
+        extra_technology_version: str (optional)
+            Version of the extra technology. Leave to empty string when not
+            needed
 
         Returns
         -------
         dict
             Dict with version number
+            Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
         """
 
@@ -912,38 +936,43 @@ class SaagieApi:
             raise RuntimeError(f"Specified runtime does not exist ({runtime_version}). Available runtimes : {','.join(available_runtimes)}.")
 
         if file and use_previous_artifact:
-            logging.warn("You can not specify a file and use the previous artifact. By default, the specified file will be used.")
-        use_previous_artifact_str = f'"usePreviousArtifact": {"null" if use_previous_artifact else "false"},'
+            logging.warning("You can not specify a file and use the previous artifact. By default, the specified file will be used.")
 
-        payload_str = gql_upgrade_job.format(job_id, runtime_version, command_line, release_note, use_previous_artifact_str)
+        if extra_technology != '':
+            extra_tech = gql_extra_technology.format(extra_technology,
+                                                     extra_technology_version)
+        else:
+            extra_tech = ''
+        payload_str = gql_upgrade_job.format(extra_technology=extra_tech)
+        params = {"jobId": job_id, "releaseNote": release_note, "runtimeVersion": runtime_version,
+                  "commandLine": command_line, "usePreviousArtifact": use_previous_artifact}
 
-        return self.__launch_request(file, payload_str)
+        return self.__launch_request(file, payload_str, params)
 
-    def __launch_request(self, file, payload_str):
+    def __launch_request(self, file, payload_str, params):
+        """Get the job id with the job name and project name
+
+        Parameters
+        ----------
+        file : str
+            Path to your file
+        payload_str : str
+            Payload to send
+        params: dict
+            variable values to pass to the GQL request
+        Returns
+        -------
+        dict
+            Dict of the request response
+        """
         if file:
             file = Path(file)
             with file.open(mode='rb') as f:
-                files = {
-                    '1': (file.name, f),
-                    'operations': (None, payload_str),
-                    'map': (None, '{ "1": ["variables.file"] }'),
-                }
-                response = requests.post(self._url,
-                                         files=files,
-                                         auth=self.auth,
-                                         verify=False)
+                params["file"] = f
+                return self.client.execute(gql(payload_str), variable_values=params, upload_files=True)
+
         else:
-            payload = json.loads(payload_str)
-            response = requests.post(self._url,
-                                     json=payload,
-                                     auth=self.auth,
-                                     verify=False)
-        
-        if response:
-            return json.loads(response.content)
-        else:
-            m = f"Requests failed with status_code :'{response.status_code}'"
-            raise requests.exceptions.RequestException(m)
+            return self.client.execute(gql(payload_str), variable_values=params)
 
     def get_job_id(self, job_name, project_name):
         """Get the job id with the job name and project name
@@ -970,8 +999,10 @@ class SaagieApi:
             raise NameError(f"Job {job_name} does not exist.")
     
     def upgrade_job_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
-                   command_line='python {file} arg1 arg2', release_note=None):
-        """Ugrade a job
+                            command_line='python {file} arg1 arg2', release_note=None,
+                            extra_technology='', extra_technology_version=''
+                            ):
+        """Upgrade a job
 
         Parameters
         ----------
@@ -989,15 +1020,23 @@ class SaagieApi:
             Command line
         release_note: str (optional)
             Release note
+        extra_technology: str (optional)
+            Extra technology when needed (spark jobs). If not needed, leave to
+            empty string or the request will not work
+        extra_technology_version: str (optional)
+            Version of the extra technology. Leave to empty string when not
+            needed
 
         Returns
         -------
         dict
             Dict with version number
+            Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
         """
         job_id = self.get_job_id(job_name, project_name)
-        return self.upgrade_job(job_id, file, use_previous_artifact, runtime_version, command_line, release_note)
+        return self.upgrade_job(job_id, file, use_previous_artifact, runtime_version, command_line, release_note,
+                                extra_technology, extra_technology_version)
 
     def delete_job(self, job_id):
         """Delete a given job
@@ -1371,7 +1410,13 @@ class SaagieApi:
         project_id : str
             UUID of your project (see README on how to find it)
         graph_pipeline : GraphPipeline
-
+            Example: If you want to create a simple pipeline with 2 jobs that started by job_node_1,
+            you can use the following example
+                job_node1 = JobNode(job_id_1)
+                job_node2 = JobNode(job_id_2)
+                job_node1.add_next_node(job_node2) # Indicates that the job_node_1 is followed by job_node_2
+                graph_pipeline = GraphPipeline()
+                graph_pipeline.add_root_node(job_node1) # Indicates the pipeline will started with job_node1
         description : str, optional
             Description of the pipeline
         release_note: str, optional
@@ -1390,7 +1435,7 @@ class SaagieApi:
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
         if cron_scheduling:
-            gql_scheduling_payload.append(f'isScheduled: true')
+            gql_scheduling_payload.append('isScheduled: true')
 
             if croniter.is_valid(cron_scheduling):
                 gql_scheduling_payload.append(f'cronScheduling: "{cron_scheduling}"')
@@ -1403,7 +1448,7 @@ class SaagieApi:
                 raise RuntimeError("Please specify a correct timezone")
 
         else:
-            gql_scheduling_payload.append(f'isScheduled: false')
+            gql_scheduling_payload.append('isScheduled: false')
 
         gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
 
