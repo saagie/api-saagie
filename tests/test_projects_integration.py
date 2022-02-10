@@ -141,7 +141,7 @@ class TestIntegrationProject:
                                      extra_technology='',
                                      extra_technology_version='')
 
-        job_id = job['data']['createJob']['id']
+        job_id = job['createJob']['id']
 
         return job_id
 
