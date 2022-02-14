@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.1 (2022-02-14)
+### :penguin:
+* :penguin: Add ability to get pipeline ID by name ([#60](https://github.com/saagie/api-saagie/issues/60)) ([`bdaf0ec`](https://github.com/saagie/api-saagie/commit/bdaf0ec5e2676f78cdc95a05d26dc1a61b2f489a))
+
 ## v0.7.0 (2022-02-01)
 ### :sparkles:
 * :sparkles: Add graph pipelines creation, deletion, upgrade, edit ([#55](https://github.com/saagie/api-saagie/issues/55)) ([`ee06cbe`](https://github.com/saagie/api-saagie/commit/ee06cbed1b5aa2e4f8e21ad6709a58784a0bf0f2))
