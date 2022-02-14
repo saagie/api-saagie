@@ -1258,7 +1258,7 @@ class SaagieApi:
                 raise RuntimeError("Please specify a correct timezone")
 
         else:
-            gql_scheduling_payload.append(f'"isScheduled": false')
+            gql_scheduling_payload.append(f'isScheduled: false')
 
         gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
 
@@ -1297,6 +1297,7 @@ class SaagieApi:
 
         Parameters
         ----------
+        pipeline_id: str, ID of pipeline
         graph_pipeline : GraphPipeline
         release_note: str, optional
             Release note of the pipeline
@@ -1312,3 +1313,29 @@ class SaagieApi:
         params = {'id': pipeline_id, 'jobNodes': graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes, 'releaseNote': release_note}
 
         return self.client.execute(gql(gql_upgrade_pipeline), variable_values=params)
+
+    def get_pipeline_id(self, pipeline_name, project_name):
+        """Get the pipeline id with the pipeline name and project name
+        Parameters
+        ----------
+        pipeline_name : str
+            Name of your pipeline
+        project_name : str
+            Name of your project
+        Returns
+        -------
+        dict
+            Pipeline UUID
+        """
+        projects = self.get_projects_info()["projects"]
+        project = list(filter(lambda p: p["name"] == project_name, projects))
+        if project:
+            project_id = project[0]["id"]
+            pipelines = self.get_project_pipelines(project_id, instances_limit=1)["project"]["pipelines"]
+            pipeline = list(filter(lambda j: j["name"] == pipeline_name, pipelines))
+            if pipeline:
+                return pipeline[0]["id"]
+            else:
+                raise NameError(f"pipeline {pipeline_name} does not exist.")
+        else:
+            raise NameError(f"Project {project_name} does not exist.")
