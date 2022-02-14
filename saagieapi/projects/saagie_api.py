@@ -890,7 +890,7 @@ class SaagieApi:
             else:
                 raise NameError(f"Job {job_name} does not exist.")
         else:
-            raise NameError(f"Project {project_name} does not exist.")
+            raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
     
     def upgrade_job_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note=None):
@@ -1338,4 +1338,4 @@ class SaagieApi:
             else:
                 raise NameError(f"pipeline {pipeline_name} does not exist.")
         else:
-            raise NameError(f"Project {project_name} does not exist.")
+            raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
