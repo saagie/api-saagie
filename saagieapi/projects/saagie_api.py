@@ -312,6 +312,25 @@ class SaagieApi:
     # ######################################################
     # ###                    projects                   ####
     # ######################################################
+    def get_project_id(self, project_name):
+        """Get the project id with the project name
+        Parameters
+        ----------
+        project_name : str
+            Name of your project
+        Returns
+        -------
+        str
+            Project UUID
+        """
+        projects = self.get_projects_info()["projects"]
+        project = list(filter(lambda p: p["name"] == project_name, projects))
+        if project:
+            project_id = project[0]["id"]
+            return project_id
+
+        else:
+            raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
 
     def get_projects_info(self):
         """Get information for all projects (id, name, creator, description,
@@ -875,22 +894,17 @@ class SaagieApi:
 
         Returns
         -------
-        dict
+        str
             Job UUID
 
         """
-        projects = self.get_projects_info()["projects"]
-        project = list(filter(lambda p: p["name"] == project_name, projects))
-        if project:
-            project_id = project[0]["id"]
-            jobs = self.get_project_jobs(project_id, instances_limit=1)["jobs"]
-            job = list(filter(lambda j: j["name"] == job_name, jobs))
-            if job:
-                return job[0]["id"]
-            else:
-                raise NameError(f"Job {job_name} does not exist.")
+        project_id = self.get_project_id(project_name)
+        jobs = self.get_project_jobs(project_id, instances_limit=1)["jobs"]
+        job = list(filter(lambda j: j["name"] == job_name, jobs))
+        if job:
+            return job[0]["id"]
         else:
-            raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
+            raise NameError(f"Job {job_name} does not exist.")
     
     def upgrade_job_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
                    command_line='python {file} arg1 arg2', release_note=None):
@@ -1324,18 +1338,13 @@ class SaagieApi:
             Name of your project
         Returns
         -------
-        dict
+        str
             Pipeline UUID
         """
-        projects = self.get_projects_info()["projects"]
-        project = list(filter(lambda p: p["name"] == project_name, projects))
-        if project:
-            project_id = project[0]["id"]
-            pipelines = self.get_project_pipelines(project_id, instances_limit=1)["project"]["pipelines"]
-            pipeline = list(filter(lambda j: j["name"] == pipeline_name, pipelines))
-            if pipeline:
-                return pipeline[0]["id"]
-            else:
-                raise NameError(f"pipeline {pipeline_name} does not exist.")
+        project_id = self.get_project_id(project_name)
+        pipelines = self.get_project_pipelines(project_id, instances_limit=1)["project"]["pipelines"]
+        pipeline = list(filter(lambda j: j["name"] == pipeline_name, pipelines))
+        if pipeline:
+            return pipeline[0]["id"]
         else:
-            raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
+            raise NameError(f"pipeline {pipeline_name} does not exist.")
