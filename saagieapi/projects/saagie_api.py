@@ -894,7 +894,7 @@ class SaagieApi:
 
         Returns
         -------
-        dict
+        str
             Job UUID
 
         """
@@ -1338,7 +1338,7 @@ class SaagieApi:
             Name of your project
         Returns
         -------
-        dict
+        str
             Pipeline UUID
         """
         project_id = self.get_project_id(project_name)
