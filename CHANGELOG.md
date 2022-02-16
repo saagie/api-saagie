@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.2 (2022-02-16)
+### :green_apple:
+* :green_apple: Add ability to get project ID by name ([#62](https://github.com/saagie/api-saagie/issues/62)) ([`6ff7590`](https://github.com/saagie/api-saagie/commit/6ff7590656bbff6e7c4f35c4620072b9a6cd8a31))
+
 ## v0.7.1 (2022-02-14)
 ### :penguin:
 * :penguin: Add ability to get pipeline ID by name ([#60](https://github.com/saagie/api-saagie/issues/60)) ([`bdaf0ec`](https://github.com/saagie/api-saagie/commit/bdaf0ec5e2676f78cdc95a05d26dc1a61b2f489a))
