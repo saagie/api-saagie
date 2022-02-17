@@ -78,6 +78,10 @@ class SaagieApi:
             fetch_schema_from_transport=True
         )
 
+        # Valid status list of alerting
+        self.valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
+                                  "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
+
     @classmethod
     def easy_connect(cls, url_saagie_platform, user, password):
         """
@@ -597,8 +601,9 @@ class SaagieApi:
         query = gql(gql_stop_job_instance.format(job_instance_id))
         return self.client.execute(query)
 
-    def edit_job(self, job_id, job_name=None, description=None, is_scheduled=False,
-                 cron_scheduling=None, schedule_timezone="UTC", resources=None):
+    def edit_job(self, job_id, job_name=None, description=None, is_scheduled=None,
+                 cron_scheduling=None, schedule_timezone="UTC", resources=None,
+                 emails=None, status_list=["FAILED"]):
         """Edit a job
 
         Parameters
@@ -606,54 +611,108 @@ class SaagieApi:
         job_id : str
             UUID of your job (see README on how to find it)
         job_name : str, optional
-            Seconds to wait between two state checks
+            Job name
+            If not filled, defaults to current value, else it will change the job's name
         description : str, optional
             Description of job
+            if not filled, defaults to current value, else it will change the description of the pipeline
         is_scheduled : bool, optional
             True if the job is scheduled, else False
+            if not filled, defaults to current value
         cron_scheduling : str, optional
-            Scheduling cron format
+            Scheduling CRON format
+            When is_scheduled is set to True, it will be mandatory to fill this value
+            if not filled, defaults to current value
+            Example: "0 0 * * *" (for every day At 00:00)
         schedule_timezone : str, optional
             Timezone of the scheduling
+            Example: "UTC", "Pacific/Pago_Pago"
         resources : dict, optional
             CPU, memory limit and requests
+            if not filled, defaults to current value
             Example: {"cpu":{"request":0.5, "limit":2.6},"memory":{"request":1.0}}
+        emails: List[String], optional
+            Emails to receive alerts for the job, each item should be a valid email,
+            If you want to remove alerting, please set emails to [] or list()
+            if not filled, defaults to current value
+        status_list: List[String], optional
+            Receive an email when the job status change to a specific status
+            Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
+            "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
 
         Returns
         -------
         dict
             Dict of job information
         """
-        gql_payload = []
+        params = {"id": job_id}
+        previous_job_version = self.get_job_info(job_id)["job"]
+
         if job_name:
-            gql_payload.append(f'name: "{job_name}"')
+            params["name"] = job_name
+        else:
+            params["name"] = previous_job_version["name"]
 
         if description:
-            gql_payload.append(f'description: "{description}"')
+            params["description"] = description
+        else:
+            params["description"] = previous_job_version["description"]
+
+        if resources:
+            params["resources"] = resources
+        else:
+            params["resources"] = previous_job_version["resources"]
 
         if is_scheduled:
-            gql_payload.append(f'isScheduled: true')
+            params["isScheduled"] = True
 
             if cron_scheduling and croniter.is_valid(cron_scheduling):
-                gql_payload.append(f'cronScheduling: "{cron_scheduling}"')
+                params["cronScheduling"] = cron_scheduling
             else:
                 raise RuntimeError(f"{cron_scheduling} is not valid cron format")
 
             if schedule_timezone in list(pytz.all_timezones):
-                gql_payload.append(f'scheduleTimezone: "{schedule_timezone}"')
+                params["scheduleTimezone"] = schedule_timezone
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
+        elif is_scheduled == False:
+            params["isScheduled"] = False
+
         else:
-            gql_payload.append(f'isScheduled: false')
+            params["isScheduled"] = previous_job_version["isScheduled"]
+            params["cronScheduling"] = previous_job_version["cronScheduling"]
+            params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
-        if resources:
-            resources_str = json.dumps(resources).replace("\"", "")
-            gql_payload.append(f'resources: {resources_str}')
+        if emails:
+            wrong_status_list = []
 
-        gql_payload_str = ", ".join(gql_payload)
-        query = gql(gql_edit_job.format(job_id, gql_payload_str))
-        return self.client.execute(query)
+            for item in status_list:
+                if item not in self.valid_status_list:
+                    wrong_status_list.append(item)
+            if wrong_status_list:
+                raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
+                                   f"Please make sure that each item of the parameter status_list should be "
+                                   f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
+                                   f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'")
+
+            else:
+                params["alerting"] = {
+                    "emails": emails,
+                    "statusList": status_list
+                }
+        elif type(emails) == list:
+            params["alerting"] = None
+        else:
+            previous_alerting = previous_job_version["alerting"]
+            if previous_alerting:
+                params["alerting"] = {
+                    "emails": previous_alerting["emails"],
+                    "statusList": previous_alerting["statusList"]
+                }
+
+        query = gql(gql_edit_job)
+        return self.client.execute(query, variable_values=params)
 
     def create_job(self, job_name, project_id, file=None, description='',
                    category='Processing', technology='python',
@@ -1083,39 +1142,107 @@ class SaagieApi:
         query = gql(gql_stop_pipeline_instance.format(pipeline_instance_id))
         return self.client.execute(query)
 
-    # TO DETAIL!
-    # Detail pipeline dict parameters, or explode the number of parameters to
-    # have a more comprehensible method
-    def edit_pipeline(self, pipeline_id, name=None, description=None, emails=None, status_list=None, is_scheduled=None,
-             cron_scheduling=None, schedule_timezone=None):
-        """Edit a given pipeline
+    def edit_pipeline(self, pipeline_id, name=None, description=None, emails=None,
+                      status_list=["FAILED"], is_scheduled=None,
+                      cron_scheduling=None, schedule_timezone="UTC"):
+        """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        name : str, optional
+            Pipeline name,
+            if not filled, defaults to current value, else it will change the pipeline name
+        description : str, optional
+            Description of the pipeline
+            if not filled, defaults to current value, else it will change the description of the pipeline
+        is_scheduled : bool, optional
+            True if the job is scheduled, else False
+            if not filled, defaults to current value
+        cron_scheduling : str, optional
+            Scheduling CRON format
+            When is_scheduled is set to True, it will be mandatory to fill this value
+            if not filled, defaults to current value
+            Example: "0 0 * * *" (for every day At 00:00)
+        schedule_timezone : str, optional
+            Timezone of the scheduling
+            Example: "UTC", "Pacific/Pago_Pago"
+        emails: List[String], optional
+            Emails to receive alerts for the job, each item should be a valid email,
+            If you want to remove alerting, please set emails to [] or list()
+            if not filled, defaults to current value
+        status_list: List[String], optional
+            Receive an email when the job status change to a specific status
+            Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
+            "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
 
-        Args:
-            pipeline_id (str): mandatory pipeline id to edit
-            name (str): if not filled, defaults to current value
-            description (str): if not filled, defaults to current value
-            emails (list, optional): if not filled, defaults to current value
-            status_list (list, optional): if not filled, defaults to current value
-            is_scheduled (bool, optional): if not filled, defaults to current value
-            cron_scheduling (str, optional): if not filled, defaults to current value
-            schedule_timezone (str, optional): if not filled, defaults to current value
-
-        Returns:
-            [type]: [description]
+        Returns
+        -------
+        dict
+            Dict of pipeline information
         """
-        pipeline_info = self.get_project_pipeline(pipeline_id)
-        if not name: name = pipeline_info["graphPipeline"]["name"]
-        if not description: description = pipeline_info["graphPipeline"]["description"]
-        if not emails: emails = pipeline_info["graphPipeline"]["alerting"]["emails"]
-        if not status_list: status_list = pipeline_info["graphPipeline"]["alerting"]["statusList"]
-        if not is_scheduled: is_scheduled = pipeline_info["graphPipeline"]["isScheduled"]
-        if not cron_scheduling: cron_scheduling = pipeline_info["graphPipeline"]["cronScheduling"]
-        if not schedule_timezone: schedule_timezone = pipeline_info["graphPipeline"]["scheduleTimezone"]
+        params = {"id": pipeline_id}
+        previous_pipeline_info = self.get_project_pipeline(pipeline_id)["graphPipeline"]
 
-        params = {'id': pipeline_id, 'name': name, 'description': description, 'emails': emails, 'statusList': status_list,
-                'isScheduled': is_scheduled, 'cronScheduling': cron_scheduling, 'scheduleTimezone': schedule_timezone}
+        if name:
+            params["name"] = name
+        else:
+            params["name"] = previous_pipeline_info["name"]
+
+        if description:
+            params["description"] = description
+        else:
+            params["description"] = previous_pipeline_info["description"]
+
+        if is_scheduled:
+            params["isScheduled"] = True
+
+            if cron_scheduling and croniter.is_valid(cron_scheduling):
+                params["cronScheduling"] = cron_scheduling
+            else:
+                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
+
+            if schedule_timezone in list(pytz.all_timezones):
+                params["scheduleTimezone"] = schedule_timezone
+            else:
+                raise RuntimeError("Please specify a correct timezone")
+
+        elif is_scheduled == False:
+            params["isScheduled"] = False
+
+        else:
+            params["isScheduled"] = previous_pipeline_info["isScheduled"]
+            params["cronScheduling"] = previous_pipeline_info["cronScheduling"]
+            params["scheduleTimezone"] = previous_pipeline_info["scheduleTimezone"]
+
+        if emails:
+            wrong_status_list = []
+
+            for item in status_list:
+                if item not in self.valid_status_list:
+                    wrong_status_list.append(item)
+            if wrong_status_list:
+                raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
+                                   f"Please make sure that each item of the parameter status_list should be "
+                                   f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
+                                   f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'")
+
+            else:
+                params["alerting"] = {
+                    "emails": emails,
+                    "statusList": status_list
+                }
+        elif type(emails) == list:
+            params["alerting"] = None
+        else:
+            previous_alerting = previous_pipeline_info["alerting"]
+            if previous_alerting:
+                params["alerting"] = {
+                    "emails": previous_pipeline_info["emails"],
+                    "statusList": previous_pipeline_info["statusList"]
+                }
 
         query = gql(gql_edit_pipeline)
         return self.client.execute(query, variable_values=params)
