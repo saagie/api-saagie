@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.3 (2022-02-18)
+### :bug:
+* :bug: Fix edit_job and edit_pipeline ([`b38688e`](https://github.com/saagie/api-saagie/commit/b38688eea05bc6190e4eb055de76da04932580e3))
+
 ## v0.7.2 (2022-02-16)
 ### :green_apple:
 * :green_apple: Add ability to get project ID by name ([#62](https://github.com/saagie/api-saagie/issues/62)) ([`6ff7590`](https://github.com/saagie/api-saagie/commit/6ff7590656bbff6e7c4f35c4620072b9a6cd8a31))
