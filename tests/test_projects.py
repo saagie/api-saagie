@@ -196,7 +196,8 @@ class TestGQLTemplate:
         assert result == expected
 
     def test_edit_job(self):
-        query = gql(gql_edit_job)
+        job_id = "job_1234"
+        query = gql(gql_edit_job.format(job_id, ""))
         result = self.client.validate(query)
         expected = None
         assert result == expected

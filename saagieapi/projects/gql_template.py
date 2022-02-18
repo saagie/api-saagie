@@ -346,39 +346,28 @@ gql_stop_job_instance = """
   """
 
 gql_edit_job = """
-mutation editJobMutation($id: UUID!, $name: String, $description: String, 
-                         $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone: TimeZone,
-                         $alerting: JobPipelineAlertingInput, $resources: JobResourceInput) {
-    editJob(job: {
-        id: $id
-        name: $name
-        description: $description
-        isScheduled: $isScheduled
-        cronScheduling: $cronScheduling
-        scheduleTimezone: $scheduleTimezone
-        alerting: $alerting
-        resources: $resources
-    }){
-        id
-        name
-        description
-        isScheduled
-        cronScheduling
+  mutation{{
+    editJob(job: {{
+      id: "{0}"
+      {1}
+    }}
+    ) {{
+        id,
+        name,
+        description,
+        isScheduled,
+        cronScheduling,
         scheduleTimezone
-        resources{
-            cpu {
-                request
-                limit}
-            memory{
-                request
-                limit}
-        }
-        alerting{
-            emails
-            statusList
-        }
-    }
-}
+        resources{{
+        cpu {{
+            request,
+            limit}},
+        memory{{
+            request,
+            limit}}
+        }}
+      }}
+  }}
 """
 
 gql_create_job = """{{"operationName": "createJobMutation",\
@@ -660,27 +649,30 @@ gql_stop_pipeline_instance = """
   """
 
 gql_edit_pipeline = """
-  mutation($id: UUID!, $name: String, $description: String, $alerting: JobPipelineAlertingInput,
+  mutation($id: UUID!, $name: String, $description: String, $emails: [Email!], $statusList: [InstanceStatus!]!,
           $isScheduled: Boolean, $cronScheduling: Cron, $scheduleTimezone:TimeZone)  {
     editPipeline(pipeline: {
-        id: $id
-        name: $name
-        description: $description
-        alerting:  $alerting
-        isScheduled: $isScheduled
-        cronScheduling: $cronScheduling
+        id: $id,
+        name: $name,
+        description: $description,
+        alerting: {
+          emails: $emails,
+          statusList: $statusList
+        }
+        isScheduled: $isScheduled,
+        cronScheduling: $cronScheduling,
         scheduleTimezone: $scheduleTimezone
       })
     {
-      id
-      name
-      description
+      id,
+      name,
+      description,
       alerting{
-        emails
+        emails,
         statusList
       }
-      isScheduled
-      cronScheduling
+      isScheduled,
+      cronScheduling,
       scheduleTimezone
     }
   }

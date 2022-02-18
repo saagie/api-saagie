@@ -204,33 +204,6 @@ class TestIntegrationProject:
 
         assert job_instance_status in ['KILLED', 'KILLING']
 
-    def test_edit_job(self, create_then_delete_job):
-        job_id = create_then_delete_job
-        job_input = {
-            'name': "new_name",
-            'description': "new description",
-            'is_scheduled': True,
-            'cron_scheduling': "0 0 * * *",
-            'schedule_timezone': "UTC",
-            "alerting": None
-        }
-        self.saagie.edit_job(job_id, job_name=job_input['name'], description=job_input['description'],
-                             is_scheduled=job_input['is_scheduled'], cron_scheduling=job_input['cron_scheduling'],
-                             schedule_timezone=job_input['schedule_timezone'])
-        job_info = self.saagie.get_job_info(job_id)
-        print(job_info)
-        to_validate = {}
-        to_validate['name'] = job_info["job"]["name"]
-        to_validate['description'] = job_info["job"]["description"]
-        to_validate['alerting'] = None
-        to_validate['is_scheduled'] = job_info["job"]["isScheduled"]
-        to_validate['cron_scheduling'] = job_info["job"]["cronScheduling"]
-        to_validate['schedule_timezone'] = job_info["job"]["scheduleTimezone"]
-
-        print(to_validate)
-
-        assert job_input == to_validate
-
     @pytest.fixture
     def create_global_env_var(self):
         # Disable urllib3 InsecureRequestsWarnings
@@ -374,24 +347,25 @@ class TestIntegrationProject:
         pipeline_input = {
             'name': "test_edit_graph_pipeline",
             'description': "test_edit_graph_pipeline",
+            'emails': ["test@mail.com"],
+            'status_list': ["FAILED"],
             'is_scheduled': True,
             'cron_scheduling': "0 0 * * *",
-            'schedule_timezone': "UTC",
-            "alerting": None
+            'schedule_timezone': "UTC"
         }
-        self.saagie.edit_pipeline(pipeline_id, name=pipeline_input['name'], description=pipeline_input['description'],
-                                  is_scheduled=pipeline_input['is_scheduled'], cron_scheduling=pipeline_input['cron_scheduling'],
-                                  schedule_timezone=pipeline_input['schedule_timezone'])
+        self.saagie.edit_pipeline(pipeline_id, name=pipeline_input['name'], description=pipeline_input['description'], emails=pipeline_input['emails'],
+                                status_list=pipeline_input['status_list'], is_scheduled=pipeline_input['is_scheduled'], cron_scheduling=pipeline_input['cron_scheduling'], schedule_timezone=pipeline_input['schedule_timezone'])
         pipeline_info = self.saagie.get_project_pipeline(pipeline_id)
         to_validate = {}
         to_validate['name'] = pipeline_info["graphPipeline"]["name"]
         to_validate['description'] = pipeline_info["graphPipeline"]["description"]
-        to_validate['alerting'] = None
+        to_validate['emails'] = pipeline_info["graphPipeline"]["alerting"]["emails"]
+        to_validate['status_list'] = pipeline_info["graphPipeline"]["alerting"]["statusList"]
         to_validate['is_scheduled'] = pipeline_info["graphPipeline"]["isScheduled"]
         to_validate['cron_scheduling'] = pipeline_info["graphPipeline"]["cronScheduling"]
-        to_validate['schedule_timezone'] = pipeline_info["graphPipeline"]["scheduleTimezone"]
+        to_validate['schedule_timezone']= pipeline_info["graphPipeline"]["scheduleTimezone"]
 
-        assert pipeline_input == to_validate
+        assert pipeline_input==to_validate
 
     def test_upgrade_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, job_id = create_then_delete_graph_pipeline
