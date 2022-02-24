@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.4 (2022-02-24)
+### :lock:
+* :lock: Forcing release ([#69](https://github.com/saagie/api-saagie/issues/69)) ([`1ee404d`](https://github.com/saagie/api-saagie/commit/1ee404d7158afa6d514194c14f11f81af8184e86))
+
 ## v0.7.3 (2022-02-18)
 ### :bug:
 * :bug: Fix edit_job and edit_pipeline ([`b38688e`](https://github.com/saagie/api-saagie/commit/b38688eea05bc6190e4eb055de76da04932580e3))
