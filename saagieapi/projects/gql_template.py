@@ -422,23 +422,7 @@ mutation createJobMutation($projectId: UUID!, $name: String!, $description: Stri
 }}
 """
 
-gql_upgrade_job = """{{"operationName": "addJobVersionMutation",\
-    "variables": {{\
-        "jobId": "{0}",\
-        "jobVersion": {{\
-            "runtimeVersion": "{1}",\
-            "commandLine": "{2}",\
-            {4}\
-            "dockerInfo": null,\
-            "releaseNote": "{3}"\
-        }},\
-        "file": null\
-    }},\
-    "query": "mutation addJobVersionMutation($jobId: UUID!, $jobVersion: JobVersionInput!, $file: Upload) \
-    {{\\n  addJobVersion(jobId: $jobId, jobVersion: $jobVersion, file: $file) \
-    {{\\n    number\\n    __typename\\n  }}\\n}}\\n"}}"""
-
-gql_upgrade_job_v2 = """
+gql_upgrade_job = """
 mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVersion: String, $commandLine: String,
                                $usePreviousArtifact: Boolean, $dockerInfo: JobDockerInput, $file: Upload) {{
     addJobVersion(

@@ -781,9 +781,6 @@ class SaagieApi:
         -------
         dict
             Dict of job information
-            Example: {'createJob': {'id': 'e1ab3024-ee4b-4456-900a-d8903da596e0',
-                        'versions': [{'number': 1, '__typename': 'JobVersion'}],
-                        '__typename': 'Job'}}
 
         """
         params = {
@@ -830,16 +827,7 @@ class SaagieApi:
             extra_tech = ''
 
         if emails:
-            wrong_email_list = []
             wrong_status_list = []
-
-            email_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
-            for email in emails:
-                if not re.fullmatch(email_regex, email):
-                    wrong_email_list.append(email)
-            if wrong_email_list:
-                raise RuntimeError(f"The following emails are not valid: {wrong_email_list}. "
-                                   f"Please check the format of these emails.")
 
             for item in status_list:
                 if item not in self.valid_status_list:
@@ -951,7 +939,7 @@ class SaagieApi:
 
     def __launch_request(self, file, payload_str, params):
         """Get the job id with the job name and project name
-
+        GQL3 needed to use this function
         Parameters
         ----------
         file : str
@@ -969,10 +957,22 @@ class SaagieApi:
             file = Path(file)
             with file.open(mode='rb') as f:
                 params["file"] = f
-                return self.client.execute(gql(payload_str), variable_values=params, upload_files=True)
+                try:
+                    req = self.client.execute(gql(payload_str), variable_values=params, upload_files=True)
+                    res = {"data": req}
+                except Exception as e:
+                    logging.error(f"Something went wrong: {e}")
+                    raise e
+                return res
 
         else:
-            return self.client.execute(gql(payload_str), variable_values=params)
+            try:
+                req = self.client.execute(gql(payload_str), variable_values=params)
+                res = {"data": req}
+            except Exception as e:
+                logging.error(f"Something went wrong: {e}")
+                raise e
+            return res
 
     def get_job_id(self, job_name, project_name):
         """Get the job id with the job name and project name
