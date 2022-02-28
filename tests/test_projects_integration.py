@@ -141,7 +141,7 @@ class TestIntegrationProject:
                                      extra_technology='',
                                      extra_technology_version='')
 
-        job_id = job['createJob']['id']
+        job_id = job['data']['createJob']['id']
 
         return job_id
 
@@ -218,7 +218,6 @@ class TestIntegrationProject:
                              is_scheduled=job_input['is_scheduled'], cron_scheduling=job_input['cron_scheduling'],
                              schedule_timezone=job_input['schedule_timezone'])
         job_info = self.saagie.get_job_info(job_id)
-        print(job_info)
         to_validate = {}
         to_validate['name'] = job_info["job"]["name"]
         to_validate['description'] = job_info["job"]["description"]
@@ -226,8 +225,6 @@ class TestIntegrationProject:
         to_validate['is_scheduled'] = job_info["job"]["isScheduled"]
         to_validate['cron_scheduling'] = job_info["job"]["cronScheduling"]
         to_validate['schedule_timezone'] = job_info["job"]["scheduleTimezone"]
-
-        print(to_validate)
 
         assert job_input == to_validate
 
@@ -415,11 +412,6 @@ class TestIntegrationProject:
         result = (str(job_node3.id) in job_nodes_id) and (pipeline_version_info['addGraphPipelineVersion']['releaseNote'] == release_note)
 
         assert result
-         
-        
-
-        
-
 
     def teardown_class(cls):
         # Delete Project
