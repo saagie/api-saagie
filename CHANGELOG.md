@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.5 (2022-02-28)
+### :zap:
+* :zap: add number of retries as paramater ([`26c15ef`](https://github.com/saagie/api-saagie/commit/26c15efb18b82e9f230e818dcb4aa111d779910c))
+
 ## v0.7.4 (2022-02-24)
 ### :lock:
 * :lock: Forcing release ([#69](https://github.com/saagie/api-saagie/issues/69)) ([`1ee404d`](https://github.com/saagie/api-saagie/commit/1ee404d7158afa6d514194c14f11f81af8184e86))
