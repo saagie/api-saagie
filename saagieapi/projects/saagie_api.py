@@ -3,7 +3,6 @@ Saagie API object to interact with Saagie API in Python (API for
 Projects & Jobs - to interact with the manager API, see the manager subpackage)
 
 """
-import json
 import logging
 import time
 import re

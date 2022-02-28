@@ -331,7 +331,7 @@ class TestGQLTemplate:
 
     def test_upgrade_job(self):
         extra_tech = ""
-        query = gql(gql_upgrade_job_v2.format(extra_technology=extra_tech))
+        query = gql(gql_upgrade_job.format(extra_technology=extra_tech))
         result = self.client.validate(query)
         expected = None
         assert result == expected
