@@ -26,7 +26,7 @@ class SaagieApi:
     subpackage)
     """
 
-    def __init__(self, url_saagie, id_platform, user, password, realm):
+    def __init__(self, url_saagie, id_platform, user, password, realm, retries=0):
         """
         Parameters
         ----------
@@ -40,6 +40,8 @@ class SaagieApi:
             password to login with
         realm : str
             Saagie realm  (see README on how to find it)
+        retries : int
+            Pre-setup of the requests’ Session for performing retries
         """
         if not url_saagie.endswith('/'):
             url_saagie += '/'
@@ -49,16 +51,18 @@ class SaagieApi:
         self.realm = realm
         self.login = user
         self.password = password
+        self.retries = retries
         self.auth = BearerAuth(self.realm, self.url_saagie,
                                self.id_platform, self.login, self.password)
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + '/graphql'
         self._url = url
         self._transport = RequestsHTTPTransport(
-            url=url,
+            url=self._url,
             auth=self.auth,
             use_json=True,
-            verify=False
+            verify=False,
+            retries=self.retries
         )
         self.client = Client(
             transport=self._transport,
