@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.0 (2022-03-02)
+### :chart_with_upwards_trend:
+* :chart_with_upwards_trend: use GQL3 and add alerting ([`d54d76b`](https://github.com/saagie/api-saagie/commit/d54d76b63e530a8054b2f211a5a20fb10bd90c02))
+
 ## v0.7.5 (2022-02-28)
 ### :zap:
 * :zap: add number of retries as paramater ([`26c15ef`](https://github.com/saagie/api-saagie/commit/26c15efb18b82e9f230e818dcb4aa111d779910c))
