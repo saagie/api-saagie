@@ -35,6 +35,13 @@ There are two subpackages that each give access to a main class whose methods al
 pip install saagieapi==<version>
 ```
 
+### Compatibility with your Saagie platform
+
+| **Saagie platform version** | **saagie-api release** |
+|-----------------------------|------------------------|
+| < 2.2.0                     | < 0.6.0                |
+| >= 2.2.0                    | >= 0.6.0               |
+
 ## Usage
 
 ### Projects
