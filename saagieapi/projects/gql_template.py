@@ -381,48 +381,66 @@ mutation editJobMutation($id: UUID!, $name: String, $description: String,
 }
 """
 
-gql_create_job = """{{"operationName": "createJobMutation",\
-                   "variables": {{\
-                       "job": {{\
-                           "projectId": "{1}",\
-                           "name": "{0}",\
-                           "description": "{2}",\
-                           "category": "{3}",\
-                           "technology": {{"id":"{4}"}},\
-                           "isStreaming": false,\
-                           {9}, \
-                           "resources": {10}, \
-                           "doesUseGPU": false\
-                       }},\
-                       "jobVersion": {{\
-                           "runtimeVersion": "{5}",\
-                           "commandLine": "{6}",\
-                           {8}\
-                           "dockerInfo": null,\
-                           "releaseNote": "{7}"\
-                       }},\
-                       "file":null\
-                   }},\
-                   "query": "mutation createJobMutation($job: JobInput!, $jobVersion: JobVersionInput!, $file: Upload) \
-                   {{\\n  createJob(job: $job, jobVersion: $jobVersion, file: $file) \
-                   {{\\n    id\\n    versions {{\\n      number\\n      __typename\\n    }}\\n   \
-                    __typename\\n  }}\\n}}\\n"}}"""
+gql_create_job = """
+mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $category: String!,
+                           $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone: TimeZone
+                           $technologyId: UUID!, 
+                           $alerting: JobPipelineAlertingInput, $resources: JobResourceInput,
+                           $releaseNote: String, $runtimeVersion: String, $commandLine: String,
+                           $dockerInfo: JobDockerInput, $file: Upload) {{
+    createJob(job: {{
+            projectId: $projectId
+            name: $name
+            description: $description
+            category: $category
+            technology: {{
+                id: $technologyId
+            }}
+            isStreaming: false
+            isScheduled: $isScheduled
+            cronScheduling: $cronScheduling
+            scheduleTimezone: $scheduleTimezone
+            alerting: $alerting
+            resources: $resources
+            doesUseGPU: false
+        }} 
+        jobVersion: {{
+            releaseNote: $releaseNote
+            runtimeVersion: $runtimeVersion
+            commandLine: $commandLine
+            {extra_technology}
+            dockerInfo: $dockerInfo
+        }}
+        file: $file){{
+        id
+        versions {{
+            number
+            __typename
+        }}
+        __typename
+    }}
+}}
+"""
 
-gql_upgrade_job = """{{"operationName": "addJobVersionMutation",\
-    "variables": {{\
-        "jobId": "{0}",\
-        "jobVersion": {{\
-            "runtimeVersion": "{1}",\
-            "commandLine": "{2}",\
-            {4}\
-            "dockerInfo": null,\
-            "releaseNote": "{3}"\
-        }},\
-        "file": null\
-    }},\
-    "query": "mutation addJobVersionMutation($jobId: UUID!, $jobVersion: JobVersionInput!, $file: Upload) \
-    {{\\n  addJobVersion(jobId: $jobId, jobVersion: $jobVersion, file: $file) \
-    {{\\n    number\\n    __typename\\n  }}\\n}}\\n"}}"""
+gql_upgrade_job = """
+mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVersion: String, $commandLine: String,
+                               $usePreviousArtifact: Boolean, $dockerInfo: JobDockerInput, $file: Upload) {{
+    addJobVersion(
+        jobId: $jobId
+        jobVersion: {{
+            releaseNote: $releaseNote
+            runtimeVersion: $runtimeVersion
+            commandLine: $commandLine
+            {extra_technology}
+            dockerInfo: $dockerInfo
+            usePreviousArtifact: $usePreviousArtifact
+        }}
+        file: $file){{
+            number
+            __typename
+    }}
+}}
+"""
 
 gql_get_info_job = """query {{
   job(id:"{0}"){{
@@ -464,10 +482,11 @@ gql_get_info_job = """query {{
 }}
 """
 
-gql_extra_technology = '"extraTechnology": {{\
-                           "language": "{0}",\
-                           "version": "{1}"\
-                       }},'
+gql_extra_technology = """
+    extraTechnology: {{
+        language: "{0}"
+        version: "{1}"
+    }}"""
 
 gql_delete_job = """
   mutation {{
