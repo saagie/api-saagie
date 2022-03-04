@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.1 (2022-03-04)
+### :zap:
+* :zap: add requests_toolbelt as dependencies ([`63f86e5`](https://github.com/saagie/api-saagie/commit/63f86e51fd67738f86b1e168410bf433b2547cc9))
+
 ## v0.8.0 (2022-03-02)
 ### :chart_with_upwards_trend:
 * :chart_with_upwards_trend: use GQL3 and add alerting ([`d54d76b`](https://github.com/saagie/api-saagie/commit/d54d76b63e530a8054b2f211a5a20fb10bd90c02))
