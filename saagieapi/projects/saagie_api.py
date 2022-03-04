@@ -937,7 +937,7 @@ class SaagieApi:
         return self.__launch_request(file, payload_str, params)
 
     def __launch_request(self, file, payload_str, params):
-        """Get the job id with the job name and project name
+        """Launch a GQL request with specified file, payload and params
         GQL3 needed to use this function
         Parameters
         ----------
