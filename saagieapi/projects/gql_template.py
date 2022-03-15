@@ -153,11 +153,13 @@ gql_get_project_info = """
 
 gql_get_project_technologies = """
 {{
-   technologiesByCategory(projectId: "{0}"){{
+   project(id: "{0}"){{
+   technologiesByCategory {{
       jobCategory,
       technologies{{
         id
         }}
+      }}
    }}
 }} 
 """

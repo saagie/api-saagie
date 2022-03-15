@@ -17,6 +17,7 @@ from gql.transport.requests import RequestsHTTPTransport
 from .auth import *
 from .gql_template import *
 from .graph_pipeline import *
+import deprecation
 
 
 class SaagieApi:
@@ -34,9 +35,9 @@ class SaagieApi:
         id_platform : int or str
             Platform Id  (see README on how to find it)
         user : str
-            username to login with
+            username to log in with
         password : str
-            password to login with
+            password to log in with
         realm : str
             Saagie realm  (see README on how to find it)
         retries : int
@@ -98,12 +99,12 @@ class SaagieApi:
         url_saagie_platform : str
             Complete platform URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)
         user : str
-            username to login with
+            username to log in with
         password : str
-            password to login with
+            password to log in with
         """
         url_regex = re.compile(
-            r"(https:\/\/(\w+)-(?:\w|\.)+)\/projects\/platform\/(\d+)")
+            r"(https://(\w+)-(?:\w|\.)+)/projects/platform/(\d+)")
         m = url_regex.match(url_saagie_platform)
         if bool(m):
             url_saagie = m.group(1)
@@ -385,7 +386,7 @@ class SaagieApi:
             Dict of available technologies
         """
         query = gql(gql_get_project_technologies.format(project_id))
-        return self.client.execute(query)
+        return self.client.execute(query)['project']
 
     def create_project(self, name, group=None, role="Manager", description=""):
         """Create a new project on the platform
@@ -679,7 +680,7 @@ class SaagieApi:
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
-        elif is_scheduled == False:
+        elif not is_scheduled:
             params["isScheduled"] = False
 
         else:
@@ -881,7 +882,7 @@ class SaagieApi:
         """
         query = gql_get_info_job.format(job_id)
         return self.client.execute(gql(query))
-        
+
     def upgrade_job(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.6',
                     command_line='python {file} arg1 arg2', release_note=None,
                     extra_technology='', extra_technology_version=''):
@@ -920,10 +921,14 @@ class SaagieApi:
         technology_id = self.get_job_info(job_id)["job"]["technology"]["id"]
         available_runtimes = [c["label"] for c in self.get_runtimes(technology_id)["technology"]["contexts"]]
         if runtime_version not in available_runtimes:
-            raise RuntimeError(f"Specified runtime does not exist ({runtime_version}). Available runtimes : {','.join(available_runtimes)}.")
+            raise RuntimeError(
+                f"Specified runtime does not exist ({runtime_version}). "
+                f"Available runtimes : {','.join(available_runtimes)}.")
 
         if file and use_previous_artifact:
-            logging.warning("You can not specify a file and use the previous artifact. By default, the specified file will be used.")
+            logging.warning(
+                "You can not specify a file and use the previous artifact. "
+                "By default, the specified file will be used.")
 
         if extra_technology != '':
             extra_tech = gql_extra_technology.format(extra_technology,
@@ -996,7 +1001,7 @@ class SaagieApi:
             return job[0]["id"]
         else:
             raise NameError(f"Job {job_name} does not exist.")
-    
+
     def upgrade_job_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
                             command_line='python {file} arg1 arg2', release_note=None,
                             extra_technology='', extra_technology_version=''
@@ -1078,7 +1083,9 @@ class SaagieApi:
         dict
             Dict of webApp information
         """
-        regex_error_missing_technology = r"io\.saagie\.projectsandjobs\.domain\.exception\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{12} does not exist"
+        regex_error_missing_technology = r"io\.saagie\.projectsandjobs\.domain\.exception" \
+                                         r"\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{" \
+                                         r"12} does not exist "
         instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
 
         query = gql(gql_get_project_web_apps.format(project_id,
@@ -1251,7 +1258,7 @@ class SaagieApi:
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
-        elif is_scheduled == False:
+        elif not is_scheduled:
             params["isScheduled"] = False
 
         else:
@@ -1351,6 +1358,9 @@ class SaagieApi:
             print('Current state : ' + state)
         return state
 
+    @deprecation.deprecated(deprecated_in="Saagie 2.2.1",
+                            details="This deprecated endpoint allows to create only linear pipeline. "
+                                    "To create graph pipelines, use the endpoint `createGraphPipeline` instead.")
     def create_pipeline(self, name, project_id, jobs_id, description=""):
         """
         Create a pipeline in a given project
@@ -1499,7 +1509,8 @@ class SaagieApi:
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
 
-        params = {'id': pipeline_id, 'jobNodes': graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes, 'releaseNote': release_note}
+        params = {'id': pipeline_id, 'jobNodes': graph_pipeline.list_job_nodes,
+                  'conditionNodes': graph_pipeline.list_conditions_nodes, 'releaseNote': release_note}
 
         return self.client.execute(gql(gql_upgrade_pipeline), variable_values=params)
 

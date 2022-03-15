@@ -355,7 +355,7 @@ class TestIntegrationProject:
     def test_get_graph_pipeline_id(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
         pipeline_name = 'TEST_VIA_API'
-        output_pipeline_id = self.saagie.get_pipeline_id(pipeline_name,self.project_name)
+        output_pipeline_id = self.saagie.get_pipeline_id(pipeline_name, self.project_name)
         assert pipeline_id == output_pipeline_id
 
     def test_delete_graph_pipeline(self, create_graph_pipeline):
