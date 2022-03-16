@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.2 (2022-03-16)
+### :penguin:
+* :penguin: Adding depreciation warnings ([#77](https://github.com/saagie/api-saagie/issues/77)) ([`d3f3361`](https://github.com/saagie/api-saagie/commit/d3f3361c25cdf65c05fcf86d48d0da6145930235))
+
 ## v0.8.1 (2022-03-04)
 ### :zap:
 * :zap: add requests_toolbelt as dependencies ([`63f86e5`](https://github.com/saagie/api-saagie/commit/63f86e51fd67738f86b1e168410bf433b2547cc9))
