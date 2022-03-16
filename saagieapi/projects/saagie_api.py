@@ -680,7 +680,7 @@ class SaagieApi:
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
-        elif not is_scheduled:
+        elif is_scheduled == False:
             params["isScheduled"] = False
 
         else:
@@ -1258,7 +1258,7 @@ class SaagieApi:
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
-        elif not is_scheduled:
+        elif is_scheduled == False:
             params["isScheduled"] = False
 
         else:
