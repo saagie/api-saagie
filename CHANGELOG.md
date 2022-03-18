@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.3 (2022-03-18)
+### :green_apple:
+* :green_apple: Add functions of docker credentials ([`b144341`](https://github.com/saagie/api-saagie/commit/b1443415ce0250d5b01bd3a7de7362758c36bc9d))
+
 ## v0.8.2 (2022-03-16)
 ### :penguin:
 * :penguin: Adding depreciation warnings ([#77](https://github.com/saagie/api-saagie/issues/77)) ([`d3f3361`](https://github.com/saagie/api-saagie/commit/d3f3361c25cdf65c05fcf86d48d0da6145930235))
