@@ -41,8 +41,9 @@ class GraphPipeline:
         self.root_nodes.append(node)
 
     def fill_nodes_lists(self, node):
-        if str(node.id) not in [jn.get("id") for jn in self.list_job_nodes] and str(node.id) not in [cn.get("id") for cn in
-                                                                                                self.list_conditions_nodes]:
+        if str(node.id) not in [jn.get("id") for jn in self.list_job_nodes] and str(node.id) not in [cn.get("id") for cn
+                                                                                                     in
+                                                                                                     self.list_conditions_nodes]:
 
             if type(node) == JobNode:
                 dict_job = {}
@@ -70,7 +71,3 @@ class GraphPipeline:
     def to_pipeline_graph_input(self):
         for rn in self.root_nodes:
             self.fill_nodes_lists(rn)
-
-
-
-

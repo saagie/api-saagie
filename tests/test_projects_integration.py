@@ -5,8 +5,8 @@ import time
 import pytest
 import urllib3
 
-from saagieapi.projects import SaagieApi
-from saagieapi.projects.graph_pipeline import *
+from saagieapi import SaagieApi
+from pipelines.graph_pipeline import *
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("..")

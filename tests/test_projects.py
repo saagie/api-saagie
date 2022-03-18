@@ -2,7 +2,7 @@ from gql import gql
 from gql import Client
 from graphql import build_ast_schema
 from graphql.language.parser import parse
-from saagieapi.projects.gql_template import *
+from gql_template import *
 
 import os
 import sys
