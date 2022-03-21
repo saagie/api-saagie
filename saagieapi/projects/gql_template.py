@@ -111,12 +111,47 @@ gql_get_repositories_info = """
   }
 """
 
-gql_get_runtimes = """{{technology(id: "{0}"){{
-  __typename 
-  ... on JobTechnology {{contexts{{label}}}}
-  ... on SparkTechnology {{contexts{{label}}}}
-  }}}}
-"""
+gql_get_runtimes = """
+query technologyQuery($id: UUID!){
+    technology(id: $id){ 
+        __typename 
+        ... on JobTechnology {contexts{label}}
+        ... on SparkTechnology {contexts{label}}
+        ... on AppTechnology{
+            id
+            label
+            appContexts{
+                id
+                available
+                deprecationDate
+                description
+                dockerInfo {
+                    image
+                    version
+                }
+                facets
+                label
+                lastUpdate
+                ports {
+                    basePath
+                    name
+                    port
+                    rewriteUrl
+                    scope
+                }
+                missingFacets
+                recommended
+                trustLevel
+                volumes{
+                    path
+                    size
+                }
+
+
+            }
+        }
+    }
+}"""
 
 #                        _              _
 #  _ __   _ __   ___    (_)  ___   ___ | |_  ___
@@ -543,42 +578,45 @@ gql_get_project_web_apps = """
   }}
   """
 
-get_project_web_app = """
-  {{
-    labWebApp(id: "{0}"){{
-      id,
-      name,
-      description,
-      countJobInstance,
-      instances{{
-        id,
-        status,
-        startTime,
-        endTime
-      }},
-      versions {{
+gql_get_web_app = """
+query labWebAppQuery($id: UUID!){
+    labWebApp(id: $id){ 
+      id
+      name
+      description
+      versions {
+        number
+        creationDate
         releaseNote
         runtimeVersion
         commandLine
         isMajor
-      }},
+        isCurrent
+        dockerInfo{
+            image
+            dockerCredentialsId
+        }
+        exposedPorts{
+            name
+            port
+            isRewriteUrl
+            basePathVariableName
+            isAuthenticationRequired
+        }
+        storagePaths
+      }
       category,
-      technology {{
+      technology {
         id
-      }},
-      isScheduled,
-      cronScheduling,
-      scheduleStatus,
-      isStreaming,
-      creationDate,
-      migrationStatus,
-      migrationProjectId,
-      isDeletable,
-      pipelines {{
+      }
+      creationDate
+      isDeletable
+      graphPipelines {
         id
-      }}
-    }}
-  }}
+      }
+      storageSizeInMB
+    }
+  }
   """
 
 gql_get_project_app = """
@@ -600,6 +638,66 @@ gql_get_project_app = """
     }}
   }}
   """
+
+gql_create_app = """
+mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $technologyId: UUID!, 
+                           $storageSizeInMB: Int,
+                           $image: String!, $dockerCredentialsId: UUID, $exposedPorts: [ExposedPortInput!],
+                           $storagePaths: [String!],
+                           $releaseNote: String, $alerting: JobPipelineAlertingInput) {
+    createJob(job: {
+            projectId: $projectId
+            name: $name
+            description: $description
+            category: ""
+            technology: {
+                id: $technologyId
+            }
+            isStreaming: false
+            isScheduled: false
+            storageSizeInMB: $storageSizeInMB
+            alerting: $alerting
+        }
+        jobVersion: {
+            dockerInfo: {
+                image: $image
+                dockerCredentialsId: $dockerCredentialsId
+            }
+            exposedPorts: $exposedPorts
+            storagePaths: $storagePaths 
+            releaseNote: $releaseNote
+        }){
+        id
+        versions {
+            number
+            __typename
+        }
+        __typename
+    }}
+"""
+
+gql_edit_app = """
+mutation editJobMutation($id: UUID!, $name: String, $description: String, $alerting: JobPipelineAlertingInput) {
+    editJob(job: {
+        id: $id
+        name: $name
+        description: $description
+        alerting: $alerting
+    }){
+        id
+        name
+        description
+        creationDate
+        technology{
+            id
+        }
+        alerting{
+            emails
+            statusList
+        }
+    }
+}
+"""
 
 #         _               _  _
 #  _ __  (_) _ __    ___ | |(_) _ __    ___  ___

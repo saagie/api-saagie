@@ -229,8 +229,7 @@ class TestGQLTemplate:
         assert result == expected
 
     def test_get_project_web_app(self):
-        web_app_id = "1"
-        query = gql(get_project_web_app.format(web_app_id))
+        query = gql(gql_get_web_app)
         result = self.client.validate(query)
         expected = None
         assert result == expected
@@ -238,6 +237,18 @@ class TestGQLTemplate:
     def test_get_project_app(self):
         app_id = "1"
         query = gql(gql_get_project_app.format(app_id))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
+    def test_create_app(self):
+        query = gql(gql_create_app)
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
+    def edit_app(self):
+        query = gql(gql_edit_app)
         result = self.client.validate(query)
         expected = None
         assert result == expected
