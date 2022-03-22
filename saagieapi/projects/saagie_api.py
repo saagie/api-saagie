@@ -14,10 +14,14 @@ from gql import gql
 from gql import Client
 from gql.transport.requests import RequestsHTTPTransport
 
-from .auth import *
+from .utils import *
 from .gql_template import *
 from .graph_pipeline import *
 import deprecation
+
+logging.basicConfig(level=logging.WARN,
+                    format="%(asctime)s [%(levelname)s] %(message)s",
+                    datefmt="%d/%m/%Y %H:%M:%S")
 
 
 class SaagieApi:
@@ -54,6 +58,7 @@ class SaagieApi:
         self.retries = retries
         self.auth = BearerAuth(self.realm, self.url_saagie,
                                self.id_platform, self.login, self.password)
+        get_saagie_version(self.auth, url_saagie)
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + '/graphql'
         self._url = url

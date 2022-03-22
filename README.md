@@ -37,10 +37,7 @@ pip install saagieapi==<version>
 
 ### Compatibility with your Saagie platform
 
-| **Saagie platform version** | **saagie-api release** |
-|-----------------------------|------------------------|
-| < 2.2.0                     | < 0.6.0                |
-| >= 2.2.0                    | >= 0.6.0               |
+Check #TODO
 
 ## Usage
 

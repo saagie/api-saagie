@@ -1,0 +1,12 @@
+{
+  "1.19.2203181529-2949.39": {
+    "min_api_saagie_version": "0.10.1"
+  },
+  "2.1.0": {
+    "min_api_saagie_version": "0.5.1",
+    "max_api_saagie_version": "0.5.8"
+  },
+  "2.2.0": {
+    "min_api_saagie_version": "0.6.0"
+  }
+}
