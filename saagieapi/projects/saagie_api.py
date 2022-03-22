@@ -58,7 +58,6 @@ class SaagieApi:
         self.retries = retries
         self.auth = BearerAuth(self.realm, self.url_saagie,
                                self.id_platform, self.login, self.password)
-        get_saagie_version(self.auth, url_saagie)
         url = self.url_saagie + self.suffix_api + 'platform/'
         url += str(self.id_platform) + '/graphql'
         self._url = url
@@ -1539,3 +1538,185 @@ class SaagieApi:
             return pipeline[0]["id"]
         else:
             raise NameError(f"pipeline {pipeline_name} does not exist.")
+
+    # ######################################################
+    # ###               Docker Credentials              ####
+    # ######################################################
+
+    def get_all_docker_credentials(self, project_id):
+        """
+        Get all saved docker credentials for a specific project
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        Returns
+        -------
+        dict
+
+        """
+        params = {"projectId": project_id}
+        return self.client.execute(gql(gql_get_all_docker_credentials), variable_values=params)
+
+    def get_docker_credentials(self, project_id, credential_id):
+        """
+        Get the info of a specific docker credentials in a specific project
+        Parameters
+        ----------
+        project_id :
+            ID of the project
+        credential_id : str
+            ID of the credentials of the container registry
+        Returns
+        -------
+        dict
+
+        """
+        params = {"projectId": project_id, "id": credential_id}
+        return self.client.execute(gql(gql_get_docker_credentials), variable_values=params)
+
+    def get_docker_credentials_info_by_name(self, project_id, username, registry=None):
+        """
+        Get the info of a specific docker credentials in a specific project using the username
+        and the registry
+        Parameters
+        ----------
+        project_id :
+            ID of the project
+        username : str
+            Login of the container registry
+        registry : str, optional
+            If you do not set a registry, the registry will be Docker Hub.
+        Returns
+        -------
+        dict
+
+        """
+        all_docker_credentials = self.get_all_docker_credentials(project_id)["allDockerCredentials"]
+        if len(all_docker_credentials):
+            res = [credentials for credentials in all_docker_credentials if
+                   credentials["username"] == username and credentials["registry"] == registry]
+            if len(res):
+                return res[0]
+            else:
+                raise RuntimeError(
+                    f"There are no docker credentials in the project: '{project_id}' with the username: '{username}' "
+                    f"and registry '{registry}'")
+        else:
+            raise RuntimeError(f"There are no docker credentials in the project: '{project_id}'")
+
+    def create_docker_credentials(self, project_id, username, password, registry=None):
+        """
+        Create docker credentials for a specific project
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        username : str
+            Login to the container registry
+        password: str
+            Password to the container registry
+        registry : str, optional
+            If you do not set a registry, the registry will be Docker Hub.
+            Else, you have to put the url of the container registry
+        Returns
+        -------
+        dict
+
+        """
+        params = {"username": username, "password": password, "projectId": project_id}
+        if registry:
+            params["registry"] = registry
+        return self.client.execute(gql(gql_create_docker_credentials), variable_values=params)
+
+    def upgrade_docker_credentials_by_id(self, project_id, credential_id, password, registry=None,
+                                         username=""):
+        """
+        Update docker credentials for a specific project
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        credential_id: str
+            ID of the created docker credentials
+        password: str
+            Password to the container registry
+        registry : str, optional
+            If you do not set a registry, the registry will be Docker Hub.
+            Otherwise, you have to put the url of the container registry
+        username : str, optional
+            If you want to change the login of the container registry, you have to set it.
+            Otherwise, you can let it to default value
+        Returns
+        -------
+        dict
+
+        """
+        params = {"id": credential_id, "password": password, "projectId": project_id}
+        if registry:
+            params["registry"] = registry
+        if username:
+            params["username"] = username
+        return self.client.execute(gql(gql_upgrade_docker_credentials), variable_values=params)
+
+    def upgrade_docker_credentials_by_name(self, project_id, username, password, registry=None):
+        """
+        Update docker credentials for a specific project
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        username : str
+            Login of the container registry
+        password: str
+            Password to the container registry
+        registry : str, optional
+            If you do not set a registry, the registry will be Docker Hub.
+            Otherwise, you have to put the url of the container registry
+        Returns
+        -------
+        dict
+        """
+        credential_id = self.get_docker_credentials_info_by_name(project_id, username, registry)["id"]
+        params = {"id": credential_id, "password": password, "projectId": project_id}
+
+        if registry:
+            params["registry"] = registry
+
+        return self.client.execute(gql(gql_upgrade_docker_credentials), variable_values=params)
+
+    def delete_docker_credentials_by_id(self, project_id, credential_id):
+        """
+        Delete a specific container registry credentials in a specific project
+        Parameters
+        ----------
+        project_id :
+            ID of the project
+        credential_id : str
+            ID of the credential
+        Returns
+        -------
+        dict
+        """
+        params = {"id": credential_id, "projectId": project_id}
+        return self.client.execute(gql(gql_delete_docker_credentials), variable_values=params)
+
+    def delete_docker_credentials_by_name(self, project_id, username, registry=None):
+        """
+        Delete a specific container registry credentials in a specific project
+        Parameters
+        ----------
+        project_id :
+            ID of the project
+        username : str
+            Login to the container registry
+        registry : str, optional
+            If you do not set a registry, the registry will be Docker Hub.
+            Otherwise, you have to put the url of the container registry
+        Returns
+        -------
+        dict
+        """
+        credential_id = self.get_docker_credentials_info_by_name(project_id, username, registry)["id"]
+        params = {"id": credential_id, "projectId": project_id}
+        return self.client.execute(gql(gql_delete_docker_credentials), variable_values=params)
