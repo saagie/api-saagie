@@ -3,11 +3,9 @@ Saagie API object to interact with Saagie API in Python (API for
 Projects & Jobs - to interact with the manager API, see the manager subpackage)
 
 """
-import logging
 import time
 import re
 import pytz
-from pathlib import Path
 from croniter import croniter
 
 from gql import gql
@@ -18,10 +16,6 @@ from .utils import *
 from .gql_template import *
 from .graph_pipeline import *
 import deprecation
-
-logging.basicConfig(level=logging.WARN,
-                    format="%(asctime)s [%(levelname)s] %(message)s",
-                    datefmt="%d/%m/%Y %H:%M:%S")
 
 
 class SaagieApi:
@@ -89,6 +83,7 @@ class SaagieApi:
         # Valid status list of alerting
         self.valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
                                   "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
+        check_saagie_version_compatibility(self.auth, self.url_saagie)
 
     @classmethod
     def easy_connect(cls, url_saagie_platform, user, password):
