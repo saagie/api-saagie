@@ -37,10 +37,9 @@ pip install saagieapi==<version>
 
 ### Compatibility with your Saagie platform
 
-| **Saagie platform version** | **saagie-api release** |
-|-----------------------------|------------------------|
-| < 2.2.0                     | < 0.6.0                |
-| >= 2.2.0                    | >= 0.6.0               |
+When instantiating a SaagieApi instance, a check is made to ensure that your Saagie platform version is compatible with
+the version of SaagieApi you are using.
+This check is based on the `saagieapi/projects/compatibility_matrix.json` file.
 
 ## Usage
 
