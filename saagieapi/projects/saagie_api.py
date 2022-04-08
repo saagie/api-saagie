@@ -3,19 +3,32 @@ Saagie API object to interact with Saagie API in Python (API for
 Projects & Jobs - to interact with the manager API, see the manager subpackage)
 
 """
-import time
+import importlib.metadata
+import json
+import logging
 import re
+import time
+from json import JSONDecodeError
+from pathlib import Path
+
+import deprecation
 import pytz
 from croniter import croniter
-
-from gql import gql
 from gql import Client
+from gql import gql
 from gql.transport.requests import RequestsHTTPTransport
+from packaging import version
+from packaging.version import Version
 
-from .utils import *
+from .auth import *
 from .gql_template import *
 from .graph_pipeline import *
-import deprecation
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", datefmt="%d/%m/%Y %H:%M:%S")
+logging.getLogger("requests").setLevel(logging.WARN)
+logging.getLogger("gql").setLevel(logging.WARN)
+
+dir_path = Path(__file__).resolve().parent
 
 
 class SaagieApi:
@@ -83,7 +96,7 @@ class SaagieApi:
         # Valid status list of alerting
         self.valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
                                   "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
-        check_saagie_version_compatibility(self.auth, self.url_saagie)
+        self.check_saagie_version_compatibility()
 
     @classmethod
     def easy_connect(cls, url_saagie_platform, user, password):
@@ -117,6 +130,61 @@ class SaagieApi:
     # ######################################################
     # ###                    env vars                   ####
     # ######################################################
+
+    def __get_saagie_current_version(self):
+        """
+        Retrieve the current Saagie version on the target platform
+        :return: Saagie major version
+        """
+        try:
+            saagie_versions = self.auth(requests.session()).get(f"{self.url_saagie}version.json").json()
+            self.saagie_current_version = saagie_versions['major']
+        except (JSONDecodeError, KeyError):
+            logging.warning("Could not get Saagie version")
+            self.saagie_current_version = "unknown-version "
+        logging.info(f"Current saagie version : {self.saagie_current_version}")
+
+    def __get_min_max_saagie_versions(self) -> (Version, Version):
+        """
+        Retrieve the minimum and maximum Saagie version supported by the Saagie API
+        based on the compatibility matrix
+        :return: (min_version, max_version)
+        """
+        saagie_compatibility_matrix = json.load(open(dir_path.joinpath('compatibility_matrix.json')))
+        logging.debug(f"Compatibility matrix : {saagie_compatibility_matrix}")
+        try:
+            compatible_versions = saagie_compatibility_matrix[self.saagie_current_version]
+            minimal_version = version.parse(compatible_versions.get("min_api_saagie_version", "0"))
+            maximal_version = version.parse(compatible_versions.get("max_api_saagie_version", "9.9"))
+            return minimal_version, maximal_version
+        except KeyError:
+            logging.warning(
+                f"Could not find your Saagie version ({self.saagie_current_version}) in the compatibility matrix")
+            return version.parse("0"), version.parse("9.9")
+
+    def check_saagie_version_compatibility(self):
+        """
+        Check if the Saagie version is compatible with the Saagie API version and display warnings if not
+        """
+        self.__get_saagie_current_version()
+        saagie_api_current_version = version.parse(importlib.metadata.version("saagieapi"))
+
+        logging.info(f"Current api-saagie version : {saagie_api_current_version}")
+        min_version, max_version = self.__get_min_max_saagie_versions()
+        if saagie_api_current_version < min_version:
+            logging.warning(
+                f"You are using a saagie-api version ({saagie_api_current_version}) "
+                f"not compatible with your Saagie platform (Saagie v.{self.saagie_current_version})")
+            logging.warning(
+                f"Your Saagie platform requires at least the version {min_version} "
+                f"of saagieapi. Please consider upgrading.")
+        if saagie_api_current_version > max_version:
+            logging.warning(
+                f"You are using a saagie-api version ({saagie_api_current_version}) "
+                f"not compatible with your Saagie platform (Saagie v.{self.saagie_current_version})")
+            logging.warning(
+                f"Your Saagie platform is not compatible with versions > {max_version} "
+                f"of saagieapi. Please consider downgrading.")
 
     def get_global_env_vars(self):
         """Get global environment variables
