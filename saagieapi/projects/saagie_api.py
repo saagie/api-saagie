@@ -96,6 +96,8 @@ class SaagieApi:
         # Valid status list of alerting
         self.valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
                                   "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
+        self.saagie_current_version = self.__get_saagie_current_version()
+        logging.info(f"Current saagie version : {self.saagie_current_version}")
         self.check_saagie_version_compatibility()
 
     @classmethod
@@ -138,11 +140,10 @@ class SaagieApi:
         """
         try:
             saagie_versions = self.auth(requests.session()).get(f"{self.url_saagie}version.json").json()
-            self.saagie_current_version = saagie_versions['major']
+            return saagie_versions['major']
         except (JSONDecodeError, KeyError):
             logging.warning("Could not get Saagie version")
-            self.saagie_current_version = "unknown-version "
-        logging.info(f"Current saagie version : {self.saagie_current_version}")
+            return "unknown-version "
 
     def __get_min_max_saagie_versions(self) -> (Version, Version):
         """
@@ -166,7 +167,6 @@ class SaagieApi:
         """
         Check if the Saagie version is compatible with the Saagie API version and display warnings if not
         """
-        self.__get_saagie_current_version()
         saagie_api_current_version = version.parse(importlib.metadata.version("saagieapi"))
 
         logging.info(f"Current api-saagie version : {saagie_api_current_version}")

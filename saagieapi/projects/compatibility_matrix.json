@@ -5,5 +5,9 @@
   },
   "2.2.0": {
     "min_api_saagie_version": "0.6.0"
+  },
+  "1.19.2203251648-3207.161": {
+    "min_api_saagie_version": "0.6.0",
+     "max_api_saagie_version": "0.6.2"
   }
 }
