@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.8.4 (2022-04-11)
+### :mag:
+* :mag: Add functions of apps ([`1aa37a5`](https://github.com/saagie/api-saagie/commit/1aa37a5a51704e90fb010a4217ea63474d40e6ff))
+
 ## v0.8.3 (2022-03-18)
 ### :green_apple:
 * :green_apple: Add functions of docker credentials ([`b144341`](https://github.com/saagie/api-saagie/commit/b1443415ce0250d5b01bd3a7de7362758c36bc9d))
