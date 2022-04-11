@@ -1139,7 +1139,7 @@ class SaagieApi:
         release_note: str,
             Release note for the app version
         emails: List[String], optional
-            Emails to receive alerts for the job, each item should be a valid email
+            Emails to receive alerts for the app, each item should be a valid email
         status_list: List[String], optional
             Receive an email when the job status change to a specific status
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
