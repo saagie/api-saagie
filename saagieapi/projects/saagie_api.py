@@ -1067,76 +1067,39 @@ class SaagieApi:
     # ###                      apps                     ####
     # ######################################################
 
-    # Difference between app and webapp in current graphQL API ?
-    # Web App = Docker jobs ?
-    def get_project_web_apps(self, project_id, instances_limit=-1):
-        """List webApps of project with their instances.
-        NB: You can only list webApps if you have at least the viewer role on
+    def get_project_apps(self, project_id):
+        """List apps of project.
+        NB: You can only list apps if you have at least the viewer role on
         the project.
 
         Parameters
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
-        instances_limit : int, optional
-            Maximum limit of instances to fetch per webapp. Fetch from most
-            recent to oldest
-
-        Returns
-        -------
-        dict
-            Dict of webApp information
-        """
-        regex_error_missing_technology = r"io\.saagie\.projectsandjobs\.domain\.exception" \
-                                         r"\.NonExistingTechnologyException: Technology \S{8}-\S{4}-\S{4}-\S{4}-\S{" \
-                                         r"12} does not exist "
-        instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
-
-        query = gql(gql_get_project_web_apps.format(project_id,
-                                                    instances_limit_request))
-        result = self.client.execute(query)
-
-        if result.errors:
-            # Matching errors with error missing technology message
-            errors_matching = [re.fullmatch(regex_error_missing_technology, e['message']) for e in result.errors]
-            if None in errors_matching:
-                raise Exception(str(result.errors[errors_matching.index(None)]))
-            else:
-                return result.data
-        else:
-            return result.data
-
-    def get_project_web_app(self, web_app_id):
-        """Get webApp with given UUID or null if it doesn't exist.
-
-        Parameters
-        ----------
-        web_app_id : str
-            Description
-
-        Returns
-        -------
-        dict
-            Dict of webApp information
-        """
-        query = gql(gql_get_web_app)
-        return self.client.execute(query, variable_values={"id": web_app_id})
-
-    def get_project_app(self, app_id):
-        """Get app with given UUID or null if it doesn't exist.
-
-        Parameters
-        ----------
-        app_id : str
-            UUID of your app (see README on how to find it)
 
         Returns
         -------
         dict
             Dict of app information
         """
-        query = gql(gql_get_project_app.format(app_id))
-        return self.client.execute(query)
+        query = gql(gql_get_project_apps)
+        return self.client.execute(query, variable_values={"id": project_id})
+
+    def get_project_app(self, app_id):
+        """Get app with given UUID.
+
+        Parameters
+        ----------
+        app_id : str
+            UUID of your app
+
+        Returns
+        -------
+        dict
+            Dict of app information
+        """
+        query = gql(gql_get_project_app)
+        return self.client.execute(query, variable_values={"id": app_id})
 
     def create_app(self, project_id, app_name, image, description='', technology_catalog='Saagie',
                    technology="Docker image", docker_credentials_id=None, exposed_ports=[], storage_paths=[],
@@ -1247,25 +1210,27 @@ class SaagieApi:
 
     def edit_app(self, app_id, app_name=None, description=None, emails=None, status_list=["FAILED"]):
         """Edit an app
+        Each optional parameter can be set to change the value of the corresponding field.
 
         Parameters
         ----------
         app_id : str
-            UUID of your job (see README on how to find it)
+            UUID of your app
         app_name : str, optional
-            Job name
-            If not filled, defaults to current value, else it will change the job's name
+            App name
+            If not filled, defaults to current value, else it will change the app's name
         description : str, optional
-            Description of job
-            if not filled, defaults to current value, else it will change the description of the pipeline
+            Description of app
+            if not filled, defaults to current value, else it will change the description of the app
         emails: List[String], optional
-            Emails to receive alerts for the job, each item should be a valid email,
+            Emails to receive alerts for the app, each item should be a valid email,
             If you want to remove alerting, please set emails to [] or list()
             if not filled, defaults to current value
         status_list: List[String], optional
-            Receive an email when the job status change to a specific status
+            Receive an email when the app status change to a specific status.
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
+            You cannot change only the status_lit, you must set both emails and status_list.
 
         Returns
         -------
@@ -1273,17 +1238,17 @@ class SaagieApi:
             Dict of app information
         """
         params = {"id": app_id}
-        previous_job_version = self.get_project_web_app(app_id)["data"]["labWebApp"]
+        previous_app_version = self.get_project_app(app_id)["labWebApp"]
 
         if app_name:
             params["name"] = app_name
         else:
-            params["name"] = previous_job_version["name"]
+            params["name"] = previous_app_version["name"]
 
         if description:
             params["description"] = description
         else:
-            params["description"] = previous_job_version["description"]
+            params["description"] = previous_app_version["description"]
 
         if emails:
             wrong_status_list = []
@@ -1305,14 +1270,14 @@ class SaagieApi:
         elif type(emails) == list:
             params["alerting"] = None
         else:
-            previous_alerting = previous_job_version["alerting"]
+            previous_alerting = previous_app_version["alerting"]
             if previous_alerting:
                 params["alerting"] = {
                     "emails": previous_alerting["emails"],
                     "statusList": previous_alerting["statusList"]
                 }
 
-        query = gql(gql_edit_job)
+        query = gql(gql_edit_app)
         return self.client.execute(query, variable_values=params)
 
     # ######################################################

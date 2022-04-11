@@ -540,50 +540,13 @@ gql_delete_job = """
 #        |_|    |_|
 
 
-gql_get_project_web_apps = """
-  {{
-    labWebApps(projectId: "{0}"){{
-      id,
-      name,
-      description,
-      countJobInstance,
-      instances{1}{{
-        id,
-        status,
-        startTime,
-        endTime
-      }},
-      versions {{
-        releaseNote
-        runtimeVersion
-        commandLine
-        isMajor
-      }},
-      category,
-      technology {{
-        id
-      }},
-      isScheduled,
-      cronScheduling,
-      scheduleStatus,
-      isStreaming,
-      creationDate,
-      migrationStatus,
-      migrationProjectId,
-      isDeletable,
-      pipelines {{
-        id
-      }}
-    }}
-  }}
-  """
-
-gql_get_web_app = """
+gql_get_project_apps = """
 query labWebAppQuery($id: UUID!){
-    labWebApp(id: $id){ 
+    labWebApps(projectId: $id){ 
       id
       name
       description
+      countJobInstance
       versions {
         number
         creationDate
@@ -609,34 +572,94 @@ query labWebAppQuery($id: UUID!){
       technology {
         id
       }
+      alerting {
+        emails
+        statusList
+    }
       creationDate
       isDeletable
       graphPipelines {
         id
       }
       storageSizeInMB
+      doesUseGPU
+      resources{
+        cpu{
+          limit
+          request
+        }
+        memory{
+          limit
+          request
+        }
+        gpu{
+          limit
+          request
+        }
+      }
     }
-  }
-  """
+}
+"""
 
 gql_get_project_app = """
-  {{
-    app(id: "{0}"){{
-      id,
-      name,
-      description,
-      creationDate,
-      creator,
-      versions{{
-        number,
-        creationDate,
-        dockerInfo{{
-          image,
-          dockerCredentialsId
-        }}
-      }}
-    }}
-  }}
+query labWebAppQuery($id: UUID!){
+    labWebApp(id: $id){ 
+      id
+      name
+      description
+      countJobInstance
+      versions {
+        number
+        creationDate
+        releaseNote
+        runtimeVersion
+        commandLine
+        isMajor
+        isCurrent
+        dockerInfo{
+            image
+            dockerCredentialsId
+        }
+        exposedPorts{
+            name
+            port
+            isRewriteUrl
+            basePathVariableName
+            isAuthenticationRequired
+        }
+        storagePaths
+      }
+      category,
+      technology {
+        id
+      }
+      alerting {
+        emails
+        statusList
+    }
+      creationDate
+      isDeletable
+      graphPipelines {
+        id
+      }
+      storageSizeInMB
+      doesUseGPU
+      resources{
+        cpu{
+          limit
+          request
+        }
+        memory{
+          limit
+          request
+        }
+        gpu{
+          limit
+          request
+        }
+      }
+    }
+  }
   """
 
 gql_create_app = """
