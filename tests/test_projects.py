@@ -219,24 +219,14 @@ class TestGQLTemplate:
     # ###                      apps                     ####
     # ######################################################
 
-    def test_get_project_web_apps(self):
-        project_id = "1234"
-        instances_limit = " (limit: 1)"
-        query = gql(gql_get_project_web_apps.format(project_id,
-                                                    instances_limit))
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
-
-    def test_get_project_web_app(self):
-        query = gql(gql_get_web_app)
+    def test_get_project_apps(self):
+        query = gql(gql_get_project_apps)
         result = self.client.validate(query)
         expected = None
         assert result == expected
 
     def test_get_project_app(self):
-        app_id = "1"
-        query = gql(gql_get_project_app.format(app_id))
+        query = gql(gql_get_project_app)
         result = self.client.validate(query)
         expected = None
         assert result == expected
