@@ -276,14 +276,14 @@ class TestIntegrationProject:
             'name': "new_var",
             'value': "new value",
             'description': "new description",
-            'isPassword': str(True).lower()
+            'isPassword': True
         }
 
         self.saagie.update_global_env_var(name, 
                                           new_name=env_var_input['name'], 
-                                          value= env_var_input, 
+                                          value= env_var_input['value'], 
                                           description=env_var_input['description'],
-                                          is_password=env_var_input['isPassword'])
+                                          is_password=str(env_var_input['isPassword']).lower())
 
         env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==env_var_input['name']][0]
         to_validate = {}
@@ -345,15 +345,15 @@ class TestIntegrationProject:
             'name': "new_var",
             'value': "new value",
             'description': "new description",
-            'isPassword': str(True).lower()
+            'isPassword': True
         }
 
         self.saagie.update_project_env_var(self.project_id,
                                           name, 
                                           new_name=env_var_input['name'], 
-                                          value= env_var_input, 
+                                          value= env_var_input['value'], 
                                           description=env_var_input['description'],
-                                          is_password=env_var_input['isPassword'])
+                                          is_password=str(env_var_input['isPassword']).lower())
 
         env_var = [env_var for env_var in self.saagie.get_project_env_vars(self.project_id)['projectEnvironmentVariables'] if env_var['name']==env_var_input['name']][0]
         to_validate = {}
