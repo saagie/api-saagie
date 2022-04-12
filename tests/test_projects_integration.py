@@ -279,7 +279,7 @@ class TestIntegrationProject:
         }
 
         self.saagie.update_global_env_var(name, 
-                                          value= env_var_input['value'], 
+                                          value=env_var_input['value'], 
                                           description=env_var_input['description'],
                                           is_password=str(env_var_input['isPassword']).lower())
 
@@ -290,10 +290,6 @@ class TestIntegrationProject:
         to_validate['value'] = env_var['value']
         to_validate['description'] = env_var['description']
         to_validate['isPassword'] = env_var['isPassword']
-
-        print(to_validate)
-        print('\n')
-        print(env_var)
 
         assert env_var_input == to_validate
 
@@ -352,7 +348,7 @@ class TestIntegrationProject:
 
         self.saagie.update_project_env_var(self.project_id,
                                           name, 
-                                          value= env_var_input['value'], 
+                                          value=env_var_input['value'], 
                                           description=env_var_input['description'],
                                           is_password=str(env_var_input['isPassword']).lower())
 
@@ -361,11 +357,6 @@ class TestIntegrationProject:
         to_validate['value'] = env_var['value']
         to_validate['description'] = env_var['description']
         to_validate['isPassword'] = env_var['isPassword']
-
-
-        print(to_validate)
-        print('\n')
-        print(env_var)
 
         assert env_var_input == to_validate
 
