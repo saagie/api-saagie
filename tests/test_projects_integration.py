@@ -275,7 +275,7 @@ class TestIntegrationProject:
         env_var_input = {
             'value': "newvalue",
             'description': "new description",
-            'isPassword': True
+            'isPassword': False
         }
 
         self.saagie.update_global_env_var(name, 
@@ -343,7 +343,7 @@ class TestIntegrationProject:
         env_var_input = {
             'value': 'newvalue',
             'description': 'new description',
-            'isPassword': True
+            'isPassword': False
         }
 
         self.saagie.update_project_env_var(self.project_id,
