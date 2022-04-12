@@ -345,8 +345,8 @@ class TestIntegrationProject:
     def test_update_project_env_var(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
         env_var_input = {
-            'value': "newvalue",
-            'description': "new description",
+            'value': 'newvalue',
+            'description': 'new description',
             'isPassword': True
         }
 
@@ -366,7 +366,7 @@ class TestIntegrationProject:
         print(to_validate)
         print('\n')
         print(env_var)
-        
+
         assert env_var_input == to_validate
 
 
