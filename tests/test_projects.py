@@ -58,7 +58,7 @@ class TestGQLTemplate:
         value='test2'
         description='test2'
         is_password=True
-        query = gql(gql_update_global_env_var.format(env_var_id, new_name, value, description, str(is_password).lower())
+        query = gql(gql_update_global_env_var.format(env_var_id, new_name, value, description, str(is_password).lower()))
         result = self.client.validate(query)
         expected=None
         assert result == expected
@@ -102,7 +102,7 @@ class TestGQLTemplate:
         value='test2'
         description='test2'
         is_password=True
-        query = gql(gql_update_project_env_var.format(project_id, env_var_id, new_name, value, description, str(is_password).lower())
+        query = gql(gql_update_project_env_var.format(project_id, env_var_id, new_name, value, description, str(is_password).lower()))
         result = self.client.validate(query)
         expected=None
         assert result == expected
