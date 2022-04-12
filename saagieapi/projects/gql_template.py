@@ -32,6 +32,22 @@ gql_create_global_env_var = """
   }}
 """
 
+
+gql_update_global_env_var = """
+   mutation {{
+     saveEnvironmentVariable(
+        environmentVariable: {{
+          id:"{0}",
+          name:"{1}",
+          scope:GLOBAL,
+          value:"{2}",
+          description:"{3}",
+          isPassword:{4}
+        }})
+        {{id}}
+    }}
+"""
+
 gql_delete_env_var = """
   mutation {{
     deleteEnvironmentVariable (
@@ -39,6 +55,8 @@ gql_delete_env_var = """
     )
   }}
 """
+
+
 
 gql_get_project_env_vars = """
   {{
@@ -70,6 +88,27 @@ gql_create_project_env_var = """
   }}
 """
 
+
+
+
+
+gql_update_project_env_var = """
+   mutation {{
+      saveEnvironmentVariable	(
+        entityId: "{0}",
+        environmentVariable: {{
+          id:"{1}",
+          name:"{2}",
+          scope:PROJECT,
+          value:"{3}",
+          description:"{4}",
+          isPassword:{5}
+        }}
+      ){{
+        id
+      }}
+  }}
+"""
 
 #   ____ _           _
 #  / ___| |_   _ ___| |_ ___ _ __

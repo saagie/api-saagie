@@ -269,6 +269,32 @@ class TestIntegrationProject:
 
         assert result == {'deleteEnvironmentVariable': True}
 
+
+    def test_update_global_env_var(self, create_then_delete_global_env_var):
+        name = create_then_delete_global_env_var
+        env_var_input = {
+            'name': "new_var",
+            'value': "new value",
+            'description': "new description",
+            'isPassword': True
+        }
+
+        self.saagie.update_global_env_var(name, 
+                                          new_name=env_var_input['name'], 
+                                          value= env_var_input, 
+                                          description=env_var_input['description'],
+                                          is_password=env_var_input['is_scheduled'])
+
+        env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==env_var_input['name']]
+        to_validate = {}
+        to_validate['name'] = env_var['name']
+        to_validate['value'] = env_var['value']
+        to_validate['description'] = env_var['description']
+        to_validate['isPassword'] = env_var['isPassword']
+
+        assert env_var_input == to_validate
+
+        
     @pytest.fixture
     def create_project_env_var(self):
         # Disable urllib3 InsecureRequestsWarnings

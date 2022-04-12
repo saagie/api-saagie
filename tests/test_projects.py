@@ -51,6 +51,18 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    def test_update_global_env_var(self):
+        env_var_id = '1234'
+        name='test'
+        new_name='test2'
+        value='test2'
+        description='test2'
+        is_password=True
+        query = gql(gql_update_global_env_var.format(env_var_id, new_name, value, description, is_password))
+        result = self.client.validate(query)
+        expected=None
+        assert result == expected
+
     def test_delete_env_var(self):
         env_var_id = '1234'
         query = gql(gql_delete_env_var.format(env_var_id))
@@ -81,6 +93,19 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+
+    def test_update_project_env_var(self):
+        project_id='1234'
+        env_var_id = '1234'
+        name='test'
+        new_name='test2'
+        value='test2'
+        description='test2'
+        is_password=True
+        query = gql(gql_update_project_env_var.format(project_id, env_var_id, new_name, value, description, is_password))
+        result = self.client.validate(query)
+        expected=None
+        assert result == expected
     # ##########################################################
     # ###                    cluster                        ####
     # ##########################################################
