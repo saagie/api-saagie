@@ -273,7 +273,7 @@ class TestIntegrationProject:
     def test_update_global_env_var(self, create_then_delete_global_env_var):
         name = create_then_delete_global_env_var
         env_var_input = {
-            'value': "new value",
+            'value': "newvalue",
             'description': "new description",
             'isPassword': True
         }
@@ -284,10 +284,16 @@ class TestIntegrationProject:
                                           is_password=str(env_var_input['isPassword']).lower())
 
         env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==name][0]
+       
+
         to_validate = {}
         to_validate['value'] = env_var['value']
         to_validate['description'] = env_var['description']
         to_validate['isPassword'] = env_var['isPassword']
+
+        print(to_validate)
+        print('\n')
+        print(env_var)
 
         assert env_var_input == to_validate
 
@@ -339,7 +345,7 @@ class TestIntegrationProject:
     def test_update_project_env_var(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
         env_var_input = {
-            'value': "new value",
+            'value': "newvalue",
             'description': "new description",
             'isPassword': True
         }
@@ -356,6 +362,11 @@ class TestIntegrationProject:
         to_validate['description'] = env_var['description']
         to_validate['isPassword'] = env_var['isPassword']
 
+
+        print(to_validate)
+        print('\n')
+        print(env_var)
+        
         assert env_var_input == to_validate
 
 
