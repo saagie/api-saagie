@@ -285,7 +285,7 @@ class TestIntegrationProject:
                                           description=env_var_input['description'],
                                           is_password=env_var_input['isPassword'])
 
-        env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==env_var_input['name']]
+        env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==env_var_input['name']][0]
         to_validate = {}
         to_validate['name'] = env_var['name']
         to_validate['value'] = env_var['value']
@@ -355,7 +355,7 @@ class TestIntegrationProject:
                                           description=env_var_input['description'],
                                           is_password=env_var_input['isPassword'])
 
-        env_var = [env_var for env_var in self.saagie.get_project_env_vars(self.project_id)['projectEnvironmentVariables'] if env_var['name']==env_var_input['name']]
+        env_var = [env_var for env_var in self.saagie.get_project_env_vars(self.project_id)['projectEnvironmentVariables'] if env_var['name']==env_var_input['name']][0]
         to_validate = {}
         to_validate['name'] = env_var['name']
         to_validate['value'] = env_var['value']
@@ -364,7 +364,7 @@ class TestIntegrationProject:
 
         assert env_var_input == to_validate
 
-        
+
     @pytest.fixture
     def create_graph_pipeline(self, create_job):
         job_id = create_job
