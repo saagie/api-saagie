@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.0 (2022-04-13)
+### :chart_with_upwards_trend:
+* :chart_with_upwards_trend: Update env var ([#85](https://github.com/saagie/api-saagie/issues/85)) ([`2f047a4`](https://github.com/saagie/api-saagie/commit/2f047a4f533c035fe67239928c8ab28d98fe3e7d))
+
 ## v0.8.4 (2022-04-11)
 ### :mag:
 * :mag: Add functions of apps ([`1aa37a5`](https://github.com/saagie/api-saagie/commit/1aa37a5a51704e90fb010a4217ea63474d40e6ff))
