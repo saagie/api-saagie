@@ -39,11 +39,11 @@ mutation($id: UUID, $entityId: UUID, $name: String!, $scope: EnvVarScope!, $valu
             saveEnvironmentVariable(
                 entityId: $entityId
                 environmentVariable: {
-                    id: $id
-                    name: $name
-                    scope: 'GLOBAL'
-                    value: $value
-                    description: $description
+                    id: $id,
+                    name: $name,
+                    scope: 'GLOBAL',
+                    value: $value,
+                    description: $description,
                     isPassword:$isPassword
         
     }){
@@ -102,11 +102,11 @@ mutation($id: UUID, $entityId: UUID, $name: String!, $scope: EnvVarScope!, $valu
             saveEnvironmentVariable(
                 entityId: $entityId
                 environmentVariable: {
-                    id: $id
-                    name: $name
-                    scope: 'PROJECT'
-                    value: $value
-                    description: $description
+                    id: $id,
+                    name: $name,
+                    scope: 'PROJECT',
+                    value: $value,
+                    description: $description,
                     isPassword:$isPassword
         
     }){
