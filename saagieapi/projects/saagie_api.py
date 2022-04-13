@@ -221,25 +221,23 @@ class SaagieApi:
         if name not in [env_var['name'] for env_var in existing_env_var]:
             raise ValueError("Environment variable does not exists")
         
-        current_env_var = [d for d in existing_env_var if d['name'] == name][0]
-
+        params = [d for d in existing_env_var if d['name'] == name][0]
+        
         if new_name:
-            current_env_var['name']=new_name
+            params['name']=new_name
         if value:
-            current_env_var['value']=value
+            params['value']=value
         if description:
-            current_env_var['description']=description
-        if is_password:
-            current_env_var['isPassword']=is_password
+            params['description']=description
+        if is_password == True:
+            params['isPassword']=is_password
+        elif is_password == False:
+            params['isPassword']=is_password
 
 
-        query = gql(gql_update_global_env_var.format(current_env_var['id'],
-                                                     current_env_var['name'], 
-                                                     current_env_var['value'],
-                                                     current_env_var['description'],
-                                                     str(current_env_var['isPassword']).lower()))
+        query = gql(gql_update_global_env_var)
 
-        return self.client.execute(query)
+        return self.client.execute(query, variable_values=params)
 
                                               
     def get_project_env_vars(self, project_id):
@@ -354,26 +352,23 @@ class SaagieApi:
         if name not in [env_var['name'] for env_var in existing_env_var]:
             raise ValueError("Environment variable does not exists")
         
-        current_env_var = [d for d in existing_env_var if d['name'] == name][0]
-
+        params = [d for d in existing_env_var if d['name'] == name][0]
+        
         if new_name:
-            current_env_var['name']=new_name
+            params['name']=new_name
         if value:
-            current_env_var['value']=value
+            params['value']=value
         if description:
-            current_env_var['description']=description
-        if is_password:
-            current_env_var['isPassword']=is_password
+            params['description']=description
+        if is_password == True:
+            params['isPassword']=is_password
+        elif is_password == False:
+            params['isPassword']=is_password
 
 
-        query = gql(gql_update_project_env_var.format(project_id,
-                                              current_env_var['id'],
-                                              current_env_var['name'], 
-                                              current_env_var['value'],
-                                              current_env_var['description'],
-                                              str(current_env_var['isPassword']).lower()))
+        query = gql(gql_update_project_env_var)
 
-        return self.client.execute(query)
+        return self.client.execute(query, variable_values=params)
 
 
     # ##########################################################

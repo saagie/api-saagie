@@ -34,19 +34,23 @@ gql_create_global_env_var = """
 
 
 gql_update_global_env_var = """
-   mutation {{
-     saveEnvironmentVariable(
-        environmentVariable: {{
-          id:"{0}",
-          name:"{1}",
-          scope:GLOBAL,
-          value:"{2}",
-          description:"{3}",
-          isPassword:{4}
-        }})
-        {{id}}
+mutation($id: UUID, $entityId: UUID, $name: String!, $scope: EnvVarScope!, $value: String, $description: String, 
+        $isPassword: Boolean!)  {
+            saveEnvironmentVariable(
+                entityId: $entityId
+                environmentVariable: {
+                    id: $id
+                    name: $name
+                    scope: 'GLOBAL'
+                    value: $value
+                    description: $description
+                    isPassword:$isPassword
+        
+    }){
+        id
     }}
 """
+
 
 gql_delete_env_var = """
   mutation {{
@@ -93,22 +97,23 @@ gql_create_project_env_var = """
 
 
 gql_update_project_env_var = """
-   mutation {{
-      saveEnvironmentVariable	(
-        entityId: "{0}",
-        environmentVariable: {{
-          id:"{1}",
-          name:"{2}",
-          scope:PROJECT,
-          value:"{3}",
-          description:"{4}",
-          isPassword:{5}
-        }}
-      ){{
+mutation($id: UUID, $entityId: UUID, $name: String!, $scope: EnvVarScope!, $value: String, $description: String, 
+        $isPassword: Boolean!)  {
+            saveEnvironmentVariable(
+                entityId: $entityId
+                environmentVariable: {
+                    id: $id
+                    name: $name
+                    scope: 'PROJECT'
+                    value: $value
+                    description: $description
+                    isPassword:$isPassword
+        
+    }){
         id
-      }}
-  }}
+    }}
 """
+
 
 #   ____ _           _
 #  / ___| |_   _ ___| |_ ___ _ __
