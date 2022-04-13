@@ -41,7 +41,7 @@ mutation($id: UUID, $entityId: UUID, $name: String!, $scope: EnvVarScope!, $valu
                 environmentVariable: {
                     id: $id
                     name: $name
-                    scope: GLOBAL
+                    scope: $scope
                     value: $value
                     description: $description
                     isPassword:$isPassword
@@ -104,7 +104,7 @@ mutation($id: UUID, $entityId: UUID, $name: String!, $scope: EnvVarScope!, $valu
                 environmentVariable: {
                     id: $id
                     name: $name
-                    scope: PROJECT
+                    scope: $scope
                     value: $value
                     description: $description
                     isPassword:$isPassword
