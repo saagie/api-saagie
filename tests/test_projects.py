@@ -51,6 +51,12 @@ class TestGQLTemplate:
         expected = None
         assert result == expected
 
+    def test_update_env_var(self):
+        query = gql(gql_update_env_var)
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
     def test_delete_env_var(self):
         env_var_id = '1234'
         query = gql(gql_delete_env_var.format(env_var_id))

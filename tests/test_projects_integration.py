@@ -243,10 +243,34 @@ class TestIntegrationProject:
                                           is_password=False)
 
         return name
+    
+    @pytest.fixture
+    def create_global_env_var_password(self):
+        # Disable urllib3 InsecureRequestsWarnings
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        name = 'TEST_VIA_API_PASSWORD'
+        value = 'VALUE_TEST_VIA_API_PASSWORD'
+        description = 'DESCRIPTION_TEST_VIA_API_PASSWORD'
+
+        self.saagie.create_global_env_var(name=name,
+                                          value=value,
+                                          description=description,
+                                          is_password=True)
+
+        return name
 
     @pytest.fixture
     def create_then_delete_global_env_var(self, create_global_env_var):
         name = create_global_env_var
+
+        yield name
+
+        self.saagie.delete_global_env_var(name)
+    
+    @pytest.fixture
+    def create_then_delete_global_env_var_password(self, create_global_env_var_password):
+        name = create_global_env_var_password
 
         yield name
 
@@ -268,6 +292,50 @@ class TestIntegrationProject:
         result = self.saagie.delete_global_env_var(name)
 
         assert result == {'deleteEnvironmentVariable': True}
+
+
+    def test_update_global_env_var(self, create_then_delete_global_env_var):
+        name = create_then_delete_global_env_var
+        env_var_input = {
+            'value': "newvalue",
+            'description': "new description",
+            'isPassword': False
+        }
+
+        self.saagie.update_global_env_var(name, 
+                                          value=env_var_input['value'], 
+                                          description=env_var_input['description'],
+                                          is_password=env_var_input['isPassword'])
+
+        env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==name][0]
+       
+
+        to_validate = {}
+        to_validate['value'] = env_var['value']
+        to_validate['description'] = env_var['description']
+        to_validate['isPassword'] = env_var['isPassword']
+
+        assert env_var_input == to_validate
+        
+    def test_update_global_env_var_password(self, create_then_delete_global_env_var_password):
+        name = create_then_delete_global_env_var_password
+        env_var_input = {
+            'description': "new description",
+            'isPassword': True
+        }
+
+        self.saagie.update_global_env_var(name, 
+                                          description=env_var_input['description'],
+                                          is_password=env_var_input['isPassword'])
+
+        env_var = [env_var for env_var in self.saagie.get_global_env_vars()['globalEnvironmentVariables'] if env_var['name']==name][0]
+       
+        to_validate = {}
+        to_validate['description'] = env_var['description']
+        to_validate['isPassword'] = env_var['isPassword']
+
+        assert env_var_input == to_validate
+
 
     @pytest.fixture
     def create_project_env_var(self):
@@ -311,7 +379,31 @@ class TestIntegrationProject:
         result = self.saagie.delete_project_env_var(self.project_id, name)
 
         assert result == {'deleteEnvironmentVariable': True}
-    
+
+
+    def test_update_project_env_var(self, create_then_delete_project_env_var):
+        name = create_then_delete_project_env_var
+        env_var_input = {
+            'value': 'newvalue',
+            'description': 'new description',
+            'isPassword': False
+        }
+
+        self.saagie.update_project_env_var(self.project_id,
+                                          name, 
+                                          value=env_var_input['value'], 
+                                          description=env_var_input['description'],
+                                          is_password=env_var_input['isPassword'])
+
+        env_var = [env_var for env_var in self.saagie.get_project_env_vars(self.project_id)['projectEnvironmentVariables'] if env_var['name']==name][0]
+        to_validate = {}
+        to_validate['value'] = env_var['value']
+        to_validate['description'] = env_var['description']
+        to_validate['isPassword'] = env_var['isPassword']
+
+        assert env_var_input == to_validate
+
+
     @pytest.fixture
     def create_graph_pipeline(self, create_job):
         job_id = create_job

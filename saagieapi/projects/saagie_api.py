@@ -4,6 +4,7 @@ Projects & Jobs - to interact with the manager API, see the manager subpackage)
 
 """
 import logging
+from this import d
 import time
 import re
 import pytz
@@ -194,6 +195,53 @@ class SaagieApi:
         query = gql(gql_delete_env_var.format(global_env_id))
         return self.client.execute(query)
 
+
+    def update_global_env_var(self, name, new_name=None, value=None, description=None, is_password=None):
+        """
+        Update environment variable with provided function vairables if it exists
+        Parameters
+        ----------
+        name : str
+            Name of the environment to upgrade
+        new_name : str, optional
+            New name of the environment variable. If none provided, keep the actual one
+        value: str, optional
+            New value of the environment variable. If none provided, keep the actual one
+        description; str, optional
+            New description of the environment variable. If none provided, keep the actual one           
+        is_password: boolean, optional
+            New password boolean status. If none provided, keep the actual one
+        Returns
+        -------
+        Dict containing the id of the updated environment variable
+        """   
+
+        existing_env_var = self.get_global_env_vars()['globalEnvironmentVariables']
+     
+        if name not in [env_var['name'] for env_var in existing_env_var]:
+            raise ValueError("Environment variable does not exists")
+        
+        params = [d for d in existing_env_var if d['name'] == name][0]
+        
+        if params['isPassword'] == True:
+            params.pop('value')
+        if new_name:
+            params['name']=new_name
+        if value:
+            params['value']=value
+        if description:
+            params['description']=description
+        if is_password == True:
+            params['isPassword']=is_password
+        elif is_password == False:
+            params['isPassword']=is_password
+
+
+        query = gql(gql_update_env_var)
+
+        return self.client.execute(query, variable_values=params)
+
+                                              
     def get_project_env_vars(self, project_id):
         """Get project environment variables
         NB: You can only list environment variables if you have at least the
@@ -277,6 +325,55 @@ class SaagieApi:
 
         query = gql(gql_delete_env_var.format(project_env_id))
         return self.client.execute(query)
+
+
+    def update_project_env_var(self, project_id, name, new_name=None, value=None, description=None, is_password=None):
+        """
+        Update environment variable with provided function vairables if it exists
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        name : str
+            Name of the environment to upgrade
+        new_name : str, optional
+            New name of the environment variable. If none provided, keep the actual one
+        value: str, optional
+            New value of the environment variable. If none provided, keep the actual one
+        description; str, optional
+            New description of the environment variable. If none provided, keep the actual one           
+        is_password: boolean, optional
+            New password boolean status. If none provided, keep the actual one
+        Returns
+        -------
+        Dict containing the id of the updated environment variable
+        """   
+
+        existing_env_var = self.get_project_env_vars(project_id)['projectEnvironmentVariables']
+     
+        if name not in [env_var['name'] for env_var in existing_env_var]:
+            raise ValueError("Environment variable does not exists")
+        
+        params = [d for d in existing_env_var if d['name'] == name][0]
+        params["entityId"] = project_id
+        if params['isPassword']==True:
+            params.pop('value')
+        if new_name:
+            params['name']=new_name
+        if value:
+            params['value']=value
+        if description:
+            params['description']=description
+        if is_password == True:
+            params['isPassword']=is_password
+        elif is_password == False:
+            params['isPassword']=is_password
+
+
+        query = gql(gql_update_env_var)
+
+        return self.client.execute(query, variable_values=params)
+
 
     # ##########################################################
     # ###                    cluster                        ####
@@ -1862,3 +1959,7 @@ class SaagieApi:
         credential_id = self.get_docker_credentials_info_by_name(project_id, username, registry)["id"]
         params = {"id": credential_id, "projectId": project_id}
         return self.client.execute(gql(gql_delete_docker_credentials), variable_values=params)
+
+
+
+
