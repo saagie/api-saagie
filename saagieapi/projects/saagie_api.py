@@ -213,7 +213,7 @@ class SaagieApi:
             New password boolean status. If none provided, keep the actual one
         Returns
         -------
-        None
+        Dict containing the id of the updated environment variable
         """   
 
         existing_env_var = self.get_global_env_vars()['globalEnvironmentVariables']
@@ -223,6 +223,8 @@ class SaagieApi:
         
         params = [d for d in existing_env_var if d['name'] == name][0]
         
+        if params['isPassword'] == True:
+            params.pop('value')
         if new_name:
             params['name']=new_name
         if value:
@@ -235,7 +237,7 @@ class SaagieApi:
             params['isPassword']=is_password
 
 
-        query = gql(gql_update_global_env_var)
+        query = gql(gql_update_env_var)
 
         return self.client.execute(query, variable_values=params)
 
@@ -344,7 +346,7 @@ class SaagieApi:
             New password boolean status. If none provided, keep the actual one
         Returns
         -------
-        None
+        Dict containing the id of the updated environment variable
         """   
 
         existing_env_var = self.get_project_env_vars(project_id)['projectEnvironmentVariables']
@@ -353,7 +355,9 @@ class SaagieApi:
             raise ValueError("Environment variable does not exists")
         
         params = [d for d in existing_env_var if d['name'] == name][0]
-        
+        params["entityId"] = project_id
+        if params['isPassword']==True:
+            params.pop('value')
         if new_name:
             params['name']=new_name
         if value:
@@ -366,7 +370,7 @@ class SaagieApi:
             params['isPassword']=is_password
 
 
-        query = gql(gql_update_project_env_var)
+        query = gql(gql_update_env_var)
 
         return self.client.execute(query, variable_values=params)
 
