@@ -1,6 +1,6 @@
 from gql import gql
-from test_gql_template import TestGQLTemplate
-from env_vars.gql_queries import *
+from saagie_api_unit_test import create_gql_client
+from saagieapi.env_vars.gql_queries import *
 
 import os
 import sys
@@ -10,7 +10,10 @@ sys.path.append("..")
 sys.path.append(dir_path + '/..')
 
 
-class TestEnvVars(TestGQLTemplate):
+class TestEnvVars:
+
+    def setup_method(self):
+        self.client = create_gql_client()
 
     def test_get_global_env_vars(self):
         query = gql(gql_get_global_env_vars)

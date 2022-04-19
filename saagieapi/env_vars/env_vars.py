@@ -1,7 +1,6 @@
 from gql import gql
 
 from .gql_queries import *
-from this import d
 
 
 class EnvVars:

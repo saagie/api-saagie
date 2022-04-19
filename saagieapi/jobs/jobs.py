@@ -38,22 +38,6 @@ class Jobs:
         query = gql(gql_get_project_jobs.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
-    def get_by_id(self, job_id):
-        """Get the given job information (return null if it doesn't exist).
-
-        Parameters
-        ----------
-        job_id : str
-            UUID of your job (see README on how to find it)
-
-        Returns
-        -------
-        dict
-            Dict of job information
-        """
-        query = gql(gql_get_project_job.format(job_id))
-        return self.client.execute(query)
-
     def get_instance(self, job_instance_id):
         """Get the given job instance
 
@@ -86,8 +70,8 @@ class Jobs:
             Job UUID
 
         """
-        project_id = self.saagie_api.get_project_id(project_name)
-        jobs = self.saagie_api.get_project_jobs(project_id, instances_limit=1)["jobs"]
+        project_id = self.saagie_api.projects.get_id(project_name)
+        jobs = self.saagie_api.jobs.list_for_project(project_id, instances_limit=1)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         if job:
             return job[0]["id"]
@@ -180,7 +164,7 @@ class Jobs:
             "projectId": project_id, "name": job_name, "description": description, "category": category,
             "releaseNote": release_note, "runtimeVersion": runtime_version, "commandLine": command_line}
 
-        technologies_for_project = self.saagie_api.get_project_technologies(project_id)['technologiesByCategory']
+        technologies_for_project = self.saagie_api.projects.get_technologies(project_id)['technologiesByCategory']
         technologies_for_project_and_category = [
             tech['id'] for tech in
             [

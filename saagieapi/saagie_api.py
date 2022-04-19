@@ -8,17 +8,17 @@ from gql import gql
 from gql import Client
 from gql.transport.requests import RequestsHTTPTransport
 
-from gql_queries import *
+from .gql_queries import *
 
 import deprecation
 
 import requests
-from jobs import Jobs
-from pipelines import Pipelines
-from projects import Projects
-from env_vars import EnvVars
-from apps import Apps
-from docker_credentials import DockerCredentials
+from .jobs import Jobs
+from .pipelines import Pipelines
+from .projects import Projects
+from .env_vars import EnvVars
+from .apps import Apps
+from .docker_credentials import DockerCredentials
 
 
 class BearerAuth(requests.auth.AuthBase):

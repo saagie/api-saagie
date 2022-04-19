@@ -44,52 +44,6 @@ gql_get_project_jobs = """
   }}
   """
 
-gql_get_project_job = """
-  {{
-    job(id: "{0}"){{
-      id,
-      name,
-      description,
-      alerting{{
-        emails,
-        loginEmails{{
-          login,
-          email
-        }},
-        statusList
-      }},
-      countJobInstance,
-      instances{{
-        id,
-        status,
-        startTime,
-        endTime
-      }},
-      versions {{
-        releaseNote
-        runtimeVersion
-        commandLine
-        isMajor
-      }},
-      category,
-      technology {{
-        id
-      }},
-      isScheduled,
-      cronScheduling,
-      scheduleStatus,
-      isStreaming,
-      creationDate,
-      migrationStatus,
-      migrationProjectId,
-      isDeletable,
-      pipelines {{
-        id
-      }}
-    }}
-  }}
-  """
-
 gql_get_job_instance = """
   query{{
     jobInstance(id: "{0}"){{
@@ -225,6 +179,7 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
 }}
 """
 
+#TODO check usage because it is huge
 gql_get_info_job = """query {{
   job(id:"{0}"){{
     id,
@@ -237,6 +192,7 @@ gql_get_info_job = """query {{
     scheduleTimezone,
     isStreaming,
     isDeletable,
+    countJobInstance,
     graphPipelines(isCurrent: true){{
       id
     }},
@@ -244,10 +200,20 @@ gql_get_info_job = """query {{
     technology{{
       id
     }},
+    pipelines {{
+        id
+      }},
+    versions {{
+        releaseNote
+        runtimeVersion
+        commandLine
+        isMajor
+      }},
     alerting{{
       emails,
       statusList,
       loginEmails{{
+        login,
         email
       }}
     }},
