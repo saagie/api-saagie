@@ -1,6 +1,7 @@
 from gql import gql
 
 from .gql_queries import *
+from this import d
 
 
 class EnvVars:
@@ -48,6 +49,50 @@ class EnvVars:
                                                      description,
                                                      str(is_password).lower()))
         return self.client.execute(query)
+
+    def update_global(self, name, new_name=None, value=None, description=None, is_password=None):
+        """
+        Update environment variable with provided function vairables if it exists
+        Parameters
+        ----------
+        name : str
+            Name of the environment to upgrade
+        new_name : str, optional
+            New name of the environment variable. If none provided, keep the actual one
+        value: str, optional
+            New value of the environment variable. If none provided, keep the actual one
+        description; str, optional
+            New description of the environment variable. If none provided, keep the actual one
+        is_password: boolean, optional
+            New password boolean status. If none provided, keep the actual one
+        Returns
+        -------
+        Dict containing the id of the updated environment variable
+        """
+
+        existing_env_var = self.list_globals()['globalEnvironmentVariables']
+
+        if name not in [env_var['name'] for env_var in existing_env_var]:
+            raise ValueError("Environment variable does not exists")
+
+        params = [d for d in existing_env_var if d['name'] == name][0]
+
+        if params['isPassword'] == True:
+            params.pop('value')
+        if new_name:
+            params['name'] = new_name
+        if value:
+            params['value'] = value
+        if description:
+            params['description'] = description
+        if is_password == True:
+            params['isPassword'] = is_password
+        elif is_password == False:
+            params['isPassword'] = is_password
+
+        query = gql(gql_update_env_var)
+
+        return self.client.execute(query, variable_values=params)
 
     def delete_global(self, name):
         """Delete the given global environment variable
@@ -128,6 +173,52 @@ class EnvVars:
             str(is_password).lower()
         ))
         return self.client.execute(query)
+
+    def update_for_project(self, project_id, name, new_name=None, value=None, description=None, is_password=None):
+        """
+        Update environment variable with provided function vairables if it exists
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        name : str
+            Name of the environment to upgrade
+        new_name : str, optional
+            New name of the environment variable. If none provided, keep the actual one
+        value: str, optional
+            New value of the environment variable. If none provided, keep the actual one
+        description; str, optional
+            New description of the environment variable. If none provided, keep the actual one
+        is_password: boolean, optional
+            New password boolean status. If none provided, keep the actual one
+        Returns
+        -------
+        Dict containing the id of the updated environment variable
+        """
+
+        existing_env_var = self.list_for_project(project_id)['projectEnvironmentVariables']
+
+        if name not in [env_var['name'] for env_var in existing_env_var]:
+            raise ValueError("Environment variable does not exists")
+
+        params = [d for d in existing_env_var if d['name'] == name][0]
+        params["entityId"] = project_id
+        if params['isPassword'] == True:
+            params.pop('value')
+        if new_name:
+            params['name'] = new_name
+        if value:
+            params['value'] = value
+        if description:
+            params['description'] = description
+        if is_password == True:
+            params['isPassword'] = is_password
+        elif is_password == False:
+            params['isPassword'] = is_password
+
+        query = gql(gql_update_env_var)
+
+        return self.client.execute(query, variable_values=params)
 
     def delete_for_project(self, project_id, name):
         """Delete a given environment variable inside a given project

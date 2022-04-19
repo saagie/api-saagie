@@ -159,7 +159,7 @@ class SaagieApi:
         """Get information for cluster (cpu, gpu, memory)
         """
         query = gql(gql_get_cluster_info)
-        return self.client_gateway.execute(query)
+        return self.client.execute(query)
 
     # ##########################################################
     # ###                    repositories                   ####
@@ -192,7 +192,7 @@ class SaagieApi:
 
         """
         query = gql_get_runtimes.format(technology_id)
-        return self.client_gateway.execute(gql(query))
+        return self.client_gateway.execute(gql(query), variable_values={"id": technology_id})
 
     # ######################################################
     # ###                    jobs                   ####

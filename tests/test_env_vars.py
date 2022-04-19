@@ -12,9 +12,6 @@ sys.path.append(dir_path + '/..')
 
 class TestEnvVars(TestGQLTemplate):
 
-    def setup_method(self):
-        self.client = super().__init__().client
-
     def test_get_global_env_vars(self):
         query = gql(gql_get_global_env_vars)
         result = self.client.validate(query)
@@ -58,6 +55,12 @@ class TestEnvVars(TestGQLTemplate):
             value, description,
             str(is_password).lower()
         ))
+        result = self.client.validate(query)
+        expected = None
+        assert result == expected
+
+    def test_update_env_var(self):
+        query = gql(gql_update_env_var)
         result = self.client.validate(query)
         expected = None
         assert result == expected

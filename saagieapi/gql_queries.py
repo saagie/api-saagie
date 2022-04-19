@@ -37,9 +37,42 @@ gql_get_repositories_info = """
   }
 """
 
-gql_get_runtimes = """{{technology(id: "{0}"){{
-  __typename 
-  ... on JobTechnology {{contexts{{label}}}}
-  ... on SparkTechnology {{contexts{{label}}}}
-  }}}}
-"""
+gql_get_runtimes = """
+query technologyQuery($id: UUID!){
+    technology(id: $id){ 
+        __typename 
+        ... on JobTechnology {contexts{label}}
+        ... on SparkTechnology {contexts{label}}
+        ... on AppTechnology{
+            id
+            label
+            appContexts{
+                id
+                available
+                deprecationDate
+                description
+                dockerInfo {
+                    image
+                    version
+                }
+                facets
+                label
+                lastUpdate
+                ports {
+                    basePath
+                    name
+                    port
+                    rewriteUrl
+                    scope
+                }
+                missingFacets
+                recommended
+                trustLevel
+                volumes{
+                    path
+                    size
+                }
+            }
+        }
+    }
+}"""
