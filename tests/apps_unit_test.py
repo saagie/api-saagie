@@ -1,6 +1,7 @@
 from gql import gql
 from saagie_api_unit_test import create_gql_client
 from saagieapi.apps.gql_queries import *
+from saagieapi.apps.apps import Apps
 
 import os
 import sys
@@ -33,8 +34,32 @@ class TestApps:
         expected = None
         assert result == expected
 
-    def edit_app(self):
+    def test_edit_app(self):
         query = gql(gql_edit_app)
         result = self.client.validate(query)
         expected = None
         assert result == expected
+
+    def test_check_exposed_ports(self):
+        valid_exposed_ports = [
+            {
+                "port": "80",
+                "basePathVariableName": "youpi",
+                "isRewriteUrl": "false",
+                "isAuthenticationRequired": "true"
+            }
+        ]
+
+        invalid_exposed_ports = [
+            {
+                "ports": "80",
+                "basePathVariableName": "youpi",
+                "isRewriteUrl": "false",
+                "isAuthenticationRequired": "true"
+            }
+        ]
+        result_valid = Apps.check_exposed_ports(valid_exposed_ports)
+        result_invalid = Apps.check_exposed_ports(invalid_exposed_ports)
+
+        assert result_valid == True
+        assert result_invalid == False

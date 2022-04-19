@@ -9,8 +9,6 @@ class Apps:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
         self.valid_status_list = saagie_api.valid_status_list
-        self.list_exposed_ports_field = ["basePathVariableName", "isRewriteUrl",
-                                         "isAuthenticationRequired", "port", "name"]
 
     def list_for_project(self, project_id):
         """List apps of project.
@@ -100,7 +98,7 @@ class Apps:
             "exposedPorts": exposed_ports,
             "storagePaths": storage_paths,
         }
-        check_fomat_exposed_port = self.__check_exposed_ports(exposed_ports, self.list_exposed_ports_field)
+        check_fomat_exposed_port = self.check_exposed_ports(exposed_ports)
         if not check_fomat_exposed_port:
             raise ValueError(
                 f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
@@ -218,7 +216,7 @@ class Apps:
         return self.client.execute(query, variable_values=params)
 
     @staticmethod
-    def __check_exposed_ports(exposed_ports, list_exposed_port_field):
+    def check_exposed_ports(exposed_ports):
         """
         Check
         Parameters
@@ -226,14 +224,14 @@ class Apps:
         exposed_ports : list
             List of exposed ports, each item of the list should be a dict
             and each dict should have 'port' as key
-        list_exposed_port_field : list
-            List of valid field of each exposed port
         Returns
         -------
         bool
             True if all exposed port is in the validate format
             Otherwise False
         """
+        list_exposed_port_field = ["basePathVariableName", "isRewriteUrl",
+                                   "isAuthenticationRequired", "port", "name"]
         if type(exposed_ports) != list:
             return False
         else:
