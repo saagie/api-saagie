@@ -1,3 +1,12 @@
+gql_list_jobs_for_project_light = """
+  {{
+    jobs(projectId: "{0}"){{
+      id,
+      name
+    }}
+  }}
+  """
+
 gql_list_jobs_for_project = """
   {{
     jobs(projectId: "{0}"){{

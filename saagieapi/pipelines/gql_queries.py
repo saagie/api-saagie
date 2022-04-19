@@ -1,3 +1,13 @@
+gql_list_pipelines_for_project_light = """
+  query{{
+    project(id: "{0}"){{
+      pipelines{{
+        id,
+        name
+  }}}}
+  """
+
+
 gql_list_pipelines_for_project = """
   query{{
     project(id: "{0}"){{

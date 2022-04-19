@@ -34,6 +34,22 @@ class Pipelines:
         query = gql(gql_list_pipelines_for_project.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
+    def list_for_project_light(self, project_id):
+        """List pipelines ids and names of project
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+
+        Returns
+        -------
+        Dict
+            Dict of pipelines ids and names
+        """
+        query = gql(gql_list_pipelines_for_project_light.format(project_id))
+        return self.client.execute(query)
+
     def get_id(self, pipeline_name, project_name):
         """Get the pipeline id with the pipeline name and project name
         Parameters
