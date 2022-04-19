@@ -11,7 +11,6 @@ from gql.transport.requests import RequestsHTTPTransport
 from .gql_queries import *
 
 import deprecation
-
 import requests
 from .jobs import Jobs
 from .pipelines import Pipelines

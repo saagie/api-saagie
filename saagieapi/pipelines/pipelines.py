@@ -1,3 +1,4 @@
+import logging
 import time
 import pytz
 from croniter import croniter
@@ -390,7 +391,7 @@ class Pipelines:
             pipeline_instance_info = self.client.execute(query)
             state = pipeline_instance_info.get("pipelineInstance") \
                 .get("status")
-            print('Current state : ' + state)
+            logging.info('Current state : ' + state)
         return state
 
     def stop(self, pipeline_instance_id):

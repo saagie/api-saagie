@@ -525,7 +525,7 @@ class Jobs:
             sec += freq
             job_instance_info = self.client.execute(query)
             state = job_instance_info.get("jobInstance").get("status")
-            print('Current state : ' + state)
+            logging.info(f'Job id {job_id} with instance {job_instance_id} is currently : ' + state)
         return state
 
     def stop(self, job_instance_id):
