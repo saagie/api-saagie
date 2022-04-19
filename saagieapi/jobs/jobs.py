@@ -38,7 +38,7 @@ class Jobs:
         query = gql(gql_list_jobs_for_project.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
-    def list_for_project_light(self, project_id):
+    def list_for_project_minimal(self, project_id):
         """List only job names and ids in the given project .
         NB: You can only list jobs if you have at least the viewer role on the
         project
@@ -53,7 +53,7 @@ class Jobs:
         dict
             Dict of jobs ids and names
         """
-        query = gql(gql_list_jobs_for_project_light.format(project_id))
+        query = gql(gql_list_jobs_for_project_minimal.format(project_id))
         return self.client.execute(query)
 
     def get_instance(self, job_instance_id):
@@ -89,7 +89,7 @@ class Jobs:
 
         """
         project_id = self.saagie_api.projects.get_id(project_name)
-        jobs = self.saagie_api.jobs.list_for_project_light(project_id)["jobs"]
+        jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         if job:
             return job[0]["id"]

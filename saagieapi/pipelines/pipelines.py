@@ -34,7 +34,7 @@ class Pipelines:
         query = gql(gql_list_pipelines_for_project.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
-    def list_for_project_light(self, project_id):
+    def list_for_project_minimal(self, project_id):
         """List pipelines ids and names of project
 
         Parameters
@@ -47,7 +47,7 @@ class Pipelines:
         Dict
             Dict of pipelines ids and names
         """
-        query = gql(gql_list_pipelines_for_project_light.format(project_id))
+        query = gql(gql_list_pipelines_for_project_minimal.format(project_id))
         return self.client.execute(query)
 
     def get_id(self, pipeline_name, project_name):

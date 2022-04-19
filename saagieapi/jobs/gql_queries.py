@@ -1,4 +1,4 @@
-gql_list_jobs_for_project_light = """
+gql_list_jobs_for_project_minimal = """
   {{
     jobs(projectId: "{0}"){{
       id,

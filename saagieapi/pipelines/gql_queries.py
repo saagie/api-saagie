@@ -1,4 +1,4 @@
-gql_list_pipelines_for_project_light = """
+gql_list_pipelines_for_project_minimal = """
   query{{
     project(id: "{0}"){{
       pipelines{{
