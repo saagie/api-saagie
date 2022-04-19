@@ -19,7 +19,7 @@ class EnvVars:
         dict
             Dict of global environment variable on the platform
         """
-        query = gql(gql_get_global_env_vars)
+        query = gql(gql_list_global_env_vars)
         return self.client.execute(query)
 
     def create_global(self, name, value,
@@ -139,7 +139,7 @@ class EnvVars:
         dict
             Dict of project environment variables
         """
-        query = gql(gql_get_project_env_vars.format(project_id))
+        query = gql(gql_list_project_env_vars.format(project_id))
         return self.client.execute(query)
 
     def create_for_project(self, project_id, name, value,

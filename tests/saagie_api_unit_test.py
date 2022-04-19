@@ -28,19 +28,11 @@ class TestGQLTemplate:
     def setup_method(self):
         self.client = create_gql_client()
 
-    # ##########################################################
-    # ###                    cluster                        ####
-    # ##########################################################
-
     def test_get_cluster_capacity(self):
         query = gql(gql_get_cluster_info)
         result = self.client.validate(query)
         expected = None
         assert result == expected
-
-    # ##########################################################
-    # ###                    techno                         ####
-    # ##########################################################
 
     # Schema is included in gateway schema
     # def test_get_runtimes(self):

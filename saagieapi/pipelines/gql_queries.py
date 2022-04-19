@@ -1,4 +1,4 @@
-gql_get_pipelines = """
+gql_list_pipelines_for_project = """
   query{{
     project(id: "{0}"){{
       pipelines{{

@@ -15,10 +15,10 @@ class TestPipelines:
     def setup_method(self):
         self.client = create_gql_client()
 
-    def test_get_pipelines(self):
+    def test_list_pipelines(self):
         project_id = "1234"
         instances_limit = " (limit: 1)"
-        query = gql(gql_get_pipelines.format(project_id, instances_limit))
+        query = gql(gql_list_pipelines_for_project.format(project_id, instances_limit))
         result = self.client.validate(query)
         expected = None
         assert result == expected

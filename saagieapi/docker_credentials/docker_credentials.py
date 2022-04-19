@@ -9,10 +9,6 @@ class DockerCredentials:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-        # ######################################################
-        # ###               Docker Credentials              ####
-        # ######################################################
-
     def list_for_project(self, project_id):
         """
         Get all saved docker credentials for a specific project

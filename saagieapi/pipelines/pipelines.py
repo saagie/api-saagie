@@ -31,7 +31,7 @@ class Pipelines:
             Dict of pipelines information
         """
         instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
-        query = gql(gql_get_pipelines.format(project_id, instances_limit_request))
+        query = gql(gql_list_pipelines_for_project.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
     def get_id(self, pipeline_name, project_name):

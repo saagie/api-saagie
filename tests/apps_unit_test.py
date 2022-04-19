@@ -16,14 +16,14 @@ class TestApps:
     def setup_method(self):
         self.client = create_gql_client()
 
-    def test_get_project_apps(self):
-        query = gql(gql_get_project_apps)
+    def test_list_apps_for_project(self):
+        query = gql(gql_list_apps_for_project)
         result = self.client.validate(query)
         expected = None
         assert result == expected
 
-    def test_get_project_app(self):
-        query = gql(gql_get_project_app)
+    def test_get_app_info(self):
+        query = gql(gql_get_app_info)
         result = self.client.validate(query)
         expected = None
         assert result == expected
@@ -61,5 +61,5 @@ class TestApps:
         result_valid = Apps.check_exposed_ports(valid_exposed_ports)
         result_invalid = Apps.check_exposed_ports(invalid_exposed_ports)
 
-        assert result_valid == True
-        assert result_invalid == False
+        assert result_valid is True
+        assert result_invalid is False

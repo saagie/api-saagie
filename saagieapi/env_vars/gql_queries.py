@@ -1,4 +1,4 @@
-gql_get_global_env_vars = """
+gql_list_global_env_vars = """
   {
     globalEnvironmentVariables{
       id,
@@ -53,7 +53,7 @@ gql_delete_env_var = """
   }}
 """
 
-gql_get_project_env_vars = """
+gql_list_project_env_vars = """
   {{
     projectEnvironmentVariables(projectId: "{0}"){{
       id,

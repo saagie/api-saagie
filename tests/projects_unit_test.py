@@ -15,8 +15,8 @@ class TestProjects:
     def setup_method(self):
         self.client = create_gql_client()
 
-    def test_get_projects_info(self):
-        query = gql(gql_get_projects_info)
+    def test_list_projects(self):
+        query = gql(gql_list_projects)
         result = self.client.validate(query)
         expected = None
         assert result == expected

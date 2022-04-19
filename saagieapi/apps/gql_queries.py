@@ -1,4 +1,4 @@
-gql_get_project_apps = """
+gql_list_apps_for_project = """
 query labWebAppQuery($id: UUID!){
     labWebApps(projectId: $id){ 
       id
@@ -59,7 +59,7 @@ query labWebAppQuery($id: UUID!){
 }
 """
 
-gql_get_project_app = """
+gql_get_app_info = """
 query labWebAppQuery($id: UUID!){
     labWebApp(id: $id){ 
       id

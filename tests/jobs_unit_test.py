@@ -29,17 +29,17 @@ class TestJobs:
         expected = None
         assert result == expected
 
-    def test_get_project_jobs(self):
+    def test_list_project_jobs(self):
         project_id = "1234"
         instances_limit = " (limit: 3)"
-        query = gql(gql_get_project_jobs.format(project_id, instances_limit))
+        query = gql(gql_list_jobs_for_project.format(project_id, instances_limit))
         result = self.client.validate(query)
         expected = None
         assert result == expected
 
     def test_gql_get_info_job(self):
         job_id = "1234"
-        query = gql(gql_get_info_job.format(job_id))
+        query = gql(gql_get_job_info.format(job_id))
         result = self.client.validate(query)
         expected = None
         assert result == expected

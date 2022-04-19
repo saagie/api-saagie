@@ -35,7 +35,7 @@ class Jobs:
             Dict of jobs information
         """
         instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
-        query = gql(gql_get_project_jobs.format(project_id, instances_limit_request))
+        query = gql(gql_list_jobs_for_project.format(project_id, instances_limit_request))
         return self.client.execute(query)
 
     def get_instance(self, job_instance_id):
@@ -92,7 +92,7 @@ class Jobs:
             Dict of job's info
 
         """
-        query = gql_get_info_job.format(job_id)
+        query = gql_get_job_info.format(job_id)
         return self.client.execute(gql(query))
 
     def create(self, job_name, project_id, file=None, description='',

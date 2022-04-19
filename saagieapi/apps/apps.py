@@ -23,7 +23,7 @@ class Apps:
         dict
             Dict of app information
         """
-        query = gql(gql_get_project_apps)
+        query = gql(gql_list_apps_for_project)
         return self.client.execute(query, variable_values={"id": project_id})
 
     def get_info(self, app_id):
@@ -37,7 +37,7 @@ class Apps:
         dict
             Dict of app information
         """
-        query = gql(gql_get_project_app)
+        query = gql(gql_get_app_info)
         return self.client.execute(query, variable_values={"id": app_id})
 
     def create(self, project_id, app_name, image, description='', technology_catalog='Saagie',
@@ -173,7 +173,7 @@ class Apps:
             Dict of app information
         """
         params = {"id": app_id}
-        previous_app_version = self.get_project_app(app_id)["labWebApp"]
+        previous_app_version = self.get_info(app_id)["labWebApp"]
 
         if app_name:
             params["name"] = app_name

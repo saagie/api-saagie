@@ -15,8 +15,8 @@ class TestEnvVars:
     def setup_method(self):
         self.client = create_gql_client()
 
-    def test_get_global_env_vars(self):
-        query = gql(gql_get_global_env_vars)
+    def test_list_global_env_vars(self):
+        query = gql(gql_list_global_env_vars)
         result = self.client.validate(query)
         expected = None
         assert result == expected
@@ -39,9 +39,9 @@ class TestEnvVars:
         expected = None
         assert result == expected
 
-    def test_get_project_env_vars(self):
+    def test_list_project_env_vars(self):
         project_id = "1234"
-        query = gql(gql_get_project_env_vars.format(project_id))
+        query = gql(gql_list_project_env_vars.format(project_id))
         result = self.client.validate(query)
         expected = None
         assert result == expected

@@ -19,7 +19,7 @@ class Projects:
         dict
             Dict of projects information
         """
-        query = gql(gql_get_projects_info)
+        query = gql(gql_list_projects)
         return self.client.execute(query)
 
     def get_id(self, project_name):

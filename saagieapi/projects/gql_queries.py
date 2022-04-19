@@ -1,4 +1,4 @@
-gql_get_projects_info = """
+gql_list_projects = """
   {
        projects{
           id,
