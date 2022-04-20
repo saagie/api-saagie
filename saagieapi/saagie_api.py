@@ -1,7 +1,3 @@
-"""
-Saagie API object to interact with Saagie API in Python
-
-"""
 import re
 
 from gql import gql
@@ -50,9 +46,7 @@ class BearerAuth(requests.auth.AuthBase):
 
 
 class SaagieApi:
-    """Define several methods to interact with Saagie API in Python (API for
-    Projects & Jobs - to interact with the manager API, see the manager
-    subpackage)
+    """Define several methods to interact with Saagie API in Python
     """
 
     def __init__(self, url_saagie, id_platform, user, password, realm, retries=0):
