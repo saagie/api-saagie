@@ -41,7 +41,7 @@ class Apps:
         return self.client.execute(query, variable_values={"id": app_id})
 
     def create(self, project_id, app_name, image, description='', technology_catalog='Saagie',
-               technology="Docker image", docker_credentials_id=None, exposed_ports=[], storage_paths=[],
+               technology="Docker image", docker_credentials_id=None, exposed_ports=None, storage_paths=None,
                storage_size_in_mb=128, release_note='', emails=None, status_list=["FAILED"]):
         """Create an app in a specific project
         Parameters
@@ -88,6 +88,10 @@ class Apps:
             Dict of app information
         """
 
+        if storage_paths is None:
+            storage_paths = []
+        if exposed_ports is None:
+            exposed_ports = []
         params = {
             "projectId": project_id,
             "name": app_name,

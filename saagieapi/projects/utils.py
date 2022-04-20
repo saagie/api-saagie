@@ -22,7 +22,8 @@ def check_exposed_ports(exposed_ports, list_exposed_port_field):
             if check_type:
                 check_port = all(["port" in ep.keys() for ep in exposed_ports])
                 if check_port:
-                    check_every_key = all([all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports])
+                    check_every_key = all(
+                        [all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports])
                     if check_every_key:
                         return True
                     else:

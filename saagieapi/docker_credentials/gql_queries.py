@@ -15,7 +15,8 @@ mutation createDockerCredentialsMutation($registry: String, $username: String!, 
 """
 
 gql_upgrade_docker_credentials = """
-mutation updateDockerCredentialsMutation($id: UUID!, $registry: String, $username: String, $password: String!, $projectId: UUID!) {
+mutation updateDockerCredentialsMutation($id: UUID!, $registry: String, 
+                    $username: String, $password: String!, $projectId: UUID!) {
     updateDockerCredentials(
         dockerCredentialsUpdate: {
             id: $id

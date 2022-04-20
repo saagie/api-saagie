@@ -62,7 +62,7 @@ class Projects:
         return self.client.execute(query)
 
     def get_technologies(self, project_id):
-        """List available technologies (Id and label) for the project
+        """List available technologies (id and label) for the project
 
         Parameters
         ----------

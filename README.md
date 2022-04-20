@@ -13,9 +13,8 @@
 [contributors]: https://github.com/saagie/api-saagie/graphs/contributors
 
 - [Presentation](#presentation)
-- [Installation](#installation)
+- [Installation](#installing)
 - [Usage](#usage)
-    * [Projects](#projects)
 - [Contributing](#contributing)
 
 ## Presentation
@@ -83,6 +82,7 @@ There are 2 options to connect to your platform :
 
 1. using the default constructor : 
 ```python
+from saagieapi import *
 saagie = SaagieApi(url_saagie="<url>",
                    id_platform="1",
                    user="<saagie-user-name>",
@@ -96,6 +96,7 @@ saagie = SaagieApi(url_saagie="<url>",
         parse it in order to retrieve the platform URL, platform id and the 
         realm.
 ```python
+from saagieapi import *
 saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
                    user="<saagie-user-name>",
                    password="<saagie-user-password>")

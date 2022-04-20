@@ -188,7 +188,6 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
 }}
 """
 
-#TODO check usage because it is huge
 gql_get_job_info = """query {{
   job(id:"{0}"){{
     id,

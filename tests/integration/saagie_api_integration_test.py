@@ -13,11 +13,11 @@ sys.path.append("../..")
 sys.path.append(dir_path + '/..')
 
 
-class TestIntegrationProjectCreationAndDeletion():
+class TestIntegrationProjectCreationAndDeletion:
     """Test Project creation and deletion
     """
 
-    def setup_class(cls):
+    def setup_class(self):
         # Disable urllib3 InsecureRequestsWarnings
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -27,14 +27,14 @@ class TestIntegrationProjectCreationAndDeletion():
         password = os.environ['PWD_TEST_SAAGIE']
         realm = os.environ['REALM_TEST_SAAGIE']
 
-        cls.saagie = SaagieApi(url_saagie=url_saagie,
-                               id_platform=id_platform,
-                               user=user,
-                               password=password,
-                               realm=realm)
+        self.saagie = SaagieApi(url_saagie=url_saagie,
+                                id_platform=id_platform,
+                                user=user,
+                                password=password,
+                                realm=realm)
 
-        cls.group = os.environ['USER_GROUP_TEST_SAAGIE']
-        cls.project_name = 'Integration_test_Saagie_API'
+        self.group = os.environ['USER_GROUP_TEST_SAAGIE']
+        self.project_name = 'Integration_test_Saagie_API'
 
     @pytest.fixture
     def create_project(self):
@@ -73,7 +73,7 @@ class TestIntegrationProjectCreationAndDeletion():
 
 
 class TestIntegrationProject:
-    def setup_class(cls):
+    def setup_class(self):
         # Disable urllib3 InsecureRequestsWarnings
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -83,33 +83,33 @@ class TestIntegrationProject:
         password = os.environ['PWD_TEST_SAAGIE']
         realm = os.environ['REALM_TEST_SAAGIE']
 
-        cls.saagie = SaagieApi(url_saagie=url_saagie,
-                               id_platform=id_platform,
-                               user=user,
-                               password=password,
-                               realm=realm)
+        self.saagie = SaagieApi(url_saagie=url_saagie,
+                                id_platform=id_platform,
+                                user=user,
+                                password=password,
+                                realm=realm)
 
         # Create a test project
-        cls.group = os.environ['USER_GROUP_TEST_SAAGIE']
-        cls.project_name = 'Integration_test_Saagie_API'
+        self.group = os.environ['USER_GROUP_TEST_SAAGIE']
+        self.project_name = 'Integration_test_Saagie_API'
 
-        result = cls.saagie.projects.create(name=cls.project_name,
-                                            group=cls.group,
-                                            role="Manager",
-                                            description="For integration test")
-        cls.project_id = result['createProject']['id']
+        result = self.saagie.projects.create(name=self.project_name,
+                                             group=self.group,
+                                             role="Manager",
+                                             description="For integration test")
+        self.project_id = result['createProject']['id']
 
         # Waiting for the project to be ready
-        project_status = cls.saagie \
-            .projects.get_info(project_id=cls.project_id)['project']['status']
+        project_status = self.saagie \
+            .projects.get_info(project_id=self.project_id)['project']['status']
         waiting_time = 0
 
         # Safety: wait for 5min max for project initialisation
         project_creation_timeout = 400
         while project_status != 'READY' and waiting_time <= project_creation_timeout:
             time.sleep(10)
-            project_status = cls.saagie \
-                .projects.get_info(cls.project_id)['project']['status']
+            project_status = self.saagie \
+                .projects.get_info(self.project_id)['project']['status']
             waiting_time += 10
         if project_status != 'READY':
             raise TimeoutError(
@@ -218,13 +218,10 @@ class TestIntegrationProject:
                               is_scheduled=job_input['is_scheduled'], cron_scheduling=job_input['cron_scheduling'],
                               schedule_timezone=job_input['schedule_timezone'])
         job_info = self.saagie.jobs.get_info(job_id)
-        to_validate = {}
-        to_validate['name'] = job_info["job"]["name"]
-        to_validate['description'] = job_info["job"]["description"]
-        to_validate['alerting'] = None
-        to_validate['is_scheduled'] = job_info["job"]["isScheduled"]
-        to_validate['cron_scheduling'] = job_info["job"]["cronScheduling"]
-        to_validate['schedule_timezone'] = job_info["job"]["scheduleTimezone"]
+        to_validate = {'name': job_info["job"]["name"], 'description': job_info["job"]["description"], 'alerting': None,
+                       'is_scheduled': job_info["job"]["isScheduled"],
+                       'cron_scheduling': job_info["job"]["cronScheduling"],
+                       'schedule_timezone': job_info["job"]["scheduleTimezone"]}
 
         assert job_input == to_validate
 
@@ -309,10 +306,8 @@ class TestIntegrationProject:
         env_var = [env_var for env_var in self.saagie.env_vars.list_globals()['globalEnvironmentVariables'] if
                    env_var['name'] == name][0]
 
-        to_validate = {}
-        to_validate['value'] = env_var['value']
-        to_validate['description'] = env_var['description']
-        to_validate['isPassword'] = env_var['isPassword']
+        to_validate = {'value': env_var['value'], 'description': env_var['description'],
+                       'isPassword': env_var['isPassword']}
 
         assert env_var_input == to_validate
 
@@ -330,9 +325,7 @@ class TestIntegrationProject:
         env_var = [env_var for env_var in self.saagie.env_vars.list_globals()['globalEnvironmentVariables'] if
                    env_var['name'] == name][0]
 
-        to_validate = {}
-        to_validate['description'] = env_var['description']
-        to_validate['isPassword'] = env_var['isPassword']
+        to_validate = {'description': env_var['description'], 'isPassword': env_var['isPassword']}
 
         assert env_var_input == to_validate
 
@@ -397,10 +390,8 @@ class TestIntegrationProject:
             [env_var for env_var in
              self.saagie.env_vars.list_for_project(self.project_id)['projectEnvironmentVariables'] if
              env_var['name'] == name][0]
-        to_validate = {}
-        to_validate['value'] = env_var['value']
-        to_validate['description'] = env_var['description']
-        to_validate['isPassword'] = env_var['isPassword']
+        to_validate = {'value': env_var['value'], 'description': env_var['description'],
+                       'isPassword': env_var['isPassword']}
 
         assert env_var_input == to_validate
 
@@ -473,13 +464,11 @@ class TestIntegrationProject:
                                    cron_scheduling=pipeline_input['cron_scheduling'],
                                    schedule_timezone=pipeline_input['schedule_timezone'])
         pipeline_info = self.saagie.pipelines.get_info(pipeline_id)
-        to_validate = {}
-        to_validate['name'] = pipeline_info["graphPipeline"]["name"]
-        to_validate['description'] = pipeline_info["graphPipeline"]["description"]
-        to_validate['alerting'] = None
-        to_validate['is_scheduled'] = pipeline_info["graphPipeline"]["isScheduled"]
-        to_validate['cron_scheduling'] = pipeline_info["graphPipeline"]["cronScheduling"]
-        to_validate['schedule_timezone'] = pipeline_info["graphPipeline"]["scheduleTimezone"]
+        to_validate = {'name': pipeline_info["graphPipeline"]["name"],
+                       'description': pipeline_info["graphPipeline"]["description"], 'alerting': None,
+                       'is_scheduled': pipeline_info["graphPipeline"]["isScheduled"],
+                       'cron_scheduling': pipeline_info["graphPipeline"]["cronScheduling"],
+                       'schedule_timezone': pipeline_info["graphPipeline"]["scheduleTimezone"]}
 
         assert pipeline_input == to_validate
 
@@ -508,6 +497,6 @@ class TestIntegrationProject:
 
         assert result
 
-    def teardown_class(cls):
+    def teardown_class(self):
         # Delete Project
-        cls.saagie.projects.delete(cls.project_id)
+        self.saagie.projects.delete(self.project_id)

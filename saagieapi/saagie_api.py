@@ -1,3 +1,4 @@
+import logging
 import re
 
 from gql import gql
@@ -32,8 +33,8 @@ class BearerAuth(requests.auth.AuthBase):
         Retrieve a Bearer connection token
         :param realm: platform url prefix (eg: saagie)
         :param url: platform URL (eg: https://saagie-workspace.prod.saagie.io)
-        :param login: username to login with
-        :param password: password to login with
+        :param login: username to log in with
+        :param password: password to log in with
         :return: a token
         """
         s = requests.session()
@@ -56,7 +57,7 @@ class SaagieApi:
         url_saagie : str
             platform base URL (eg: https://saagie-workspace.prod.saagie.io)
         id_platform : int or str
-            Platform Id  (see README on how to find it)
+            Platform id  (see README on how to find it)
         user : str
             username to log in with
         password : str
@@ -201,7 +202,7 @@ class SaagieApi:
         details="This function is deprecated and will be removed in a future version. "
                 "Please use 'saagieapi.jobs.get_by_id' instead.")
     def get_project_job(self, job_id):
-        return self.jobs.get_by_id(job_id)
+        return self.jobs.get_info(job_id)
 
     @deprecation.deprecated(
         details="This function is deprecated and will be removed in a future version. "
@@ -461,6 +462,9 @@ class SaagieApi:
         details="This function is deprecated and will be removed in a future version. "
                 "Please use 'saagieapi.apps.list_for_project' instead.")
     def get_project_web_apps(self, project_id, instances_limit=-1):
+        logging.warning(
+            f"parameter 'instances_limit' {instances_limit} is not used anymore, keeping it only to keep "
+            f"the function signature unchanged")
         return self.apps.list_for_project(project_id)
 
     @deprecation.deprecated(

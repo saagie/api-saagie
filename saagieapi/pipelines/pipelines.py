@@ -154,7 +154,7 @@ class Pipelines:
                 job_node2 = JobNode(job_id_2)
                 job_node1.add_next_node(job_node2) # Indicates that the job_node_1 is followed by job_node_2
                 graph_pipeline = GraphPipeline()
-                graph_pipeline.add_root_node(job_node1) # Indicates the pipeline will started with job_node1
+                graph_pipeline.add_root_node(job_node1) # Indicates the pipeline will start with job_node1
         description : str, optional
             Description of the pipeline
         release_note: str, optional

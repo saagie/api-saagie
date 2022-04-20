@@ -51,7 +51,7 @@ class EnvVars:
 
     def update_global(self, name, new_name=None, value=None, description=None, is_password=None):
         """
-        Update environment variable with provided function vairables if it exists
+        Update environment variable with provided function variables if it exists
         Parameters
         ----------
         name : str
@@ -60,7 +60,7 @@ class EnvVars:
             New name of the environment variable. If none provided, keep the actual one
         value: str, optional
             New value of the environment variable. If none provided, keep the actual one
-        description; str, optional
+        description: str, optional
             New description of the environment variable. If none provided, keep the actual one
         is_password: boolean, optional
             New password boolean status. If none provided, keep the actual one
@@ -175,7 +175,7 @@ class EnvVars:
 
     def update_for_project(self, project_id, name, new_name=None, value=None, description=None, is_password=None):
         """
-        Update environment variable with provided function vairables if it exists
+        Update environment variable with provided function variables if it exists
         Parameters
         ----------
         project_id : str
@@ -186,7 +186,7 @@ class EnvVars:
             New name of the environment variable. If none provided, keep the actual one
         value: str, optional
             New value of the environment variable. If none provided, keep the actual one
-        description; str, optional
+        description: str, optional
             New description of the environment variable. If none provided, keep the actual one
         is_password: boolean, optional
             New password boolean status. If none provided, keep the actual one
