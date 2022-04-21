@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v0.9.1 (2022-04-21)
+### :bug:
+* :bug: Removing unused format in gql query ([#88](https://github.com/saagie/api-saagie/issues/88)) ([`073f223`](https://github.com/saagie/api-saagie/commit/073f22347f4244c00d28df9a0942ffa52308fb11))
+
 ## v0.9.0 (2022-04-13)
 ### :chart_with_upwards_trend:
 * :chart_with_upwards_trend: Update env var ([#85](https://github.com/saagie/api-saagie/issues/85)) ([`2f047a4`](https://github.com/saagie/api-saagie/commit/2f047a4f533c035fe67239928c8ab28d98fe3e7d))
