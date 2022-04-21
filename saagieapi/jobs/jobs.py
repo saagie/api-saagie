@@ -34,9 +34,11 @@ class Jobs:
         dict
             Dict of jobs information
         """
-        instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
-        query = gql(gql_list_jobs_for_project.format(project_id, instances_limit_request))
-        return self.client.execute(query)
+        params = {"projectId": project_id}
+        if instances_limit != -1:
+            params["instancesLimit"] = instances_limit
+        query = gql(gql_list_jobs_for_project)
+        return self.client.execute(query, variable_values=params)
 
     def list_for_project_minimal(self, project_id):
         """List only job names and ids in the given project .
@@ -53,8 +55,8 @@ class Jobs:
         dict
             Dict of jobs ids and names
         """
-        query = gql(gql_list_jobs_for_project_minimal.format(project_id))
-        return self.client.execute(query)
+        query = gql(gql_list_jobs_for_project_minimal)
+        return self.client.execute(query, variable_values={"projectId": project_id})
 
     def get_instance(self, job_instance_id):
         """Get the given job instance
@@ -69,8 +71,8 @@ class Jobs:
         dict
             Dict of instance information
         """
-        query = gql(gql_get_job_instance.format(job_instance_id))
-        return self.client.execute(query)
+        query = gql(gql_get_job_instance)
+        return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
     def get_id(self, job_name, project_name):
         """Get the job id with the job name and project name
@@ -110,13 +112,13 @@ class Jobs:
             Dict of job's info
 
         """
-        query = gql_get_job_info.format(job_id)
-        return self.client.execute(gql(query))
+        query = gql(gql_get_job_info)
+        return self.client.execute(query, variable_values={"jobId": job_id})
 
     def create(self, job_name, project_id, file=None, description='',
                category='Processing', technology='python',
                technology_catalog='Saagie',
-               runtime_version='3.6',
+               runtime_version='3.7',
                command_line='python {file} arg1 arg2', release_note='',
                extra_technology='', extra_technology_version='',
                cron_scheduling=None, schedule_timezone="UTC", resources=None,
@@ -216,10 +218,10 @@ class Jobs:
             params["technologyId"] = technology_id
 
         if extra_technology != '':
-            extra_tech = gql_extra_technology.format(extra_technology,
-                                                     extra_technology_version)
-        else:
-            extra_tech = ''
+            params["extraTechnology"] = {
+                "language": extra_technology,
+                "version": extra_technology_version
+            }
 
         if emails:
             wrong_status_list = []
@@ -258,8 +260,7 @@ class Jobs:
         if resources:
             params["resources"] = resources
 
-        payload_str = gql_create_job.format(extra_technology=extra_tech)
-        return self.__launch_request(file, payload_str, params)
+        return self.__launch_request(file, gql_create_job, params)
 
     def edit(self, job_id, job_name=None, description=None, is_scheduled=None,
              cron_scheduling=None, schedule_timezone="UTC", resources=None,
@@ -305,7 +306,7 @@ class Jobs:
         dict
             Dict of job information
         """
-        params = {"id": job_id}
+        params = {"jobId": job_id}
         previous_job_version = self.get_info(job_id)["job"]
 
         if job_name:
@@ -374,7 +375,7 @@ class Jobs:
         query = gql(gql_edit_job)
         return self.client.execute(query, variable_values=params)
 
-    def upgrade(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.6',
+    def upgrade(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.7',
                 command_line='python {file} arg1 arg2', release_note=None,
                 extra_technology='', extra_technology_version=''):
         """Upgrade a job
@@ -421,16 +422,16 @@ class Jobs:
                 "You can not specify a file and use the previous artifact. "
                 "By default, the specified file will be used.")
 
-        if extra_technology != '':
-            extra_tech = gql_extra_technology.format(extra_technology,
-                                                     extra_technology_version)
-        else:
-            extra_tech = ''
-        payload_str = gql_upgrade_job.format(extra_technology=extra_tech)
         params = {"jobId": job_id, "releaseNote": release_note, "runtimeVersion": runtime_version,
                   "commandLine": command_line, "usePreviousArtifact": use_previous_artifact}
 
-        return self.__launch_request(file, payload_str, params)
+        if extra_technology != '':
+            params["extraTechnology"] = {
+                "language": extra_technology,
+                "version": extra_technology_version
+            }
+
+        return self.__launch_request(file, gql_upgrade_job, params)
 
     def upgrade_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
                         command_line='python {file} arg1 arg2', release_note=None,
@@ -486,8 +487,8 @@ class Jobs:
             Dict of deleted job
 
         """
-        query = gql(gql_delete_job.format(job_id))
-        return self.client.execute(query)
+        query = gql(gql_delete_job)
+        return self.client.execute(query, variable_values={"jobId": job_id})
 
     def run(self, job_id):
         """Run a given job
@@ -502,8 +503,8 @@ class Jobs:
         dict
             Dict of the given job information
         """
-        query = gql(gql_run_job.format(job_id))
-        return self.client.execute(query)
+        query = gql(gql_run_job)
+        return self.client.execute(query, variable_values={"jobId": job_id})
 
     def run_with_callback(self, job_id, freq=10, timeout=-1):
         """Run a job and wait for the final status (KILLED, FAILED or SUCCESS).
@@ -531,8 +532,7 @@ class Jobs:
         res = self.run(job_id)
         job_instance_id = res.get("runJob").get("id")
         final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
-        query = gql(gql_get_job_instance.format(job_instance_id))
-        job_instance_info = self.client.execute(query)
+        job_instance_info = self.get_instance(job_instance_id)
         state = job_instance_info.get("jobInstance").get("status")
         sec = 0
         while state not in final_status_list:
@@ -541,7 +541,7 @@ class Jobs:
                 raise TimeoutError("Last state known : " + state)
             time.sleep(freq)
             sec += freq
-            job_instance_info = self.client.execute(query)
+            job_instance_info = self.get_instance(job_instance_id)
             state = job_instance_info.get("jobInstance").get("status")
             logging.info(f'Job id {job_id} with instance {job_instance_id} is currently : ' + state)
         return state
@@ -559,8 +559,8 @@ class Jobs:
         dict
             Job instance information
         """
-        query = gql(gql_stop_job_instance.format(job_instance_id))
-        return self.client.execute(query)
+        query = gql(gql_stop_job_instance)
+        return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
     def __launch_request(self, file, payload_str, params):
         """Launch a GQL request with specified file, payload and params

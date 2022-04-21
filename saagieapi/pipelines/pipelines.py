@@ -30,9 +30,11 @@ class Pipelines:
         Dict
             Dict of pipelines information
         """
-        instances_limit_request = f" (limit: {str(instances_limit)})" if instances_limit != -1 else ""
-        query = gql(gql_list_pipelines_for_project.format(project_id, instances_limit_request))
-        return self.client.execute(query)
+        params = {"projectId": project_id}
+        if instances_limit != -1:
+            params["instancesLimit"] = instances_limit
+        query = gql(gql_list_pipelines_for_project)
+        return self.client.execute(query, variable_values=params)
 
     def list_for_project_minimal(self, project_id):
         """List pipelines ids and names of project
@@ -47,8 +49,8 @@ class Pipelines:
         Dict
             Dict of pipelines ids and names
         """
-        query = gql(gql_list_pipelines_for_project_minimal.format(project_id))
-        return self.client.execute(query)
+        query = gql(gql_list_pipelines_for_project_minimal)
+        return self.client.execute(query, variable_values={"projectId": project_id})
 
     def get_id(self, pipeline_name, project_name):
         """Get the pipeline id with the pipeline name and project name
@@ -84,8 +86,8 @@ class Pipelines:
         dict
             Dict of pipeline's information
         """
-        query = gql(gql_get_pipeline.format(pipeline_id))
-        return self.client.execute(query)
+        query = gql(gql_get_pipeline)
+        return self.client.execute(query, variable_values={"id": pipeline_id})
 
     def get_instance(self, pipeline_instance_id):
         """
@@ -101,8 +103,8 @@ class Pipelines:
         dict
             Dict of job information
         """
-        query = gql(gql_get_pipeline_instance.format(pipeline_instance_id))
-        return self.client.execute(query)
+        query = gql(gql_get_pipeline_instance)
+        return self.client.execute(query, variable_values={"id": pipeline_instance_id})
 
     @deprecation.deprecated(deprecated_in="Saagie 2.2.1",
                             details="This deprecated endpoint allows to create only linear pipeline. "
@@ -128,13 +130,9 @@ class Pipelines:
         dict
             Dict of job information
         """
-        query = gql(gql_create_pipeline.format(
-            name,
-            description,
-            project_id,
-            f"""["{'", "'.join(jobs_id)}"]"""
-        ))
-        return self.client.execute(query)
+        params = {"name": name, "description": description, "projectId": project_id, "jobsId": jobs_id}
+        query = gql(gql_create_pipeline)
+        return self.client.execute(query, variable_values=params)
 
     def create_graph(self, name, project_id, graph_pipeline, description="", release_note="",
                      cron_scheduling=None, schedule_timezone="UTC"):
@@ -169,37 +167,29 @@ class Pipelines:
         dict
             Dict of pipeline information
         """
-        gql_scheduling_payload = []
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
+
+        params = {"name": name, "description": description, "projectId": project_id, "releaseNote": release_note,
+                  "jobNodes": graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes}
+
         if cron_scheduling:
-            gql_scheduling_payload.append('isScheduled: true')
+            params["isScheduled"] = True
 
             if croniter.is_valid(cron_scheduling):
-                gql_scheduling_payload.append(f'cronScheduling: "{cron_scheduling}"')
+                params["cronScheduling"] = cron_scheduling
             else:
                 raise RuntimeError(f"{cron_scheduling} is not valid cron format")
 
             if schedule_timezone in list(pytz.all_timezones):
-                gql_scheduling_payload.append(f'scheduleTimezone: "{schedule_timezone}"')
+                params["scheduleTimezone"] = schedule_timezone
             else:
                 raise RuntimeError("Please specify a correct timezone")
 
         else:
-            gql_scheduling_payload.append('isScheduled: false')
+            params["isScheduled"] = False
 
-        gql_scheduling_payload_str = ", ".join(gql_scheduling_payload)
-
-        query_str = gql_create_graph_pipeline.format(
-            name,
-            description,
-            project_id,
-            release_note,
-            gql_scheduling_payload_str
-        )
-        params = {'jobNodes': graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes}
-
-        query = gql(query_str)
+        query = gql(gql_create_graph_pipeline)
         return self.client.execute(query, variable_values=params)
 
     def delete(self, pipeline_id):
@@ -215,9 +205,9 @@ class Pipelines:
         dict
             Dict containing status of deletion
         """
-        query = gql(gql_delete_pipeline.format(pipeline_id))
+        query = gql(gql_delete_pipeline)
 
-        return self.client.execute(query)
+        return self.client.execute(query, variable_values={"id": pipeline_id})
 
     def upgrade(self, pipeline_id, graph_pipeline, release_note=""):
         """
@@ -363,8 +353,8 @@ class Pipelines:
         dict
             Dict of pipeline instance's information
         """
-        query = gql(gql_run_pipeline.format(pipeline_id))
-        return self.client.execute(query)
+        query = gql(gql_run_pipeline)
+        return self.client.execute(query, variable_values={"pipelineId": pipeline_id})
 
     def run_with_callback(self, pipeline_id, freq=10, timeout=-1):
         """Run a given pipeline and wait for its final status (KILLED, FAILED
@@ -393,8 +383,7 @@ class Pipelines:
         res = self.run(pipeline_id)
         pipeline_instance_id = res.get("runPipeline").get("id")
         final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
-        query = gql(gql_get_pipeline_instance.format(pipeline_instance_id))
-        pipeline_instance_info = self.client.execute(query)
+        pipeline_instance_info = self.get_instance(pipeline_instance_id)
         state = pipeline_instance_info.get("pipelineInstance").get("status")
         sec = 0
 
@@ -404,7 +393,7 @@ class Pipelines:
                 raise TimeoutError("Last state known : " + state)
             time.sleep(freq)
             sec += freq
-            pipeline_instance_info = self.client.execute(query)
+            pipeline_instance_info = self.get_instance(pipeline_instance_id)
             state = pipeline_instance_info.get("pipelineInstance") \
                 .get("status")
             logging.info('Current state : ' + state)
@@ -425,5 +414,5 @@ class Pipelines:
         dict
             Dict of pipeline's instance information
         """
-        query = gql(gql_stop_pipeline_instance.format(pipeline_instance_id))
-        return self.client.execute(query)
+        query = gql(gql_stop_pipeline_instance)
+        return self.client.execute(query, variable_values={"pipelineInstanceId": pipeline_instance_id})

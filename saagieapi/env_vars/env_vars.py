@@ -43,11 +43,10 @@ class EnvVars:
         dict
             Dict of created environment variable
         """
-        query = gql(gql_create_global_env_var.format(name,
-                                                     value,
-                                                     description,
-                                                     str(is_password).lower()))
-        return self.client.execute(query)
+        params = {"name": name, "value": value, "description": description, "isPassword": is_password,
+                  "scope": "GLOBAL"}
+        query = gql(gql_create_env_var)
+        return self.client.execute(query, variable_values=params)
 
     def update_global(self, name, new_name=None, value=None, description=None, is_password=None):
         """
@@ -121,8 +120,8 @@ class EnvVars:
 
         global_env_id = global_env[0]['id']
 
-        query = gql(gql_delete_env_var.format(global_env_id))
-        return self.client.execute(query)
+        query = gql(gql_delete_env_var)
+        return self.client.execute(query, variable_values={"id": global_env_id})
 
     def list_for_project(self, project_id):
         """Get project environment variables
@@ -139,8 +138,8 @@ class EnvVars:
         dict
             Dict of project environment variables
         """
-        query = gql(gql_list_project_env_vars.format(project_id))
-        return self.client.execute(query)
+        query = gql(gql_list_project_env_vars)
+        return self.client.execute(query, variable_values={"projectId": project_id})
 
     def create_for_project(self, project_id, name, value,
                            description='', is_password=False):
@@ -164,14 +163,10 @@ class EnvVars:
         dict
             Dict of created environment variable
         """
-        query = gql(gql_create_project_env_var.format(
-            project_id,
-            name,
-            value,
-            description,
-            str(is_password).lower()
-        ))
-        return self.client.execute(query)
+        params = {"projectId": project_id, "name": name, "value": value,
+                  "description": description, "isPassword": is_password, "scope": "PROJECT"}
+        query = gql(gql_create_env_var)
+        return self.client.execute(query, variable_values=params)
 
     def update_for_project(self, project_id, name, new_name=None, value=None, description=None, is_password=None):
         """
@@ -201,7 +196,7 @@ class EnvVars:
             raise ValueError("Environment variable does not exists")
 
         params = [d for d in existing_env_var if d['name'] == name][0]
-        params["entityId"] = project_id
+        params["projectId"] = project_id
         if params['isPassword'] == True:
             params.pop('value')
         if new_name:
@@ -251,5 +246,5 @@ class EnvVars:
 
         project_env_id = project_env[0]['id']
 
-        query = gql(gql_delete_env_var.format(project_env_id))
-        return self.client.execute(query)
+        query = gql(gql_delete_env_var)
+        return self.client.execute(query, variable_values={"id": project_env_id})

@@ -12,56 +12,54 @@ gql_list_projects = """
   """
 
 gql_get_project_info = """
-  {{
-       project(id: "{0}"){{
-          name,
-          creator,
-          description,
-          jobsCount,
-          status
-      }}
-  }}
+query projectQuery($id: UUID!) {
+    project(id: $id){
+        name
+        creator
+        description
+        jobsCount
+        status
+    }
+}
   """
 
 gql_get_project_technologies = """
-{{
-   project(id: "{0}"){{
-   technologiesByCategory {{
-      jobCategory,
-      technologies{{
-        id
-        }}
-      }}
-   }}
-}} 
+query projectQuery($id: UUID!) {
+    project(id: $id){
+        technologiesByCategory{
+            jobCategory
+            technologies{
+                id
+            }
+        }
+    }
+}
 """
 
 gql_create_project = """
-mutation {{
-  createProject(project: {{
-                    name: "{0}",
-                    description: "{1}",
-                    {2}
+mutation createProjectMutation($name: String!, $description: String, $technologies: [TechnologyInput!],
+                                $appTechnologies: [TechnologyInput!], $authorizedGroups: [SecurityGroupInput]) {
+  createProject(project: {
+                    name: $name
+                    description: $description
+                    authorizedGroups:  $authorizedGroups
                     technologiesByCategory: [
-                      {{
+                      {
                         jobCategory: "Extraction",
-                        technologies: [
-                          {3}
-                        ]
-                      }},
-                      {{
+                        technologies: $technologies
+                      },
+                      {
                         jobCategory: "Processing",
-                        technologies: [
-                          {3}
-                        ]
-                      }}
+                        technologies: $technologies
+                      }
                     ]
-                }}) {{
+                    appTechnologies: $appTechnologies
+                }) {
     id
     name
     creator
-  }}
-}}
+  }
+}
 """
 
 group_block_template = """
@@ -74,9 +72,7 @@ authorizedGroups: [
 """
 
 gql_delete_project = """
-mutation {{
-  archiveProject(
-    projectId: "{0}"
-  )
-}}
+mutation deleteProjectMutation($projectId: UUID!){
+    deleteProject(projectId: $projectId)
+}
 """

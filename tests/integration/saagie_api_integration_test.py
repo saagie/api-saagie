@@ -69,7 +69,7 @@ class TestIntegrationProjectCreationAndDeletion:
 
         result = self.saagie.projects.delete(project_id)
 
-        assert result == {'archiveProject': True}
+        assert result == {'deleteProject': True}
 
 
 class TestIntegrationProject:
@@ -174,7 +174,7 @@ class TestIntegrationProject:
 
         result = self.saagie.jobs.delete(job_id)
 
-        assert result == {'archiveJob': True}
+        assert result == {'deleteJob': True}
 
     def test_run_job(self, create_then_delete_job):
         job_id = create_then_delete_job
@@ -222,6 +222,26 @@ class TestIntegrationProject:
                        'is_scheduled': job_info["job"]["isScheduled"],
                        'cron_scheduling': job_info["job"]["cronScheduling"],
                        'schedule_timezone': job_info["job"]["scheduleTimezone"]}
+
+        assert job_input == to_validate
+
+    def test_upgrade_job(self, create_then_delete_job):
+        job_id = create_then_delete_job
+        job_input = {
+            'command_line': 'python {file}',
+            'release_note': "hello_world",
+            'runtime_version': "3.9"
+        }
+        self.saagie.jobs.upgrade(job_id, use_previous_artifact=True,
+                                 runtime_version=job_input["runtime_version"],
+                                 command_line=job_input["command_line"], release_note=job_input["release_note"])
+        job_info = self.saagie.jobs.get_info(job_id)
+        version = job_info["job"]["versions"][0]
+        to_validate = {
+            'command_line': version["commandLine"],
+            'release_note': version["releaseNote"],
+            'runtime_version': version["runtimeVersion"]
+        }
 
         assert job_input == to_validate
 

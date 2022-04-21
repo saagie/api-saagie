@@ -57,8 +57,8 @@ class Projects:
         dict
             Dict of project information
         """
-        query = gql(gql_get_project_info.format(project_id))
-        return self.client.execute(query)
+        query = gql(gql_get_project_info)
+        return self.client.execute(query, variable_values={"id": project_id})
 
     def get_technologies(self, project_id):
         """List available technologies (id and label) for the project
@@ -73,8 +73,8 @@ class Projects:
         dict
             Dict of available technologies
         """
-        query = gql(gql_get_project_technologies.format(project_id))
-        return self.client.execute(query)['project']
+        query = gql(gql_get_project_technologies)
+        return self.client.execute(query, variable_values={"id": project_id})['project']
 
     def create(self, name, group=None, role="Manager", description=""):
         """Create a new project on the platform
@@ -122,28 +122,35 @@ class Projects:
             raise ValueError("'role' takes value in ('Manager', 'Editor',"
                              " 'Viewer')")
 
+        # Create the params of the query
+        params = {"name": name}
+
+        if description:
+            params["description"] = description
+
         # Keep only JobTechnologies (discarding AppTechnologies) of main
         # technology repository (Saagie repository)
         repositories = self.saagie_api.get_repositories_info()['repositories']
         technologies = []
+        app_technologies = []
         for repo in repositories:
             if repo['name'] == 'Saagie':
-                technologies = [techno for techno in repo['technologies']
-                                if
-                                techno['__typename'] == 'JobTechnology' or (techno['__typename'] == 'SparkTechnology')]
+                technologies.extend([{"id": techno["id"]} for techno in repo['technologies']
+                                     if
+                                     techno['__typename'] == 'JobTechnology' or (
+                                                 techno['__typename'] == 'SparkTechnology')])
 
-        # Generate the technology graphQL string only with technologies id
-        technologies = [f'{{id: "{tech["id"]}"}}' for tech in technologies]
+        # Set technologies
+        params["technologies"] = technologies
+        params["appTechnologies"] = app_technologies
 
-        group_block = ""
+        # Set group permission
         if group is not None:
-            group_block = group_block_template.format(group, role)
+            group_block = [{"name": group, "role": role}]
+            params["authorizedGroups"] = group_block
 
-        query = gql(gql_create_project.format(name,
-                                              description,
-                                              group_block,
-                                              ', '.join(technologies)))
-        return self.client.execute(query)
+        query = gql(gql_create_project)
+        return self.client.execute(query, variable_values=params)
 
     def delete(self, project_id):
         """Delete a given project
@@ -159,5 +166,5 @@ class Projects:
         dict
             dict of archived project
         """
-        query = gql(gql_delete_project.format(project_id))
-        return self.client.execute(query)
+        query = gql(gql_delete_project)
+        return self.client.execute(query, variable_values={"projectId": project_id})

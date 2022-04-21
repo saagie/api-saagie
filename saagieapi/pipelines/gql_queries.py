@@ -1,83 +1,86 @@
 gql_list_pipelines_for_project_minimal = """
-  query{{
-    project(id: "{0}"){{
-      pipelines{{
-        id,
-        name
-  }}}}
+query projectPipelinesQuery($projectId: UUID!) {
+    project(id: $projectId){
+        pipelines{
+            id
+            name
+        }
+    }
+}
   """
 
 
 gql_list_pipelines_for_project = """
-  query{{
-    project(id: "{0}"){{
-      pipelines{{
-        id,
-        name,
-        description,
-        alerting{{
-          emails,
-          loginEmails{{
-            login,
-            email
-          }},
-          statusList
-        }},
-        pipelineInstanceCount,
-        instances{1}{{
-          id,
-          status,
-          startTime,
-          endTime
-        }},
-        creationDate,
-        creator,
-        isScheduled,
-        cronScheduling,
-        scheduleStatus,
-        scheduleTimezone,
-        isLegacyPipeline
-      }}
-  }}}}
+query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
+    project(id: $projectId){
+        pipelines{
+            id
+            name
+            description
+            alerting{
+              emails
+              loginEmails{
+                login
+                email
+              }
+              statusList
+            }
+            pipelineInstanceCount
+            instances(limit: $instancesLimit){
+              id
+              status
+              startTime
+              endTime
+            }
+            creationDate
+            creator
+            isScheduled
+            cronScheduling
+            scheduleStatus
+            scheduleTimezone
+            isLegacyPipeline
+          }
+    }
+}
   """
 
 gql_get_pipeline = """
-  query{{
-    graphPipeline(id: "{0}"){{
-      id,
-      name,
-      description,
-      alerting{{
-        emails,
-        loginEmails{{
-          login,
-          email
-        }},
-        statusList
-      }},
-      pipelineInstanceCount,
-      creationDate,
-      creator,
-      isScheduled,
-      cronScheduling,
-      scheduleStatus,
-      scheduleTimezone,
-      isLegacyPipeline
-    }}
-  }}
+query graphPipelineQuery($id: UUID!) {
+    graphPipeline(id: $id){
+        id
+        name
+        description,
+        alerting{
+            emails
+            loginEmails{
+                login
+                email
+            }
+            statusList
+        }
+        pipelineInstanceCount
+        creationDate
+        creator
+        isScheduled
+        cronScheduling
+        scheduleStatus
+        scheduleTimezone
+        isLegacyPipeline
+    }
+}
   """
 
 gql_stop_pipeline_instance = """
-  mutation{{
-    stopPipelineInstance(pipelineInstanceId: "{0}"){{
-      id,
-      number,
-      status,
-      startTime,
-      endTime,
+mutation stopPipelineInstanceMutation($pipelineInstanceId: UUID!){
+    stopPipelineInstance(pipelineInstanceId: $pipelineInstanceId){
+      id
+      number
+      status
+      startTime
+      endTime
       pipelineId
-    }}
-  }}
+    }
+}
   """
 
 gql_edit_pipeline = """
@@ -108,60 +111,69 @@ gql_edit_pipeline = """
 """
 
 gql_run_pipeline = """
-  mutation{{
-    runPipeline(pipelineId: "{0}"){{
-      id,
+mutation runPipelineMutation($pipelineId: UUID!){
+    runPipeline(pipelineId: $pipelineId){
+      id
       status
-    }}
-  }}
+    }
+  }
 """
 
 gql_create_pipeline = """
-  mutation {{
-      createPipeline(pipeline: {{
-          name: "{0}",
-          description: "{1}",
-          projectId: "{2}",
-          jobsId: {3},
-          isScheduled: false
-      }}){{id}}
-  }}
+mutation createPipelineMutation($name: String!, $description: String, $projectId: UUID!, $jobsId: [UUID!]!){
+    createPipeline(pipeline: {
+                                name: $name
+                                description: $description
+                                projectId: $projectId
+                                jobsId: $jobsId
+                                isScheduled: false
+        }){
+        id
+    }
+}
 """
 
 gql_get_pipeline_instance = """
-  query {{
-      pipelineInstance(id: "{0}"){{
-          id,
-          status,
-          startTime,
+query pipelineInstanceQuery($id: UUID!){
+    pipelineInstance(id: $id){
+          id
+          status
+          startTime
           endTime
-      }}
-  }}
+    }
+}
 """
 
 gql_create_graph_pipeline = """
-  mutation($jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!]) {{
-  createGraphPipeline(pipeline:  {{
-    name: "{0}",
-    description: "{1}",
-    projectId: "{2}",
-    releaseNote : "{3}",
-    {4}
-    graph: {{jobNodes: $jobNodes,
-                conditionNodes: $conditionNodes}}
-    }}
-  ) {{
+mutation createGraphPipelineMutation($name: String!, $description: String, $projectId: UUID!, 
+                                     $releaseNote: String, 
+                                     $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone:TimeZone,
+                                     $jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!]) {
+  createGraphPipeline(pipeline:  {
+    name: $name
+    description: $description
+    projectId: $projectId
+    releaseNote : $releaseNote
+    isScheduled: $isScheduled
+    cronScheduling: $cronScheduling
+    scheduleTimezone: $scheduleTimezone
+    graph: {
+        jobNodes: $jobNodes
+        conditionNodes: $conditionNodes
+    }
+  }
+  ) {
     id
-  }}
-}}
+  }
+}
 """
 
 gql_delete_pipeline = """
-  mutation {{
+mutation deletePipelineMutation($id: UUID!){
   deletePipeline (
-    id: "{0}"
+    id: $id
   )
-}}
+}
 """
 
 gql_upgrade_pipeline = """
