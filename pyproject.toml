@@ -19,7 +19,6 @@ deprecation = "^2.1.0"
 [tool.poetry.dev-dependencies]
 python-semantic-release = "^7.19.2"
 pytest = "^7.1.1"
-pylint = "^2.13.7"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
