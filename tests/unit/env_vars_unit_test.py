@@ -23,21 +23,15 @@ class TestEnvVars:
 
     def test_create_env_var(self):
         query = gql(gql_create_env_var)
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
+        self.client.validate(query)
 
     def test_delete_env_var(self):
         query = gql(gql_delete_env_var)
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
+        self.client.validate(query)
 
     def test_list_project_env_vars(self):
         query = gql(gql_list_project_env_vars)
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
+        self.client.validate(query)
 
     def test_update_env_var(self):
         query = gql(gql_update_env_var)
