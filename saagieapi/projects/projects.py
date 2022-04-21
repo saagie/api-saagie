@@ -38,7 +38,6 @@ class Projects:
         if project:
             project_id = project[0]["id"]
             return project_id
-
         else:
             raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
 
