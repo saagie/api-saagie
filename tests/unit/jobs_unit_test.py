@@ -27,6 +27,10 @@ class TestJobs:
         query = gql(gql_list_jobs_for_project)
         self.client.validate(query)
 
+    def test_list_project_jobs_minimal(self):
+        query = gql(gql_list_jobs_for_project_minimal)
+        self.client.validate(query)
+
     def test_gql_get_info_job(self):
         query = gql(gql_get_job_info)
         self.client.validate(query)

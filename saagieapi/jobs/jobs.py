@@ -14,7 +14,6 @@ class Jobs:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client
-        self.valid_status_list = saagie_api.valid_status_list
 
     def list_for_project(self, project_id, instances_limit=-1):
         """List jobs in the given project with their instances.
@@ -224,22 +223,7 @@ class Jobs:
             }
 
         if emails:
-            wrong_status_list = []
-
-            for item in status_list:
-                if item not in self.valid_status_list:
-                    wrong_status_list.append(item)
-            if wrong_status_list:
-                raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
-                                   f"Please make sure that each item of the parameter status_list should be "
-                                   f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
-                                   f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'")
-
-            else:
-                params["alerting"] = {
-                    "emails": emails,
-                    "statusList": status_list
-                }
+            self.saagie_api.check_alerting(emails, params, status_list)
 
         if cron_scheduling:
             params["isScheduled"] = True
@@ -346,22 +330,7 @@ class Jobs:
             params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
         if emails:
-            wrong_status_list = []
-
-            for item in status_list:
-                if item not in self.valid_status_list:
-                    wrong_status_list.append(item)
-            if wrong_status_list:
-                raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
-                                   f"Please make sure that each item of the parameter status_list should be "
-                                   f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
-                                   f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'")
-
-            else:
-                params["alerting"] = {
-                    "emails": emails,
-                    "statusList": status_list
-                }
+            self.saagie_api.check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:

@@ -9,6 +9,10 @@ class TestPipelines:
     def setup_method(self):
         self.client = create_gql_client()
 
+    def test_list_pipelines_minimal(self):
+        query = gql(gql_list_pipelines_for_project_minimal)
+        self.client.validate(query)
+
     def test_list_pipelines(self):
         query = gql(gql_list_pipelines_for_project)
         self.client.validate(query)
