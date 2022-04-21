@@ -415,7 +415,7 @@ class SaagieApi:
             Dict of runtime labels
 
         """
-        query = gql_get_runtimes.format(technology_id)
+        query = gql_get_runtimes
         return self.client_gateway.execute(gql(query), variable_values={"id": technology_id})
 
     # ######################################################
