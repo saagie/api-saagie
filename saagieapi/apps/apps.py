@@ -189,7 +189,7 @@ class Apps:
             params["description"] = previous_app_version["description"]
 
         if emails:
-            self.saagie_api.check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:

@@ -1,20 +1,21 @@
 import logging
 import re
 
-from gql import gql
+import deprecation
+import pytz
+import requests
+from croniter import croniter
 from gql import Client
+from gql import gql
 from gql.transport.requests import RequestsHTTPTransport
 
+from .apps import Apps
+from .docker_credentials import DockerCredentials
+from .env_vars import EnvVars
 from .gql_queries import *
-
-import deprecation
-import requests
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
-from .env_vars import EnvVars
-from .apps import Apps
-from .docker_credentials import DockerCredentials
 
 
 class BearerAuth(requests.auth.AuthBase):
@@ -161,6 +162,20 @@ class SaagieApi:
                 "emails": emails,
                 "statusList": status_list
             }
+        return params
+
+    @staticmethod
+    def check_scheduling(cron_scheduling, params, schedule_timezone):
+        params["isScheduled"] = True
+        if cron_scheduling and croniter.is_valid(cron_scheduling):
+            params["cronScheduling"] = cron_scheduling
+        else:
+            raise RuntimeError(f"{cron_scheduling} is not valid cron format")
+        if schedule_timezone in list(pytz.all_timezones):
+            params["scheduleTimezone"] = schedule_timezone
+        else:
+            raise RuntimeError("Please specify a correct timezone")
+        return params
 
     # ##########################################################
     # ###                    cluster                        ####

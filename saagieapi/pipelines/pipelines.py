@@ -1,7 +1,5 @@
 import logging
 import time
-import pytz
-from croniter import croniter
 import deprecation
 from gql import gql
 from .gql_queries import *
@@ -174,16 +172,7 @@ class Pipelines:
 
         if cron_scheduling:
             params["isScheduled"] = True
-
-            if croniter.is_valid(cron_scheduling):
-                params["cronScheduling"] = cron_scheduling
-            else:
-                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
-
-            if schedule_timezone in list(pytz.all_timezones):
-                params["scheduleTimezone"] = schedule_timezone
-            else:
-                raise RuntimeError("Please specify a correct timezone")
+            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params)
 
         else:
             params["isScheduled"] = False
@@ -288,16 +277,7 @@ class Pipelines:
 
         if is_scheduled:
             params["isScheduled"] = True
-
-            if cron_scheduling and croniter.is_valid(cron_scheduling):
-                params["cronScheduling"] = cron_scheduling
-            else:
-                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
-
-            if schedule_timezone in list(pytz.all_timezones):
-                params["scheduleTimezone"] = schedule_timezone
-            else:
-                raise RuntimeError("Please specify a correct timezone")
+            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params)
 
         elif is_scheduled == False:
             params["isScheduled"] = False
@@ -308,7 +288,7 @@ class Pipelines:
             params["scheduleTimezone"] = previous_pipeline_info["scheduleTimezone"]
 
         if emails:
-            self.saagie_api.check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:

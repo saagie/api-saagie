@@ -1,8 +1,7 @@
 import logging
 import time
-import pytz
+
 from pathlib import Path
-from croniter import croniter
 
 from gql import gql
 
@@ -223,20 +222,11 @@ class Jobs:
             }
 
         if emails:
-            self.saagie_api.check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
 
         if cron_scheduling:
             params["isScheduled"] = True
-
-            if croniter.is_valid(cron_scheduling):
-                params["cronScheduling"] = cron_scheduling
-            else:
-                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
-
-            if schedule_timezone in list(pytz.all_timezones):
-                params["scheduleTimezone"] = schedule_timezone
-            else:
-                raise RuntimeError("Please specify a correct timezone")
+            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params)
 
         else:
             params["isScheduled"] = False
@@ -309,17 +299,7 @@ class Jobs:
             params["resources"] = previous_job_version["resources"]
 
         if is_scheduled:
-            params["isScheduled"] = True
-
-            if cron_scheduling and croniter.is_valid(cron_scheduling):
-                params["cronScheduling"] = cron_scheduling
-            else:
-                raise RuntimeError(f"{cron_scheduling} is not valid cron format")
-
-            if schedule_timezone in list(pytz.all_timezones):
-                params["scheduleTimezone"] = schedule_timezone
-            else:
-                raise RuntimeError("Please specify a correct timezone")
+            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
 
         elif is_scheduled == False:
             params["isScheduled"] = False
@@ -330,7 +310,7 @@ class Jobs:
             params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
         if emails:
-            self.saagie_api.check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:
