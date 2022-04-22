@@ -10,19 +10,19 @@ class TestApps:
         self.client = create_gql_client()
 
     def test_list_apps_for_project(self):
-        query = gql(gql_list_apps_for_project)
+        query = gql(GQL_LIST_APPS_FOR_PROJECT)
         self.client.validate(query)
 
     def test_get_app_info(self):
-        query = gql(gql_get_app_info)
+        query = gql(GQL_GET_APP_INFO)
         self.client.validate(query)
 
     def test_create_app(self):
-        query = gql(gql_create_app)
+        query = gql(GQL_CREATE_APP)
         self.client.validate(query)
 
     def test_edit_app(self):
-        query = gql(gql_edit_app)
+        query = gql(GQL_EDIT_APP)
         self.client.validate(query)
 
     def test_check_exposed_ports(self):

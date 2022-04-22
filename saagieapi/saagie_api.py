@@ -148,6 +148,24 @@ class SaagieApi:
     def check_alerting(emails, params, status_list):
         """
         Check if the alerting is enabled for the given project and if so, check params and status_list.
+        Parameters
+        ----------
+        emails : list
+            List of emails to send the alert
+        params : dict
+            dict containing the params of the alert
+        status_list : list
+            status list of the alert
+
+        Returns
+        -------
+        dict
+            Dict containing alert config
+
+        Raises
+        ------
+        RunTimeError
+            When the statut list is not valid
         """
         valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
                              "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
@@ -173,6 +191,24 @@ class SaagieApi:
     def check_scheduling(cron_scheduling, params, schedule_timezone):
         """
         Check if the cron_scheduling is valid and if it is, add it to the params.
+        Parameters
+        ----------
+        cron_scheduling : str
+            cronjob expression
+        params : dict
+            dict containing the params of the alert
+        schedule_timezone : str
+            timezone of the schedule
+
+        Returns
+        -------
+        dict
+            Dict containing schedule config
+
+        Raises
+        ------
+        RunTimeError
+            When the cronjob expression is invalid of the timezone does not exist
         """
         params["isScheduled"] = True
         if cron_scheduling and croniter.is_valid(cron_scheduling):
@@ -192,7 +228,7 @@ class SaagieApi:
     def get_cluster_capacity(self):
         """Get information for cluster (cpu, gpu, memory)
         """
-        query = gql(gql_get_cluster_info)
+        query = gql(GQL_GET_CLUSTER_INFO)
         return self.client.execute(query)
 
     # ##########################################################
@@ -204,7 +240,7 @@ class SaagieApi:
         NB: You can only get repositories information if you have the right to
         access the technology catalog
         """
-        query = gql(gql_get_repositories_info)
+        query = gql(GQL_GET_REPOSITORIES_INFO)
         return self.client_gateway.execute(query)
 
     # ##########################################################
@@ -225,8 +261,7 @@ class SaagieApi:
             Dict of runtime labels
 
         """
-        query = gql_get_runtimes
-        return self.client_gateway.execute(gql(query), variable_values={"id": technology_id})
+        return self.client_gateway.execute(gql(GQL_GET_RUNTIMES), variable_values={"id": technology_id})
 
     # ######################################################
     # ###                    jobs                   ####

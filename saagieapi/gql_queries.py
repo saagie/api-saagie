@@ -5,7 +5,7 @@
 #  \____|_|\__,_|___/\__\___|_|
 
 
-gql_get_cluster_info = """
+GQL_GET_CLUSTER_INFO = """
 {
   getClusterCapacity {
     cpu
@@ -23,7 +23,7 @@ gql_get_cluster_info = """
 #             |_|
 
 
-gql_get_repositories_info = """
+GQL_GET_REPOSITORIES_INFO = """
   {
     repositories {
       id
@@ -37,7 +37,7 @@ gql_get_repositories_info = """
   }
 """
 
-gql_get_runtimes = """
+GQL_GET_RUNTIMES = """
 query technologyQuery($id: UUID!){
     technology(id: $id){ 
         __typename 

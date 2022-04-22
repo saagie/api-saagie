@@ -16,25 +16,25 @@ class TestEnvVars:
         self.client = create_gql_client()
 
     def test_list_global_env_vars(self):
-        query = gql(gql_list_global_env_vars)
+        query = gql(GQL_LIST_GLOBAL_ENV_VARS)
         result = self.client.validate(query)
         expected = None
         assert result == expected
 
     def test_create_env_var(self):
-        query = gql(gql_create_env_var)
+        query = gql(GQL_CREATE_ENV_VAR)
         self.client.validate(query)
 
     def test_delete_env_var(self):
-        query = gql(gql_delete_env_var)
+        query = gql(GQL_DELETE_ENV_VAR)
         self.client.validate(query)
 
     def test_list_project_env_vars(self):
-        query = gql(gql_list_project_env_vars)
+        query = gql(GQL_LIST_PROJECT_ENV_VARS)
         self.client.validate(query)
 
     def test_update_env_var(self):
-        query = gql(gql_update_env_var)
+        query = gql(GQL_UPDATE_ENV_VAR)
         result = self.client.validate(query)
         expected = None
         assert result == expected

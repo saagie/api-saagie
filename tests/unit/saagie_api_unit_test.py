@@ -1,8 +1,10 @@
+import pytest
 from gql import gql
 from gql import Client
 from graphql import build_ast_schema
 from graphql.language.parser import parse
 from saagieapi.gql_queries import *
+from saagieapi import SaagieApi
 import os
 
 
@@ -24,13 +26,30 @@ class TestGQLTemplate:
         self.client = create_gql_client()
 
     def test_get_cluster_capacity(self):
-        query = gql(gql_get_cluster_info)
+        query = gql(GQL_GET_CLUSTER_INFO)
         self.client.validate(query)
 
-    # Schema is included in gateway schema
-    # def test_get_runtimes(self):
-    #     technology_id = "techno_id"
-    #     query = gql(gql_get_runtimes.format(technology_id))
-    #     self.client.validate(query)
-    #     expected = None
-    #     assert result == expected
+    def test_check_scheduling(self):
+        result = SaagieApi.check_scheduling(cron_scheduling='* * * * *', params={}, schedule_timezone="Pacific/Fakaofo")
+        assert result["isScheduled"] is True
+        assert result["cronScheduling"] == "* * * * *"
+
+    def test_check_scheduling_bad_timezone(self):
+        with pytest.raises(RuntimeError) as rte:
+            SaagieApi.check_scheduling(cron_scheduling='* * * * *', params={}, schedule_timezone="")
+        assert str(rte.value) == "Please specify a correct timezone"
+
+    def test_check_scheduling_bad_cronexpression(self):
+        with pytest.raises(RuntimeError) as rte:
+            SaagieApi.check_scheduling(cron_scheduling='xx', params={}, schedule_timezone="Pacific/Fakaofo")
+        assert str(rte.value) == "xx is not valid cron format"
+
+    def test_check_alerting(self):
+        result = SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["FAILED"])
+        assert result["alerting"]["emails"] == ["mail1", "mail2"]
+        assert result["alerting"]["statusList"] == ["FAILED"]
+
+    def test_check_alerting_bad_status_list(self):
+        with pytest.raises(RuntimeError) as rte:
+            SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["failure"])
+        assert "The following status are not valid" in str(rte.value)

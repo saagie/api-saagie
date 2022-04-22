@@ -19,7 +19,7 @@ class Projects:
         dict
             Dict of projects information
         """
-        query = gql(gql_list_projects)
+        query = gql(GQL_LIST_PROJECTS)
         return self.client.execute(query)
 
     def get_id(self, project_name):
@@ -57,7 +57,7 @@ class Projects:
         dict
             Dict of project information
         """
-        query = gql(gql_get_project_info)
+        query = gql(GQL_GET_PROJECT_INFO)
         return self.client.execute(query, variable_values={"id": project_id})
 
     def get_technologies(self, project_id):
@@ -73,7 +73,7 @@ class Projects:
         dict
             Dict of available technologies
         """
-        query = gql(gql_get_project_technologies)
+        query = gql(GQL_GET_PROJECT_TECHNOLOGIES)
         return self.client.execute(query, variable_values={"id": project_id})['project']
 
     def create(self, name, group=None, role="Manager", description=""):
@@ -149,7 +149,7 @@ class Projects:
             group_block = [{"name": group, "role": role}]
             params["authorizedGroups"] = group_block
 
-        query = gql(gql_create_project)
+        query = gql(GQL_CREATE_PROJECT)
         return self.client.execute(query, variable_values=params)
 
     def delete(self, project_id):
@@ -166,5 +166,5 @@ class Projects:
         dict
             dict of archived project
         """
-        query = gql(gql_delete_project)
+        query = gql(GQL_DELETE_PROJECT)
         return self.client.execute(query, variable_values={"projectId": project_id})

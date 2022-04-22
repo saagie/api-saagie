@@ -9,21 +9,21 @@ class TestDockerCredentials:
         self.client = create_gql_client()
 
     def test_get_all_docker_credentials(self):
-        query = gql(gql_get_all_docker_credentials)
+        query = gql(GQL_GET_ALL_DOCKER_CREDENTIALS)
         self.client.validate(query)
 
     def test_get_docker_credentials(self):
-        query = gql(gql_get_docker_credentials)
+        query = gql(GQL_GET_DOCKER_CREDENTIALS)
         self.client.validate(query)
 
     def test_create_docker_credentials(self):
-        query = gql(gql_create_docker_credentials)
+        query = gql(GQL_CREATE_DOCKER_CREDENTIALS)
         self.client.validate(query)
 
     def test_upgrade_docker_credentials(self):
-        query = gql(gql_upgrade_docker_credentials)
+        query = gql(GQL_UPGRADE_DOCKER_CREDENTIALS)
         self.client.validate(query)
 
     def test_delete_docker_credentials(self):
-        query = gql(gql_delete_docker_credentials)
+        query = gql(GQL_DELETE_DOCKER_CREDENTIALS)
         self.client.validate(query)

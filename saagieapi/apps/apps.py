@@ -22,7 +22,7 @@ class Apps:
         dict
             Dict of app information
         """
-        query = gql(gql_list_apps_for_project)
+        query = gql(GQL_LIST_APPS_FOR_PROJECT)
         return self.client.execute(query, variable_values={"id": project_id})
 
     def get_info(self, app_id):
@@ -36,7 +36,7 @@ class Apps:
         dict
             Dict of app information
         """
-        query = gql(gql_get_app_info)
+        query = gql(GQL_GET_APP_INFO)
         return self.client.execute(query, variable_values={"id": app_id})
 
     def create(self, project_id, app_name, image, description='', technology_catalog='Saagie',
@@ -133,7 +133,7 @@ class Apps:
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
-        query = gql(gql_create_app)
+        query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
     def edit(self, app_id, app_name=None, description=None, emails=None, status_list=["FAILED"]):
@@ -188,7 +188,7 @@ class Apps:
                     "statusList": previous_alerting["statusList"]
                 }
 
-        query = gql(gql_edit_app)
+        query = gql(GQL_EDIT_APP)
         return self.client.execute(query, variable_values=params)
 
     @staticmethod

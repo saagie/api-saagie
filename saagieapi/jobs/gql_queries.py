@@ -1,4 +1,4 @@
-gql_list_jobs_for_project_minimal = """
+GQL_LIST_JOBS_FOR_PROJECT_MINIMAL = """
 query jobsQuery($projectId: UUID!){
     jobs(projectId: $projectId){
         id
@@ -7,7 +7,7 @@ query jobsQuery($projectId: UUID!){
 }
 """
 
-gql_list_jobs_for_project = """
+GQL_LIST_JOBS_FOR_PROJECT = """
 query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $instancesLimit: Int){
     jobs(projectId: $projectId, category: $category, technologyId: $technologyId){
         id
@@ -67,7 +67,7 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
 }
   """
 
-gql_get_job_instance = """
+GQL_GET_JOB_INSTANCE = """
 query jobInstanceQuery($jobInstanceId: UUID!){
     jobInstance(id: $jobInstanceId){
       id
@@ -83,7 +83,7 @@ query jobInstanceQuery($jobInstanceId: UUID!){
   }
   """
 
-gql_run_job = """
+GQL_RUN_JOB = """
   mutation runJobMutation($jobId: UUID!){
     runJob(jobId: $jobId){
       id
@@ -92,7 +92,7 @@ gql_run_job = """
   }
   """
 
-gql_stop_job_instance = """
+GQL_STOP_JOB_INSTANCE = """
   mutation stopJobInstanceMutation($jobInstanceId: UUID!){
     stopJobInstance(jobInstanceId: $jobInstanceId){
       id
@@ -105,7 +105,7 @@ gql_stop_job_instance = """
   }
   """
 
-gql_edit_job = """
+GQL_EDIT_JOB = """
 mutation editJobMutation($jobId: UUID!, $name: String, $description: String, 
                          $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone: TimeZone,
                          $alerting: JobPipelineAlertingInput, $resources: JobResourceInput) {
@@ -141,7 +141,7 @@ mutation editJobMutation($jobId: UUID!, $name: String, $description: String,
 }
 """
 
-gql_create_job = """
+GQL_CREATE_JOB = """
 mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $category: String!,
                            $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone: TimeZone
                            $technologyId: UUID!, $extraTechnology: ExtraTechnologyInput,
@@ -182,7 +182,7 @@ mutation createJobMutation($projectId: UUID!, $name: String!, $description: Stri
 }
 """
 
-gql_upgrade_job = """
+GQL_UPGRADE_JOB = """
 mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVersion: String, $commandLine: String,
                                $extraTechnology: ExtraTechnologyInput,
                                $usePreviousArtifact: Boolean, $dockerInfo: JobDockerInput, $file: Upload) {
@@ -203,7 +203,7 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
 }
 """
 
-gql_get_job_info = """
+GQL_GET_JOB_INFO = """
 query jobInfoQuery($jobId: UUID!){
     job(id: $jobId){
         id
@@ -255,7 +255,7 @@ query jobInfoQuery($jobId: UUID!){
 }
 """
 
-gql_delete_job = """
+GQL_DELETE_JOB = """
 mutation deleteJobMutation($jobId: UUID!){
     deleteJob(jobId: $jobId)
 }

@@ -1,4 +1,4 @@
-gql_list_pipelines_for_project_minimal = """
+GQL_LIST_PIPELINES_FOR_PROJECT_MINIMAL = """
 query projectPipelinesQuery($projectId: UUID!) {
     project(id: $projectId){
         pipelines{
@@ -9,8 +9,7 @@ query projectPipelinesQuery($projectId: UUID!) {
 }
   """
 
-
-gql_list_pipelines_for_project = """
+GQL_LIST_PIPELINES_FOR_PROJECT = """
 query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
     project(id: $projectId){
         pipelines{
@@ -44,7 +43,7 @@ query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
 }
   """
 
-gql_get_pipeline = """
+GQL_GET_PIPELINE = """
 query graphPipelineQuery($id: UUID!) {
     graphPipeline(id: $id){
         id
@@ -70,7 +69,7 @@ query graphPipelineQuery($id: UUID!) {
 }
   """
 
-gql_stop_pipeline_instance = """
+GQL_STOP_PIPELINE_INSTANCE = """
 mutation stopPipelineInstanceMutation($pipelineInstanceId: UUID!){
     stopPipelineInstance(pipelineInstanceId: $pipelineInstanceId){
       id
@@ -83,7 +82,7 @@ mutation stopPipelineInstanceMutation($pipelineInstanceId: UUID!){
 }
   """
 
-gql_edit_pipeline = """
+GQL_EDIT_PIPELINE = """
   mutation($id: UUID!, $name: String, $description: String, $alerting: JobPipelineAlertingInput,
           $isScheduled: Boolean, $cronScheduling: Cron, $scheduleTimezone:TimeZone)  {
     editPipeline(pipeline: {
@@ -110,7 +109,7 @@ gql_edit_pipeline = """
   }
 """
 
-gql_run_pipeline = """
+GQL_RUN_PIPELINE = """
 mutation runPipelineMutation($pipelineId: UUID!){
     runPipeline(pipelineId: $pipelineId){
       id
@@ -119,7 +118,7 @@ mutation runPipelineMutation($pipelineId: UUID!){
   }
 """
 
-gql_create_pipeline = """
+GQL_CREATE_PIPELINE = """
 mutation createPipelineMutation($name: String!, $description: String, $projectId: UUID!, $jobsId: [UUID!]!){
     createPipeline(pipeline: {
                                 name: $name
@@ -133,7 +132,7 @@ mutation createPipelineMutation($name: String!, $description: String, $projectId
 }
 """
 
-gql_get_pipeline_instance = """
+GQL_GET_PIPELINE_INSTANCE = """
 query pipelineInstanceQuery($id: UUID!){
     pipelineInstance(id: $id){
           id
@@ -144,7 +143,7 @@ query pipelineInstanceQuery($id: UUID!){
 }
 """
 
-gql_create_graph_pipeline = """
+GQL_CREATE_GRAPH_PIPELINE = """
 mutation createGraphPipelineMutation($name: String!, $description: String, $projectId: UUID!, 
                                      $releaseNote: String, 
                                      $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone:TimeZone,
@@ -168,7 +167,7 @@ mutation createGraphPipelineMutation($name: String!, $description: String, $proj
 }
 """
 
-gql_delete_pipeline = """
+GQL_DELETE_PIPELINE = """
 mutation deletePipelineMutation($id: UUID!){
   deletePipeline (
     id: $id
@@ -176,7 +175,7 @@ mutation deletePipelineMutation($id: UUID!){
 }
 """
 
-gql_upgrade_pipeline = """
+GQL_UPGRADE_PIPELINE = """
   mutation($id: UUID!, $jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!], $releaseNote: String){
   addGraphPipelineVersion(
     pipelineId: $id,

@@ -35,7 +35,7 @@ class Jobs:
         params = {"projectId": project_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
-        query = gql(gql_list_jobs_for_project)
+        query = gql(GQL_LIST_JOBS_FOR_PROJECT)
         return self.client.execute(query, variable_values=params)
 
     def list_for_project_minimal(self, project_id):
@@ -53,7 +53,7 @@ class Jobs:
         dict
             Dict of jobs ids and names
         """
-        query = gql(gql_list_jobs_for_project_minimal)
+        query = gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL)
         return self.client.execute(query, variable_values={"projectId": project_id})
 
     def get_instance(self, job_instance_id):
@@ -69,7 +69,7 @@ class Jobs:
         dict
             Dict of instance information
         """
-        query = gql(gql_get_job_instance)
+        query = gql(GQL_GET_JOB_INSTANCE)
         return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
     def get_id(self, job_name, project_name):
@@ -110,7 +110,7 @@ class Jobs:
             Dict of job's info
 
         """
-        query = gql(gql_get_job_info)
+        query = gql(GQL_GET_JOB_INFO)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
     def create(self, job_name, project_id, file=None, description='',
@@ -225,7 +225,6 @@ class Jobs:
             params = self.saagie_api.check_alerting(emails, params, status_list)
 
         if cron_scheduling:
-            params["isScheduled"] = True
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
 
         else:
@@ -234,7 +233,7 @@ class Jobs:
         if resources:
             params["resources"] = resources
 
-        return self.__launch_request(file, gql_create_job, params)
+        return self.__launch_request(file, GQL_CREATE_JOB, params)
 
     def edit(self, job_id, job_name=None, description=None, is_scheduled=None,
              cron_scheduling=None, schedule_timezone="UTC", resources=None,
@@ -321,7 +320,7 @@ class Jobs:
                     "statusList": previous_alerting["statusList"]
                 }
 
-        query = gql(gql_edit_job)
+        query = gql(GQL_EDIT_JOB)
         return self.client.execute(query, variable_values=params)
 
     def upgrade(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.7',
@@ -380,7 +379,7 @@ class Jobs:
                 "version": extra_technology_version
             }
 
-        return self.__launch_request(file, gql_upgrade_job, params)
+        return self.__launch_request(file, GQL_UPGRADE_JOB, params)
 
     def upgrade_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
                         command_line='python {file} arg1 arg2', release_note=None,
@@ -436,7 +435,7 @@ class Jobs:
             Dict of deleted job
 
         """
-        query = gql(gql_delete_job)
+        query = gql(GQL_DELETE_JOB)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
     def run(self, job_id):
@@ -452,7 +451,7 @@ class Jobs:
         dict
             Dict of the given job information
         """
-        query = gql(gql_run_job)
+        query = gql(GQL_RUN_JOB)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
     def run_with_callback(self, job_id, freq=10, timeout=-1):
@@ -508,7 +507,7 @@ class Jobs:
         dict
             Job instance information
         """
-        query = gql(gql_stop_job_instance)
+        query = gql(GQL_STOP_JOB_INSTANCE)
         return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
     def __launch_request(self, file, payload_str, params):

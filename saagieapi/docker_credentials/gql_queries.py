@@ -1,4 +1,4 @@
-gql_create_docker_credentials = """
+GQL_CREATE_DOCKER_CREDENTIALS = """
 mutation createDockerCredentialsMutation($registry: String, $username: String!, $password: String!, $projectId: UUID!) {
     createDockerCredentials(
         dockerCredentials: {
@@ -14,7 +14,7 @@ mutation createDockerCredentialsMutation($registry: String, $username: String!, 
 }
 """
 
-gql_upgrade_docker_credentials = """
+GQL_UPGRADE_DOCKER_CREDENTIALS = """
 mutation updateDockerCredentialsMutation($id: UUID!, $registry: String, 
                     $username: String, $password: String!, $projectId: UUID!) {
     updateDockerCredentials(
@@ -32,7 +32,7 @@ mutation updateDockerCredentialsMutation($id: UUID!, $registry: String,
 }
 """
 
-gql_delete_docker_credentials = """
+GQL_DELETE_DOCKER_CREDENTIALS = """
 mutation deleteDockerCredentialsMutation($id: UUID!, $projectId: UUID!) {
     deleteDockerCredentials(
         id: $id
@@ -40,7 +40,7 @@ mutation deleteDockerCredentialsMutation($id: UUID!, $projectId: UUID!) {
 }
 """
 
-gql_get_all_docker_credentials = """
+GQL_GET_ALL_DOCKER_CREDENTIALS = """
 query allDockerCredentialsQuery($projectId: UUID!) {
     allDockerCredentials(projectId: $projectId){
         id
@@ -54,7 +54,7 @@ query allDockerCredentialsQuery($projectId: UUID!) {
 }
 """
 
-gql_get_docker_credentials = """
+GQL_GET_DOCKER_CREDENTIALS = """
 query dockerCredentialsQuery($id: UUID!, $projectId: UUID!) {
     dockerCredentials(id: $id, projectId: $projectId){
         id

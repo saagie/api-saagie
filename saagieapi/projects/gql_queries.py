@@ -1,4 +1,4 @@
-gql_list_projects = """
+GQL_LIST_PROJECTS = """
   {
        projects{
           id,
@@ -11,7 +11,7 @@ gql_list_projects = """
   }
   """
 
-gql_get_project_info = """
+GQL_GET_PROJECT_INFO = """
 query projectQuery($id: UUID!) {
     project(id: $id){
         name
@@ -23,7 +23,7 @@ query projectQuery($id: UUID!) {
 }
   """
 
-gql_get_project_technologies = """
+GQL_GET_PROJECT_TECHNOLOGIES = """
 query projectQuery($id: UUID!) {
     project(id: $id){
         technologiesByCategory{
@@ -36,7 +36,7 @@ query projectQuery($id: UUID!) {
 }
 """
 
-gql_create_project = """
+GQL_CREATE_PROJECT = """
 mutation createProjectMutation($name: String!, $description: String, $technologies: [TechnologyInput!],
                                 $appTechnologies: [TechnologyInput!], $authorizedGroups: [SecurityGroupInput]) {
   createProject(project: {
@@ -62,7 +62,7 @@ mutation createProjectMutation($name: String!, $description: String, $technologi
 }
 """
 
-group_block_template = """
+GROUP_BLOCK_TEMPLATE = """
 authorizedGroups: [
                       {{
                         name: "{0}",
@@ -71,7 +71,7 @@ authorizedGroups: [
                     ]
 """
 
-gql_delete_project = """
+GQL_DELETE_PROJECT = """
 mutation deleteProjectMutation($projectId: UUID!){
     deleteProject(projectId: $projectId)
 }

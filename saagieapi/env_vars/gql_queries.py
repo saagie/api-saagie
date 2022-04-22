@@ -1,4 +1,4 @@
-gql_list_global_env_vars = """
+GQL_LIST_GLOBAL_ENV_VARS = """
   {
     globalEnvironmentVariables{
       id,
@@ -11,7 +11,7 @@ gql_list_global_env_vars = """
   }
   """
 
-gql_create_env_var = """
+GQL_CREATE_ENV_VAR = """
 mutation saveEnvironmentVariableMutation($id: UUID, $projectId: UUID, $name: String!, $scope: EnvVarScope!, 
                                          $value: String, $description: String, $isPassword: Boolean!)  {
             saveEnvironmentVariable(
@@ -30,7 +30,7 @@ mutation saveEnvironmentVariableMutation($id: UUID, $projectId: UUID, $name: Str
 }
 """
 
-gql_update_env_var = """
+GQL_UPDATE_ENV_VAR = """
 mutation($id: UUID, $projectId: UUID, $name: String!, $scope: EnvVarScope!, $value: String, $description: String, 
         $isPassword: Boolean!)  {
             saveEnvironmentVariable(
@@ -48,13 +48,13 @@ mutation($id: UUID, $projectId: UUID, $name: String!, $scope: EnvVarScope!, $val
     }}
 """
 
-gql_delete_env_var = """
+GQL_DELETE_ENV_VAR = """
 mutation deleteEnvironmentVariableMutation($id: UUID!) {
     deleteEnvironmentVariable (id: $id)
 }
 """
 
-gql_list_project_env_vars = """
+GQL_LIST_PROJECT_ENV_VARS = """
 query technologyQuery($projectId: UUID!){
     projectEnvironmentVariables(projectId: $projectId){
         id

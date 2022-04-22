@@ -1,4 +1,4 @@
-gql_list_apps_for_project = """
+GQL_LIST_APPS_FOR_PROJECT = """
 query labWebAppQuery($id: UUID!){
     labWebApps(projectId: $id){ 
       id
@@ -59,7 +59,7 @@ query labWebAppQuery($id: UUID!){
 }
 """
 
-gql_get_app_info = """
+GQL_GET_APP_INFO = """
 query labWebAppQuery($id: UUID!){
     labWebApp(id: $id){ 
       id
@@ -120,7 +120,7 @@ query labWebAppQuery($id: UUID!){
   }
   """
 
-gql_create_app = """
+GQL_CREATE_APP = """
 mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $technologyId: UUID!, 
                            $storageSizeInMB: Int,
                            $image: String!, $dockerCredentialsId: UUID, $exposedPorts: [ExposedPortInput!],
@@ -157,7 +157,7 @@ mutation createJobMutation($projectId: UUID!, $name: String!, $description: Stri
     }}
 """
 
-gql_edit_app = """
+GQL_EDIT_APP = """
 mutation editJobMutation($id: UUID!, $name: String, $description: String, $alerting: JobPipelineAlertingInput) {
     editJob(job: {
         id: $id

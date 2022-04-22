@@ -3,7 +3,6 @@ import sys
 import time
 
 import pytest
-import urllib3
 
 from saagieapi import SaagieApi
 from saagieapi.pipelines.graph_pipeline import *
@@ -18,9 +17,6 @@ class TestIntegrationProjectCreationAndDeletion:
     """
 
     def setup_class(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
         url_saagie = os.environ['URL_TEST_SAAGIE']
         id_platform = os.environ['ID_PLATFORM_TEST_SAAGIE']
         user = os.environ['USER_TEST_SAAGIE']
@@ -38,9 +34,6 @@ class TestIntegrationProjectCreationAndDeletion:
 
     @pytest.fixture
     def create_project(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
         result = self.saagie.projects.create(name=self.project_name,
                                              group=self.group,
                                              role="Manager",
@@ -74,8 +67,6 @@ class TestIntegrationProjectCreationAndDeletion:
 
 class TestIntegrationProject:
     def setup_class(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         url_saagie = os.environ['URL_TEST_SAAGIE']
         id_platform = os.environ['ID_PLATFORM_TEST_SAAGIE']
@@ -127,8 +118,6 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_job(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         job_name = "python_test"
         file = dir_path + '/resources/hello_world.py'
 
@@ -251,8 +240,6 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_global_env_var(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         name = 'TEST_VIA_API'
         value = 'VALUE_TEST_VIA_API'
@@ -267,8 +254,6 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_global_env_var_password(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         name = 'TEST_VIA_API_PASSWORD'
         value = 'VALUE_TEST_VIA_API_PASSWORD'
@@ -355,8 +340,6 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_project_env_var(self):
-        # Disable urllib3 InsecureRequestsWarnings
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
         name = 'TEST_VIA_API'
         value = 'VALUE_TEST_VIA_API'
