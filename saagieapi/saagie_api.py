@@ -108,8 +108,6 @@ class SaagieApi:
         )
 
         # Valid status list of alerting
-        self.valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
-                                  "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
         self.projects = Projects(self)
         self.jobs = Jobs(self)
         self.pipelines = Pipelines(self)
@@ -146,10 +144,17 @@ class SaagieApi:
                 "Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)")
         return cls(url_saagie, id_platform, user, password, realm)
 
-    def check_alerting(self, emails, params, status_list):
+    @staticmethod
+    def check_alerting(emails, params, status_list):
+        """
+        Check if the alerting is enabled for the given project and if so, check params and status_list.
+        """
+        valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
+                             "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
+
         wrong_status_list = []
         for item in status_list:
-            if item not in self.valid_status_list:
+            if item not in valid_status_list:
                 wrong_status_list.append(item)
         if wrong_status_list:
             raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
@@ -166,6 +171,9 @@ class SaagieApi:
 
     @staticmethod
     def check_scheduling(cron_scheduling, params, schedule_timezone):
+        """
+        Check if the cron_scheduling is valid and if it is, add it to the params.
+        """
         params["isScheduled"] = True
         if cron_scheduling and croniter.is_valid(cron_scheduling):
             params["cronScheduling"] = cron_scheduling

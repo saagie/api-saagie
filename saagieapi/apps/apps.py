@@ -106,7 +106,8 @@ class Apps:
             raise ValueError(
                 f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'")
-
+        #TODO refactor to put in saagie api class and replace for apps as well
+        #TODO check if the app is configured in the project
         all_technologies_in_catalog = [
             catalog['technologies'] for catalog in self.saagie_api.get_repositories_info()['repositories']
             if catalog['name'] == technology_catalog
@@ -114,6 +115,7 @@ class Apps:
         if not all_technologies_in_catalog:
             raise RuntimeError(
                 f"Catalog {technology_catalog} does not exist or does not contain technologies")
+
         technology_in_catalog = [tech['id'] for tech in
                                  all_technologies_in_catalog[0]
                                  if
@@ -122,6 +124,7 @@ class Apps:
         if not technology_in_catalog:
             raise RuntimeError(
                 f"Technology {technology} does not exist in the catalog {technology_catalog}")
+
         technology_id = technology_in_catalog[0]
         params["technologyId"] = technology_id
 
@@ -129,22 +132,7 @@ class Apps:
             params["dockerCredentialsId"] = docker_credentials_id
 
         if emails:
-            wrong_status_list = []
-
-            for item in status_list:
-                if item not in self.valid_status_list:
-                    wrong_status_list.append(item)
-            if wrong_status_list:
-                raise RuntimeError(f"The following status are not valid: {wrong_status_list}. "
-                                   f"Please make sure that each item of the parameter status_list should be "
-                                   f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
-                                   f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'")
-
-            else:
-                params["alerting"] = {
-                    "emails": emails,
-                    "statusList": status_list
-                }
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         query = gql(gql_create_app)
         return self.client.execute(query, variable_values=params)
 

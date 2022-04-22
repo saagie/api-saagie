@@ -12,6 +12,10 @@ class TestProjects:
         query = gql(gql_list_projects)
         self.client.validate(query)
 
+    def test_get_project_technologies(self):
+        query = gql(gql_get_project_technologies)
+        self.client.validate(query)
+
     def test_get_project_info(self):
         query = gql(gql_get_project_info)
         self.client.validate(query)

@@ -226,7 +226,7 @@ class Jobs:
 
         if cron_scheduling:
             params["isScheduled"] = True
-            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params)
+            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params, schedule_timezone)
 
         else:
             params["isScheduled"] = False
