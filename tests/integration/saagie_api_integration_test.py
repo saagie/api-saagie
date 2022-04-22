@@ -122,9 +122,8 @@ class TestIntegrationProject:
         assert expected_project_id == output_project_id
 
     def test_get_project_technologies(self):
-        expected_project_id = self.project_id
-        output_project_id = self.saagie.projects.get_id(self.project_name)
-        assert expected_project_id == output_project_id
+        output_technologies = self.saagie.projects.get_technologies(self.project_id)
+        assert type(output_technologies['technologiesByCategory']) is list
 
     @pytest.fixture
     def create_job(self):

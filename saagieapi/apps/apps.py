@@ -106,8 +106,8 @@ class Apps:
             raise ValueError(
                 f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'")
-        #TODO refactor to put in saagie api class and replace for apps as well
         #TODO check if the app is configured in the project
+        #TODO check if code can be mutualised with code in jobs
         all_technologies_in_catalog = [
             catalog['technologies'] for catalog in self.saagie_api.get_repositories_info()['repositories']
             if catalog['name'] == technology_catalog
