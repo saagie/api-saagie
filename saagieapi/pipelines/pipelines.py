@@ -172,7 +172,7 @@ class Pipelines:
 
         if cron_scheduling:
             params["isScheduled"] = True
-            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params, schedule_timezone)
+            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
 
         else:
             params["isScheduled"] = False
@@ -277,7 +277,7 @@ class Pipelines:
 
         if is_scheduled:
             params["isScheduled"] = True
-            params = self.saagie_api.check_cron_scheduling(cron_scheduling, params, schedule_timezone)
+            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
 
         elif is_scheduled == False:
             params["isScheduled"] = False
