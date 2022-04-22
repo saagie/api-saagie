@@ -60,8 +60,8 @@ class Projects:
         query = gql(GQL_GET_PROJECT_INFO)
         return self.client.execute(query, variable_values={"id": project_id})
 
-    def get_technologies(self, project_id):
-        """List available technologies (id and label) for the project
+    def get_jobs_technologies(self, project_id):
+        """List available jobs technologies id for the project
 
         Parameters
         ----------
@@ -71,9 +71,25 @@ class Projects:
         Returns
         -------
         dict
-            Dict of available technologies
+            Dict of available jobs technology ids
         """
-        query = gql(GQL_GET_PROJECT_TECHNOLOGIES)
+        query = gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES)
+        return self.client.execute(query, variable_values={"id": project_id})['project']
+
+    def get_apps_technologies(self, project_id):
+        """List available apps technology ids for the project
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of available apps technology ids
+        """
+        query = gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES)
         return self.client.execute(query, variable_values={"id": project_id})['project']
 
     def create(self, name, group=None, role="Manager", description=""):

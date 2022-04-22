@@ -23,14 +23,25 @@ query projectQuery($id: UUID!) {
 }
   """
 
-GQL_GET_PROJECT_TECHNOLOGIES = """
+GQL_GET_PROJECT_JOBS_TECHNOLOGIES = """
 query projectQuery($id: UUID!) {
     project(id: $id){
         technologiesByCategory{
             jobCategory
             technologies{
                 id
+                __typename
             }
+        }
+    }
+}
+"""
+
+GQL_GET_PROJECT_APPS_TECHNOLOGIES = """
+query appTechnologiesQuery($id: UUID!) {
+    project(id: $id){
+        appTechnologies{
+                id
         }
     }
 }

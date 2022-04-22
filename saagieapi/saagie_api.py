@@ -221,6 +221,76 @@ class SaagieApi:
             raise RuntimeError("Please specify a correct timezone")
         return params
 
+    def check_technology(self, params, project_id, technology, technology_catalog, technologies_configured_for_project):
+        """
+            Get all technlogies in the catalogs and calls the check_technology_valid method
+            Parameters
+            ----------
+            params : dict
+                dict containing the params of the technology
+            project_id : str
+                if of the project containing the technologies
+            technology : str
+                timezone of the schedule
+            technology_catalog : str
+                timezone of the schedule
+            technologies_configured_for_project : list
+                list of technologies configured for the project (can be either jobs or apps)
+        """
+        all_technologies_in_catalog = [
+            catalog['technologies'] for catalog in self.get_repositories_info()['repositories']
+            if catalog['name'] == technology_catalog
+        ]
+        return self.check_technology_valid(params, technology, all_technologies_in_catalog,
+                                           technologies_configured_for_project)
+
+    @staticmethod
+    def check_technology_valid(params, technology, all_technologies_in_catalog,
+                               technologies_configured_for_project):
+        """
+        Check if the technology exists in the catagory specified and teh catalog in params.
+        Parameters
+        ----------
+        params : dict
+            dict containing the params of the technology
+        technology : str
+            timezone of the schedule
+        all_technologies_in_catalog : list
+            list of all technologies in the catalog
+        technologies_configured_for_project : list
+            list of technologies configured for the project (can be either jobs or apps)
+
+        Returns
+        -------
+        dict
+            Dict containing technology id
+
+        Raises
+        ------
+        RunTimeError
+            When :
+            - the technology does not exist in the catalog
+            - the catalog does not exist or does not contains technologies
+            - the technology is not configured in the project
+        """
+        if not all_technologies_in_catalog:
+            raise RuntimeError(
+                f"Catalog does not exist or does not contain technologies")
+        technology_in_catalog = [tech['id'] for tech in
+                                 all_technologies_in_catalog[0]
+                                 if tech["label"].lower() == technology.lower()]
+        if not technology_in_catalog:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the catalog specified")
+
+        if technology_in_catalog[0] not in technologies_configured_for_project:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the target project  "
+                f"and for the catalog specified")
+
+        params["technologyId"] = technology_in_catalog[0]
+        return params
+
     # ##########################################################
     # ###                    cluster                        ####
     # ##########################################################
@@ -470,9 +540,9 @@ class SaagieApi:
 
     @deprecation.deprecated(
         details="This function is deprecated and will be removed in a future version. "
-                "Please use 'saagieapi.projects.get_technologies' instead.")
+                "Please use 'saagieapi.projects.get_jobs_technologies' instead.")
     def get_project_technologies(self, project_id):
-        return self.projects.get_technologies(project_id)
+        return self.projects.get_jobs_technologies(project_id)
 
     @deprecation.deprecated(
         details="This function is deprecated and will be removed in a future version. "

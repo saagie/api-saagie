@@ -41,11 +41,15 @@ GQL_GET_RUNTIMES = """
 query technologyQuery($id: UUID!){
     technology(id: $id){ 
         __typename 
-        ... on JobTechnology {contexts{label}}
+        ... on JobTechnology {contexts{
+        id 
+        label 
+        available}}
         ... on SparkTechnology {contexts{label}}
         ... on AppTechnology{
             id
             label
+            available
             appContexts{
                 id
                 available

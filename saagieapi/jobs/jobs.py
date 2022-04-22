@@ -182,7 +182,7 @@ class Jobs:
             "projectId": project_id, "name": job_name, "description": description, "category": category,
             "releaseNote": release_note, "runtimeVersion": runtime_version, "commandLine": command_line}
 
-        technologies_for_project = self.saagie_api.projects.get_technologies(project_id)['technologiesByCategory']
+        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id)['technologiesByCategory']
         technologies_for_project_and_category = [
             tech['id'] for tech in
             [
@@ -190,31 +190,15 @@ class Jobs:
                 if tech['jobCategory'] == category
             ][0]
         ]
-        all_technologies_in_catalog = [
-            catalog['technologies'] for catalog in self.saagie_api.get_repositories_info()['repositories']
-            if catalog['name'] == technology_catalog
-        ]
-        if not all_technologies_in_catalog:
+        params = self.saagie_api.check_technology(params, project_id, technology, technology_catalog,
+                                                  technologies_for_project_and_category)
+        available_runtimes = [tech['label'] for tech in
+                              self.saagie_api.get_runtimes(params["technologyId"])['technology']['contexts']
+                              if tech["available"] is True]
+        if runtime_version not in available_runtimes:
             raise RuntimeError(
-                f"Catalog {technology_catalog} does not exist or does not contain technologies")
-
-        technology_in_catalog = [tech['id'] for tech in
-                                 all_technologies_in_catalog[0]
-                                 if tech["label"].lower() == technology.lower()]
-
-        if not technology_in_catalog:
-            raise RuntimeError(
-                f"Technology {technology} does not exist in the catalog {technology_catalog}")
-
-        if technology_in_catalog[0] not in technologies_for_project_and_category:
-            raise RuntimeError(
-                f"Technology {technology} does not exist in the target project {project_id} "
-                f"for the {category} category "
-                f"and for the {technology_catalog} catalog")
-        else:
-            technology_id = technology_in_catalog[0]
-            params["technologyId"] = technology_id
-
+                f"Runtime {runtime_version} for technology {technology} does not exist "
+                f"in the catalog {technology_catalog} or is deprecated")
         if extra_technology != '':
             params["extraTechnology"] = {
                 "language": extra_technology,

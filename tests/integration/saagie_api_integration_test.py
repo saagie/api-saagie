@@ -3,7 +3,7 @@ import sys
 import time
 
 import pytest
-
+import urllib3
 from saagieapi import SaagieApi
 from saagieapi.pipelines.graph_pipeline import *
 
@@ -17,6 +17,7 @@ class TestIntegrationProjectCreationAndDeletion:
     """
 
     def setup_class(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         url_saagie = os.environ['URL_TEST_SAAGIE']
         id_platform = os.environ['ID_PLATFORM_TEST_SAAGIE']
         user = os.environ['USER_TEST_SAAGIE']
@@ -34,6 +35,7 @@ class TestIntegrationProjectCreationAndDeletion:
 
     @pytest.fixture
     def create_project(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         result = self.saagie.projects.create(name=self.project_name,
                                              group=self.group,
                                              role="Manager",
@@ -45,6 +47,7 @@ class TestIntegrationProjectCreationAndDeletion:
 
     @pytest.fixture
     def create_then_delete_project(self, create_project):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         project_id = create_project
 
         yield
@@ -67,7 +70,7 @@ class TestIntegrationProjectCreationAndDeletion:
 
 class TestIntegrationProject:
     def setup_class(self):
-
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         url_saagie = os.environ['URL_TEST_SAAGIE']
         id_platform = os.environ['ID_PLATFORM_TEST_SAAGIE']
         user = os.environ['USER_TEST_SAAGIE']
@@ -113,11 +116,15 @@ class TestIntegrationProject:
         assert expected_project_id == output_project_id
 
     def test_get_project_technologies(self):
-        output_technologies = self.saagie.projects.get_technologies(self.project_id)
-        assert type(output_technologies['technologiesByCategory']) is list
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        jobs_technologies = self.saagie.projects.get_jobs_technologies(self.project_id)
+        apps_technologies = self.saagie.projects.get_apps_technologies(self.project_id)
+        assert type(jobs_technologies['technologiesByCategory']) is list
+        assert type(apps_technologies['appTechnologies']) is list
 
     @pytest.fixture
     def create_job(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         job_name = "python_test"
         file = dir_path + '/resources/hello_world.py'
 
@@ -140,6 +147,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_then_delete_job(self, create_job):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         job_id = create_job
 
         yield job_id
@@ -240,7 +248,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_global_env_var(self):
-
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         name = 'TEST_VIA_API'
         value = 'VALUE_TEST_VIA_API'
         description = 'DESCRIPTION_TEST_VIA_API'
@@ -254,7 +262,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_global_env_var_password(self):
-
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         name = 'TEST_VIA_API_PASSWORD'
         value = 'VALUE_TEST_VIA_API_PASSWORD'
         description = 'DESCRIPTION_TEST_VIA_API_PASSWORD'
@@ -268,6 +276,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_then_delete_global_env_var(self, create_global_env_var):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         name = create_global_env_var
 
         yield name
@@ -276,6 +285,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_then_delete_global_env_var_password(self, create_global_env_var_password):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         name = create_global_env_var_password
 
         yield name
@@ -340,7 +350,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_project_env_var(self):
-
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         name = 'TEST_VIA_API'
         value = 'VALUE_TEST_VIA_API'
         description = 'DESCRIPTION_TEST_VIA_API'
@@ -355,6 +365,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_then_delete_project_env_var(self, create_project_env_var):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         name = create_project_env_var
 
         yield name
@@ -404,6 +415,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_graph_pipeline(self, create_job):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         job_id = create_job
         job_node1 = JobNode(job_id)
         job_node2 = JobNode(job_id)
@@ -428,6 +440,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_then_delete_graph_pipeline(self, create_graph_pipeline):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         pipeline_id, job_id = create_graph_pipeline
 
         yield pipeline_id, job_id
@@ -436,6 +449,7 @@ class TestIntegrationProject:
         self.saagie.jobs.delete(job_id)
 
     def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         pipeline_id, _ = create_then_delete_graph_pipeline
         list_pipelines = self.saagie.pipelines.list_for_project(self.project_id)
         list_pipelines_id = [pipeline['id'] for pipeline in list_pipelines['project']['pipelines']]

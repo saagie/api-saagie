@@ -39,6 +39,7 @@ class Apps:
         query = gql(GQL_GET_APP_INFO)
         return self.client.execute(query, variable_values={"id": app_id})
 
+
     def create(self, project_id, app_name, image, description='', technology_catalog='Saagie',
                technology="Docker image", docker_credentials_id=None, exposed_ports=None, storage_paths=None,
                storage_size_in_mb=128, release_note='', emails=None, status_list=["FAILED"]):
@@ -106,27 +107,11 @@ class Apps:
             raise ValueError(
                 f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'")
-        #TODO check if the app is configured in the project
-        #TODO check if code can be mutualised with code in jobs
-        all_technologies_in_catalog = [
-            catalog['technologies'] for catalog in self.saagie_api.get_repositories_info()['repositories']
-            if catalog['name'] == technology_catalog
-        ]
-        if not all_technologies_in_catalog:
-            raise RuntimeError(
-                f"Catalog {technology_catalog} does not exist or does not contain technologies")
 
-        technology_in_catalog = [tech['id'] for tech in
-                                 all_technologies_in_catalog[0]
-                                 if
-                                 tech["label"].lower() == technology.lower() and tech["__typename"] == "AppTechnology"]
-
-        if not technology_in_catalog:
-            raise RuntimeError(
-                f"Technology {technology} does not exist in the catalog {technology_catalog}")
-
-        technology_id = technology_in_catalog[0]
-        params["technologyId"] = technology_id
+        technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)['appTechnologies']
+        # TODO does nos work with Docker image, check_technology faild because Docker is not configured in the project
+        params = self.saagie_api.check_technology(params, project_id, technology, technology_catalog,
+                                                  technologies_for_project)
 
         if docker_credentials_id:
             params["dockerCredentialsId"] = docker_credentials_id
