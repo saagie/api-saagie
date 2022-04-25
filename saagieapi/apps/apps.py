@@ -109,7 +109,16 @@ class Apps:
                 "All accept key of each dict is: '{list_exposed_port_field}'")
 
         technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)['appTechnologies']
-        # TODO does nos work with Docker image, check_technology faild because Docker is not configured in the project
+        technologies_for_project = [tech['id'] for tech in technologies_for_project]
+
+        # For apps, docker technology is always available
+        repositories = self.saagie_api.get_repositories_info()['repositories']
+        # Filter saagie repo
+        saagie_repo = [repo for repo in repositories if repo['name'] == 'Saagie'][0]['technologies']
+        # Get id of docker technology
+        docker_id = [repo['id'] for repo in saagie_repo if repo['label'] == 'Docker image'][0]
+        # Add docker technology to the list of technologies for the project
+        technologies_for_project.append(docker_id)
         params = self.saagie_api.check_technology(params, project_id, technology, technology_catalog,
                                                   technologies_for_project)
 
