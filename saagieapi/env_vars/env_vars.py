@@ -1,5 +1,5 @@
 from gql import gql
-from typing import Dict, bool
+from typing import Dict
 
 from .gql_queries import *
 
