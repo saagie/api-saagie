@@ -1,4 +1,5 @@
 from gql import gql
+from typing import Dict, bool
 
 from .gql_queries import *
 
@@ -22,9 +23,8 @@ class EnvVars:
         query = gql(GQL_LIST_GLOBAL_ENV_VARS)
         return self.client.execute(query)
 
-    def create_global(self, name, value,
-                      description='',
-                      is_password=False):
+    def create_global(self, name: str, value: str, description: str = '',
+                      is_password: bool = False) -> Dict:
         """Create a global environment variable
 
         Parameters
@@ -43,12 +43,13 @@ class EnvVars:
         dict
             Dict of created environment variable
         """
-        params = {"name": name, "value": value, "description": description, "isPassword": is_password,
-                  "scope": "GLOBAL"}
+        params = {"name": name, "value": value, "description": description,
+                  "isPassword": is_password, "scope": "GLOBAL"}
         query = gql(GQL_CREATE_ENV_VAR)
         return self.client.execute(query, variable_values=params)
 
-    def update_global(self, name, new_name=None, value=None, description=None, is_password=None):
+    def update_global(self, name: str, new_name: str = None, value: str = None,
+                      description: str = None, is_password: bool = None) -> Dict:
         """
         Update environment variable with provided function variables if it exists
         Parameters
@@ -63,9 +64,16 @@ class EnvVars:
             New description of the environment variable. If none provided, keep the actual one
         is_password: boolean, optional
             New password boolean status. If none provided, keep the actual one
+
         Returns
         -------
-        Dict containing the id of the updated environment variable
+        dict
+            Dict containing the id of the updated environment variable
+
+        Raises
+        ------
+        ValueError
+            When the variable doesn't already exist
         """
 
         existing_env_var = self.list_globals()['globalEnvironmentVariables']
@@ -92,7 +100,7 @@ class EnvVars:
 
         return self.client.execute(query, variable_values=params)
 
-    def delete_global(self, name):
+    def delete_global(self, name: str) -> Dict:
         """Delete the given global environment variable
 
         Parameters
@@ -123,7 +131,7 @@ class EnvVars:
         query = gql(GQL_DELETE_ENV_VAR)
         return self.client.execute(query, variable_values={"id": global_env_id})
 
-    def list_for_project(self, project_id):
+    def list_for_project(self, project_id: str) -> Dict:
         """Get project environment variables
         NB: You can only list environment variables if you have at least the
         viewer role on the project
@@ -141,8 +149,8 @@ class EnvVars:
         query = gql(GQL_LIST_PROJECT_ENV_VARS)
         return self.client.execute(query, variable_values={"projectId": project_id})
 
-    def create_for_project(self, project_id, name, value,
-                           description='', is_password=False):
+    def create_for_project(self, project_id: str, name: str, value: str,
+                           description: str = '', is_password: bool = False) -> Dict:
         """Create an environment variable in a given project
 
         Parameters
@@ -168,9 +176,12 @@ class EnvVars:
         query = gql(GQL_CREATE_ENV_VAR)
         return self.client.execute(query, variable_values=params)
 
-    def update_for_project(self, project_id, name, new_name=None, value=None, description=None, is_password=None):
+    def update_for_project(self, project_id: str, name: str, new_name: str = None,
+                           value: str = None, description: str = None,
+                           is_password: bool = None) -> Dict:
         """
         Update environment variable with provided function variables if it exists
+
         Parameters
         ----------
         project_id : str
@@ -185,9 +196,16 @@ class EnvVars:
             New description of the environment variable. If none provided, keep the actual one
         is_password: boolean, optional
             New password boolean status. If none provided, keep the actual one
+
         Returns
         -------
-        Dict containing the id of the updated environment variable
+        dict
+            Dict containing the id of the updated environment variable
+
+        Raises
+        ------
+        ValueError
+            When the variable doesn't already exist
         """
 
         existing_env_var = self.list_for_project(project_id)['projectEnvironmentVariables']
@@ -214,7 +232,7 @@ class EnvVars:
 
         return self.client.execute(query, variable_values=params)
 
-    def delete_for_project(self, project_id, name):
+    def delete_for_project(self, project_id: str, name: str) -> Dict:
         """Delete a given environment variable inside a given project
 
         Parameters
