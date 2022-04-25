@@ -100,6 +100,41 @@ class EnvVars:
 
         return self.client.execute(query, variable_values=params)
 
+    def create_or_update_global(self, name: str, value: str, description: str = '',
+                      is_password: bool = False) -> Dict:
+        """
+        Create a new global environnement variable or update it if it already exists
+
+        Parameters
+        ----------
+        name: str
+            Unique name of the environnement variable to create or modify
+        value: str
+            Value of the environnement variable to create or modify
+        description: str, optional
+            Description of the variable
+        is_password: boolean, optional
+            Weather the variable is a password or not (default: False)
+
+        Returns
+        -------
+        dict
+            Dict of created or updated environment variable
+        """
+
+        existing_env_var = self.list_globals()['globalEnvironmentVariables']
+        present = name in [env['name'] for env in existing_env_var]
+
+        # If variable not present, create it
+        if not present:
+            return self.create_global(name=name, value=value,
+                                      description=description,
+                                      is_password=is_password)
+        else:
+            return self.update_global(name=name, new_name=None, value=value,
+                                      description=description,
+                                      is_password=is_password)
+
     def delete_global(self, name: str) -> Dict:
         """Delete the given global environment variable
 
@@ -231,6 +266,45 @@ class EnvVars:
         query = gql(GQL_UPDATE_ENV_VAR)
 
         return self.client.execute(query, variable_values=params)
+
+    def create_or_update_for_project(self, project_id: str, name: str, value: str,
+                                     description: str = '',
+                                     is_password: bool = False) -> Dict:
+        """
+        Create a new project environnement variable or update it if it already exists
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+        name: str
+            Unique name of the environnement variable to create or modify
+        value: str
+            Value of the environnement variable to create or modify
+        description: str, optional
+            Description of the variable
+        is_password: boolean, optional
+            Weather the variable is a password or not (default: False)
+
+        Returns
+        -------
+        dict
+            Dict of created or updated environment variable
+        """
+
+        existing_env_var = self.list_for_project(project_id)['projectEnvironmentVariables']
+        present = name in [env['name'] for env in existing_env_var]
+
+        # If variable not present, create it
+        if not present:
+            return self.create_for_project(project_id=project_id, name=name,
+                                           value=value, description=description,
+                                           is_password=is_password)
+        else:
+            return self.update_for_project(project_id=project_id, name=name,
+                                           new_name=None, value=value,
+                                           description=description,
+                                           is_password=is_password)
 
     def delete_for_project(self, project_id: str, name: str) -> Dict:
         """Delete a given environment variable inside a given project
