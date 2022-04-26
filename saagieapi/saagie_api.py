@@ -29,7 +29,7 @@ class BearerAuth(requests.auth.AuthBase):
         return r
 
     @staticmethod
-    def _authenticate(realm, url, login, password):
+    def _authenticate(realm: str, url: str, login: str, password: str) -> str:
         """
         Retrieve a Bearer connection token
         :param realm: platform url prefix (eg: saagie)
@@ -51,7 +51,7 @@ class SaagieApi:
     """Define several methods to interact with Saagie API in Python
     """
 
-    def __init__(self, url_saagie, id_platform, user, password, realm, retries=0):
+    def __init__(self, url_saagie: str, id_platform: str, user: str, password: str, realm: str, retries: int = 0):
         """
         Parameters
         ----------
@@ -145,7 +145,7 @@ class SaagieApi:
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
-    def check_alerting(emails, params, status_list):
+    def check_alerting(emails: list, params: dict, status_list: list) -> dict:
         """
         Check if the alerting is enabled for the given project and if so, check params and status_list.
         Parameters
@@ -188,7 +188,7 @@ class SaagieApi:
         return params
 
     @staticmethod
-    def check_scheduling(cron_scheduling, params, schedule_timezone):
+    def check_scheduling(cron_scheduling: str, params: dict, schedule_timezone: str) -> dict:
         """
         Check if the cron_scheduling is valid and if it is, add it to the params.
         Parameters
@@ -228,8 +228,6 @@ class SaagieApi:
             ----------
             params : dict
                 dict containing the params of the technology
-            project_id : str
-                if of the project containing the technologies
             technology : str
                 timezone of the schedule
             technology_catalog : str
@@ -241,22 +239,56 @@ class SaagieApi:
             catalog['technologies'] for catalog in self.get_repositories_info()['repositories']
             if catalog['name'] == technology_catalog
         ]
-        return self.check_technology_valid(params, technology, all_technologies_in_catalog,
-                                           technologies_configured_for_project)
+        technology_id = self.check_technology_valid(technology, all_technologies_in_catalog)
+        return self.check_technology_configured(params, technology, technology_id, technologies_configured_for_project)
 
     @staticmethod
-    def check_technology_valid(params, technology, all_technologies_in_catalog,
-                               technologies_configured_for_project):
+    def check_technology_valid(technology: str, all_technologies_in_catalog: list) -> str:
         """
-        Check if the technology exists in the catagory specified and teh catalog in params.
+        Check if the technology is configured for the project
+        Parameters
+        ----------
+        technology : str
+            technology label to check
+        all_technologies_in_catalog : list
+            list of all technologies in the catalog
+
+        Returns
+        -------
+        technology id
+
+        Raises
+        ------
+        RunTimeError
+            When :
+            - the technology does not exist in the catalog
+            - the catalog does not exist or does not contains technologies
+        """
+        if not all_technologies_in_catalog:
+            raise RuntimeError(
+                f"Catalog does not exist or does not contain technologies")
+        technology_in_catalog = [tech['id'] for tech in
+                                 all_technologies_in_catalog[0]
+                                 if tech["label"].lower() == technology.lower()]
+        if not technology_in_catalog:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the catalog specified")
+
+        return technology_in_catalog[0]
+
+    @staticmethod
+    def check_technology_configured(params: dict, technology: str, technology_id: str,
+                                    technologies_configured_for_project: list) -> dict:
+        """
+        Check if the technology exists in the category specified
         Parameters
         ----------
         params : dict
             dict containing the params of the technology
         technology : str
-            timezone of the schedule
-        all_technologies_in_catalog : list
-            list of all technologies in the catalog
+            technology label to add
+        technology_id : str
+            technology id to add
         technologies_configured_for_project : list
             list of technologies configured for the project (can be either jobs or apps)
 
@@ -269,34 +301,28 @@ class SaagieApi:
         ------
         RunTimeError
             When :
-            - the technology does not exist in the catalog
-            - the catalog does not exist or does not contains technologies
             - the technology is not configured in the project
         """
-        if not all_technologies_in_catalog:
-            raise RuntimeError(
-                f"Catalog does not exist or does not contain technologies")
-        technology_in_catalog = [tech['id'] for tech in
-                                 all_technologies_in_catalog[0]
-                                 if tech["label"].lower() == technology.lower()]
-        if not technology_in_catalog:
-            raise RuntimeError(
-                f"Technology {technology} does not exist in the catalog specified")
 
-        if technology_in_catalog[0] not in technologies_configured_for_project:
+        if technology_id not in technologies_configured_for_project:
             raise RuntimeError(
                 f"Technology {technology} does not exist in the target project  "
                 f"and for the catalog specified")
 
-        params["technologyId"] = technology_in_catalog[0]
+        params["technologyId"] = technology_id
         return params
 
     # ##########################################################
     # ###                    cluster                        ####
     # ##########################################################
 
-    def get_cluster_capacity(self):
-        """Get information for cluster (cpu, gpu, memory)
+    def get_cluster_capacity(self) -> dict:
+        """
+        Get information for cluster (cpu, gpu, memory)
+        Returns
+        -------
+        dict
+            Dict of cluster resources
         """
         query = gql(GQL_GET_CLUSTER_INFO)
         return self.client.execute(query)
@@ -305,10 +331,15 @@ class SaagieApi:
     # ###                    repositories                   ####
     # ##########################################################
 
-    def get_repositories_info(self):
-        """Get information for all repositories (id, name, technologies)
+    def get_repositories_info(self) -> dict:
+        """
+        Get information for all repositories (id, name, technologies)
         NB: You can only get repositories information if you have the right to
         access the technology catalog
+        Returns
+        -------
+        dict
+            Dict of repositories
         """
         query = gql(GQL_GET_REPOSITORIES_INFO)
         return self.client_gateway.execute(query)
@@ -317,7 +348,7 @@ class SaagieApi:
     # ###                    technologies                   ####
     # ##########################################################
 
-    def get_runtimes(self, technology_id):
+    def get_runtimes(self, technology_id) -> dict:
         """Get the list of runtimes for a technology id
 
         Parameters
