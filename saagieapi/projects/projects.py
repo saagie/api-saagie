@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from gql import gql
 
@@ -150,7 +150,7 @@ class Projects:
         query = gql(GQL_CREATE_PROJECT)
         return self.client.execute(query, variable_values=params)
 
-    def __get_apps_for_projects(self, apps_technologies_allowed) -> list:
+    def __get_apps_for_projects(self, apps_technologies_allowed) -> List:
         """
         Get technology ids for the apps configured in parameters
         If param is empty, get all apps technology ids from the official saagie catalog
@@ -173,7 +173,7 @@ class Projects:
                 techs.extend(self.saagie_api.check_technology_valid(v, self.saagie_api.get_available_technologies(k),k))
             return [{"id": t} for t in techs]
 
-    def __get_jobs_for_project(self, jobs_technologies_allowed) -> list:
+    def __get_jobs_for_project(self, jobs_technologies_allowed) -> List:
         """
         Get technology ids for the jobs configured in parameters
         If param is empty, get all jobs technology ids from the official saagie catalog

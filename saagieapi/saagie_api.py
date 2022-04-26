@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict
+from typing import Dict, List
 
 import deprecation
 import pytz
@@ -146,7 +146,7 @@ class SaagieApi:
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
-    def check_alerting(emails: list, params: Dict, status_list: list) -> Dict:
+    def check_alerting(emails: List, params: Dict, status_list: List) -> Dict:
         """
         Check if the alerting is enabled for the given project and if so, check params and status_list.
         Parameters
@@ -277,7 +277,8 @@ class SaagieApi:
         return self.check_technology_configured(params, technology, technology_id, technologies_configured_for_project)
 
     @staticmethod
-    def check_technology_valid(technologies: list[str], all_technologies_in_catalog: list, technology_catalog:str) -> list:
+    def check_technology_valid(technologies: List[str], all_technologies_in_catalog: List,
+                               technology_catalog: str) -> List[str]:
         """
         Check if the technology is configured for the project
         Parameters
@@ -318,7 +319,7 @@ class SaagieApi:
 
     @staticmethod
     def check_technology_configured(params: Dict, technology: str, technology_id: str,
-                                    technologies_configured_for_project: list) -> Dict:
+                                    technologies_configured_for_project: List) -> Dict:
         """
         Check if the technology exists in the category specified
         Parameters
@@ -351,7 +352,7 @@ class SaagieApi:
         params["technologyId"] = technology_id
         return params
 
-    def get_available_technologies(self, catalog) -> list:
+    def get_available_technologies(self, catalog) -> List:
         """Get the list of available jobs technologies for the specified catalog
 
         Returns
