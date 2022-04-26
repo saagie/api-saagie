@@ -547,7 +547,7 @@ class TestIntegrationProject:
         assert cred["dockerCredentials"]["registry"] == "new-registry"
 
     def test_delete_docker_credential_for_username(self, create_docker_credential):
-        create_docker_credential
+        cred_id = create_docker_credential
         result = self.saagie.docker_credentials.delete_for_username(self.project_id, username="myuser")
         all_creds = self.saagie.docker_credentials.list_for_project(self.project_id)
 
