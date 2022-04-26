@@ -221,97 +221,6 @@ class SaagieApi:
             raise RuntimeError("Please specify a correct timezone")
         return params
 
-    def check_technology(self, params, project_id, technology, technology_catalog, technologies_configured_for_project):
-        """
-            Get all technlogies in the catalogs and calls the check_technology_valid method
-            Parameters
-            ----------
-            params : dict
-                dict containing the params of the technology
-            technology : str
-                timezone of the schedule
-            technology_catalog : str
-                timezone of the schedule
-            technologies_configured_for_project : list
-                list of technologies configured for the project (can be either jobs or apps)
-        """
-        all_technologies_in_catalog = [
-            catalog['technologies'] for catalog in self.get_repositories_info()['repositories']
-            if catalog['name'] == technology_catalog
-        ]
-        technology_id = self.check_technology_valid(technology, all_technologies_in_catalog)
-        return self.check_technology_configured(params, technology, technology_id, technologies_configured_for_project)
-
-    @staticmethod
-    def check_technology_valid(technology: str, all_technologies_in_catalog: list) -> str:
-        """
-        Check if the technology is configured for the project
-        Parameters
-        ----------
-        technology : str
-            technology label to check
-        all_technologies_in_catalog : list
-            list of all technologies in the catalog
-
-        Returns
-        -------
-        technology id
-
-        Raises
-        ------
-        RunTimeError
-            When :
-            - the technology does not exist in the catalog
-            - the catalog does not exist or does not contains technologies
-        """
-        if not all_technologies_in_catalog:
-            raise RuntimeError(
-                f"Catalog does not exist or does not contain technologies")
-        technology_in_catalog = [tech['id'] for tech in
-                                 all_technologies_in_catalog[0]
-                                 if tech["label"].lower() == technology.lower()]
-        if not technology_in_catalog:
-            raise RuntimeError(
-                f"Technology {technology} does not exist in the catalog specified")
-
-        return technology_in_catalog[0]
-
-    @staticmethod
-    def check_technology_configured(params: dict, technology: str, technology_id: str,
-                                    technologies_configured_for_project: list) -> dict:
-        """
-        Check if the technology exists in the category specified
-        Parameters
-        ----------
-        params : dict
-            dict containing the params of the technology
-        technology : str
-            technology label to add
-        technology_id : str
-            technology id to add
-        technologies_configured_for_project : list
-            list of technologies configured for the project (can be either jobs or apps)
-
-        Returns
-        -------
-        dict
-            Dict containing technology id
-
-        Raises
-        ------
-        RunTimeError
-            When :
-            - the technology is not configured in the project
-        """
-
-        if technology_id not in technologies_configured_for_project:
-            raise RuntimeError(
-                f"Technology {technology} does not exist in the target project  "
-                f"and for the catalog specified")
-
-        params["technologyId"] = technology_id
-        return params
-
     # ##########################################################
     # ###                    cluster                        ####
     # ##########################################################
@@ -347,6 +256,114 @@ class SaagieApi:
     # ##########################################################
     # ###                    technologies                   ####
     # ##########################################################
+
+    def check_technology(self, params, project_id, technology, technology_catalog, technologies_configured_for_project):
+        """
+            Get all technlogies in the catalogs and calls the check_technology_valid method
+            Parameters
+            ----------
+            params : dict
+                dict containing the params of the technology
+            technology : str
+                timezone of the schedule
+            technology_catalog : str
+                timezone of the schedule
+            technologies_configured_for_project : list
+                list of technologies configured for the project (can be either jobs or apps)
+        """
+        all_technologies_in_catalog = self.get_available_technologies(technology_catalog)
+        technology_id = self.check_technology_valid([technology], all_technologies_in_catalog, technology_catalog)[0]
+        return self.check_technology_configured(params, technology, technology_id, technologies_configured_for_project)
+
+    @staticmethod
+    def check_technology_valid(technologies: list[str], all_technologies_in_catalog: list, technology_catalog:str) -> list:
+        """
+        Check if the technology is configured for the project
+        Parameters
+        ----------
+        technologies : list
+            technology labels to check
+        all_technologies_in_catalog : list
+            list of all technologies in the catalog
+        technology_catalog : str
+            catalog of the technology
+
+        Returns
+        -------
+        list of technology ids
+
+        Raises
+        ------
+        RunTimeError
+            When :
+            - the technology does not exist in the catalog
+            - the catalog does not exist or does not contains technologies
+        """
+        if not all_technologies_in_catalog:
+            raise RuntimeError(
+                f"Catalog {technology_catalog} does not exist or does not contain technologies")
+        technology_ids_validated = [tech['id'] for tech in
+                                    all_technologies_in_catalog
+                                    if tech["label"].lower() in [t.lower() for t in technologies]]
+        len(technologies)
+        if not technology_ids_validated:
+            raise RuntimeError(
+                f"Technologies {technologies} do not exist in the catalog specified")
+        if len(technology_ids_validated) != len(technologies):
+            raise RuntimeError(
+                f"Some technologies among {technologies} do not exist in the catalog specified")
+
+        return technology_ids_validated
+
+    @staticmethod
+    def check_technology_configured(params: dict, technology: str, technology_id: str,
+                                    technologies_configured_for_project: list) -> dict:
+        """
+        Check if the technology exists in the category specified
+        Parameters
+        ----------
+        params : dict
+            dict containing the params of the technology
+        technology : str
+            technology label to add
+        technology_id : str
+            technology id to add
+        technologies_configured_for_project : list
+            list of technologies configured for the project (can be either jobs or apps)
+
+        Returns
+        -------
+        dict
+            Dict containing technology id
+
+        Raises
+        ------
+        RunTimeError
+            When :
+            - the technology is not configured in the project
+        """
+        if technology_id not in technologies_configured_for_project:
+            raise RuntimeError(
+                f"Technology {technology} does not exist in the target project  "
+                f"and for the catalog specified")
+
+        params["technologyId"] = technology_id
+        return params
+
+    def get_available_technologies(self, catalog) -> list:
+        """Get the list of available jobs technologies for the specified catalog
+
+        Returns
+        -------
+        dict
+            Dict of technologies available
+        """
+        all_technologies_in_catalog = [
+            repository['technologies'] for repository in self.get_repositories_info()['repositories']
+            if repository['name'].lower() == catalog.lower()
+        ]
+        return [techno for techno in all_technologies_in_catalog[0] if
+                techno['available'] is True] if all_technologies_in_catalog else []
 
     def get_runtimes(self, technology_id) -> dict:
         """Get the list of runtimes for a technology id

@@ -54,40 +54,54 @@ class TestGQLTemplate:
             SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["failure"])
         assert "The following status are not valid" in str(rte.value)
 
-    def test_check_technologies(self):
-        result = SaagieApi.check_technology_valid(params={},
-                                                  technology="python",
-                                                  all_technologies_in_catalog=[[{'label': "python", 'id': '123'},
-                                                                                {'label': "java", 'id': '456'}]],
-                                                  technologies_configured_for_project=['123', '456']
-                                                  )
+    def test_check_technology_valid(self):
+        result = SaagieApi.check_technology_valid(technologies=["python"],
+                                                  all_technologies_in_catalog=[{'label': "python", 'id': '123'},
+                                                                               {'label': "java", 'id': '456'}],
+                                                  technology_catalog="catalog")
+        assert result == ['123']
+
+    def test_check_technology_valid_empty_catalog(self):
+        with pytest.raises(RuntimeError) as rte:
+            SaagieApi.check_technology_valid(
+                technologies=["python"],
+                all_technologies_in_catalog=[],
+                technology_catalog="catalog"
+            )
+        assert str(rte.value) == "Catalog catalog does not exist or does not contain technologies"
+
+    def test_check_technology_valid_no_technologies_exists(self):
+        with pytest.raises(RuntimeError) as rte:
+            SaagieApi.check_technology_valid(technologies=["r"],
+                                             all_technologies_in_catalog=[{'label': "python", 'id': '123'},
+                                                                          {'label': "java", 'id': '456'}],
+                                             technology_catalog="catalog"
+                                             )
+        assert str(rte.value) == "Technologies ['r'] do not exist in the catalog specified"
+
+    def test_check_technology_valid_some_technology_not_exist(self):
+        with pytest.raises(RuntimeError) as rte:
+            SaagieApi.check_technology_valid(technologies=["r", "python"],
+                                             all_technologies_in_catalog=[{'label': "python", 'id': '123'},
+                                                                          {'label': "java", 'id': '456'}],
+                                             technology_catalog="catalog"
+                                             )
+        assert str(rte.value) == "Some technologies among ['r', 'python'] do not exist in the catalog specified"
+
+    def test_check_technology_configured(self):
+        result = SaagieApi.check_technology_configured(
+            params={},
+            technology="python",
+            technology_id="123",
+            technologies_configured_for_project=['123', '456']
+        )
         assert result["technologyId"] == '123'
 
-    def test_check_technologies_empty_catalog(self):
+    def test_check_technology_configured_technology_not_configured(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_valid(params={},
-                                             technology="python",
-                                             all_technologies_in_catalog=[],
-                                             technologies_configured_for_project=['123', '456']
-                                             )
-        assert "Catalog does not exist or does not contain technologies" == str(rte.value)
-
-    def test_check_technologies_technology_not_exists(self):
-        with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_valid(params={},
-                                             technology="r",
-                                             all_technologies_in_catalog=[[{'label': "python", 'id': '123'},
-                                                                           {'label': "java", 'id': '456'}]],
-                                             technologies_configured_for_project=['123', '456']
-                                             )
-        assert "Technology r does not exist in the catalog specified" == str(rte.value)
-
-    def test_check_technologies_technology_not_configured(self):
-        with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_valid(params={},
-                                             technology="python",
-                                             all_technologies_in_catalog=[[{'label': "python", 'id': '123'},
-                                                                           {'label': "java", 'id': '456'}]],
-                                             technologies_configured_for_project=['456']
-                                             )
+            SaagieApi.check_technology_configured(params={},
+                                                  technology="python",
+                                                  technology_id="123",
+                                                  technologies_configured_for_project=['456']
+                                                  )
         assert "Technology python does not exist in the target project  and for the catalog specified" == str(rte.value)

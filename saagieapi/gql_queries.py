@@ -31,6 +31,7 @@ GQL_GET_REPOSITORIES_INFO = """
       technologies {
         id
         label
+        available
         __typename
       }
     }

@@ -9,7 +9,7 @@ class Projects:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list(self):
+    def list(self) -> dict:
         """Get information for all projects (id, name, creator, description,
         jobCount and status)
         NB: You can only list projects you have rights on.
@@ -22,7 +22,7 @@ class Projects:
         query = gql(GQL_LIST_PROJECTS)
         return self.client.execute(query)
 
-    def get_id(self, project_name):
+    def get_id(self, project_name: str) -> dict:
         """Get the project id with the project name
         Parameters
         ----------
@@ -41,7 +41,7 @@ class Projects:
         else:
             raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
 
-    def get_info(self, project_id):
+    def get_info(self, project_id: str) -> dict:
         """Get information for a given project (id, name, creator, description,
         jobCount and status)
         NB: You can only get project information if you have at least the
@@ -60,7 +60,7 @@ class Projects:
         query = gql(GQL_GET_PROJECT_INFO)
         return self.client.execute(query, variable_values={"id": project_id})
 
-    def get_jobs_technologies(self, project_id):
+    def get_jobs_technologies(self, project_id: str) -> dict:
         """List available jobs technologies id for the project
 
         Parameters
@@ -76,7 +76,7 @@ class Projects:
         query = gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES)
         return self.client.execute(query, variable_values={"id": project_id})['project']
 
-    def get_apps_technologies(self, project_id):
+    def get_apps_technologies(self, project_id: str) -> dict:
         """List available apps technology ids for the project
 
         Parameters
@@ -92,31 +92,25 @@ class Projects:
         query = gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES)
         return self.client.execute(query, variable_values={"id": project_id})['project']
 
-    def create(self, name, group=None, role="Manager", description=""):
-        """Create a new project on the platform
-
-        NOTE
-        ----
-        - Currently add all JobTechnologies of the main technology repository
-          (the 'Saagie' technology repository)
-          Future improvement: pass a dict of technologies as a parameter
-        - Currently only take on group and one associated role to add to the
-          project
-          Future improvement: possibility to pass in argument several group
-          names with several roles to add to the project
+    def create(self, name: str, group: str = None, role: str = "Manager", description: str = "",
+               jobs_technologies_allowed: dict = None, apps_technologies_allowed: dict = None) -> dict:
+        """Create a new project on the platform with all the job technologies and the app technologies
+        of the official Saagie catalog if no technologies are specified.
 
         Parameters
         ----------
         name : str
             Name of the project (must not already exist)
         group : None or str, optional
-            Authorization management: name of the group to add the given role
-            to
+            Authorization management: name of the group to add the given role to
         role : str, optional
-            Authorization management: role to give to the given group on the
-            project
+            Authorization management: role to give to the given group on the project
         description : str, optional
             Description of the project
+        jobs_technologies_allowed:list, optional
+            Dict of catalog and jobs technologies allowed for the project
+        apps_technologies_allowed:list, optional
+            Dict of catalog and apps technologies allowed for the project
 
         Returns
         -------
@@ -144,31 +138,65 @@ class Projects:
         if description:
             params["description"] = description
 
-        # Keep only JobTechnologies (discarding AppTechnologies) of main
-        # technology repository (Saagie repository)
-        repositories = self.saagie_api.get_repositories_info()['repositories']
-        technologies = []
-        app_technologies = []
-        for repo in repositories:
-            if repo['name'] == 'Saagie':
-                technologies.extend([{"id": techno["id"]} for techno in repo['technologies']
-                                     if
-                                     techno['__typename'] == 'JobTechnology' or (
-                                                 techno['__typename'] == 'SparkTechnology')])
-
-        # Set technologies
-        params["technologies"] = technologies
-        params["appTechnologies"] = app_technologies
+        params["technologies"] = self.__get_jobs_for_project(jobs_technologies_allowed)
+        params["appTechnologies"] = self.__get_apps_for_projects(apps_technologies_allowed)
 
         # Set group permission
         if group is not None:
             group_block = [{"name": group, "role": role}]
             params["authorizedGroups"] = group_block
-
         query = gql(GQL_CREATE_PROJECT)
         return self.client.execute(query, variable_values=params)
 
-    def delete(self, project_id):
+    def __get_apps_for_projects(self, apps_technologies_allowed) -> list:
+        """
+        Get technology ids for the apps configured in parameters
+        If param is empty, get all apps technology ids from the official saagie catalog
+        Parameters
+        ----------
+        apps_technologies_allowed:list, optional
+            Dict of catalog and apps technologies allowed for the project
+
+        Returns
+        -------
+        list
+            List of dict of apps technologies
+        """
+        if not apps_technologies_allowed:
+            return [{"id": techno["id"]} for techno in self.saagie_api.get_available_technologies("saagie")
+                    if techno['__typename'] == 'AppTechnology']
+        else:
+            techs = []
+            for k, v in apps_technologies_allowed.items():
+                techs.extend(self.saagie_api.check_technology_valid(v, self.saagie_api.get_available_technologies(k),k))
+            return [{"id": t} for t in techs]
+
+    def __get_jobs_for_project(self, jobs_technologies_allowed) -> list:
+        """
+        Get technology ids for the jobs configured in parameters
+        If param is empty, get all jobs technology ids from the official saagie catalog
+        Parameters
+        ----------
+        jobs_technologies_allowed:list, optional
+            Dict of catalog and jobs technologies allowed for the project
+
+        Returns
+        -------
+        list
+            List of dict of jobs technologies
+        """
+        if not jobs_technologies_allowed:
+            return [{"id": techno["id"]} for techno in
+                    self.saagie_api.get_available_technologies("saagie")
+                    if techno['__typename'] == 'JobTechnology' or (
+                            techno['__typename'] == 'SparkTechnology')]
+        else:
+            techs = []
+            for k, v in jobs_technologies_allowed.items():
+                techs.extend(self.saagie_api.check_technology_valid(v, self.saagie_api.get_available_technologies(k),k))
+            return [{"id": t} for t in techs]
+
+    def delete(self, project_id: str) -> dict:
         """Delete a given project
         NB: You can only delete projects where you have the manager role
 

@@ -90,7 +90,9 @@ class TestIntegrationProject:
         result = self.saagie.projects.create(name=self.project_name,
                                              group=self.group,
                                              role="Manager",
-                                             description="For integration test")
+                                             description="For integration test",
+                                             jobs_technologies_allowed={"saagie": ["python"]}
+                                             )
         self.project_id = result['createProject']['id']
 
         # Waiting for the project to be ready
@@ -120,7 +122,9 @@ class TestIntegrationProject:
         jobs_technologies = self.saagie.projects.get_jobs_technologies(self.project_id)
         apps_technologies = self.saagie.projects.get_apps_technologies(self.project_id)
         assert type(jobs_technologies['technologiesByCategory']) is list
+        assert len(jobs_technologies['technologiesByCategory']) == 2  # Only python for Extraction and Processing
         assert type(apps_technologies['appTechnologies']) is list
+        assert len(apps_technologies['appTechnologies']) > 2  # All Apps from saagie official catalog
 
     @pytest.fixture
     def create_job(self):
@@ -468,8 +472,10 @@ class TestIntegrationProject:
                                                           description=env_var_input['description'],
                                                           is_password=env_var_input['isPassword'])
 
-        env_var = [env_var for env_var in self.saagie.env_vars.list_for_project(self.project_id)['projectEnvironmentVariables'] if
-                   env_var['name'] == name][0]
+        env_var = \
+            [env_var for env_var in
+             self.saagie.env_vars.list_for_project(self.project_id)['projectEnvironmentVariables'] if
+             env_var['name'] == name][0]
 
         to_validate = {'value': env_var['value'], 'description': env_var['description'],
                        'isPassword': env_var['isPassword']}
@@ -483,8 +489,10 @@ class TestIntegrationProject:
                                                           description=env_var_input['description'],
                                                           is_password=env_var_input['isPassword'])
 
-        env_var = [env_var for env_var in self.saagie.env_vars.list_for_project(self.project_id)['projectEnvironmentVariables'] if
-                   env_var['name'] == name][0]
+        env_var = \
+            [env_var for env_var in
+             self.saagie.env_vars.list_for_project(self.project_id)['projectEnvironmentVariables'] if
+             env_var['name'] == name][0]
 
         to_validate = {'value': env_var['value'], 'description': env_var['description'],
                        'isPassword': env_var['isPassword']}
