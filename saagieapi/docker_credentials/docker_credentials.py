@@ -1,3 +1,5 @@
+from typing import Dict
+
 from gql import gql
 
 from .gql_queries import *
@@ -9,7 +11,7 @@ class DockerCredentials:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id):
+    def list_for_project(self, project_id: str) -> Dict:
         """
         Get all saved docker credentials for a specific project
         Parameters
@@ -24,7 +26,7 @@ class DockerCredentials:
         params = {"projectId": project_id}
         return self.client.execute(gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params)
 
-    def get_info(self, project_id, credential_id):
+    def get_info(self, project_id: str, credential_id: str) -> Dict:
         """
         Get the info of a specific docker credentials in a specific project
         Parameters
@@ -41,7 +43,7 @@ class DockerCredentials:
         params = {"projectId": project_id, "id": credential_id}
         return self.client.execute(gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params)
 
-    def get_info_for_username(self, project_id, username, registry=None):
+    def get_info_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
         Get the info of a specific docker credentials in a specific project using the username
         and the registry
@@ -71,7 +73,7 @@ class DockerCredentials:
         else:
             raise RuntimeError(f"There are no docker credentials in the project: '{project_id}'")
 
-    def create(self, project_id, username, password, registry=None):
+    def create(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
         Create docker credentials for a specific project
         Parameters
@@ -95,8 +97,8 @@ class DockerCredentials:
             params["registry"] = registry
         return self.client.execute(gql(GQL_CREATE_DOCKER_CREDENTIALS), variable_values=params)
 
-    def upgrade(self, project_id, credential_id, password, registry=None,
-                username=""):
+    def upgrade(self, project_id: str, credential_id: str, password: str, registry: str = None,
+                username: str = "") -> Dict:
         """
         Update docker credentials for a specific project
         Parameters
@@ -125,7 +127,7 @@ class DockerCredentials:
             params["username"] = username
         return self.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
 
-    def upgrade_for_username(self, project_id, username, password, registry=None):
+    def upgrade_for_username(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
         Update docker credentials for a specific project
         Parameters
@@ -151,7 +153,7 @@ class DockerCredentials:
 
         return self.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
 
-    def delete(self, project_id, credential_id):
+    def delete(self, project_id: str, credential_id: str) -> Dict:
         """
         Delete a specific container registry credentials in a specific project
         Parameters
@@ -167,7 +169,7 @@ class DockerCredentials:
         params = {"id": credential_id, "projectId": project_id}
         return self.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
 
-    def delete_for_username(self, project_id, username, registry=None):
+    def delete_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
         Delete a specific container registry credentials in a specific project
         Parameters

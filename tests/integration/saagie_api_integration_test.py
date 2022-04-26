@@ -502,6 +502,68 @@ class TestIntegrationProject:
         self.saagie.env_vars.delete_for_project(self.project_id, name=name)
 
     @pytest.fixture
+    def create_docker_credential(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+        cred = self.saagie.docker_credentials.create(project_id=self.project_id,
+                                                     username="myuser",
+                                                     registry="test-registry",
+                                                     password="mypassword")
+
+        return cred["createDockerCredentials"]["id"]
+
+    @pytest.fixture
+    def create_then_delete_docker_credential(self, create_docker_credential):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        cred_id = create_docker_credential
+
+        yield cred_id
+
+        self.saagie.docker_credentials.delete(project_id=self.project_id,
+                                              credential_id=cred_id)
+
+    def test_create_docker_credential(self, create_then_delete_docker_credential):
+        cred_id = create_then_delete_docker_credential
+
+        cred = self.saagie.docker_credentials.get_info(self.project_id, cred_id)
+
+        assert cred["dockerCredentials"]["username"] == "myuser"
+
+    def test_delete_docker_credential(self, create_docker_credential):
+        cred_id = create_docker_credential
+        result = self.saagie.docker_credentials.delete(self.project_id, cred_id)
+        all_creds = self.saagie.docker_credentials.list_for_project(self.project_id)
+
+        assert result == {'deleteDockerCredentials': True}
+        assert len(all_creds["allDockerCredentials"]) == 0
+
+    def test_upgrade_docker_credential(self, create_then_delete_docker_credential):
+        cred_id = create_then_delete_docker_credential
+
+        result = self.saagie.docker_credentials.upgrade(self.project_id, cred_id, username="myuser",
+                                                        password="mypassword", registry="new-registry")
+        cred = self.saagie.docker_credentials.get_info(self.project_id, cred_id)
+        assert result["updateDockerCredentials"]["id"] == cred_id
+        assert cred["dockerCredentials"]["registry"] == "new-registry"
+
+    def test_delete_docker_credential_for_username(self, create_docker_credential):
+        create_docker_credential
+        result = self.saagie.docker_credentials.delete_for_username(self.project_id, username="myuser")
+        all_creds = self.saagie.docker_credentials.list_for_project(self.project_id)
+
+        assert result == {'deleteDockerCredentials': True}
+        assert len(all_creds["allDockerCredentials"]) == 0
+
+    def test_upgrade_docker_credential_for_username(self, create_then_delete_docker_credential):
+        cred_id = create_then_delete_docker_credential
+
+        result = self.saagie.docker_credentials.upgrade_for_username(self.project_id, username="myuser",
+                                                                     password="mypassword", registry="new-registry")
+        cred = self.saagie.docker_credentials.get_info_for_username(self.project_id, username="myuser")
+        assert result["updateDockerCredentials"]["id"] == cred_id
+        assert cred["dockerCredentials"]["registry"] == "new-registry"
+
+    @pytest.fixture
     def create_graph_pipeline(self, create_job):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         job_id = create_job
