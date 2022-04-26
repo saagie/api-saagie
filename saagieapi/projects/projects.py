@@ -1,3 +1,5 @@
+from typing import Dict
+
 from gql import gql
 
 from .gql_queries import *
@@ -9,7 +11,7 @@ class Projects:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list(self) -> dict:
+    def list(self) -> Dict:
         """Get information for all projects (id, name, creator, description,
         jobCount and status)
         NB: You can only list projects you have rights on.
@@ -22,7 +24,7 @@ class Projects:
         query = gql(GQL_LIST_PROJECTS)
         return self.client.execute(query)
 
-    def get_id(self, project_name: str) -> dict:
+    def get_id(self, project_name: str) -> Dict:
         """Get the project id with the project name
         Parameters
         ----------
@@ -41,7 +43,7 @@ class Projects:
         else:
             raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
 
-    def get_info(self, project_id: str) -> dict:
+    def get_info(self, project_id: str) -> Dict:
         """Get information for a given project (id, name, creator, description,
         jobCount and status)
         NB: You can only get project information if you have at least the
@@ -60,7 +62,7 @@ class Projects:
         query = gql(GQL_GET_PROJECT_INFO)
         return self.client.execute(query, variable_values={"id": project_id})
 
-    def get_jobs_technologies(self, project_id: str) -> dict:
+    def get_jobs_technologies(self, project_id: str) -> Dict:
         """List available jobs technologies id for the project
 
         Parameters
@@ -76,7 +78,7 @@ class Projects:
         query = gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES)
         return self.client.execute(query, variable_values={"id": project_id})['project']
 
-    def get_apps_technologies(self, project_id: str) -> dict:
+    def get_apps_technologies(self, project_id: str) -> Dict:
         """List available apps technology ids for the project
 
         Parameters
@@ -93,7 +95,7 @@ class Projects:
         return self.client.execute(query, variable_values={"id": project_id})['project']
 
     def create(self, name: str, group: str = None, role: str = "Manager", description: str = "",
-               jobs_technologies_allowed: dict = None, apps_technologies_allowed: dict = None) -> dict:
+               jobs_technologies_allowed: Dict = None, apps_technologies_allowed: Dict = None) -> Dict:
         """Create a new project on the platform with all the job technologies and the app technologies
         of the official Saagie catalog if no technologies are specified.
 
@@ -196,7 +198,7 @@ class Projects:
                 techs.extend(self.saagie_api.check_technology_valid(v, self.saagie_api.get_available_technologies(k),k))
             return [{"id": t} for t in techs]
 
-    def delete(self, project_id: str) -> dict:
+    def delete(self, project_id: str) -> Dict:
         """Delete a given project
         NB: You can only delete projects where you have the manager role
 

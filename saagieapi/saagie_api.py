@@ -1,5 +1,6 @@
 import logging
 import re
+from typing import Dict
 
 import deprecation
 import pytz
@@ -145,7 +146,7 @@ class SaagieApi:
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
-    def check_alerting(emails: list, params: dict, status_list: list) -> dict:
+    def check_alerting(emails: list, params: Dict, status_list: list) -> Dict:
         """
         Check if the alerting is enabled for the given project and if so, check params and status_list.
         Parameters
@@ -188,7 +189,7 @@ class SaagieApi:
         return params
 
     @staticmethod
-    def check_scheduling(cron_scheduling: str, params: dict, schedule_timezone: str) -> dict:
+    def check_scheduling(cron_scheduling: str, params: Dict, schedule_timezone: str) -> Dict:
         """
         Check if the cron_scheduling is valid and if it is, add it to the params.
         Parameters
@@ -225,7 +226,7 @@ class SaagieApi:
     # ###                    cluster                        ####
     # ##########################################################
 
-    def get_cluster_capacity(self) -> dict:
+    def get_cluster_capacity(self) -> Dict:
         """
         Get information for cluster (cpu, gpu, memory)
         Returns
@@ -240,7 +241,7 @@ class SaagieApi:
     # ###                    repositories                   ####
     # ##########################################################
 
-    def get_repositories_info(self) -> dict:
+    def get_repositories_info(self) -> Dict:
         """
         Get information for all repositories (id, name, technologies)
         NB: You can only get repositories information if you have the right to
@@ -316,8 +317,8 @@ class SaagieApi:
         return technology_ids_validated
 
     @staticmethod
-    def check_technology_configured(params: dict, technology: str, technology_id: str,
-                                    technologies_configured_for_project: list) -> dict:
+    def check_technology_configured(params: Dict, technology: str, technology_id: str,
+                                    technologies_configured_for_project: list) -> Dict:
         """
         Check if the technology exists in the category specified
         Parameters
@@ -365,7 +366,7 @@ class SaagieApi:
         return [techno for techno in all_technologies_in_catalog[0] if
                 techno['available'] is True] if all_technologies_in_catalog else []
 
-    def get_runtimes(self, technology_id) -> dict:
+    def get_runtimes(self, technology_id) -> Dict:
         """Get the list of runtimes for a technology id
 
         Parameters
