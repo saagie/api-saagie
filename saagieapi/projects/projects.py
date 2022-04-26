@@ -40,8 +40,7 @@ class Projects:
         if project:
             project_id = project[0]["id"]
             return project_id
-        else:
-            raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
+        raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
 
     def get_info(self, project_id: str) -> Dict:
         """Get information for a given project (id, name, creator, description,
@@ -167,11 +166,12 @@ class Projects:
         if not apps_technologies_allowed:
             return [{"id": techno["id"]} for techno in self.saagie_api.get_available_technologies("saagie")
                     if techno['__typename'] == 'AppTechnology']
-        else:
-            techs = []
-            for k, v in apps_technologies_allowed.items():
-                techs.extend(self.saagie_api.check_technology_valid(v, self.saagie_api.get_available_technologies(k),k))
-            return [{"id": t} for t in techs]
+        tech_ids = []
+        for catalog, technos in apps_technologies_allowed.items():
+            tech_ids.extend(
+                self.saagie_api.check_technology_valid(technos, self.saagie_api.get_available_technologies(catalog),
+                                                       catalog))
+        return [{"id": t} for t in tech_ids]
 
     def __get_jobs_for_project(self, jobs_technologies_allowed) -> List:
         """
@@ -192,11 +192,12 @@ class Projects:
                     self.saagie_api.get_available_technologies("saagie")
                     if techno['__typename'] == 'JobTechnology' or (
                             techno['__typename'] == 'SparkTechnology')]
-        else:
-            techs = []
-            for k, v in jobs_technologies_allowed.items():
-                techs.extend(self.saagie_api.check_technology_valid(v, self.saagie_api.get_available_technologies(k),k))
-            return [{"id": t} for t in techs]
+        tech_ids = []
+        for catalog, technos in jobs_technologies_allowed.items():
+            tech_ids.extend(
+                self.saagie_api.check_technology_valid(technos, self.saagie_api.get_available_technologies(catalog),
+                                                       catalog))
+        return [{"id": t} for t in tech_ids]
 
     def delete(self, project_id: str) -> Dict:
         """Delete a given project

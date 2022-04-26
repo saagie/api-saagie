@@ -361,7 +361,7 @@ class SaagieApi:
             Dict of technologies available
         """
         all_technologies_in_catalog = [
-            repository['technologies'] for repository in self.get_repositories_info()['repositories']
+            repository['technologies'] for repository in (self.get_repositories_info()['repositories'])
             if repository['name'].lower() == catalog.lower()
         ]
         return [techno for techno in all_technologies_in_catalog[0] if

@@ -73,14 +73,6 @@ mutation createProjectMutation($name: String!, $description: String, $technologi
 }
 """
 
-GROUP_BLOCK_TEMPLATE = """
-authorizedGroups: [
-                      {{
-                        name: "{0}",
-                        role: {1}
-                      }}
-                    ]
-"""
 
 GQL_DELETE_PROJECT = """
 mutation deleteProjectMutation($projectId: UUID!){
