@@ -260,7 +260,7 @@ class SaagieApi:
     # ###                    technologies                   ####
     # ##########################################################
 
-    def check_technology(self, params: Dict, project_id, technology: str, technology_catalog: str,
+    def check_technology(self, params: Dict, technology: str, technology_catalog: str,
                          technologies_configured_for_project: List):
         """
             Get all technlogies in the catalogs and calls the check_technology_valid method

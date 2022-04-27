@@ -9,7 +9,7 @@ class Apps:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id: str) ->dict:
+    def list_for_project(self, project_id):
         """List apps of project.
         NB: You can only list apps if you have at least the viewer role on
         the project.
@@ -25,7 +25,7 @@ class Apps:
         query = gql(GQL_LIST_APPS_FOR_PROJECT)
         return self.client.execute(query, variable_values={"id": project_id})
 
-    def get_info(self, app_id: str) ->dict:
+    def get_info(self, app_id):
         """Get app with given UUID.
         Parameters
         ----------
@@ -39,13 +39,9 @@ class Apps:
         query = gql(GQL_GET_APP_INFO)
         return self.client.execute(query, variable_values={"id": app_id})
 
-<<<<<<< Updated upstream
     def create(self, project_id, app_name, image, description='', technology_catalog='Saagie',
                technology="Docker image", docker_credentials_id=None, exposed_ports=None, storage_paths=None,
                storage_size_in_mb=128, release_note='', emails=None, status_list=None):
-=======
-    def create_from_catalog(self, project_id: str, app_name: str, technology: str, context: str, technology_catalog="Saagie",
-                        description='', storage_size_in_mb=128, release_note='', emails=None, status_list=["FAILED"]) -> dict:
         """Create an app in a specific project
         Parameters
         ----------
@@ -53,16 +49,28 @@ class Apps:
             ID of the project
         app_name: str
             Name of the app
-        technology: str
-            Label of the technology
-        context: str
-            The runtimes context to use for the chosen technology
-        technology_catalog: str
-            Name of the technology catalog
         description: str
             Description of the app
+        image: str
+            tag of the image
+            ex: hello-world:nanoserver-ltsc2022
+        technology_catalog: str
+            Name of the technology catalog
+        technology: str
+            Name of the technology
+            If you are creating a custom app, do not update this value
         docker_credentials_id: str
             Credentials's ID for the image if the image is not public
+        exposed_ports: List[dict]
+            List of dict of exposed ports
+            Each dict should contains 'port' as key
+            Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
+               "isRewriteUrl":True,
+               "isAuthenticationRequired":True,
+               "port":5000,
+               "name":"Test Port"}]
+        storage_paths: List[String], optional
+            List of strings indicating the volume path to the persistent storage
         storage_size_in_mb: int, optional
             Storage size in mb for the volume path
         release_note: str,
@@ -78,74 +86,53 @@ class Apps:
         dict
             Dict of app information
         """
-        #Initialize parameters to request GQL Graph
-        params = {
-                "projectId": project_id,
-                "name": app_name,
-                "description": description,
-                "releaseNote": release_note,
-                "storageSizeInMB": storage_size_in_mb,
-                }
 
-        #Get all id technologies in our project 
+        if storage_paths is None:
+            storage_paths = []
+        if exposed_ports is None:
+            exposed_ports = []
+        params = {
+            "projectId": project_id,
+            "name": app_name,
+            "description": description,
+            "releaseNote": release_note,
+            "storageSizeInMB": storage_size_in_mb,
+            "image": image,
+            "exposedPorts": exposed_ports,
+            "storagePaths": storage_paths,
+        }
+        check_fomat_exposed_port = self.check_exposed_ports(exposed_ports)
+        if not check_fomat_exposed_port:
+            raise ValueError(
+                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
+                "All accept key of each dict is: '{list_exposed_port_field}'")
+
         technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)['appTechnologies']
         technologies_for_project = [tech['id'] for tech in technologies_for_project]
 
-        #Check if the technology exist 
-        params = self.check_technology(params, project_id, technology, technology_catalog,
-                                       technologies_for_project)
-        app_id = params['technologyId']
+        # For apps, docker technology is always available
+        repositories = self.saagie_api.get_repositories_info()['repositories']
+        # Filter saagie repo
+        saagie_repo = [repo for repo in repositories if repo['name'] == 'Saagie'][0]['technologies']
+        # Get id of docker technology
+        docker_id = [repo['id'] for repo in saagie_repo if repo['label'] == 'Docker image'][0]
+        # Add docker technology to the list of technologies for the project
+        technologies_for_project.append(docker_id)
+        params = self.saagie_api.check_technology(params, technology, technology_catalog,
+                                                  technologies_for_project)
 
-        #Check if app_is is available in our project
-        techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
-        app_is_available = [app["id"] for app in techno_app['appTechnologies'] if app["id"]==app_id]
-        if not app_is_available:
-            raise ValueError(f"App '{technology}' is not available in the project: '{project_id}'. Check your project settings")
-
-        #Get different runtimes of app
-        runtimes = self.get_runtimes(app_id)["technology"]["appContexts"]
-        #Check if runtime is available 
-        available_runtimes = [app for app  in runtimes if app["available"]==True]
-        context_app = [app for app in available_runtimes if app['label']==context]
-
-        if not context_app:
-            available_contexts = [app["label"] for app in available_runtimes]
-            raise ValueError(f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: '{project_id}'. Available runtimes are: '{available_contexts}'")
-        else:
-            context_app_info = context_app[0]
-
-        exposed_ports = context_app_info["ports"]
-        # change key names in the list of dict exposed_ports
-        exposed_ports = [{'basePathVariableName': port["basePath"], 'isRewriteUrl': port["rewriteUrl"],
-                            'isAuthenticationRequired': True,
-                            'port': port["port"],  'name': port["name"]} if port["scope"]=="PROJECT" else
-                                {'basePathVariableName': port["basePath"], 'isRewriteUrl': port["rewriteUrl"],
-                                'isAuthenticationRequired': False,
-                                'port': port["port"], 'name': port["name"]} for port in exposed_ports  ]
-
-        #Get image_name with concatenated image name with tag (version)
-        image_app = f"{context_app_info['dockerInfo']['image']}:{context_app_info['dockerInfo']['version']}"    
-
-        check_format_exposed_port = self.saagie_api.apps.check_exposed_ports(exposed_ports)
-        if not check_format_exposed_port:
-            raise ValueError(
-                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."\
-                "All accept key of each dict is: '{list_exposed_port_field}'")
+        if docker_credentials_id:
+            params["dockerCredentialsId"] = docker_credentials_id
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
-
-        # Add collected information (Docker image, ports exposed, path for the storage) to the list of parameters
-        params.update({"image": image_app,"exposedPorts": exposed_ports,"storagePaths": context_app_info["volumes"]})
-
         query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
 
     def create_from_scratch(self, project_id: str, app_name: str, image: str, technology= "Docker image", technology_catalog = "Saagie",
-                        description='', exposed_ports=None, storage_paths=None, storage_size_in_mb=128, release_note='',
-                        docker_credentials_id = None, emails=None, status_list=["FAILED"]) -> dict:
->>>>>>> Stashed changes
+                    description='', exposed_ports=None, storage_paths=None, storage_size_in_mb=128, release_note='',
+                    docker_credentials_id = None, emails=None, status_list=["FAILED"]) -> dict:
         """Create an app in a specific project
         Parameters
         ----------
@@ -222,7 +209,7 @@ class Apps:
         docker_id = [repo['id'] for repo in saagie_repo if repo['label'] == 'Docker image'][0]
         # Add docker technology to the list of technologies for the project
         technologies_for_project.append(docker_id)
-        params = self.check_technology(params, project_id, technology, technology_catalog,technologies_for_project)
+        params = self.check_technology(params, technology, technology_catalog,technologies_for_project)
 
         if docker_credentials_id:
             params["dockerCredentialsId"] = docker_credentials_id
@@ -232,11 +219,105 @@ class Apps:
         query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
-<<<<<<< Updated upstream
-    def edit(self, app_id, app_name=None, description=None, emails=None, status_list=None):
-=======
+
+    def create_from_catalog(self, project_id: str, app_name: str, technology: str, context: str, technology_catalog="Saagie",
+                            description='', storage_size_in_mb=128, release_note='', emails=None, status_list=["FAILED"]) -> dict:
+        """Create an app in a specific project
+        Parameters
+        ----------
+        project_id : str
+            ID of the project
+        app_name: str
+            Name of the app
+        technology: str
+            Label of the technology
+        context: str
+            The runtimes context to use for the chosen technology
+        technology_catalog: str
+            Name of the technology catalog
+        description: str
+            Description of the app
+        docker_credentials_id: str
+            Credentials's ID for the image if the image is not public
+        storage_size_in_mb: int, optional
+            Storage size in mb for the volume path
+        release_note: str,
+            Release note for the app version
+        emails: List[String], optional
+            Emails to receive alerts for the app, each item should be a valid email
+        status_list: List[String], optional
+            Receive an email when the job status change to a specific status
+            Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
+            "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
+        Returns
+        -------
+        dict
+            Dict of app information
+        """
+        #Initialize parameters to request GQL Graph
+        params = {
+                "projectId": project_id,
+                "name": app_name,
+                "description": description,
+                "releaseNote": release_note,
+                "storageSizeInMB": storage_size_in_mb,
+                }
+
+        #Get all id technologies in our project 
+        technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)['appTechnologies']
+        technologies_for_project = [tech['id'] for tech in technologies_for_project]
+
+        #Check if the technology exist 
+        params = self.check_technology(params, technology, technology_catalog,
+                                    technologies_for_project)
+        app_id = params['technologyId']
+
+        #Check if app_is is available in our project
+        techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
+        app_is_available = [app["id"] for app in techno_app['appTechnologies'] if app["id"]==app_id]
+        if not app_is_available:
+            raise ValueError(f"App '{technology}' is not available in the project: '{project_id}'. Check your project settings")
+
+        #Get different runtimes of app
+        runtimes = self.get_runtimes(app_id)["technology"]["appContexts"]
+        #Check if runtime is available 
+        available_runtimes = [app for app  in runtimes if app["available"]==True]
+        context_app = [app for app in available_runtimes if app['label']==context]
+
+        if not context_app:
+            available_contexts = [app["label"] for app in available_runtimes]
+            raise ValueError(f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: '{project_id}'. Available runtimes are: '{available_contexts}'")
+        else:
+            context_app_info = context_app[0]
+
+        exposed_ports = context_app_info["ports"]
+        # change key names in the list of dict exposed_ports
+        exposed_ports = [{'basePathVariableName': port["basePath"], 'isRewriteUrl': port["rewriteUrl"],
+                            'isAuthenticationRequired': True,
+                            'port': port["port"],  'name': port["name"]} if port["scope"]=="PROJECT" else
+                                {'basePathVariableName': port["basePath"], 'isRewriteUrl': port["rewriteUrl"],
+                                'isAuthenticationRequired': False,
+                                'port': port["port"], 'name': port["name"]} for port in exposed_ports  ]
+
+        #Get image_name with concatenated image name with tag (version)
+        image_app = f"{context_app_info['dockerInfo']['image']}:{context_app_info['dockerInfo']['version']}"    
+
+        check_format_exposed_port = self.saagie_api.apps.check_exposed_ports(exposed_ports)
+        if not check_format_exposed_port:
+            raise ValueError(
+                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."\
+                "All accept key of each dict is: '{list_exposed_port_field}'")
+
+        if emails:
+            params = self.saagie_api.check_alerting(emails, params, status_list)
+
+        # Add collected information (Docker image, ports exposed, path for the storage) to the list of parameters
+        params.update({"image": image_app,"exposedPorts": exposed_ports,"storagePaths": context_app_info["volumes"]})
+
+        query = gql(GQL_CREATE_APP)
+        return self.client.execute(query, variable_values=params)
+
     def edit(self, app_id: str, app_name=None, description=None, emails=None, status_list=["FAILED"]) ->dict:
->>>>>>> Stashed changes
         """Edit an app
         Each optional parameter can be set to change the value of the corresponding field.
         Parameters
@@ -306,7 +387,7 @@ class Apps:
             Dict of deleted app
 
         """
-        query = gql(GQL_DELETE_JOB)
+        query = gql(GQL_DELETE_APP)
         return self.client.execute(query, variable_values={"appId": app_id})
 
 
@@ -323,7 +404,7 @@ class Apps:
         dict
             Dict of the given app information
         """
-        query = gql(GQL_RUN_JOB)
+        query = gql(GQL_RUN_APP)
         return self.client.execute(query, variable_values={"appId": app_id})
 
     def stop(self, app_instance_id: str) ->dict:
@@ -339,11 +420,12 @@ class Apps:
         dict
             app instance information
         """
-        query = gql(GQL_STOP_JOB_INSTANCE)
+        query = gql(GQL_STOP_APP_INSTANCE)
         return self.client.execute(query, variable_values={"appInstanceId": app_instance_id})
 
+
     @staticmethod
-    def check_exposed_ports(exposed_ports: list) ->bool:
+    def check_exposed_ports(exposed_ports):
         """
         Check
         Parameters

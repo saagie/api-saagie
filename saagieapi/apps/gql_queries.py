@@ -179,3 +179,31 @@ mutation editJobMutation($id: UUID!, $name: String, $description: String, $alert
     }
 }
 """
+GQL_DELETE_APP = """
+mutation deleteJobMutation($appId: UUID!){
+    deleteJob(jobId: $appId)
+}
+"""
+
+GQL_STOP_APP_INSTANCE = """
+  mutation stopJobInstanceMutation($appInstanceId: UUID!){
+    stopJobInstance(jobInstanceId: $appInstanceId){
+      id
+      number
+      status
+      startTime
+      endTime
+      jobId
+    }
+  }
+  """
+
+
+GQL_RUN_APP = """
+  mutation runJobMutation($appId: UUID!){
+    runJob(jobId: $appId){
+      id
+      status
+    }
+  }
+  """
