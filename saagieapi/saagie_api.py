@@ -20,7 +20,7 @@ from .projects import Projects
 
 
 class BearerAuth(requests.auth.AuthBase):
-    def __init__(self, realm, url, platform, login, password):
+    def __init__(self, realm: str, url: str, platform: str, login: str, password: str):
         self.token = self._authenticate(realm, url, login, password)
         self.platform = platform
         self.url = url
@@ -117,7 +117,7 @@ class SaagieApi:
         self.docker_credentials = DockerCredentials(self)
 
     @classmethod
-    def easy_connect(cls, url_saagie_platform, user, password):
+    def easy_connect(cls, url_saagie_platform: str, user: str, password: str):
         """
         Alternative constructor which uses the complete URL (eg:
         https://saagie-workspace.prod.saagie.io/projects/platform/6/) and will
@@ -258,7 +258,8 @@ class SaagieApi:
     # ###                    technologies                   ####
     # ##########################################################
 
-    def _check_technology(self, params, project_id, technology, technology_catalog, technologies_configured_for_project):
+    def _check_technology(self, params: Dict, project_id, technology: str, technology_catalog: str,
+                          technologies_configured_for_project: List):
         """
             Get all technlogies in the catalogs and calls the _check_technology_valid method
             Parameters
@@ -352,7 +353,7 @@ class SaagieApi:
         params["technologyId"] = technology_id
         return params
 
-    def _get_available_technologies(self, catalog) -> List:
+    def _get_available_technologies(self, catalog: Dict) -> List:
         """Get the list of available jobs technologies for the specified catalog
 
         Returns
