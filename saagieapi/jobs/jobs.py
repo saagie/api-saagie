@@ -2,6 +2,7 @@ import logging
 import time
 
 from pathlib import Path
+from typing import Dict, List
 
 from gql import gql
 
@@ -14,7 +15,7 @@ class Jobs:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id, instances_limit=-1):
+    def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
         """List jobs in the given project with their instances.
         NB: You can only list jobs if you have at least the viewer role on the
         project
@@ -38,7 +39,7 @@ class Jobs:
         query = gql(GQL_LIST_JOBS_FOR_PROJECT)
         return self.client.execute(query, variable_values=params)
 
-    def list_for_project_minimal(self, project_id):
+    def list_for_project_minimal(self, project_id: str) -> Dict:
         """List only job names and ids in the given project .
         NB: You can only list jobs if you have at least the viewer role on the
         project
@@ -56,7 +57,7 @@ class Jobs:
         query = gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL)
         return self.client.execute(query, variable_values={"projectId": project_id})
 
-    def get_instance(self, job_instance_id):
+    def get_instance(self, job_instance_id: str) -> Dict:
         """Get the given job instance
 
         Parameters
@@ -72,7 +73,7 @@ class Jobs:
         query = gql(GQL_GET_JOB_INSTANCE)
         return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
-    def get_id(self, job_name, project_name):
+    def get_id(self, job_name: str, project_name: str) -> str:
         """Get the job id with the job name and project name
 
         Parameters
@@ -93,10 +94,9 @@ class Jobs:
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         if job:
             return job[0]["id"]
-        else:
-            raise NameError(f"Job {job_name} does not exist.")
+        raise NameError(f"Job {job_name} does not exist.")
 
-    def get_info(self, job_id):
+    def get_info(self, job_id: str) -> Dict:
         """Get job's info
 
         Parameters
@@ -113,14 +113,14 @@ class Jobs:
         query = gql(GQL_GET_JOB_INFO)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
-    def create(self, job_name, project_id, file=None, description='',
-               category='Processing', technology='python',
-               technology_catalog='Saagie',
-               runtime_version='3.7',
-               command_line='python {file} arg1 arg2', release_note='',
-               extra_technology='', extra_technology_version='',
-               cron_scheduling=None, schedule_timezone="UTC", resources=None,
-               emails=None, status_list=["FAILED"]):
+    def create(self, job_name: str, project_id: str, file: str = None, description: str = '',
+               category: str = 'Processing', technology: str = 'python',
+               technology_catalog: str = 'Saagie',
+               runtime_version: str = '3.7',
+               command_line: str = 'python {file} arg1 arg2', release_note: str = '',
+               extra_technology: str = '', extra_technology_version: str = '',
+               cron_scheduling: str = None, schedule_timezone: str = "UTC", resources: Dict = None,
+               emails: List = None, status_list: List = ["FAILED"]) -> Dict:
         """Create job in given project
 
         NOTE
@@ -219,9 +219,9 @@ class Jobs:
 
         return self.__launch_request(file, GQL_CREATE_JOB, params)
 
-    def edit(self, job_id, job_name=None, description=None, is_scheduled=None,
-             cron_scheduling=None, schedule_timezone="UTC", resources=None,
-             emails=None, status_list=["FAILED"]):
+    def edit(self, job_id: str, job_name: str = None, description: str = None, is_scheduled: str = None,
+             cron_scheduling: str = None, schedule_timezone: str = "UTC", resources: Dict = None,
+             emails: List = None, status_list: List = ["FAILED"]) -> Dict:
         """Edit a job
 
         Parameters
@@ -307,9 +307,9 @@ class Jobs:
         query = gql(GQL_EDIT_JOB)
         return self.client.execute(query, variable_values=params)
 
-    def upgrade(self, job_id, file=None, use_previous_artifact=False, runtime_version='3.7',
-                command_line='python {file} arg1 arg2', release_note=None,
-                extra_technology='', extra_technology_version=''):
+    def upgrade(self, job_id: str, file: str = None, use_previous_artifact: bool = False, runtime_version: str = '3.7',
+                command_line: str = 'python {file} arg1 arg2', release_note: str = None,
+                extra_technology: str = '', extra_technology_version: str = '') -> Dict:
         """Upgrade a job
 
         Parameters
@@ -343,7 +343,8 @@ class Jobs:
 
         # Verify if specified runtime exists
         technology_id = self.get_info(job_id)["job"]["technology"]["id"]
-        available_runtimes = [c["label"] for c in self.saagie_api._get_runtimes(technology_id)["technology"]["contexts"]]
+        available_runtimes = [c["label"] for c in
+                              self.saagie_api._get_runtimes(technology_id)["technology"]["contexts"]]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"Specified runtime does not exist ({runtime_version}). "
@@ -365,10 +366,10 @@ class Jobs:
 
         return self.__launch_request(file, GQL_UPGRADE_JOB, params)
 
-    def upgrade_by_name(self, job_name, project_name, file=None, use_previous_artifact=False, runtime_version='3.6',
-                        command_line='python {file} arg1 arg2', release_note=None,
-                        extra_technology='', extra_technology_version=''
-                        ):
+    def upgrade_by_name(self, job_name: str, project_name: str, file=None, use_previous_artifact: bool = False,
+                        runtime_version: str = '3.6', command_line: str = 'python {file} arg1 arg2',
+                        release_note: str = None,
+                        extra_technology: str = '', extra_technology_version: str = '') -> Dict:
         """Upgrade a job
 
         Parameters
@@ -405,7 +406,7 @@ class Jobs:
         return self.upgrade(job_id, file, use_previous_artifact, runtime_version, command_line, release_note,
                             extra_technology, extra_technology_version)
 
-    def delete(self, job_id):
+    def delete(self, job_id: str) -> Dict:
         """Delete a given job
 
         Parameters
@@ -422,7 +423,7 @@ class Jobs:
         query = gql(GQL_DELETE_JOB)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
-    def run(self, job_id):
+    def run(self, job_id: str) -> Dict:
         """Run a given job
 
         Parameters
@@ -438,7 +439,7 @@ class Jobs:
         query = gql(GQL_RUN_JOB)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
-    def run_with_callback(self, job_id, freq=10, timeout=-1):
+    def run_with_callback(self, job_id: str, freq: int = 10, timeout: int = -1) -> Dict:
         """Run a job and wait for the final status (KILLED, FAILED or SUCCESS).
         Regularly check (default to 10s) the job's status.
 
@@ -478,7 +479,7 @@ class Jobs:
             logging.info(f'Job id {job_id} with instance {job_instance_id} is currently : ' + state)
         return state
 
-    def stop(self, job_instance_id):
+    def stop(self, job_instance_id: str) -> Dict:
         """Stop a given job instance
 
         Parameters
@@ -494,7 +495,7 @@ class Jobs:
         query = gql(GQL_STOP_JOB_INSTANCE)
         return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
-    def __launch_request(self, file, payload_str, params):
+    def __launch_request(self, file: str, payload_str: str, params: Dict) -> Dict:
         """Launch a GQL request with specified file, payload and params
         GQL3 needed to use this function
         Parameters
