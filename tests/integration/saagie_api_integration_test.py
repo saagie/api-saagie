@@ -660,6 +660,104 @@ class TestIntegrationProject:
 
         assert result
 
+    @pytest.fixture
+    def create_app_from_scratch(self):
+        app = self.saagie.apps.create_from_scratch(project_id=self.project_id,
+                                                   app_name="hello_world",
+                                                   image="hello-world:latest",
+                                                   description="Be happy")
+        return app['createJob']['id']
+
+    @pytest.fixture
+    def create_then_delete_app_from_scratch(self, create_app_from_scratch):
+        app_id = create_app_from_scratch
+
+        yield app_id
+
+        self.saagie.apps.delete(app_id=app_id)
+
+    def test_create_app_from_scratch(self, create_app_from_scratch):
+        app_id = create_app_from_scratch
+        app = self.saagie.apps.get_info(app_id)
+
+        assert app["labWebApp"]["name"] == "hello_world"
+
+    # def test_run_app(self, create_then_delete_app_from_scratch):
+    #     app_id = create_then_delete_app_from_scratch
+    #
+    #     app_before_run = self.saagie.apps.get_info(app_id=app_id)
+    #     num_instances_before_run = app_before_run['job']['countJobInstance']
+    #     self.saagie.apps.run(app_id=app_id)
+    #
+    #     app_after_run = self.saagie.jobs.get_info(app_id=app_id)
+    #     num_instances_after_run = app_after_run['job']['countJobInstance']
+    #
+    #     assert num_instances_after_run == (num_instances_before_run + 1)
+    #
+    # def test_stop_app(self, create_then_delete_app_from_scratch):
+    #     app_id = create_then_delete_app_from_scratch
+    #
+    #     run_app = self.saagie.apps.run(app_id=app_id)
+    #     app_instance_id = run_app['runJob']['id']
+    #
+    #     self.saagie.jobs.stop(app_instance_id=app_instance_id)
+    #
+    #     app_instance_status = self.saagie \
+    #         .jobs.get_instance(app_instance_id)['jobInstance']['status']
+    #
+    #     assert app_instance_status in ['KILLED', 'KILLING']
+
+    # def test_edit_app(self, create_then_delete_app_from_scratch):
+    #
+    #     app_id = create_then_delete_app_from_scratch
+    #     app_input = {
+    #         'name': "hi new name",
+    #         'description': "new description",
+    #         "alerting": {
+    #             "emails": ["hello.world@gmail.com"],
+    #             "statusList": ["FAILED"]
+    #         }
+    #     }
+    #     self.saagie.apps.edit(app_id, app_name=app_input["name"], description=app_input["description"],
+    #                           emails=app_input["alerting"]["emails"], status_list=app_input["alerting"]["statusList"])
+    #
+    #     app_info = self.saagie.apps.get_info(app_id)
+    #     to_validate = {'name': app_info["labWebApp"]["name"], 'description': app_info["labWebApp"]["description"],
+    #                    'alerting': app_info["labWebApp"]["alerting"]}
+    #
+    #     assert app_input == to_validate
+
+    @pytest.fixture
+    def create_app_from_catalog(self):
+        app = self.saagie.apps.create_from_catalog(project_id=self.project_id,
+                                                   app_name="hello_world2",
+                                                   technology="Kibana",
+                                                   context="7.15.1",
+                                                   description="Be happy ")
+
+        return app['createJob']['id']
+
+    @pytest.fixture
+    def create_then_delete_app_from_catalog(self, create_app_from_catalog):
+        app_id = create_app_from_catalog
+
+        yield app_id
+
+        self.saagie.apps.delete(app_id=app_id)
+
+    def test_create_app_from_catalog(self, create_app_from_catalog):
+        app_id = create_app_from_catalog
+
+        app = self.saagie.apps.get_info(app_id)
+
+        assert app["labWebApp"]["name"] == "hello_world2"
+
+    # def test_delete_app_from_catalog(self, create_app_from_catalog):
+    #     app_id = create_app_from_catalog
+    #     result = self.saagie.apps.delete(app_id)
+    #
+    #     assert result == {'deleteJob': True}
+
     def teardown_class(self):
         # Delete Project
         self.saagie.projects.delete(self.project_id)

@@ -25,6 +25,18 @@ class TestApps:
         query = gql(GQL_EDIT_APP)
         self.client.validate(query)
 
+    def test_run_app(self):
+        query = gql(GQL_RUN_APP)
+        self.client.validate(query)
+
+    def test_stop_app(self):
+        query = gql(GQL_STOP_APP_INSTANCE)
+        self.client.validate(query)
+
+    def test_delete_app(self):
+        query = gql(GQL_DELETE_APP)
+        self.client.validate(query)
+
     def test_check_exposed_ports(self):
         valid_exposed_ports = [
             {
