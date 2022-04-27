@@ -66,12 +66,10 @@ class DockerCredentials:
                    credentials["username"] == username and credentials["registry"] == registry]
             if len(res):
                 return res[0]
-            else:
-                raise RuntimeError(
-                    f"There are no docker credentials in the project: '{project_id}' with the username: '{username}' "
-                    f"and registry '{registry}'")
-        else:
-            raise RuntimeError(f"There are no docker credentials in the project: '{project_id}'")
+            raise RuntimeError(
+                f"There are no docker credentials in the project: '{project_id}' with the username: '{username}' "
+                f"and registry '{registry}'")
+        raise RuntimeError(f"There are no docker credentials in the project: '{project_id}'")
 
     def create(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
