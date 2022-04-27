@@ -164,13 +164,13 @@ class Projects:
             List of dict of apps technologies
         """
         if not apps_technologies_allowed:
-            return [{"id": techno["id"]} for techno in self.saagie_api._get_available_technologies("saagie")
+            return [{"id": techno["id"]} for techno in self.saagie_api.get_available_technologies("saagie")
                     if techno['__typename'] == 'AppTechnology']
         tech_ids = []
         for catalog, technos in apps_technologies_allowed.items():
             tech_ids.extend(
-                self.saagie_api._check_technology_valid(technos, self.saagie_api._get_available_technologies(catalog),
-                                                        catalog))
+                self.saagie_api.check_technology_valid(technos, self.saagie_api.get_available_technologies(catalog),
+                                                       catalog))
         return [{"id": t} for t in tech_ids]
 
     def __get_jobs_for_project(self, jobs_technologies_allowed) -> List:
@@ -189,14 +189,14 @@ class Projects:
         """
         if not jobs_technologies_allowed:
             return [{"id": techno["id"]} for techno in
-                    self.saagie_api._get_available_technologies("saagie")
+                    self.saagie_api.get_available_technologies("saagie")
                     if techno['__typename'] == 'JobTechnology' or (
                             techno['__typename'] == 'SparkTechnology')]
         tech_ids = []
         for catalog, technos in jobs_technologies_allowed.items():
             tech_ids.extend(
-                self.saagie_api._check_technology_valid(technos, self.saagie_api._get_available_technologies(catalog),
-                                                        catalog))
+                self.saagie_api.check_technology_valid(technos, self.saagie_api.get_available_technologies(catalog),
+                                                       catalog))
         return [{"id": t} for t in tech_ids]
 
     def delete(self, project_id: str) -> Dict:

@@ -119,14 +119,14 @@ class Apps:
         docker_id = [repo['id'] for repo in saagie_repo if repo['label'] == 'Docker image'][0]
         # Add docker technology to the list of technologies for the project
         technologies_for_project.append(docker_id)
-        params = self.saagie_api._check_technology(params, project_id, technology, technology_catalog,
-                                                   technologies_for_project)
+        params = self.saagie_api.check_technology(params, project_id, technology, technology_catalog,
+                                                  technologies_for_project)
 
         if docker_credentials_id:
             params["dockerCredentialsId"] = docker_credentials_id
 
         if emails:
-            params = self.saagie_api._check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
@@ -171,7 +171,7 @@ class Apps:
             params["description"] = previous_app_version["description"]
 
         if emails:
-            params = self.saagie_api._check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:

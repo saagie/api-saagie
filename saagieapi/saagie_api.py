@@ -146,7 +146,7 @@ class SaagieApi:
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
-    def _check_alerting(emails: List, params: Dict, status_list: List) -> Dict:
+    def check_alerting(emails: List, params: Dict, status_list: List) -> Dict:
         """
         Check if the alerting is enabled for the given project and if so, check params and status_list.
         Parameters
@@ -189,7 +189,7 @@ class SaagieApi:
         return params
 
     @staticmethod
-    def _check_scheduling(cron_scheduling: str, params: Dict, schedule_timezone: str) -> Dict:
+    def check_scheduling(cron_scheduling: str, params: Dict, schedule_timezone: str) -> Dict:
         """
         Check if the cron_scheduling is valid and if it is, add it to the params.
         Parameters
@@ -258,10 +258,10 @@ class SaagieApi:
     # ###                    technologies                   ####
     # ##########################################################
 
-    def _check_technology(self, params: Dict, project_id, technology: str, technology_catalog: str,
-                          technologies_configured_for_project: List):
+    def check_technology(self, params: Dict, project_id, technology: str, technology_catalog: str,
+                         technologies_configured_for_project: List):
         """
-            Get all technlogies in the catalogs and calls the _check_technology_valid method
+            Get all technlogies in the catalogs and calls the check_technology_valid method
             Parameters
             ----------
             params : dict
@@ -273,13 +273,13 @@ class SaagieApi:
             technologies_configured_for_project : list
                 list of technologies configured for the project (can be either jobs or apps)
         """
-        all_technologies_in_catalog = self._get_available_technologies(technology_catalog)
-        technology_id = self._check_technology_valid([technology], all_technologies_in_catalog, technology_catalog)[0]
-        return self._check_technology_configured(params, technology, technology_id, technologies_configured_for_project)
+        all_technologies_in_catalog = self.get_available_technologies(technology_catalog)
+        technology_id = self.check_technology_valid([technology], all_technologies_in_catalog, technology_catalog)[0]
+        return self.check_technology_configured(params, technology, technology_id, technologies_configured_for_project)
 
     @staticmethod
-    def _check_technology_valid(technologies: List[str], all_technologies_in_catalog: List,
-                                technology_catalog: str) -> List[str]:
+    def check_technology_valid(technologies: List[str], all_technologies_in_catalog: List,
+                               technology_catalog: str) -> List[str]:
         """
         Check if the technology is configured for the project
         Parameters
@@ -319,8 +319,8 @@ class SaagieApi:
         return technology_ids_validated
 
     @staticmethod
-    def _check_technology_configured(params: Dict, technology: str, technology_id: str,
-                                     technologies_configured_for_project: List) -> Dict:
+    def check_technology_configured(params: Dict, technology: str, technology_id: str,
+                                    technologies_configured_for_project: List) -> Dict:
         """
         Check if the technology exists in the category specified
         Parameters
@@ -353,7 +353,7 @@ class SaagieApi:
         params["technologyId"] = technology_id
         return params
 
-    def _get_available_technologies(self, catalog: Dict) -> List:
+    def get_available_technologies(self, catalog: str) -> List:
         """Get the list of available jobs technologies for the specified catalog
 
         Returns
@@ -368,7 +368,7 @@ class SaagieApi:
         return [techno for techno in all_technologies_in_catalog[0] if
                 techno['available'] is True] if all_technologies_in_catalog else []
 
-    def _get_runtimes(self, technology_id) -> Dict:
+    def get_runtimes(self, technology_id) -> Dict:
         """Get the list of runtimes for a technology id
 
         Parameters

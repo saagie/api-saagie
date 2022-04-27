@@ -190,10 +190,10 @@ class Jobs:
                 if tech['jobCategory'] == category
             ][0]
         ]
-        params = self.saagie_api._check_technology(params, project_id, technology, technology_catalog,
-                                                   technologies_for_project_and_category)
+        params = self.saagie_api.check_technology(params, project_id, technology, technology_catalog,
+                                                  technologies_for_project_and_category)
         available_runtimes = [tech['label'] for tech in
-                              self.saagie_api._get_runtimes(params["technologyId"])['technology']['contexts']
+                              self.saagie_api.get_runtimes(params["technologyId"])['technology']['contexts']
                               if tech["available"] is True]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
@@ -206,10 +206,10 @@ class Jobs:
             }
 
         if emails:
-            params = self.saagie_api._check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
 
         if cron_scheduling:
-            params = self.saagie_api._check_scheduling(cron_scheduling, params, schedule_timezone)
+            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
 
         else:
             params["isScheduled"] = False
@@ -282,7 +282,7 @@ class Jobs:
             params["resources"] = previous_job_version["resources"]
 
         if is_scheduled:
-            params = self.saagie_api._check_scheduling(cron_scheduling, params, schedule_timezone)
+            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
 
         elif is_scheduled == False:
             params["isScheduled"] = False
@@ -293,7 +293,7 @@ class Jobs:
             params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
         if emails:
-            params = self.saagie_api._check_alerting(emails, params, status_list)
+            params = self.saagie_api.check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:
@@ -344,7 +344,7 @@ class Jobs:
         # Verify if specified runtime exists
         technology_id = self.get_info(job_id)["job"]["technology"]["id"]
         available_runtimes = [c["label"] for c in
-                              self.saagie_api._get_runtimes(technology_id)["technology"]["contexts"]]
+                              self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"Specified runtime does not exist ({runtime_version}). "
