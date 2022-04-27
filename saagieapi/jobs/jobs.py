@@ -190,7 +190,7 @@ class Jobs:
                 if tech['jobCategory'] == category
             ][0]
         ]
-        params = self.saagie_api.check_technology(params, project_id, technology, technology_catalog,
+        params = self.saagie_api.check_technology(params, technology, technology_catalog,
                                                   technologies_for_project_and_category)
         available_runtimes = [tech['label'] for tech in
                               self.saagie_api.get_runtimes(params["technologyId"])['technology']['contexts']
