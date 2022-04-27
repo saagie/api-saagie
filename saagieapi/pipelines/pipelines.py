@@ -221,7 +221,7 @@ class Pipelines:
         return self.client.execute(gql(GQL_UPGRADE_PIPELINE), variable_values=params)
 
     def edit(self, pipeline_id, name=None, description=None, emails=None,
-             status_list=["FAILED"], is_scheduled=None,
+             status_list=None, is_scheduled=None,
              cron_scheduling=None, schedule_timezone="UTC"):
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on

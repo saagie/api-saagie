@@ -171,6 +171,8 @@ class SaagieApi:
         valid_status_list = ["REQUESTED", "QUEUED", "RUNNING", "FAILED", "KILLED",
                              "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"]
 
+        if not status_list:
+            status_list = ["FAILED"]
         wrong_status_list = []
         for item in status_list:
             if item not in valid_status_list:

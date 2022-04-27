@@ -120,7 +120,7 @@ class Jobs:
                command_line: str = 'python {file} arg1 arg2', release_note: str = '',
                extra_technology: str = '', extra_technology_version: str = '',
                cron_scheduling: str = None, schedule_timezone: str = "UTC", resources: Dict = None,
-               emails: List = None, status_list: List = ["FAILED"]) -> Dict:
+               emails: List = None, status_list: List = None) -> Dict:
         """Create job in given project
 
         NOTE
@@ -221,7 +221,7 @@ class Jobs:
 
     def edit(self, job_id: str, job_name: str = None, description: str = None, is_scheduled: str = None,
              cron_scheduling: str = None, schedule_timezone: str = "UTC", resources: Dict = None,
-             emails: List = None, status_list: List = ["FAILED"]) -> Dict:
+             emails: List = None, status_list: List = None) -> Dict:
         """Edit a job
 
         Parameters

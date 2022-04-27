@@ -39,10 +39,9 @@ class Apps:
         query = gql(GQL_GET_APP_INFO)
         return self.client.execute(query, variable_values={"id": app_id})
 
-
     def create(self, project_id, app_name, image, description='', technology_catalog='Saagie',
                technology="Docker image", docker_credentials_id=None, exposed_ports=None, storage_paths=None,
-               storage_size_in_mb=128, release_note='', emails=None, status_list=["FAILED"]):
+               storage_size_in_mb=128, release_note='', emails=None, status_list=None):
         """Create an app in a specific project
         Parameters
         ----------
@@ -130,7 +129,7 @@ class Apps:
         query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
-    def edit(self, app_id, app_name=None, description=None, emails=None, status_list=["FAILED"]):
+    def edit(self, app_id, app_name=None, description=None, emails=None, status_list=None):
         """Edit an app
         Each optional parameter can be set to change the value of the corresponding field.
         Parameters
