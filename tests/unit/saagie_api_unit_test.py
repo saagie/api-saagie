@@ -30,40 +30,40 @@ class TestGQLTemplate:
         self.client.validate(query)
 
     def test_check_scheduling(self):
-        result = SaagieApi.check_scheduling(cron_scheduling='* * * * *', params={}, schedule_timezone="Pacific/Fakaofo")
+        result = SaagieApi._check_scheduling(cron_scheduling='* * * * *', params={}, schedule_timezone="Pacific/Fakaofo")
         assert result["isScheduled"] is True
         assert result["cronScheduling"] == "* * * * *"
 
     def test_check_scheduling_bad_timezone(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_scheduling(cron_scheduling='* * * * *', params={}, schedule_timezone="")
+            SaagieApi._check_scheduling(cron_scheduling='* * * * *', params={}, schedule_timezone="")
         assert str(rte.value) == "Please specify a correct timezone"
 
     def test_check_scheduling_bad_cronexpression(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_scheduling(cron_scheduling='xx', params={}, schedule_timezone="Pacific/Fakaofo")
+            SaagieApi._check_scheduling(cron_scheduling='xx', params={}, schedule_timezone="Pacific/Fakaofo")
         assert str(rte.value) == "xx is not valid cron format"
 
     def test_check_alerting(self):
-        result = SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["FAILED"])
+        result = SaagieApi._check_alerting(emails=["mail1", "mail2"], params={}, status_list=["FAILED"])
         assert result["alerting"]["emails"] == ["mail1", "mail2"]
         assert result["alerting"]["statusList"] == ["FAILED"]
 
     def test_check_alerting_bad_status_list(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["failure"])
+            SaagieApi._check_alerting(emails=["mail1", "mail2"], params={}, status_list=["failure"])
         assert "The following status are not valid" in str(rte.value)
 
     def test_check_technology_valid(self):
-        result = SaagieApi.check_technology_valid(technologies=["python"],
-                                                  all_technologies_in_catalog=[{'label': "python", 'id': '123'},
+        result = SaagieApi._check_technology_valid(technologies=["python"],
+                                                   all_technologies_in_catalog=[{'label': "python", 'id': '123'},
                                                                                {'label': "java", 'id': '456'}],
-                                                  technology_catalog="catalog")
+                                                   technology_catalog="catalog")
         assert result == ['123']
 
     def test_check_technology_valid_empty_catalog(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_valid(
+            SaagieApi._check_technology_valid(
                 technologies=["python"],
                 all_technologies_in_catalog=[],
                 technology_catalog="catalog"
@@ -72,24 +72,24 @@ class TestGQLTemplate:
 
     def test_check_technology_valid_no_technologies_exists(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_valid(technologies=["r"],
-                                             all_technologies_in_catalog=[{'label': "python", 'id': '123'},
+            SaagieApi._check_technology_valid(technologies=["r"],
+                                              all_technologies_in_catalog=[{'label': "python", 'id': '123'},
                                                                           {'label': "java", 'id': '456'}],
-                                             technology_catalog="catalog"
-                                             )
+                                              technology_catalog="catalog"
+                                              )
         assert str(rte.value) == "Technologies ['r'] do not exist in the catalog specified"
 
     def test_check_technology_valid_some_technology_not_exist(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_valid(technologies=["r", "python"],
-                                             all_technologies_in_catalog=[{'label': "python", 'id': '123'},
+            SaagieApi._check_technology_valid(technologies=["r", "python"],
+                                              all_technologies_in_catalog=[{'label': "python", 'id': '123'},
                                                                           {'label': "java", 'id': '456'}],
-                                             technology_catalog="catalog"
-                                             )
+                                              technology_catalog="catalog"
+                                              )
         assert str(rte.value) == "Some technologies among ['r', 'python'] do not exist in the catalog specified"
 
     def test_check_technology_configured(self):
-        result = SaagieApi.check_technology_configured(
+        result = SaagieApi._check_technology_configured(
             params={},
             technology="python",
             technology_id="123",
@@ -99,9 +99,9 @@ class TestGQLTemplate:
 
     def test_check_technology_configured_technology_not_configured(self):
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_technology_configured(params={},
-                                                  technology="python",
-                                                  technology_id="123",
-                                                  technologies_configured_for_project=['456']
-                                                  )
+            SaagieApi._check_technology_configured(params={},
+                                                   technology="python",
+                                                   technology_id="123",
+                                                   technologies_configured_for_project=['456']
+                                                   )
         assert "Technology python does not exist in the target project  and for the catalog specified" == str(rte.value)

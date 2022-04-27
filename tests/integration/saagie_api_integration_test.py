@@ -22,6 +22,7 @@ class TestIntegrationProjectCreationAndDeletion:
     """
 
     def setup_class(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         url_saagie = os.environ['URL_TEST_SAAGIE']
         id_platform = os.environ['ID_PLATFORM_TEST_SAAGIE']
         user = os.environ['USER_TEST_SAAGIE']
@@ -73,6 +74,7 @@ class TestIntegrationProjectCreationAndDeletion:
 class TestIntegrationProject:
 
     def setup_class(self):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         url_saagie = os.environ['URL_TEST_SAAGIE']
         id_platform = os.environ['ID_PLATFORM_TEST_SAAGIE']
         user = os.environ['USER_TEST_SAAGIE']

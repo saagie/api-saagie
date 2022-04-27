@@ -171,7 +171,7 @@ class Pipelines:
                   "jobNodes": graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes}
 
         if cron_scheduling:
-            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
+            params = self.saagie_api._check_scheduling(cron_scheduling, params, schedule_timezone)
 
         else:
             params["isScheduled"] = False
@@ -275,7 +275,7 @@ class Pipelines:
             params["description"] = previous_pipeline_info["description"]
 
         if is_scheduled:
-            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
+            params = self.saagie_api._check_scheduling(cron_scheduling, params, schedule_timezone)
 
         elif is_scheduled == False:
             params["isScheduled"] = False
@@ -286,7 +286,7 @@ class Pipelines:
             params["scheduleTimezone"] = previous_pipeline_info["scheduleTimezone"]
 
         if emails:
-            params = self.saagie_api.check_alerting(emails, params, status_list)
+            params = self.saagie_api._check_alerting(emails, params, status_list)
         elif type(emails) == list:
             params["alerting"] = None
         else:
