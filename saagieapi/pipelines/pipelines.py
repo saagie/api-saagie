@@ -3,6 +3,8 @@ import time
 import deprecation
 from gql import gql
 from .gql_queries import *
+from typing import Dict
+from .graph_pipeline import *
 
 
 class Pipelines:
@@ -11,7 +13,7 @@ class Pipelines:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id, instances_limit=-1):
+    def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
         """List pipelines of project with their instances.
 
         Parameters
@@ -33,7 +35,7 @@ class Pipelines:
         query = gql(GQL_LIST_PIPELINES_FOR_PROJECT)
         return self.client.execute(query, variable_values=params)
 
-    def list_for_project_minimal(self, project_id):
+    def list_for_project_minimal(self, project_id: str) -> Dict:
         """List pipelines ids and names of project
 
         Parameters
@@ -49,7 +51,7 @@ class Pipelines:
         query = gql(GQL_LIST_PIPELINES_FOR_PROJECT_MINIMAL)
         return self.client.execute(query, variable_values={"projectId": project_id})
 
-    def get_id(self, pipeline_name, project_name):
+    def get_id(self, pipeline_name: str, project_name: str) -> str:
         """Get the pipeline id with the pipeline name and project name
         Parameters
         ----------
@@ -70,7 +72,7 @@ class Pipelines:
         else:
             raise NameError(f"pipeline {pipeline_name} does not exist.")
 
-    def get_info(self, pipeline_id):
+    def get_info(self, pipeline_id: str) -> Dict:
         """Get a given pipeline information
 
         Parameters
@@ -86,7 +88,7 @@ class Pipelines:
         query = gql(GQL_GET_PIPELINE)
         return self.client.execute(query, variable_values={"id": pipeline_id})
 
-    def get_instance(self, pipeline_instance_id):
+    def get_instance(self, pipeline_instance_id: str) -> Dict:
         """
         Get the information of a given pipeline instance id
 
@@ -106,7 +108,7 @@ class Pipelines:
     @deprecation.deprecated(deprecated_in="Saagie 2.2.1",
                             details="This deprecated endpoint allows to create only linear pipeline. "
                                     "To create graph pipelines, use `create_graph` instead.")
-    def create(self, name, project_id, jobs_id, description=""):
+    def create(self, name: str, project_id: str, jobs_id: List[str], description: str = "") -> Dict:
         """
         Create a pipeline in a given project
 
@@ -131,8 +133,8 @@ class Pipelines:
         query = gql(GQL_CREATE_PIPELINE)
         return self.client.execute(query, variable_values=params)
 
-    def create_graph(self, name, project_id, graph_pipeline, description="", release_note="",
-                     cron_scheduling=None, schedule_timezone="UTC"):
+    def create_graph(self, name: str, project_id: str, graph_pipeline: GraphPipeline, description: str = "",
+                     release_note: str = "", cron_scheduling: str = None, schedule_timezone: str = "UTC") -> Dict:
         """
         Create a pipeline in a given project
 
@@ -179,7 +181,7 @@ class Pipelines:
         query = gql(GQL_CREATE_GRAPH_PIPELINE)
         return self.client.execute(query, variable_values=params)
 
-    def delete(self, pipeline_id):
+    def delete(self, pipeline_id: str) -> Dict:
         """Delete a pipeline given pipeline id
 
         Parameters
@@ -196,7 +198,7 @@ class Pipelines:
 
         return self.client.execute(query, variable_values={"id": pipeline_id})
 
-    def upgrade(self, pipeline_id, graph_pipeline, release_note=""):
+    def upgrade(self, pipeline_id: str, graph_pipeline: GraphPipeline, release_note: str = "") -> Dict:
         """
         Create a pipeline in a given project
 
@@ -220,9 +222,9 @@ class Pipelines:
 
         return self.client.execute(gql(GQL_UPGRADE_PIPELINE), variable_values=params)
 
-    def edit(self, pipeline_id, name=None, description=None, emails=None,
-             status_list=None, is_scheduled=None,
-             cron_scheduling=None, schedule_timezone="UTC"):
+    def edit(self, pipeline_id: str, name: str = None, description: str = None, emails: List[str] = None,
+             status_list: List[str] = None, is_scheduled: bool = None,
+             cron_scheduling: str = None, schedule_timezone: str = "UTC"):
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
@@ -300,7 +302,7 @@ class Pipelines:
         query = gql(GQL_EDIT_PIPELINE)
         return self.client.execute(query, variable_values=params)
 
-    def run(self, pipeline_id):
+    def run(self, pipeline_id: str) -> Dict:
         """Run a given pipeline
         NB : You can only run pipeline if you have at least the editor role on
         the project
@@ -318,7 +320,7 @@ class Pipelines:
         query = gql(GQL_RUN_PIPELINE)
         return self.client.execute(query, variable_values={"pipelineId": pipeline_id})
 
-    def run_with_callback(self, pipeline_id, freq=10, timeout=-1):
+    def run_with_callback(self, pipeline_id: str, freq: int = 10, timeout: int = -1) -> str:
         """Run a given pipeline and wait for its final status (KILLED, FAILED
         or SUCCESS).
         NB : You can only run pipeline if you have at least the editor role on
@@ -361,7 +363,7 @@ class Pipelines:
             logging.info('Current state : ' + state)
         return state
 
-    def stop(self, pipeline_instance_id):
+    def stop(self, pipeline_instance_id: str) -> Dict:
         """Stop a given pipeline instance
         NB : You can only stop pipeline instance if you have at least the
         editor role on the project.
