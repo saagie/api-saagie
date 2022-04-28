@@ -9,7 +9,6 @@ from .gql_queries import *
 
 
 class Jobs:
-
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client
@@ -112,14 +111,26 @@ class Jobs:
         query = gql(GQL_GET_JOB_INFO)
         return self.client.execute(query, variable_values={"jobId": job_id})
 
-    def create(self, job_name: str, project_id: str, file: str = None, description: str = '',
-               category: str = 'Processing', technology: str = 'python',
-               technology_catalog: str = 'Saagie',
-               runtime_version: str = '3.7',
-               command_line: str = 'python {file} arg1 arg2', release_note: str = '',
-               extra_technology: str = '', extra_technology_version: str = '',
-               cron_scheduling: str = None, schedule_timezone: str = "UTC", resources: Dict = None,
-               emails: List = None, status_list: List = None) -> Dict:
+    def create(
+        self,
+        job_name: str,
+        project_id: str,
+        file: str = None,
+        description: str = "",
+        category: str = "Processing",
+        technology: str = "python",
+        technology_catalog: str = "Saagie",
+        runtime_version: str = "3.7",
+        command_line: str = "python {file} arg1 arg2",
+        release_note: str = "",
+        extra_technology: str = "",
+        extra_technology_version: str = "",
+        cron_scheduling: str = None,
+        schedule_timezone: str = "UTC",
+        resources: Dict = None,
+        emails: List = None,
+        status_list: List = None,
+    ) -> Dict:
         """Create job in given project
 
         NOTE
@@ -178,31 +189,37 @@ class Jobs:
 
         """
         params = {
-            "projectId": project_id, "name": job_name, "description": description, "category": category,
-            "releaseNote": release_note, "runtimeVersion": runtime_version, "commandLine": command_line}
+            "projectId": project_id,
+            "name": job_name,
+            "description": description,
+            "category": category,
+            "releaseNote": release_note,
+            "runtimeVersion": runtime_version,
+            "commandLine": command_line,
+        }
 
-        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id)['technologiesByCategory']
+        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id)["technologiesByCategory"]
         technologies_for_project_and_category = [
-            tech['id'] for tech in
-            [
-                tech['technologies'] for tech in technologies_for_project
-                if tech['jobCategory'] == category
-            ][0]
+            tech["id"]
+            for tech in [tech["technologies"] for tech in technologies_for_project if tech["jobCategory"] == category][
+                0
+            ]
         ]
-        params = self.saagie_api.check_technology(params, technology, technology_catalog,
-                                                  technologies_for_project_and_category)
-        available_runtimes = [tech['label'] for tech in
-                              self.saagie_api.get_runtimes(params["technologyId"])['technology']['contexts']
-                              if tech["available"] is True]
+        params = self.saagie_api.check_technology(
+            params, technology, technology_catalog, technologies_for_project_and_category
+        )
+        available_runtimes = [
+            tech["label"]
+            for tech in self.saagie_api.get_runtimes(params["technologyId"])["technology"]["contexts"]
+            if tech["available"] is True
+        ]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"Runtime {runtime_version} for technology {technology} does not exist "
-                f"in the catalog {technology_catalog} or is deprecated")
-        if extra_technology != '':
-            params["extraTechnology"] = {
-                "language": extra_technology,
-                "version": extra_technology_version
-            }
+                f"in the catalog {technology_catalog} or is deprecated"
+            )
+        if extra_technology != "":
+            params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
@@ -218,9 +235,18 @@ class Jobs:
 
         return self.__launch_request(file, GQL_CREATE_JOB, params)
 
-    def edit(self, job_id: str, job_name: str = None, description: str = None, is_scheduled: str = None,
-             cron_scheduling: str = None, schedule_timezone: str = "UTC", resources: Dict = None,
-             emails: List = None, status_list: List = None) -> Dict:
+    def edit(
+        self,
+        job_id: str,
+        job_name: str = None,
+        description: str = None,
+        is_scheduled: str = None,
+        cron_scheduling: str = None,
+        schedule_timezone: str = "UTC",
+        resources: Dict = None,
+        emails: List = None,
+        status_list: List = None,
+    ) -> Dict:
         """Edit a job
 
         Parameters
@@ -300,15 +326,23 @@ class Jobs:
             if previous_alerting:
                 params["alerting"] = {
                     "emails": previous_alerting["emails"],
-                    "statusList": previous_alerting["statusList"]
+                    "statusList": previous_alerting["statusList"],
                 }
 
         query = gql(GQL_EDIT_JOB)
         return self.client.execute(query, variable_values=params)
 
-    def upgrade(self, job_id: str, file: str = None, use_previous_artifact: bool = False, runtime_version: str = '3.7',
-                command_line: str = 'python {file} arg1 arg2', release_note: str = None,
-                extra_technology: str = '', extra_technology_version: str = '') -> Dict:
+    def upgrade(
+        self,
+        job_id: str,
+        file: str = None,
+        use_previous_artifact: bool = False,
+        runtime_version: str = "3.7",
+        command_line: str = "python {file} arg1 arg2",
+        release_note: str = None,
+        extra_technology: str = "",
+        extra_technology_version: str = "",
+    ) -> Dict:
         """Upgrade a job
 
         Parameters
@@ -342,33 +376,44 @@ class Jobs:
 
         # Verify if specified runtime exists
         technology_id = self.get_info(job_id)["job"]["technology"]["id"]
-        available_runtimes = [c["label"] for c in
-                              self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]]
+        available_runtimes = [c["label"] for c in self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"Specified runtime does not exist ({runtime_version}). "
-                f"Available runtimes : {','.join(available_runtimes)}.")
+                f"Available runtimes : {','.join(available_runtimes)}."
+            )
 
         if file and use_previous_artifact:
             logging.warning(
                 "You can not specify a file and use the previous artifact. "
-                "By default, the specified file will be used.")
+                "By default, the specified file will be used."
+            )
 
-        params = {"jobId": job_id, "releaseNote": release_note, "runtimeVersion": runtime_version,
-                  "commandLine": command_line, "usePreviousArtifact": use_previous_artifact}
+        params = {
+            "jobId": job_id,
+            "releaseNote": release_note,
+            "runtimeVersion": runtime_version,
+            "commandLine": command_line,
+            "usePreviousArtifact": use_previous_artifact,
+        }
 
-        if extra_technology != '':
-            params["extraTechnology"] = {
-                "language": extra_technology,
-                "version": extra_technology_version
-            }
+        if extra_technology != "":
+            params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         return self.__launch_request(file, GQL_UPGRADE_JOB, params)
 
-    def upgrade_by_name(self, job_name: str, project_name: str, file=None, use_previous_artifact: bool = False,
-                        runtime_version: str = '3.6', command_line: str = 'python {file} arg1 arg2',
-                        release_note: str = None,
-                        extra_technology: str = '', extra_technology_version: str = '') -> Dict:
+    def upgrade_by_name(
+        self,
+        job_name: str,
+        project_name: str,
+        file=None,
+        use_previous_artifact: bool = False,
+        runtime_version: str = "3.6",
+        command_line: str = "python {file} arg1 arg2",
+        release_note: str = None,
+        extra_technology: str = "",
+        extra_technology_version: str = "",
+    ) -> Dict:
         """Upgrade a job
 
         Parameters
@@ -402,8 +447,16 @@ class Jobs:
 
         """
         job_id = self.get_id(job_name, project_name)
-        return self.upgrade(job_id, file, use_previous_artifact, runtime_version, command_line, release_note,
-                            extra_technology, extra_technology_version)
+        return self.upgrade(
+            job_id,
+            file,
+            use_previous_artifact,
+            runtime_version,
+            command_line,
+            release_note,
+            extra_technology,
+            extra_technology_version,
+        )
 
     def delete(self, job_id: str) -> Dict:
         """Delete a given job
@@ -475,7 +528,7 @@ class Jobs:
             sec += freq
             job_instance_info = self.get_instance(job_instance_id)
             state = job_instance_info.get("jobInstance").get("status")
-            logging.info(f'Job id {job_id} with instance {job_instance_id} is currently : ' + state)
+            logging.info(f"Job id {job_id} with instance {job_instance_id} is currently : " + state)
         return state
 
     def stop(self, job_instance_id: str) -> Dict:
@@ -512,7 +565,7 @@ class Jobs:
         """
         if file:
             file = Path(file)
-            with file.open(mode='rb') as f:
+            with file.open(mode="rb") as f:
                 params["file"] = f
                 try:
                     req = self.client.execute(gql(payload_str), variable_values=params, upload_files=True)

@@ -6,7 +6,6 @@ from .gql_queries import *
 
 
 class Projects:
-
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client
@@ -75,7 +74,7 @@ class Projects:
             Dict of available jobs technology ids
         """
         query = gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES)
-        return self.client.execute(query, variable_values={"id": project_id})['project']
+        return self.client.execute(query, variable_values={"id": project_id})["project"]
 
     def get_apps_technologies(self, project_id: str) -> Dict:
         """List available apps technology ids for the project
@@ -91,10 +90,17 @@ class Projects:
             Dict of available apps technology ids
         """
         query = gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES)
-        return self.client.execute(query, variable_values={"id": project_id})['project']
+        return self.client.execute(query, variable_values={"id": project_id})["project"]
 
-    def create(self, name: str, group: str = None, role: str = "Manager", description: str = "",
-               jobs_technologies_allowed: Dict = None, apps_technologies_allowed: Dict = None) -> Dict:
+    def create(
+        self,
+        name: str,
+        group: str = None,
+        role: str = "Manager",
+        description: str = "",
+        jobs_technologies_allowed: Dict = None,
+        apps_technologies_allowed: Dict = None,
+    ) -> Dict:
         """Create a new project on the platform with all the job technologies and the app technologies
         of the official Saagie catalog if no technologies are specified.
 
@@ -123,15 +129,14 @@ class Projects:
         ValueError
             If given unknown role value
         """
-        if role == 'Manager':
-            role = 'ROLE_PROJECT_MANAGER'
-        elif role == 'Editor':
-            role = 'ROLE_PROJECT_EDITOR'
-        elif role == 'Viewer':
-            role = 'ROLE_PROJECT_VIEWER'
+        if role == "Manager":
+            role = "ROLE_PROJECT_MANAGER"
+        elif role == "Editor":
+            role = "ROLE_PROJECT_EDITOR"
+        elif role == "Viewer":
+            role = "ROLE_PROJECT_VIEWER"
         else:
-            raise ValueError("'role' takes value in ('Manager', 'Editor',"
-                             " 'Viewer')")
+            raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
 
         # Create the params of the query
         params = {"name": name}
@@ -164,13 +169,18 @@ class Projects:
             List of dict of apps technologies
         """
         if not apps_technologies_allowed:
-            return [{"id": techno["id"]} for techno in self.saagie_api.get_available_technologies("saagie")
-                    if techno['__typename'] == 'AppTechnology']
+            return [
+                {"id": techno["id"]}
+                for techno in self.saagie_api.get_available_technologies("saagie")
+                if techno["__typename"] == "AppTechnology"
+            ]
         tech_ids = []
         for catalog, technos in apps_technologies_allowed.items():
             tech_ids.extend(
-                self.saagie_api.check_technology_valid(technos, self.saagie_api.get_available_technologies(catalog),
-                                                       catalog))
+                self.saagie_api.check_technology_valid(
+                    technos, self.saagie_api.get_available_technologies(catalog), catalog
+                )
+            )
         return [{"id": t} for t in tech_ids]
 
     def __get_jobs_for_project(self, jobs_technologies_allowed) -> List:
@@ -188,15 +198,18 @@ class Projects:
             List of dict of jobs technologies
         """
         if not jobs_technologies_allowed:
-            return [{"id": techno["id"]} for techno in
-                    self.saagie_api.get_available_technologies("saagie")
-                    if techno['__typename'] == 'JobTechnology' or (
-                            techno['__typename'] == 'SparkTechnology')]
+            return [
+                {"id": techno["id"]}
+                for techno in self.saagie_api.get_available_technologies("saagie")
+                if techno["__typename"] == "JobTechnology" or (techno["__typename"] == "SparkTechnology")
+            ]
         tech_ids = []
         for catalog, technos in jobs_technologies_allowed.items():
             tech_ids.extend(
-                self.saagie_api.check_technology_valid(technos, self.saagie_api.get_available_technologies(catalog),
-                                                       catalog))
+                self.saagie_api.check_technology_valid(
+                    technos, self.saagie_api.get_available_technologies(catalog), catalog
+                )
+            )
         return [{"id": t} for t in tech_ids]
 
     def delete(self, project_id: str) -> Dict:

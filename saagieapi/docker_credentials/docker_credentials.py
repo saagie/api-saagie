@@ -6,7 +6,6 @@ from .gql_queries import *
 
 
 class DockerCredentials:
-
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client
@@ -62,13 +61,17 @@ class DockerCredentials:
         """
         all_docker_credentials = self.list_for_project(project_id)["allDockerCredentials"]
         if len(all_docker_credentials):
-            res = [credentials for credentials in all_docker_credentials if
-                   credentials["username"] == username and credentials["registry"] == registry]
+            res = [
+                credentials
+                for credentials in all_docker_credentials
+                if credentials["username"] == username and credentials["registry"] == registry
+            ]
             if len(res):
                 return res[0]
             raise RuntimeError(
                 f"There are no docker credentials in the project: '{project_id}' with the username: '{username}' "
-                f"and registry '{registry}'")
+                f"and registry '{registry}'"
+            )
         raise RuntimeError(f"There are no docker credentials in the project: '{project_id}'")
 
     def create(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
@@ -95,8 +98,9 @@ class DockerCredentials:
             params["registry"] = registry
         return self.client.execute(gql(GQL_CREATE_DOCKER_CREDENTIALS), variable_values=params)
 
-    def upgrade(self, project_id: str, credential_id: str, password: str, registry: str = None,
-                username: str = "") -> Dict:
+    def upgrade(
+        self, project_id: str, credential_id: str, password: str, registry: str = None, username: str = ""
+    ) -> Dict:
         """
         Update docker credentials for a specific project
         Parameters

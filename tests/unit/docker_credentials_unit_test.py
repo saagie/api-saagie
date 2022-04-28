@@ -6,7 +6,6 @@ from .saagie_api_unit_test import create_gql_client
 
 
 class TestDockerCredentials:
-
     def setup_method(self):
         self.client = create_gql_client()
 

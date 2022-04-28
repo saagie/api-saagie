@@ -7,7 +7,6 @@ from .saagie_api_unit_test import create_gql_client
 
 
 class TestApps:
-
     def setup_method(self):
         self.client = create_gql_client()
 
@@ -41,12 +40,7 @@ class TestApps:
 
     def test_check_exposed_ports(self):
         valid_exposed_ports = [
-            {
-                "port": "80",
-                "basePathVariableName": "youpi",
-                "isRewriteUrl": "false",
-                "isAuthenticationRequired": "true"
-            }
+            {"port": "80", "basePathVariableName": "youpi", "isRewriteUrl": "false", "isAuthenticationRequired": "true"}
         ]
 
         invalid_exposed_ports = [
@@ -54,7 +48,7 @@ class TestApps:
                 "ports": "80",
                 "basePathVariableName": "youpi",
                 "isRewriteUrl": "false",
-                "isAuthenticationRequired": "true"
+                "isAuthenticationRequired": "true",
             }
         ]
         result_valid = Apps.check_exposed_ports(valid_exposed_ports)

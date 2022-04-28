@@ -6,7 +6,6 @@ from .gql_queries import *
 
 
 class Apps:
-
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client
@@ -41,10 +40,20 @@ class Apps:
         query = gql(GQL_GET_APP_INFO)
         return self.client.execute(query, variable_values={"id": app_id})
 
-    def create_from_scratch(self, project_id: str, app_name: str, image: str, description: str = '',
-                            exposed_ports: List[Dict] = None, storage_paths: List = None, storage_size_in_mb: int = 128,
-                            release_note: str = '', docker_credentials_id: str = None, emails: List = None,
-                            status_list: List = ["FAILED"]) -> Dict:
+    def create_from_scratch(
+        self,
+        project_id: str,
+        app_name: str,
+        image: str,
+        description: str = "",
+        exposed_ports: List[Dict] = None,
+        storage_paths: List = None,
+        storage_size_in_mb: int = 128,
+        release_note: str = "",
+        docker_credentials_id: str = None,
+        emails: List = None,
+        status_list: List = ["FAILED"],
+    ) -> Dict:
         """Create an app in a specific project
         Parameters
         ----------
@@ -104,18 +113,19 @@ class Apps:
         if not check_format_exposed_port:
             raise ValueError(
                 f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
-                "All accept key of each dict is: '{list_exposed_port_field}'")
+                "All accept key of each dict is: '{list_exposed_port_field}'"
+            )
 
         technology = "Docker image"
         technology_catalog = "Saagie"
-        technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)['appTechnologies']
-        technologies_for_project = [tech['id'] for tech in technologies_for_project]
+        technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
+        technologies_for_project = [tech["id"] for tech in technologies_for_project]
         # For apps, docker technology is always available
-        repositories = self.saagie_api.get_repositories_info()['repositories']
+        repositories = self.saagie_api.get_repositories_info()["repositories"]
         # Filter saagie repo
-        saagie_repo = [repo for repo in repositories if repo['name'] == technology_catalog][0]['technologies']
+        saagie_repo = [repo for repo in repositories if repo["name"] == technology_catalog][0]["technologies"]
         # Get id of docker technology
-        docker_id = [repo['id'] for repo in saagie_repo if repo['label'] == technology][0]
+        docker_id = [repo["id"] for repo in saagie_repo if repo["label"] == technology][0]
         # Add docker technology to the list of technologies for the project
         technologies_for_project.append(docker_id)
         params = self.saagie_api.check_technology(params, technology, technology_catalog, technologies_for_project)
@@ -128,10 +138,19 @@ class Apps:
         query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
-    def create_from_catalog(self, project_id: str, app_name: str, technology: str, context: str,
-                            technology_catalog: str = "Saagie",
-                            description: str = '', storage_size_in_mb: int = 128, release_note: str = '',
-                            emails: List = None, status_list: List = ["FAILED"]) -> Dict:
+    def create_from_catalog(
+        self,
+        project_id: str,
+        app_name: str,
+        technology: str,
+        context: str,
+        technology_catalog: str = "Saagie",
+        description: str = "",
+        storage_size_in_mb: int = 128,
+        release_note: str = "",
+        emails: List = None,
+        status_list: List = ["FAILED"],
+    ) -> Dict:
         """Create an app in a specific project
         Parameters
         ----------
@@ -172,42 +191,55 @@ class Apps:
         }
 
         # Get all id technologies in our project
-        technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)['appTechnologies']
-        technologies_for_project = [tech['id'] for tech in technologies_for_project]
+        technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
+        technologies_for_project = [tech["id"] for tech in technologies_for_project]
 
         # Check if the technology exist
-        params = self.saagie_api.check_technology(params, technology, technology_catalog,
-                                                  technologies_for_project)
-        app_id = params['technologyId']
+        params = self.saagie_api.check_technology(params, technology, technology_catalog, technologies_for_project)
+        app_id = params["technologyId"]
 
         # Check if app_is is available in our project
         techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
-        app_is_available = [app["id"] for app in techno_app['appTechnologies'] if app["id"] == app_id]
+        app_is_available = [app["id"] for app in techno_app["appTechnologies"] if app["id"] == app_id]
         if not app_is_available:
             raise ValueError(
-                f"App '{technology}' is not available in the project: '{project_id}'. Check your project settings")
+                f"App '{technology}' is not available in the project: '{project_id}'. Check your project settings"
+            )
 
         # Get different runtimes of app
         runtimes = self.saagie_api.get_runtimes(app_id)["technology"]["appContexts"]
         # Check if runtime is available
         available_runtimes = [app for app in runtimes if app["available"] == True]
-        context_app = [app for app in available_runtimes if app['label'] == context]
+        context_app = [app for app in available_runtimes if app["label"] == context]
 
         if not context_app:
             available_contexts = [app["label"] for app in available_runtimes]
             raise ValueError(
-                f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: '{project_id}'. Available runtimes are: '{available_contexts}'")
+                f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: '{project_id}'. Available runtimes are: '{available_contexts}'"
+            )
         else:
             context_app_info = context_app[0]
 
         exposed_ports = context_app_info["ports"]
         # change key names in the list of dict exposed_ports
-        exposed_ports = [{'basePathVariableName': port["basePath"], 'isRewriteUrl': port["rewriteUrl"],
-                          'isAuthenticationRequired': True,
-                          'port': port["port"], 'name': port["name"]} if port["scope"] == "PROJECT" else
-                         {'basePathVariableName': port["basePath"], 'isRewriteUrl': port["rewriteUrl"],
-                          'isAuthenticationRequired': False,
-                          'port': port["port"], 'name': port["name"]} for port in exposed_ports]
+        exposed_ports = [
+            {
+                "basePathVariableName": port["basePath"],
+                "isRewriteUrl": port["rewriteUrl"],
+                "isAuthenticationRequired": True,
+                "port": port["port"],
+                "name": port["name"],
+            }
+            if port["scope"] == "PROJECT"
+            else {
+                "basePathVariableName": port["basePath"],
+                "isRewriteUrl": port["rewriteUrl"],
+                "isAuthenticationRequired": False,
+                "port": port["port"],
+                "name": port["name"],
+            }
+            for port in exposed_ports
+        ]
 
         # Get image_name with concatenated image name with tag (version)
         image_app = f"{context_app_info['dockerInfo']['image']}:{context_app_info['dockerInfo']['version']}"
@@ -215,8 +247,9 @@ class Apps:
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
         if not check_format_exposed_port:
             raise ValueError(
-                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'." \
-                "All accept key of each dict is: '{list_exposed_port_field}'")
+                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
+                "All accept key of each dict is: '{list_exposed_port_field}'"
+            )
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
@@ -227,8 +260,14 @@ class Apps:
         query = gql(GQL_CREATE_APP)
         return self.client.execute(query, variable_values=params)
 
-    def edit(self, app_id: str, app_name: str = None, description: str = None, emails: List = None,
-             status_list: List = ["FAILED"]) -> Dict:
+    def edit(
+        self,
+        app_id: str,
+        app_name: str = None,
+        description: str = None,
+        emails: List = None,
+        status_list: List = ["FAILED"],
+    ) -> Dict:
         """Edit an app
         Each optional parameter can be set to change the value of the corresponding field.
         Parameters
@@ -277,7 +316,7 @@ class Apps:
             if previous_alerting:
                 params["alerting"] = {
                     "emails": previous_alerting["emails"],
-                    "statusList": previous_alerting["statusList"]
+                    "statusList": previous_alerting["statusList"],
                 }
 
         query = gql(GQL_EDIT_APP)
@@ -347,8 +386,7 @@ class Apps:
             True if all exposed port is in the validate format
             Otherwise False
         """
-        list_exposed_port_field = ["basePathVariableName", "isRewriteUrl",
-                                   "isAuthenticationRequired", "port", "name"]
+        list_exposed_port_field = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
         if type(exposed_ports) != list:
             return False
         else:
@@ -358,7 +396,8 @@ class Apps:
                     check_port = all(["port" in ep.keys() for ep in exposed_ports])
                     if check_port:
                         check_every_key = all(
-                            [all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports])
+                            [all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports]
+                        )
                         if check_every_key:
                             return True
                         else:
