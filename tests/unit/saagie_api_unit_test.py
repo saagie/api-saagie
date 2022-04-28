@@ -29,14 +29,6 @@ class TestGQLTemplate:
         query = gql(GQL_GET_CLUSTER_INFO)
         self.client.validate(query)
 
-    def test_get_repositories_info(self):
-        query = gql(GQL_GET_REPOSITORIES_INFO)
-        self.client.validate(query)
-
-    def test_get_runtimes(self):
-        query = gql(GQL_GET_RUNTIMES)
-        self.client.validate(query)
-
     @staticmethod
     def test_check_scheduling():
         result = SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="Pacific/Fakaofo")
