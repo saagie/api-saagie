@@ -571,7 +571,7 @@ class Jobs:
                     req = self.client.execute(gql(payload_str), variable_values=params, upload_files=True)
                     res = {"data": req}
                 except Exception as e:
-                    logging.error(f"Something went wrong: {e}")
+                    logging.error("Something went wrong %s", e)
                     raise e
                 return res
 
@@ -580,6 +580,6 @@ class Jobs:
                 req = self.client.execute(gql(payload_str), variable_values=params)
                 res = {"data": req}
             except Exception as e:
-                logging.error(f"Something went wrong: {e}")
+                logging.error("Something went wrong %s", e)
                 raise e
             return res

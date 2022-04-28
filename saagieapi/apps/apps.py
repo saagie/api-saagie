@@ -52,7 +52,7 @@ class Apps:
         release_note: str = "",
         docker_credentials_id: str = None,
         emails: List = None,
-        status_list: List = ["FAILED"],
+        status_list: List = None,
     ) -> Dict:
         """Create an app in a specific project
         Parameters
@@ -149,7 +149,7 @@ class Apps:
         storage_size_in_mb: int = 128,
         release_note: str = "",
         emails: List = None,
-        status_list: List = ["FAILED"],
+        status_list: List = None,
     ) -> Dict:
         """Create an app in a specific project
         Parameters
@@ -267,7 +267,7 @@ class Apps:
         app_name: str = None,
         description: str = None,
         emails: List = None,
-        status_list: List = ["FAILED"],
+        status_list: List = None,
     ) -> Dict:
         """Edit an app
         Each optional parameter can be set to change the value of the corresponding field.

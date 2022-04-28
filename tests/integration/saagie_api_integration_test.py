@@ -6,7 +6,7 @@ import pytest
 import urllib3
 
 from saagieapi import SaagieApi
-from saagieapi.pipelines.graph_pipeline import GraphPipeline, JobNode, ConditionNode
+from saagieapi.pipelines.graph_pipeline import ConditionNode, GraphPipeline, JobNode
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("../..")
