@@ -10,7 +10,6 @@ from .graph_pipeline import *
 
 
 class Pipelines:
-
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client
@@ -106,9 +105,11 @@ class Pipelines:
         query = gql(GQL_GET_PIPELINE_INSTANCE)
         return self.client.execute(query, variable_values={"id": pipeline_instance_id})
 
-    @deprecation.deprecated(deprecated_in="Saagie 2.2.1",
-                            details="This deprecated endpoint allows to create only linear pipeline. "
-                                    "To create graph pipelines, use `create_graph` instead.")
+    @deprecation.deprecated(
+        deprecated_in="Saagie 2.2.1",
+        details="This deprecated endpoint allows to create only linear pipeline. "
+        "To create graph pipelines, use `create_graph` instead.",
+    )
     def create(self, name: str, project_id: str, jobs_id: List[str], description: str = "") -> Dict:
         """
         Create a pipeline in a given project
@@ -134,9 +135,18 @@ class Pipelines:
         query = gql(GQL_CREATE_PIPELINE)
         return self.client.execute(query, variable_values=params)
 
-    def create_graph(self, name: str, project_id: str, graph_pipeline: GraphPipeline, description: str = "",
-                     release_note: str = "", emails: List[str] = None, status_list: List[str] = None,
-                     cron_scheduling: str = None, schedule_timezone: str = "UTC") -> Dict:
+    def create_graph(
+        self,
+        name: str,
+        project_id: str,
+        graph_pipeline: GraphPipeline,
+        description: str = "",
+        release_note: str = "",
+        emails: List[str] = None,
+        status_list: List[str] = None,
+        cron_scheduling: str = None,
+        schedule_timezone: str = "UTC",
+    ) -> Dict:
         """
         Create a pipeline in a given project
 
@@ -177,8 +187,14 @@ class Pipelines:
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
 
-        params = {"name": name, "description": description, "projectId": project_id, "releaseNote": release_note,
-                  "jobNodes": graph_pipeline.list_job_nodes, 'conditionNodes': graph_pipeline.list_conditions_nodes}
+        params = {
+            "name": name,
+            "description": description,
+            "projectId": project_id,
+            "releaseNote": release_note,
+            "jobNodes": graph_pipeline.list_job_nodes,
+            "conditionNodes": graph_pipeline.list_conditions_nodes,
+        }
 
         if cron_scheduling:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
@@ -227,14 +243,26 @@ class Pipelines:
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
 
-        params = {'id': pipeline_id, 'jobNodes': graph_pipeline.list_job_nodes,
-                  'conditionNodes': graph_pipeline.list_conditions_nodes, 'releaseNote': release_note}
+        params = {
+            "id": pipeline_id,
+            "jobNodes": graph_pipeline.list_job_nodes,
+            "conditionNodes": graph_pipeline.list_conditions_nodes,
+            "releaseNote": release_note,
+        }
 
         return self.client.execute(gql(GQL_UPGRADE_PIPELINE), variable_values=params)
 
-    def edit(self, pipeline_id: str, name: str = None, description: str = None, emails: List[str] = None,
-             status_list: List[str] = None, is_scheduled: bool = None,
-             cron_scheduling: str = None, schedule_timezone: str = "UTC"):
+    def edit(
+        self,
+        pipeline_id: str,
+        name: str = None,
+        description: str = None,
+        emails: List[str] = None,
+        status_list: List[str] = None,
+        is_scheduled: bool = None,
+        cron_scheduling: str = None,
+        schedule_timezone: str = "UTC",
+    ):
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
@@ -306,7 +334,7 @@ class Pipelines:
             if previous_alerting:
                 params["alerting"] = {
                     "emails": previous_pipeline_info["emails"],
-                    "statusList": previous_pipeline_info["statusList"]
+                    "statusList": previous_pipeline_info["statusList"],
                 }
 
         query = gql(GQL_EDIT_PIPELINE)
@@ -368,9 +396,8 @@ class Pipelines:
             time.sleep(freq)
             sec += freq
             pipeline_instance_info = self.get_instance(pipeline_instance_id)
-            state = pipeline_instance_info.get("pipelineInstance") \
-                .get("status")
-            logging.info('Current state : ' + state)
+            state = pipeline_instance_info.get("pipelineInstance").get("status")
+            logging.info("Current state : " + state)
         return state
 
     def stop(self, pipeline_instance_id: str) -> Dict:
