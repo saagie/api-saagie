@@ -145,7 +145,7 @@ query pipelineInstanceQuery($id: UUID!){
 
 GQL_CREATE_GRAPH_PIPELINE = """
 mutation createGraphPipelineMutation($name: String!, $description: String, $projectId: UUID!, 
-                                     $releaseNote: String, 
+                                     $releaseNote: String, $alerting: JobPipelineAlertingInput,
                                      $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone:TimeZone,
                                      $jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!]) {
   createGraphPipeline(pipeline:  {
@@ -153,6 +153,7 @@ mutation createGraphPipelineMutation($name: String!, $description: String, $proj
     description: $description
     projectId: $projectId
     releaseNote : $releaseNote
+    alerting: $alerting
     isScheduled: $isScheduled
     cronScheduling: $cronScheduling
     scheduleTimezone: $scheduleTimezone

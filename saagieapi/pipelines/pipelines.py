@@ -134,7 +134,8 @@ class Pipelines:
         return self.client.execute(query, variable_values=params)
 
     def create_graph(self, name: str, project_id: str, graph_pipeline: GraphPipeline, description: str = "",
-                     release_note: str = "", cron_scheduling: str = None, schedule_timezone: str = "UTC") -> Dict:
+                     release_note: str = "", emails: List[str] = None, status_list: List[str] = None,
+                     cron_scheduling: str = None, schedule_timezone: str = "UTC") -> Dict:
         """
         Create a pipeline in a given project
 
@@ -156,6 +157,12 @@ class Pipelines:
             Description of the pipeline
         release_note: str, optional
             Release note of the pipeline
+        emails: List[String], optional
+            Emails to receive alerts for the job, each item should be a valid email,
+        status_list: List[String], optional
+            Receive an email when the job status change to a specific status
+            Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
+            "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
         cron_scheduling : str, optional
             Scheduling CRON format
         schedule_timezone : str, optional
@@ -177,6 +184,8 @@ class Pipelines:
 
         else:
             params["isScheduled"] = False
+        if emails:
+            params = self.saagie_api.check_alerting(emails, params, status_list)
 
         query = gql(GQL_CREATE_GRAPH_PIPELINE)
         return self.client.execute(query, variable_values=params)
