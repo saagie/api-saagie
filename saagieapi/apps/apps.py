@@ -218,8 +218,7 @@ class Apps:
                 f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: "
                 f"'{project_id}'. Available runtimes are: '{available_contexts}'"
             )
-        else:
-            context_app_info = context_app[0]
+        context_app_info = context_app[0]
 
         exposed_ports = context_app_info["ports"]
         # change key names in the list of dict exposed_ports
@@ -390,22 +389,18 @@ class Apps:
         list_exposed_port_field = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
         if type(exposed_ports) != list:
             return False
-        else:
-            if len(exposed_ports):
-                check_type = all([type(ep) == dict for ep in exposed_ports])
-                if check_type:
-                    check_port = all(["port" in ep.keys() for ep in exposed_ports])
-                    if check_port:
-                        check_every_key = all(
-                            [all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports]
-                        )
-                        if check_every_key:
-                            return True
-                        else:
-                            return False
-                    else:
-                        return False
-                else:
+
+        if len(exposed_ports):
+            check_type = all([type(ep) == dict for ep in exposed_ports])
+            if check_type:
+                check_port = all(["port" in ep.keys() for ep in exposed_ports])
+                if check_port:
+                    check_every_key = all(
+                        [all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports]
+                    )
+                    if check_every_key:
+                        return True
                     return False
-            else:
-                return True
+                return False
+            return False
+        return True

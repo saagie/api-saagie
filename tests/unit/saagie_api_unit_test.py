@@ -6,7 +6,7 @@ from graphql import build_ast_schema
 from graphql.language.parser import parse
 
 from saagieapi import SaagieApi
-from saagieapi.gql_queries import *
+from saagieapi.gql_queries import GQL_GET_CLUSTER_INFO
 
 
 def create_gql_client():

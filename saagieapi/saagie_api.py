@@ -179,8 +179,7 @@ class SaagieApi:
                 f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'"
             )
 
-        else:
-            params["alerting"] = {"emails": emails, "statusList": status_list}
+        params["alerting"] = {"emails": emails, "statusList": status_list}
         return params
 
     @staticmethod

@@ -1,12 +1,12 @@
 import logging
 import time
-from typing import Dict
+from typing import Dict, List
 
 import deprecation
 from gql import gql
 
 from .gql_queries import *
-from .graph_pipeline import *
+from .graph_pipeline import GraphPipeline
 
 
 class Pipelines:
@@ -384,11 +384,12 @@ class Pipelines:
         """
         res = self.run(pipeline_id)
         pipeline_instance_id = res.get("runPipeline").get("id")
-        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
+
         pipeline_instance_info = self.get_instance(pipeline_instance_id)
         state = pipeline_instance_info.get("pipelineInstance").get("status")
-        sec = 0
 
+        sec = 0
+        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
         while state not in final_status_list:
             to = False if timeout == -1 else sec >= timeout
             if to:
@@ -397,7 +398,7 @@ class Pipelines:
             sec += freq
             pipeline_instance_info = self.get_instance(pipeline_instance_id)
             state = pipeline_instance_info.get("pipelineInstance").get("status")
-            logging.info("Current state : " + state)
+            logging.info("Current state : %s", state)
         return state
 
     def stop(self, pipeline_instance_id: str) -> Dict:

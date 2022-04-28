@@ -41,13 +41,18 @@ class TestApps:
     @staticmethod
     def test_check_exposed_ports():
         valid_exposed_ports = [
-            {"port": "80", "basePathVariableName": "youpi", "isRewriteUrl": "false", "isAuthenticationRequired": "true"}
+            {
+                "port": "80",
+                "basePathVariableName": "my-variable",
+                "isRewriteUrl": "false",
+                "isAuthenticationRequired": "true",
+            }
         ]
 
         invalid_exposed_ports = [
             {
                 "ports": "80",
-                "basePathVariableName": "youpi",
+                "basePathVariableName": "my-variable",
                 "isRewriteUrl": "false",
                 "isAuthenticationRequired": "true",
             }

@@ -613,7 +613,6 @@ class TestIntegrationProject:
 
         assert pipeline_id in list_pipelines_id
 
-
     def test_get_graph_pipeline_id(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
         pipeline_name = "TEST_VIA_API"
@@ -622,15 +621,17 @@ class TestIntegrationProject:
 
     def test_run_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        output_pipeline_run_status = self.saagie.pipelines.run(pipeline_id)['runPipeline']['status']
+        output_pipeline_run_status = self.saagie.pipelines.run(pipeline_id)["runPipeline"]["status"]
         assert output_pipeline_run_status == "REQUESTED"
 
     def test_stop_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        output_pipeline_run_id = self.saagie.pipelines.run(pipeline_id)['runPipeline']['id']
-        output_pipeline_stop_status = self.saagie.pipelines.stop(output_pipeline_run_id)['stopPipelineInstance']['status']
+        output_pipeline_run_id = self.saagie.pipelines.run(pipeline_id)["runPipeline"]["id"]
+        output_pipeline_stop_status = self.saagie.pipelines.stop(output_pipeline_run_id)["stopPipelineInstance"][
+            "status"
+        ]
         assert output_pipeline_stop_status == "KILLING"
-    
+
     def test_delete_graph_pipeline(self, create_graph_pipeline):
         pipeline_id, job_id = create_graph_pipeline
 
