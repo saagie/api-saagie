@@ -1,9 +1,11 @@
-from gql import gql
-from .saagie_api_unit_test import create_gql_client
-from saagieapi.env_vars.gql_queries import *
-
 import os
 import sys
+
+from gql import gql
+
+from saagieapi.env_vars.gql_queries import *
+
+from .saagie_api_unit_test import create_gql_client
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("../..")

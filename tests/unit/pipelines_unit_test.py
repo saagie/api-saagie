@@ -1,5 +1,7 @@
 from gql import gql
+
 from saagieapi.pipelines.gql_queries import *
+
 from .saagie_api_unit_test import create_gql_client
 
 

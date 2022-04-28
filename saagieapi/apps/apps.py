@@ -1,7 +1,8 @@
+from typing import Dict, List
+
 from gql import gql
 
 from .gql_queries import *
-from typing import Dict, List
 
 
 class Apps:

@@ -6,8 +6,7 @@ import deprecation
 import pytz
 import requests
 from croniter import croniter
-from gql import Client
-from gql import gql
+from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from .apps import Apps

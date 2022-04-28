@@ -1,11 +1,12 @@
+import os
+
 import pytest
-from gql import gql
-from gql import Client
+from gql import Client, gql
 from graphql import build_ast_schema
 from graphql.language.parser import parse
-from saagieapi.gql_queries import *
+
 from saagieapi import SaagieApi
-import os
+from saagieapi.gql_queries import *
 
 
 def create_gql_client():

@@ -1,9 +1,11 @@
 import logging
 import time
+from typing import Dict
+
 import deprecation
 from gql import gql
+
 from .gql_queries import *
-from typing import Dict
 from .graph_pipeline import *
 
 

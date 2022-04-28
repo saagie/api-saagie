@@ -1,5 +1,6 @@
-from gql import gql
 from typing import Dict
+
+from gql import gql
 
 from .gql_queries import *
 

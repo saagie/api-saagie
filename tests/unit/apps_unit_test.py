@@ -1,7 +1,9 @@
 from gql import gql
-from .saagie_api_unit_test import create_gql_client
-from saagieapi.apps.gql_queries import *
+
 from saagieapi.apps.apps import Apps
+from saagieapi.apps.gql_queries import *
+
+from .saagie_api_unit_test import create_gql_client
 
 
 class TestApps:

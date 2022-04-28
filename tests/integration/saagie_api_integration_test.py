@@ -4,6 +4,7 @@ import time
 
 import pytest
 import urllib3
+
 from saagieapi import SaagieApi
 from saagieapi.pipelines.graph_pipeline import *
 
