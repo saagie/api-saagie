@@ -18,9 +18,7 @@ class TestEnvVars:
 
     def test_list_global_env_vars(self):
         query = gql(GQL_LIST_GLOBAL_ENV_VARS)
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
+        self.client.validate(query)
 
     def test_create_env_var(self):
         query = gql(GQL_CREATE_ENV_VAR)
@@ -36,6 +34,4 @@ class TestEnvVars:
 
     def test_update_env_var(self):
         query = gql(GQL_UPDATE_ENV_VAR)
-        result = self.client.validate(query)
-        expected = None
-        assert result == expected
+        self.client.validate(query)

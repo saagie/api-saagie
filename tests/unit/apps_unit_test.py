@@ -38,7 +38,8 @@ class TestApps:
         query = gql(GQL_DELETE_APP)
         self.client.validate(query)
 
-    def test_check_exposed_ports(self):
+    @staticmethod
+    def test_check_exposed_ports():
         valid_exposed_ports = [
             {"port": "80", "basePathVariableName": "youpi", "isRewriteUrl": "false", "isAuthenticationRequired": "true"}
         ]

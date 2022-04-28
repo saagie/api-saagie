@@ -37,32 +37,38 @@ class TestGQLTemplate:
         query = gql(GQL_GET_RUNTIMES)
         self.client.validate(query)
 
-    def test_check_scheduling(self):
+    @staticmethod
+    def test_check_scheduling():
         result = SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="Pacific/Fakaofo")
         assert result["isScheduled"] is True
         assert result["cronScheduling"] == "* * * * *"
 
-    def test_check_scheduling_bad_timezone(self):
+    @staticmethod
+    def test_check_scheduling_bad_timezone():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="")
         assert str(rte.value) == "Please specify a correct timezone"
 
-    def test_check_scheduling_bad_cronexpression(self):
+    @staticmethod
+    def test_check_scheduling_bad_cronexpression():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_scheduling(cron_scheduling="xx", params={}, schedule_timezone="Pacific/Fakaofo")
         assert str(rte.value) == "xx is not valid cron format"
 
-    def test_check_alerting(self):
+    @staticmethod
+    def test_check_alerting():
         result = SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["FAILED"])
         assert result["alerting"]["emails"] == ["mail1", "mail2"]
         assert result["alerting"]["statusList"] == ["FAILED"]
 
-    def test_check_alerting_bad_status_list(self):
+    @staticmethod
+    def test_check_alerting_bad_status_list():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["failure"])
         assert "The following status are not valid" in str(rte.value)
 
-    def test_check_technology_valid(self):
+    @staticmethod
+    def test_check_technology_valid():
         result = SaagieApi.check_technology_valid(
             technologies=["python"],
             all_technologies_in_catalog=[{"label": "python", "id": "123"}, {"label": "java", "id": "456"}],
@@ -70,14 +76,16 @@ class TestGQLTemplate:
         )
         assert result == ["123"]
 
-    def test_check_technology_valid_empty_catalog(self):
+    @staticmethod
+    def test_check_technology_valid_empty_catalog():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_technology_valid(
                 technologies=["python"], all_technologies_in_catalog=[], technology_catalog="catalog"
             )
         assert str(rte.value) == "Catalog catalog does not exist or does not contain technologies"
 
-    def test_check_technology_valid_no_technologies_exists(self):
+    @staticmethod
+    def test_check_technology_valid_no_technologies_exists():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_technology_valid(
                 technologies=["r"],
@@ -86,7 +94,8 @@ class TestGQLTemplate:
             )
         assert str(rte.value) == "Technologies ['r'] do not exist in the catalog specified"
 
-    def test_check_technology_valid_some_technology_not_exist(self):
+    @staticmethod
+    def test_check_technology_valid_some_technology_not_exist():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_technology_valid(
                 technologies=["r", "python"],
@@ -95,13 +104,15 @@ class TestGQLTemplate:
             )
         assert str(rte.value) == "Some technologies among ['r', 'python'] do not exist in the catalog specified"
 
-    def test_check_technology_configured(self):
+    @staticmethod
+    def test_check_technology_configured():
         result = SaagieApi.check_technology_configured(
             params={}, technology="python", technology_id="123", technologies_configured_for_project=["123", "456"]
         )
         assert result["technologyId"] == "123"
 
-    def test_check_technology_configured_technology_not_configured(self):
+    @staticmethod
+    def test_check_technology_configured_technology_not_configured():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_technology_configured(
                 params={}, technology="python", technology_id="123", technologies_configured_for_project=["456"]

@@ -1,5 +1,5 @@
 [MESSAGES CONTROL]
-disable=C0116,C0114,C0115,unsubscriptable-object
+disable=C0116,C0114,C0115,unsubscriptable-object,too-many-arguments
 
 [FORMAT]
 max-line-length=120

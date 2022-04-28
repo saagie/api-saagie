@@ -112,7 +112,7 @@ class Apps:
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
         if not check_format_exposed_port:
             raise ValueError(
-                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
+                "The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'"
             )
 
@@ -209,13 +209,14 @@ class Apps:
         # Get different runtimes of app
         runtimes = self.saagie_api.get_runtimes(app_id)["technology"]["appContexts"]
         # Check if runtime is available
-        available_runtimes = [app for app in runtimes if app["available"] == True]
+        available_runtimes = [app for app in runtimes if app["available"] is True]
         context_app = [app for app in available_runtimes if app["label"] == context]
 
         if not context_app:
             available_contexts = [app["label"] for app in available_runtimes]
             raise ValueError(
-                f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: '{project_id}'. Available runtimes are: '{available_contexts}'"
+                f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: "
+                f"'{project_id}'. Available runtimes are: '{available_contexts}'"
             )
         else:
             context_app_info = context_app[0]
@@ -247,7 +248,7 @@ class Apps:
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
         if not check_format_exposed_port:
             raise ValueError(
-                f"The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
+                "The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'"
             )
 

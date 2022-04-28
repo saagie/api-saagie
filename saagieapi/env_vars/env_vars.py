@@ -53,7 +53,7 @@ class EnvVars:
         return self.client.execute(query, variable_values=params)
 
     def update_global(
-        self, name: str, new_name: str = None, value: str = None, description: str = None, is_password: bool = None
+            self, name: str, new_name: str = None, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
         """
         Update environment variable with provided function variables if it exists
@@ -132,10 +132,9 @@ class EnvVars:
         # If variable not present, create it
         if not present:
             return self.create_global(name=name, value=value, description=description, is_password=is_password)
-        else:
-            return self.update_global(
-                name=name, new_name=None, value=value, description=description, is_password=is_password
-            )
+        return self.update_global(
+            name=name, new_name=None, value=value, description=description, is_password=is_password
+        )
 
     def delete_global(self, name: str) -> Dict:
         """Delete the given global environment variable
@@ -186,7 +185,7 @@ class EnvVars:
         return self.client.execute(query, variable_values={"projectId": project_id})
 
     def create_for_project(
-        self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
+            self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
     ) -> Dict:
         """Create an environment variable in a given project
 
@@ -220,13 +219,13 @@ class EnvVars:
         return self.client.execute(query, variable_values=params)
 
     def update_for_project(
-        self,
-        project_id: str,
-        name: str,
-        new_name: str = None,
-        value: str = None,
-        description: str = None,
-        is_password: bool = None,
+            self,
+            project_id: str,
+            name: str,
+            new_name: str = None,
+            value: str = None,
+            description: str = None,
+            is_password: bool = None,
     ) -> Dict:
         """
         Update environment variable with provided function variables if it exists
@@ -282,7 +281,7 @@ class EnvVars:
         return self.client.execute(query, variable_values=params)
 
     def create_or_update_for_project(
-        self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
+            self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
     ) -> Dict:
         """
         Create a new project environnement variable or update it if it already exists
@@ -314,15 +313,14 @@ class EnvVars:
             return self.create_for_project(
                 project_id=project_id, name=name, value=value, description=description, is_password=is_password
             )
-        else:
-            return self.update_for_project(
-                project_id=project_id,
-                name=name,
-                new_name=None,
-                value=value,
-                description=description,
-                is_password=is_password,
-            )
+        return self.update_for_project(
+            project_id=project_id,
+            name=name,
+            new_name=None,
+            value=value,
+            description=description,
+            is_password=is_password,
+        )
 
     def delete_for_project(self, project_id: str, name: str) -> Dict:
         """Delete a given environment variable inside a given project
