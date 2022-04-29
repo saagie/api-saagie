@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.1 (2022-04-29)
+### :zap:
+* :zap: ajout d'un timestamp sur le nom du projet créé pendant le test ([#95](https://github.com/saagie/api-saagie/issues/95)) ([`e52b611`](https://github.com/saagie/api-saagie/commit/e52b611b23be494d4f10b56d1eeceeaf02bbcafb))
+
 ## v1.0.0 (2022-04-29)
 ### Breaking
 * Refactoring Adding missing features (app creation, project job and app configuration, create of update env var) ([`46fd2cc`](https://github.com/saagie/api-saagie/commit/46fd2ccae24e4a74db7551ec84d97b14c7934de3))
