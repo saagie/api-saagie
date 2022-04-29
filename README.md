@@ -13,21 +13,13 @@
 [contributors]: https://github.com/saagie/api-saagie/graphs/contributors
 
 - [Presentation](#presentation)
-- [Installation](#installation)
+- [Installation](#installing)
 - [Usage](#usage)
-    * [Projects](#projects)
 - [Contributing](#contributing)
 
 ## Presentation
 
 The `saagieapi` python package implements python API wrappers to easily interact with the Saagie platform in python.
-
-There are two subpackages that each give access to a main class whose methods allows to interact with the API :
-
-* The `manager` subpackage implements the `SaagieApiManager` class whose methods can interact with the `manager`
-  interface in Saagie (Saagie legacy)
-* The `projects` subpackage implements the `SaagieApi` class whose methods can interact with the `Projects` interface in
-  Saagie (current main interface)
 
 ## Installing
 
@@ -44,10 +36,8 @@ pip install saagieapi==<version>
 
 ## Usage
 
-### Projects
-
 ```python
-from saagieapi.projects import SaagieApi
+from saagieapi import SaagieApi
 
 saagie = SaagieApi(url_saagie="<url>",
                    id_platform="1",
@@ -56,7 +46,7 @@ saagie = SaagieApi(url_saagie="<url>",
                    realm="saagie")
 
 # Create a project named 'Project_test' on the saagie platform
-project_dict = saagie.create_project(name="Project_test",
+project_dict = saagie.projects.create(name="Project_test",
                                      group="<saagie-group-with-proper-permissions>",
                                      role='Manager',
                                      description='A test project')
@@ -65,7 +55,7 @@ project_dict = saagie.create_project(name="Project_test",
 project_id = project_dict['createProject']['id']
 
 # Create a python job named 'Python test job' inside this project
-job_dict = saagie.create_job(job_name="Python test job",
+job_dict = saagie.jobs.create(job_name="Python test job",
                              project_id=project_id,
                              file='<path-to-local-file>',
                              description='Amazing python job',
@@ -82,7 +72,7 @@ job_dict = saagie.create_job(job_name="Python test job",
 job_id = job_dict['data']['createJob']['id']
 
 # Run the python job and wait for its completion
-saagie.run_job_callback(job_id=job_id, freq=10, timeout=-1)
+saagie.jobs.run_with_callback(job_id=job_id, freq=10, timeout=-1)
 
 ```
 
@@ -92,6 +82,7 @@ There are 2 options to connect to your platform :
 
 1. using the default constructor : 
 ```python
+from saagieapi import *
 saagie = SaagieApi(url_saagie="<url>",
                    id_platform="1",
                    user="<saagie-user-name>",
@@ -105,6 +96,7 @@ saagie = SaagieApi(url_saagie="<url>",
         parse it in order to retrieve the platform URL, platform id and the 
         realm.
 ```python
+from saagieapi import *
 saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
                    user="<saagie-user-name>",
                    password="<saagie-user-password>")

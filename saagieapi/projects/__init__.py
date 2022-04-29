@@ -1,4 +1,3 @@
-from .saagie_api import SaagieApi
-from .graph_pipeline import *
+from .projects import Projects
 
-__all__ = ["SaagieApi", "Node", "JobNode", "ConditionNode", "GraphPipeline"]
+__all__ = ["Projects"]

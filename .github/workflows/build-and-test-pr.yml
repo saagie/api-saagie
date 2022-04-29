@@ -1,0 +1,66 @@
+name: Build and test pull request
+
+
+on:
+  push:
+    branches:
+      - '**'        # matches every branch
+      - '!master'   # excludes master
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.7", "3.8", "3.9","3.10" ]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: "Install Poetry"
+        run:
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+
+      - name: "Installs the packages from pyproject.toml"
+        run:
+          poetry install
+
+      - name: "Unit tests with pytest"
+        run:
+          poetry run pytest tests/unit
+        env:
+          ID_PLATFORM_TEST_SAAGIE: ${{ secrets.ID_PLATFORM_TEST_SAAGIE }}
+          PWD_TEST_SAAGIE: ${{ secrets.PWD_TEST_SAAGIE }}
+          REALM_TEST_SAAGIE: ${{ secrets.REALM_TEST_SAAGIE }}
+          URL_TEST_SAAGIE: ${{ secrets.URL_TEST_SAAGIE }}
+          USER_GROUP_TEST_SAAGIE: ${{ secrets.USER_GROUP_TEST_SAAGIE }}
+          USER_TEST_SAAGIE: ${{ secrets.USER_TEST_SAAGIE }}
+
+  integration-test:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+
+      - name: "Install Poetry"
+        run:
+          curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+
+      - name: "Installs the packages from pyproject.toml"
+        run:
+          poetry install
+
+      - name: "Integration tests with pytest"
+        run:
+          poetry run pytest tests/integration
+        env:
+          ID_PLATFORM_TEST_SAAGIE: ${{ secrets.ID_PLATFORM_TEST_SAAGIE }}
+          PWD_TEST_SAAGIE: ${{ secrets.PWD_TEST_SAAGIE }}
+          REALM_TEST_SAAGIE: ${{ secrets.REALM_TEST_SAAGIE }}
+          URL_TEST_SAAGIE: ${{ secrets.URL_TEST_SAAGIE }}
+          USER_GROUP_TEST_SAAGIE: ${{ secrets.USER_GROUP_TEST_SAAGIE }}
+          USER_TEST_SAAGIE: ${{ secrets.USER_TEST_SAAGIE }}

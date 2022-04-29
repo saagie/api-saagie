@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/saagie/api-saagie"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 requests = "^2.27.0"
 gql = "^3.0.0"
 pytz = "^2021.1"
@@ -18,7 +18,10 @@ deprecation = "^2.1.0"
 
 [tool.poetry.dev-dependencies]
 python-semantic-release = "^7.19.2"
-pytest = "^6.2.5"
+pytest = "^7.1.1"
+pylint = "^2.13.7"
+isort = "^5.10.1"
+black = "^22.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -30,3 +33,26 @@ tag_format = "{version}"
 build_command = "poetry build"
 commit_author = "Team Service <service@saagie.com>"
 commit_parser = "semantic_release.history.emoji_parser"
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | .yaml
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip_glob = [ "docs", "notes" ]
