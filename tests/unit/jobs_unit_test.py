@@ -35,6 +35,7 @@ class TestJobs:
     def test_gql_get_info_job(self):
         query = gql(GQL_GET_JOB_INFO)
         self.client.validate(query)
+        aaa = 1
 
     def test_get_job_instance(self):
         query = gql(GQL_GET_JOB_INSTANCE)
