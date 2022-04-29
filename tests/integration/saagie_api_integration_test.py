@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+from datetime import datetime
 
 import pytest
 import urllib3
@@ -34,7 +35,7 @@ class TestIntegrationProjectCreationAndDeletion:
         )
 
         self.group = os.environ["USER_GROUP_TEST_SAAGIE"]
-        self.project_name = "Integration_test_Saagie_API"
+        self.project_name = "Integration_test_Saagie_API " + str(datetime.timestamp(datetime.now()))
 
     @pytest.fixture
     def create_project(self):
@@ -83,7 +84,7 @@ class TestIntegrationProject:
 
         # Create a test project
         self.group = os.environ["USER_GROUP_TEST_SAAGIE"]
-        self.project_name = "Integration_test_Saagie_API"
+        self.project_name = "Integration_test_Saagie_API " + str(datetime.timestamp(datetime.now()))
 
         result = self.saagie.projects.create(
             name=self.project_name,
@@ -254,7 +255,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_global_env_var(self):
-        name = "TEST_VIA_API"
+        name = "TEST_VIA_API" + str(datetime.timestamp(datetime.now()))
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
@@ -264,7 +265,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_global_env_var_password(self):
-        name = "TEST_VIA_API_PASSWORD"
+        name = "TEST_VIA_API_PASSWORD" + str(datetime.timestamp(datetime.now()))
         value = "VALUE_TEST_VIA_API_PASSWORD"
         description = "DESCRIPTION_TEST_VIA_API_PASSWORD"
 
