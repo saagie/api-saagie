@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (2022-04-29)
+### Breaking
+* Refactoring Adding missing features (app creation, project job and app configuration, create of update env var) ([`46fd2cc`](https://github.com/saagie/api-saagie/commit/46fd2ccae24e4a74db7551ec84d97b14c7934de3))
+* Co-authored-by: Team Service <service@saagie.com> Co-authored-by: Qiwei <qiwei.he@saagie.com> Co-authored-by: Tony <tony@saagie.com> Co-authored-by: hugo.poupon <hugo.poupon@saagie.com> ([`46fd2cc`](https://github.com/saagie/api-saagie/commit/46fd2ccae24e4a74db7551ec84d97b14c7934de3))
+
+### :boom:
+* :boom: Releasing Saagie 1.0.0 ([`46fd2cc`](https://github.com/saagie/api-saagie/commit/46fd2ccae24e4a74db7551ec84d97b14c7934de3))
+
 ## v0.9.1 (2022-04-21)
 ### :bug:
 * :bug: Removing unused format in gql query ([#88](https://github.com/saagie/api-saagie/issues/88)) ([`073f223`](https://github.com/saagie/api-saagie/commit/073f22347f4244c00d28df9a0942ffa52308fb11))
