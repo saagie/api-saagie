@@ -175,10 +175,17 @@ class Projects:
                 if techno["__typename"] == "AppTechnology"
             ]
         tech_ids = []
+        print(apps_technologies_allowed)
         for catalog, technos in apps_technologies_allowed.items():
             tech_ids.extend(
                 self.saagie_api.check_technology_valid(
-                    technos, self.saagie_api.get_available_technologies(catalog), catalog
+                    technos,
+                    [
+                        techno
+                        for techno in self.saagie_api.get_available_technologies(catalog)
+                        if techno["__typename"] == "AppTechnology"
+                    ],
+                    catalog,
                 )
             )
         return [{"id": t} for t in tech_ids]
@@ -207,7 +214,13 @@ class Projects:
         for catalog, technos in jobs_technologies_allowed.items():
             tech_ids.extend(
                 self.saagie_api.check_technology_valid(
-                    technos, self.saagie_api.get_available_technologies(catalog), catalog
+                    technos,
+                    [
+                        techno
+                        for techno in self.saagie_api.get_available_technologies(catalog)
+                        if techno["__typename"] == "JobTechnology" or techno["__typename"] == "SparkTechnology"
+                    ],
+                    catalog,
                 )
             )
         return [{"id": t} for t in tech_ids]
