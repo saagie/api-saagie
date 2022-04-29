@@ -94,13 +94,16 @@ class Jobs:
             return job[0]["id"]
         raise NameError(f"Job {job_name} does not exist.")
 
-    def get_info(self, job_id: str) -> Dict:
+    def get_info(self, job_id: str, instances_limit: int = -1) -> Dict:
         """Get job's info
 
         Parameters
         ----------
         job_id : str
             UUID of your job
+        instances_limit : int, optional
+            Maximum limit of instances to fetch per job. Fetch from most recent
+            to oldest
 
         Returns
         -------
@@ -108,8 +111,11 @@ class Jobs:
             Dict of job's info
 
         """
+        params = {"jobId": job_id}
+        if instances_limit != -1:
+            params["instancesLimit"] = instances_limit
         query = gql(GQL_GET_JOB_INFO)
-        return self.client.execute(query, variable_values={"jobId": job_id})
+        return self.client.execute(query, variable_values=params)
 
     def create(
         self,
@@ -399,7 +405,6 @@ class Jobs:
 
         if extra_technology != "":
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
-
         return self.__launch_request(file, GQL_UPGRADE_JOB, params)
 
     def upgrade_by_name(

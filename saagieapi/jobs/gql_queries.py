@@ -204,7 +204,7 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
 """
 
 GQL_GET_JOB_INFO = """
-query jobInfoQuery($jobId: UUID!){
+query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
     job(id: $jobId){
         id
         name
@@ -216,6 +216,12 @@ query jobInfoQuery($jobId: UUID!){
               email
             }
             statusList
+        }
+        instances(limit: $instancesLimit){
+            id
+            status
+            startTime
+            endTime
         }
         countJobInstance
         versions {
