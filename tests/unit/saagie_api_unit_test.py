@@ -50,7 +50,7 @@ class TestGQLTemplate:
     @staticmethod
     def test_check_alerting():
         result = SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["FAILED"])
-        assert result["alerting"]["emails"] == ["mail1", "mail3"]
+        assert result["alerting"]["emails"] == ["mail1", "mail2"]
         assert result["alerting"]["statusList"] == ["FAILED"]
 
     @staticmethod
