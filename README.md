@@ -36,6 +36,10 @@ pip install saagieapi==<version>
 
 ## Usage
 
+All the implemented features are documented in the [Wiki](https://github.com/saagie/api-saagie/wiki)
+
+Here's a full example of how to use the API:
+
 ```python
 from saagieapi import SaagieApi
 
@@ -102,70 +106,4 @@ saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
                    password="<saagie-user-password>")
 ```
 
-#### Finding your platform, project, job and instances ids
-
-Your Saagie projects homepage has the following structure `https://<REALM>-workspace.me.saagie.com/projects/platform/<PLATFORM_ID>/`
-
-> `https://mysaagie-workspace.me.saagie.com/projects/platform/1/`
->would give  : 
-> - `platform_id` = 1
-> - `realm` = mysaagie 
-
-**Project id** can be found in the project URL after the `/project` 
-
-> `https://mysaagie-workspace.me.saagie.com/projects/platform/1/project/8321e13c-892a-4481-8552-5be4b6cc5df4/jobs`
-> would give  : 
-> - `project_id` = 8321e13c-892a-4481-8552-5be4b6cc5df4
-
-
-**Job id** can be found in the project URL after the `/job` 
-
-> `https://mysaagie-workspace.me.saagie.com/projects/platform/1/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b`
-> would give  : 
-> - `job_id` = a85ac3db-bca1-4f15-b8f7-44731fba874b
-
-**App id** can be found in the project URL after the `/app` 
-
-> `https://mysaagie-workspace.me.saagie.com/projects/platform/1/project/8321e13c-892a-4481-8552-5be4b6cc5df4/app/02c01d47-8a29-47d0-a53c-235add43c885`
-> would give  : 
-> - `app_id` = 02c01d47-8a29-47d0-a53c-235add43c885
-
-**Pipeline id** can be found in the project URL after the `/pipeline` 
-
-> `https://mysaagie-workspace.me.saagie.com/projects/platform/1/project/8321e13c-892a-4481-8552-5be4b6cc5df4/pipeline/4da29f25-e7c9-4410-869e-40b9ba0074d1`
-> would give  : 
-> - `pipeline_id` = 4da29f25-e7c9-4410-869e-40b9ba0074d1
-
-**Job instance id** can be found in the project URL after the `/instances` 
-
-> `https://mysaagie-workspace.me.saagie.com/projects/platform/1/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b/instances/6ff448ae-3770-4639-b0f8-079e5c614ab6`
-> would give  : 
-> - `job_instance_id` = 6ff448ae-3770-4639-b0f8-079e5c614ab6
-
-## Contributing
-
-All contributions are made with the pull-request system. Please follow the following steps:
-
-- Create an issue with the correct label (i.e. Documentation/Bug/Feature)
-- Create a new branch starting with the issue type : `feat/...`, `fix/...` or `doc/...`. GitHub Action (CI) will be
-  triggered on each push on your branch. Warning, after the first push on your branch, an automatic commit/push will be
-  made by the CI in order to increment the version. Thus, remember to update your repository after your first commit.
-- Implement your change
-- Open a Pull Request (don't forget to link the PR to the issue)
-- PR will be reviewed by the Professional Service Team and merged if all the checks are successful
-
-### Commits Guidelines
-
-We're using the [Python Semantic Release library](https://python-semantic-release.readthedocs.io/en/latest/) to manage
-our versioning.
-
-In order to work properly, you need to follow
-the  [Emoji Parser commit style](https://python-semantic-release.readthedocs.io/en/latest/configuration.html#major-emoji)
-when squashing the commits during the merge of the PR to master.
-
-- Messages with :ambulance:, :lock:, :bug:, :zap:, :goal_net:, :alien:, :wheelchair:, :speech_balloon:, :mag:, :apple:
-  , :penguin:, :checkered_flag:, :robot:, :green_apple: emojis in the commit will make the release process to bump the
-  patch version
-- Messages with :sparkles:, :children_crossing:, :lipstick:, :iphone:, :egg:, :chart_with_upwards_trend: emojis in the
-  commit will make the release process to bump the minor version
-- Messages with a :boom: emoji in the commit will make the release process to bump the major version
+Iy you wan to know how to find the correct values for the URL, platform id and the realm, please refer to the [Wiki](https://github.com/saagie/api-saagie/wiki#connecting-to-your-platform).
