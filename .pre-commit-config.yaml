@@ -18,13 +18,13 @@ repos:
     hooks:
       - id: system
         name: Pylint saagieapi
-        entry: poetry run pylint --fail-under=8 --fail-on=E --output-format=colorized saagieapi
+        entry: poetry run pylint --fail-under=9 --fail-on=E --output-format=colorized saagieapi
         pass_filenames: false
         language: system
   - repo: local
     hooks:
       - id: system
         name: Pylint tests
-        entry: poetry run pylint --fail-under=8 --fail-on=E --output-format=colorized tests
+        entry: poetry run pylint --fail-under=9 --fail-on=E --output-format=colorized tests
         pass_filenames: false
         language: system

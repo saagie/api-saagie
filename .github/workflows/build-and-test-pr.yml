@@ -32,11 +32,11 @@ jobs:
 
       - name: "Running pylint on saagieapi"
         run:
-          poetry run pylint --fail-under=8 --fail-on=E --output-format=colorized saagieapi
+          poetry run pylint --fail-under=9 --fail-on=E --output-format=colorized saagieapi
 
       - name: "Running pylint on tests"
         run:
-          poetry run pylint --fail-under=8 --fail-on=E --output-format=colorized tests
+          poetry run pylint --fail-under=9 --fail-on=E --output-format=colorized tests
 
   unit-test:
     runs-on: ubuntu-latest
