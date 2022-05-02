@@ -48,7 +48,7 @@ class BearerAuth(requests.auth.AuthBase):
 
 
 class SaagieApi:
-    """Define several methods to interact wit     h Saagie API in Python"""
+    """Define several methods to interact with Saagie API in Python"""
 
     def __init__(self, url_saagie: str, id_platform: str, user: str, password: str, realm: str, retries: int = 0):
         """
