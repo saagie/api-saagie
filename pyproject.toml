@@ -35,6 +35,24 @@ build_command = "poetry build"
 commit_author = "Team Service <service@saagie.com>"
 commit_parser = "semantic_release.history.emoji_parser"
 
+[tool.pylint.master]
+output-format = "colorized"
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-function-docstring",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "unsubscriptable-object",
+    "too-many-arguments",
+    "too-many-locals",
+    "too-few-public-methods",
+    "too-many-public-methods",
+]
+
+[tool.pylint.format]
+max-line-length = 120
+
 [tool.black]
 line-length = 120
 include = '\.pyi?$'
@@ -56,4 +74,4 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 120
-skip_glob = [ "docs", "notes" ]
+skip_glob = ["docs", "notes"]

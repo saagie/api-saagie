@@ -18,7 +18,7 @@ We're using different tools to ensure good code quality and consistency.
   configured in `pyproject.toml`).
 - [isort](https://pycqa.github.io/isort/): optimize import orders  (configured in `pyproject.toml`).
 - [pylint](https://pylint.pycqa.org/en/latest/) for code quality checks. Our CI will reject any errors
-  or code with an overall score under 8.  (configured in `.pyrc`).
+  or code with an overall score under 8.  (configured in `pyproject.toml`).
 
 If you want to automaticly run the linters and the code quality checks, you can use the following command to add this
 ckecks as a pre-commit hook:

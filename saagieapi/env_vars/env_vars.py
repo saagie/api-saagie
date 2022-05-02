@@ -6,6 +6,7 @@ from .gql_queries import *
 
 
 class EnvVars:
+    # pylint: disable=singleton-comparison
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
         self.client = saagie_api.client

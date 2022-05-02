@@ -44,14 +44,14 @@ class GraphPipeline:
             cn.get("id") for cn in self.list_conditions_nodes
         ]:
 
-            if type(node) == JobNode:
+            if isinstance(node, JobNode):
                 dict_job = {"id": str(node.id), "nextNodes": [str(nn.id) for nn in node.next_nodes], "job": {}}
                 dict_job["job"]["id"] = node.job_id
                 self.list_job_nodes.append(dict_job)
                 if node.next_nodes:
                     for n in node.next_nodes:
                         self.fill_nodes_lists(n)
-            elif type(node) == ConditionNode:
+            elif isinstance(node, ConditionNode):
                 dict_condition = {
                     "id": str(node.id),
                     "nextNodesSuccess": [str(nn.id) for nn in node.next_nodes_success],

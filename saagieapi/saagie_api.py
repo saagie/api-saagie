@@ -24,9 +24,9 @@ class BearerAuth(requests.auth.AuthBase):
         self.platform = platform
         self.url = url
 
-    def __call__(self, r):
-        r.headers["authorization"] = "Bearer " + self.token
-        return r
+    def __call__(self, req):
+        req.headers["authorization"] = "Bearer " + self.token
+        return req
 
     @staticmethod
     def _authenticate(realm: str, url: str, login: str, password: str) -> str:
@@ -38,16 +38,17 @@ class BearerAuth(requests.auth.AuthBase):
         :param password: password to log in with
         :return: a token
         """
-        s = requests.session()
-        s.headers["Content-Type"] = "application/json"
-        s.headers["Saagie-Realm"] = realm
-        r = s.post(
+        session = requests.session()
+        session.headers["Content-Type"] = "application/json"
+        session.headers["Saagie-Realm"] = realm
+        response = session.post(
             url + "/authentication/api/open/authenticate", json={"login": login, "password": password}, verify=False
         )
-        return r.text
+        return response.text
 
 
 class SaagieApi:
+    # pylint: disable=too-many-instance-attributes
     """Define several methods to interact with Saagie API in Python"""
 
     def __init__(self, url_saagie: str, id_platform: str, user: str, password: str, realm: str, retries: int = 0):
@@ -118,11 +119,11 @@ class SaagieApi:
             password to log in with
         """
         url_regex = re.compile(r"(https://(\w+)-(?:\w|\.)+)/projects/platform/(\d+)")
-        m = url_regex.match(url_saagie_platform)
-        if bool(m):
-            url_saagie = m.group(1)
-            realm = m.group(2)
-            id_platform = m.group(3)
+        matches_url = url_regex.match(url_saagie_platform)
+        if bool(matches_url):
+            url_saagie = matches_url.group(1)
+            realm = matches_url.group(2)
+            id_platform = matches_url.group(3)
         else:
             raise ValueError(
                 "Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)"

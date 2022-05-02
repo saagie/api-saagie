@@ -1,3 +1,4 @@
+# pylint: disable=attribute-defined-outside-init
 import os
 
 import pytest
@@ -14,7 +15,9 @@ def create_gql_client():
     Return a GQL Client with a defined schema
     :return: GQL Client
     """
-    with open(os.path.dirname(os.path.abspath(__file__)) + "/resources/schema.graphqls") as source:
+    with open(
+        file=os.path.dirname(os.path.abspath(__file__)) + "/resources/schema.graphqls", encoding="utf-8"
+    ) as source:
         document = parse(source.read())
     schema = build_ast_schema(document)
     client = Client(schema=schema)
