@@ -1,4 +1,4 @@
-## Contributing
+# Contributing
 
 All contributions are made with the pull-request system. In order to contribute, please follow the following steps:
 
@@ -10,7 +10,7 @@ All contributions are made with the pull-request system. In order to contribute,
 - Open a Pull Request (don't forget to link the PR to the issue)
 - PR will be reviewed by the Professional Service Team and merged if all the checks are successful
 
-### Code conventions
+# Code conventions
 
 We're using different tools to ensure good code quality and consistency.
 
@@ -27,7 +27,7 @@ ckecks as a pre-commit hook:
 poetry run pre-commit install
 ```
 
-### Commits Guidelines
+# Commits Guidelines
 
 We're using the [Python Semantic Release library](https://python-semantic-release.readthedocs.io/en/latest/) to manage
 our versioning.
