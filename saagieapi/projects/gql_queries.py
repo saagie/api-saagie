@@ -80,3 +80,40 @@ mutation deleteProjectMutation($projectId: UUID!){
     deleteProject(projectId: $projectId)
 }
 """
+
+GQL_EDIT_PROJECT = """
+mutation editProjectMutation($projectId: UUID!, $name: String, $description: String, $technologies: [TechnologyInput!], 
+                             $appTechnologies: [TechnologyInput!], $authorizedGroups: [SecurityGroupInput]) {
+  editProject(project: {
+                    id : $projectId
+                    name: $name
+                    description: $description
+                    authorizedGroups:  $authorizedGroups
+                    technologiesByCategory: [
+                      {
+                        jobCategory: "Extraction",
+                        technologies: $technologies
+                      },
+                      {
+                        jobCategory: "Processing",
+                        technologies: $technologies
+                      }
+                    ]
+                    appTechnologies: $appTechnologies
+                }) {
+    id
+    name
+    creator
+  }
+}
+"""
+
+GQL_GET_PROJECT_RIGHTS = """
+query rightsQuery($id: UUID!) {
+    rights(projectId: $id){
+        name
+        role
+        isAllProjects
+    }
+}
+"""

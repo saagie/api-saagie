@@ -126,6 +126,35 @@ class TestIntegrationProject:
         assert isinstance(apps_technologies["appTechnologies"], List)
         assert len(apps_technologies["appTechnologies"]) > 2  # All Apps from saagie official catalog
 
+    def test_get_project_rights(self):
+        rights = self.saagie.projects.get_rights(self.project_id)
+        expected_right = {"name": self.group,
+                          "role": "ROLE_PROJECT_MANAGER",
+                          "isAllProjects": True}
+        assert type(rights["rights"]) is list
+        assert expected_right in rights["rights"]
+
+    def test_edit_project(self):
+        project_input = {
+            "description": "new description",
+            "jobs_technologies_allowed": {"saagie": ["python", "r"]},
+        }
+
+        self.saagie.projects.edit(
+            project_id=self.project_id,
+            description=project_input["description"],
+            jobs_technologies_allowed=project_input["jobs_technologies_allowed"]
+        )
+        project_info = self.saagie.projects.get_info(self.project_id)
+        technologies_allowed = self.saagie.projects.get_jobs_technologies(self.project_id)["technologiesByCategory"][0]
+
+        to_validate = {
+            "description": project_info["project"]["description"],
+        }
+
+        assert project_input["description"] == to_validate["description"]
+        assert len(technologies_allowed["technologies"]) == 2  # R and Python for extraction
+
     @pytest.fixture
     def create_job(self):
         job_name = "python_test"

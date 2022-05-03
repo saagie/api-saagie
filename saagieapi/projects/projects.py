@@ -225,6 +225,115 @@ class Projects:
             )
         return [{"id": t} for t in tech_ids]
 
+    def get_rights(self, project_id: str) -> Dict:
+        """List rights associated for the project
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of rights associated for the project
+        """
+        query = gql(GQL_GET_PROJECT_RIGHTS)
+        return self.client.execute(query, variable_values={"id": project_id})
+
+    def edit(
+        self,
+        project_id: str,
+        name: str = None,
+        group: str = None,
+        role: str = None,
+        description: str = None,
+        jobs_technologies_allowed: Dict = None,
+        apps_technologies_allowed: Dict = None,
+    ) -> Dict:
+        """Edit a project
+
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+        name : str, optional
+            Name of the project
+            If not filled, defaults to current value, else it will change the job's name
+        group : None or str, optional
+            Authorization management: name of the group to add the given role to
+            If not filled, defaults to current value, else it will change the group
+        role : str, optional
+            Authorization management: role to give to the given group on the project
+            If not filled, defaults to current value, else it will change the role
+        description : str, optional
+            Description of the project
+            If not filled, defaults to current value, else it will change the job's description
+        jobs_technologies_allowed:list, optional
+            Dict of catalog and jobs technologies allowed for the project
+            If not filled, defaults to current value, else it will change the jobs technologies allowed
+        apps_technologies_allowed:list, optional
+            Dict of catalog and apps technologies allowed for the project
+            If not filled, defaults to current value, else it will change the apps technologies allowed
+
+        Returns
+        -------
+        dict
+            Dict of created project
+
+        Raises
+        ------
+        ValueError
+            If given unknown role value
+        """
+        params = {"projectId": project_id}
+        previous_project_version = self.get_info(project_id)["project"]
+        print(f"Previous project version: {previous_project_version}")
+        if role:
+            if role == "Manager":
+                role = "ROLE_PROJECT_MANAGER"
+            elif role == "Editor":
+                role = "ROLE_PROJECT_EDITOR"
+            elif role == "Viewer":
+                role = "ROLE_PROJECT_VIEWER"
+            else:
+                raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+
+        if group:
+            group_block = [{"name": group, "role": role}]
+            params["authorizedGroups"] = group_block
+        else:
+            params["authorizedGroups"] = [{"name": group_role["name"], "role": group_role["role"]}
+                                          for group_role in self.get_rights(project_id)["rights"]]
+
+        if name:
+            params["name"] = name
+        else:
+            params["name"] = previous_project_version["name"]
+
+        if description:
+            params["description"] = description
+        else:
+            params["description"] = previous_project_version["description"]
+
+        if jobs_technologies_allowed:
+            params["technologies"] = self.__get_jobs_for_project(jobs_technologies_allowed)
+        else:
+            previous_project_technologies = [
+                {"id": techno["id"]}
+                for techno in self.get_jobs_technologies(project_id)["technologiesByCategory"][0]["technologies"]]
+            params["technologies"] = previous_project_technologies
+
+        if apps_technologies_allowed:
+            params["appTechnologies"] = self.__get_apps_for_projects(apps_technologies_allowed)
+        else:
+            params["appTechnologies"] = self.get_apps_technologies(project_id)["appTechnologies"]
+
+        print(f"New project version: {params}")
+        query = gql(GQL_EDIT_PROJECT)
+        return self.client.execute(query, variable_values=params)
+
     def delete(self, project_id: str) -> Dict:
         """Delete a given project
         NB: You can only delete projects where you have the manager role
