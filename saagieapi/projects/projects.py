@@ -10,6 +10,40 @@ class Projects:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
+    @staticmethod
+    def __create_groupe_role(params: Dict, group: str, role: str) -> Dict:
+        """
+        Create a dict with the group and role to add to the project
+        Parameters
+        ----------
+        params:Dict
+            Dict of parameters to create the role
+        group : str
+            Authorization management: name of the group to add the given role to
+        role : str
+            Authorization management: role to give to the given group on the project
+        Returns
+        -------
+        Dict
+            Dict that contains the authorized group and role
+        """
+        if role:
+            if role == "Manager":
+                role = "ROLE_PROJECT_MANAGER"
+            elif role == "Editor":
+                role = "ROLE_PROJECT_EDITOR"
+            elif role == "Viewer":
+                role = "ROLE_PROJECT_VIEWER"
+            else:
+                raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+
+        # Set group permission
+        if group is not None:
+            group_block = [{"name": group, "role": role}]
+            params["authorizedGroups"] = group_block
+
+        return params
+
     def list(self) -> Dict:
         """Get information for all projects (id, name, creator, description,
         jobCount and status)
@@ -129,28 +163,15 @@ class Projects:
         ValueError
             If given unknown role value
         """
-        if role == "Manager":
-            role = "ROLE_PROJECT_MANAGER"
-        elif role == "Editor":
-            role = "ROLE_PROJECT_EDITOR"
-        elif role == "Viewer":
-            role = "ROLE_PROJECT_VIEWER"
-        else:
-            raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
-
         # Create the params of the query
         params = {"name": name}
-
+        params = self.__create_groupe_role(params, group, role)
         if description:
             params["description"] = description
 
         params["technologies"] = self.__get_jobs_for_project(jobs_technologies_allowed)
         params["appTechnologies"] = self.__get_apps_for_projects(apps_technologies_allowed)
 
-        # Set group permission
-        if group is not None:
-            group_block = [{"name": group, "role": role}]
-            params["authorizedGroups"] = group_block
         query = gql(GQL_CREATE_PROJECT)
         return self.client.execute(query, variable_values=params)
 
@@ -288,22 +309,13 @@ class Projects:
         """
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        if role:
-            if role == "Manager":
-                role = "ROLE_PROJECT_MANAGER"
-            elif role == "Editor":
-                role = "ROLE_PROJECT_EDITOR"
-            elif role == "Viewer":
-                role = "ROLE_PROJECT_VIEWER"
-            else:
-                raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+        params = self.__create_groupe_role(params, group, role)
 
-        if group:
-            group_block = [{"name": group, "role": role}]
-            params["authorizedGroups"] = group_block
-        else:
-            params["authorizedGroups"] = [{"name": group_role["name"], "role": group_role["role"]}
-                                          for group_role in self.get_rights(project_id)["rights"]]
+        if not group and not role:
+            params["authorizedGroups"] = [
+                {"name": group_role["name"], "role": group_role["role"]}
+                for group_role in self.get_rights(project_id)["rights"]
+            ]
 
         if name:
             params["name"] = name
@@ -320,7 +332,8 @@ class Projects:
         else:
             previous_project_technologies = [
                 {"id": techno["id"]}
-                for techno in self.get_jobs_technologies(project_id)["technologiesByCategory"][0]["technologies"]]
+                for techno in self.get_jobs_technologies(project_id)["technologiesByCategory"][0]["technologies"]
+            ]
             params["technologies"] = previous_project_technologies
 
         if apps_technologies_allowed:
