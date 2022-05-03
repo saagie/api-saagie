@@ -17,7 +17,7 @@
 - [Presentation](#presentation)
 - [Installation](#installing)
 - [Usage](#usage)
-- [Contributing](#contributing)
+- [Contributing](https://github.com/saagie/api-saagie/blob/master/CONTRIBUTING.md)
 
 ## Presentation
 
