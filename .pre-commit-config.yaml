@@ -1,0 +1,30 @@
+fail_fast: true
+repos:
+  - repo: local
+    hooks:
+      - id: system
+        name: Black
+        entry: poetry run black .
+        pass_filenames: false
+        language: system
+  - repo: local
+    hooks:
+      - id: system
+        name: isort
+        entry: poetry run isort .
+        pass_filenames: false
+        language: system
+  - repo: local
+    hooks:
+      - id: system
+        name: Pylint saagieapi
+        entry: poetry run pylint --fail-under=9 --fail-on=E --output-format=colorized saagieapi
+        pass_filenames: false
+        language: system
+  - repo: local
+    hooks:
+      - id: system
+        name: Pylint tests
+        entry: poetry run pylint --fail-under=9 --fail-on=E --output-format=colorized tests
+        pass_filenames: false
+        language: system

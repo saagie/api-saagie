@@ -1,7 +1,9 @@
+# pylint: disable=attribute-defined-outside-init
 import os
 import sys
 import time
 from datetime import datetime
+from typing import List
 
 import pytest
 import urllib3
@@ -119,9 +121,9 @@ class TestIntegrationProject:
     def test_get_project_technologies(self):
         jobs_technologies = self.saagie.projects.get_jobs_technologies(self.project_id)
         apps_technologies = self.saagie.projects.get_apps_technologies(self.project_id)
-        assert type(jobs_technologies["technologiesByCategory"]) is list
+        assert isinstance(jobs_technologies["technologiesByCategory"], List)
         assert len(jobs_technologies["technologiesByCategory"]) == 2  # Only python for Extraction and Processing
-        assert type(apps_technologies["appTechnologies"]) is list
+        assert isinstance(apps_technologies["appTechnologies"], List)
         assert len(apps_technologies["appTechnologies"]) > 2  # All Apps from saagie official catalog
 
     @pytest.fixture

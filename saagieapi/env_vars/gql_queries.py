@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 GQL_LIST_GLOBAL_ENV_VARS = """
   {
     globalEnvironmentVariables{

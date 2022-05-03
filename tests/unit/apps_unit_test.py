@@ -1,3 +1,4 @@
+# pylint: disable=attribute-defined-outside-init
 from gql import gql
 
 from saagieapi.apps.apps import Apps

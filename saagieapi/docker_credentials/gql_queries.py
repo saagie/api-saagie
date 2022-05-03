@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 GQL_CREATE_DOCKER_CREDENTIALS = """
 mutation createDockerCredentialsMutation($registry: String, $username: String!, $password: String!, $projectId: UUID!) {
     createDockerCredentials(

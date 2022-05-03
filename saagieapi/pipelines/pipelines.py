@@ -263,6 +263,7 @@ class Pipelines:
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
     ):
+        # pylint: disable=singleton-comparison
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
@@ -327,7 +328,7 @@ class Pipelines:
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
-        elif type(emails) == list:
+        elif isinstance(emails, List):
             params["alerting"] = None
         else:
             previous_alerting = previous_pipeline_info["alerting"]

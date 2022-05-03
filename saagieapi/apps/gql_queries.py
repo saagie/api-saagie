@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 GQL_LIST_APPS_FOR_PROJECT = """
 query labWebAppQuery($id: UUID!){
     labWebApps(projectId: $id){ 

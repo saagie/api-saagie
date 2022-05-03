@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 GQL_LIST_JOBS_FOR_PROJECT_MINIMAL = """
 query jobsQuery($projectId: UUID!){
     jobs(projectId: $projectId){

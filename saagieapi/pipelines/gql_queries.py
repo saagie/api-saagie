@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 GQL_LIST_PIPELINES_FOR_PROJECT_MINIMAL = """
 query projectPipelinesQuery($projectId: UUID!) {
     project(id: $projectId){

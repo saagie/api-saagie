@@ -253,6 +253,7 @@ class Jobs:
         emails: List = None,
         status_list: List = None,
     ) -> Dict:
+        # pylint: disable=singleton-comparison
         """Edit a job
 
         Parameters
@@ -325,7 +326,7 @@ class Jobs:
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
-        elif type(emails) == list:
+        elif isinstance(emails, List):
             params["alerting"] = None
         else:
             previous_alerting = previous_job_version["alerting"]
