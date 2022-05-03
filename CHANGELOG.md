@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.3 (2022-05-03)
+### :apple:
+* :apple: Fixed linting and typos in Readme ([#100](https://github.com/saagie/api-saagie/issues/100)) ([`1f3f6cf`](https://github.com/saagie/api-saagie/commit/1f3f6cf89b66af88157ae84582d899b3a0fcd263))
+
 ## v1.0.2 (2022-05-03)
 ### :robot:
 * :robot: Adding precommit hooks and improving CI ([#97](https://github.com/saagie/api-saagie/issues/97)) ([`d3bb243`](https://github.com/saagie/api-saagie/commit/d3bb243e91417c3e29cc1a1c68f3fe51df56f8d6))
