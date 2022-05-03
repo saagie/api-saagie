@@ -22,7 +22,7 @@ class EnvVars:
             Dict of global environment variable on the platform
         """
         query = gql(GQL_LIST_GLOBAL_ENV_VARS)
-        return self.client.execute(query)
+        return self.saagie_api.client.execute(query)
 
     def create_global(self, name: str, value: str, description: str = "", is_password: bool = False) -> Dict:
         """Create a global environment variable
@@ -51,7 +51,7 @@ class EnvVars:
             "scope": "GLOBAL",
         }
         query = gql(GQL_CREATE_ENV_VAR)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def update_global(
         self, name: str, new_name: str = None, value: str = None, description: str = None, is_password: bool = None
@@ -104,7 +104,7 @@ class EnvVars:
 
         query = gql(GQL_UPDATE_ENV_VAR)
 
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def create_or_update_global(self, name: str, value: str, description: str = "", is_password: bool = False) -> Dict:
         """
@@ -165,7 +165,7 @@ class EnvVars:
         global_env_id = global_env[0]["id"]
 
         query = gql(GQL_DELETE_ENV_VAR)
-        return self.client.execute(query, variable_values={"id": global_env_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": global_env_id})
 
     def list_for_project(self, project_id: str) -> Dict:
         """Get project environment variables
@@ -183,7 +183,7 @@ class EnvVars:
             Dict of project environment variables
         """
         query = gql(GQL_LIST_PROJECT_ENV_VARS)
-        return self.client.execute(query, variable_values={"projectId": project_id})
+        return self.saagie_api.client.execute(query, variable_values={"projectId": project_id})
 
     def create_for_project(
         self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
@@ -217,7 +217,7 @@ class EnvVars:
             "scope": "PROJECT",
         }
         query = gql(GQL_CREATE_ENV_VAR)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def update_for_project(
         self,
@@ -279,7 +279,7 @@ class EnvVars:
 
         query = gql(GQL_UPDATE_ENV_VAR)
 
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def create_or_update_for_project(
         self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
@@ -353,4 +353,4 @@ class EnvVars:
         project_env_id = project_env[0]["id"]
 
         query = gql(GQL_DELETE_ENV_VAR)
-        return self.client.execute(query, variable_values={"id": project_env_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": project_env_id})

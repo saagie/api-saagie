@@ -11,7 +11,6 @@ from .gql_queries import *
 class Jobs:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
-        self.client = saagie_api.client
 
     def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
         """List jobs in the given project with their instances.
@@ -35,7 +34,7 @@ class Jobs:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
         query = gql(GQL_LIST_JOBS_FOR_PROJECT)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
         """List only job names and ids in the given project .
@@ -53,7 +52,7 @@ class Jobs:
             Dict of jobs ids and names
         """
         query = gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL)
-        return self.client.execute(query, variable_values={"projectId": project_id})
+        return self.saagie_api.client.execute(query, variable_values={"projectId": project_id})
 
     def get_instance(self, job_instance_id: str) -> Dict:
         """Get the given job instance
@@ -69,7 +68,7 @@ class Jobs:
             Dict of instance information
         """
         query = gql(GQL_GET_JOB_INSTANCE)
-        return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
+        return self.saagie_api.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
     def get_id(self, job_name: str, project_name: str) -> str:
         """Get the job id with the job name and project name
@@ -115,7 +114,7 @@ class Jobs:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
         query = gql(GQL_GET_JOB_INFO)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def create(
         self,
@@ -337,7 +336,7 @@ class Jobs:
                 }
 
         query = gql(GQL_EDIT_JOB)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def upgrade(
         self,
@@ -479,7 +478,7 @@ class Jobs:
 
         """
         query = gql(GQL_DELETE_JOB)
-        return self.client.execute(query, variable_values={"jobId": job_id})
+        return self.saagie_api.client.execute(query, variable_values={"jobId": job_id})
 
     def run(self, job_id: str) -> Dict:
         """Run a given job
@@ -495,7 +494,7 @@ class Jobs:
             Dict of the given job information
         """
         query = gql(GQL_RUN_JOB)
-        return self.client.execute(query, variable_values={"jobId": job_id})
+        return self.saagie_api.client.execute(query, variable_values={"jobId": job_id})
 
     def run_with_callback(self, job_id: str, freq: int = 10, timeout: int = -1) -> Dict:
         """Run a job and wait for the final status (KILLED, FAILED or SUCCESS).
@@ -551,7 +550,7 @@ class Jobs:
             Job instance information
         """
         query = gql(GQL_STOP_JOB_INSTANCE)
-        return self.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
+        return self.saagie_api.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
 
     def __launch_request(self, file: str, payload_str: str, params: Dict) -> Dict:
         """Launch a GQL request with specified file, payload and params
@@ -574,7 +573,7 @@ class Jobs:
             with file.open(mode="rb") as f:
                 params["file"] = f
                 try:
-                    req = self.client.execute(gql(payload_str), variable_values=params, upload_files=True)
+                    req = self.saagie_api.client.execute(gql(payload_str), variable_values=params, upload_files=True)
                     res = {"data": req}
                 except Exception as e:
                     logging.error("Something went wrong %s", e)
@@ -583,7 +582,7 @@ class Jobs:
 
         else:
             try:
-                req = self.client.execute(gql(payload_str), variable_values=params)
+                req = self.saagie_api.client.execute(gql(payload_str), variable_values=params)
                 res = {"data": req}
             except Exception as e:
                 logging.error("Something went wrong %s", e)

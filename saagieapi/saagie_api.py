@@ -4,47 +4,18 @@ from typing import Dict, List
 
 import deprecation
 import pytz
-import requests
 from croniter import croniter
-from gql import Client, gql
-from gql.transport.requests import RequestsHTTPTransport
+from gql import gql
 
 from .apps import Apps
 from .docker_credentials import DockerCredentials
 from .env_vars import EnvVars
-from .gql_queries import *
+from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GET_RUNTIMES
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
-
-
-class BearerAuth(requests.auth.AuthBase):
-    def __init__(self, realm: str, url: str, platform: str, login: str, password: str):
-        self.token = self._authenticate(realm, url, login, password)
-        self.platform = platform
-        self.url = url
-
-    def __call__(self, req):
-        req.headers["authorization"] = "Bearer " + self.token
-        return req
-
-    @staticmethod
-    def _authenticate(realm: str, url: str, login: str, password: str) -> str:
-        """
-        Retrieve a Bearer connection token
-        :param realm: platform url prefix (eg: saagie)
-        :param url: platform URL (eg: https://saagie-workspace.prod.saagie.io)
-        :param login: username to log in with
-        :param password: password to log in with
-        :return: a token
-        """
-        session = requests.session()
-        session.headers["Content-Type"] = "application/json"
-        session.headers["Saagie-Realm"] = realm
-        response = session.post(
-            url + "/authentication/api/open/authenticate", json={"login": login, "password": password}, verify=False
-        )
-        return response.text
+from .utils.bearer_auth import BearerAuth
+from .utils.gql_client import GqlClient
 
 
 class SaagieApi:
@@ -70,30 +41,15 @@ class SaagieApi:
         """
         if not url_saagie.endswith("/"):
             url_saagie += "/"
-        self.url_saagie = url_saagie
-        self.id_platform = id_platform
-        self.suffix_api = "projects/api/"
-        self.realm = realm
-        self.login = user
-        self.password = password
-        self.retries = retries
-        self.auth = BearerAuth(self.realm, self.url_saagie, self.id_platform, self.login, self.password)
-        url = self.url_saagie + self.suffix_api + "platform/"
-        url += str(self.id_platform) + "/graphql"
-        self._url = url
-        self._transport = RequestsHTTPTransport(
-            url=self._url, auth=self.auth, use_json=True, verify=False, retries=self.retries
-        )
-        self.client = Client(transport=self._transport, fetch_schema_from_transport=True)
 
-        # URL Gateway
-        self.url_gateway = self.url_saagie + "gateway/api/graphql"
-        self._transport_gateway = RequestsHTTPTransport(
-            url=self.url_gateway, auth=self.auth, use_json=True, verify=False
-        )
-        self.client_gateway = Client(transport=self._transport_gateway, fetch_schema_from_transport=True)
+        self.auth = BearerAuth(realm=realm, url=url_saagie, platform=id_platform, login=user, password=password)
 
-        # Valid status list of alerting
+        url_api = f"{url_saagie}projects/api/platform/{str(id_platform)}/graphql"
+        self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
+
+        url_gateway = url_saagie + "gateway/api/graphql"
+        self.client_gateway = GqlClient(auth=self.auth, api_endpoint=url_gateway, retries=retries)
+
         self.projects = Projects(self)
         self.jobs = Jobs(self)
         self.pipelines = Pipelines(self)
