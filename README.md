@@ -1,4 +1,6 @@
-<p align="center"><img width=100% src="https://github.com/saagie/api-saagie/blob/master/.github/banner.png"></p>
+# Saagie api
+
+![Saagie api logo](https://github.com/saagie/api-saagie/blob/master/.github/banner.png?raw=true)
 
 [![PyPI version](https://img.shields.io/pypi/v/saagieapi?style=for-the-badge)](https://pypi.org/project/saagieapi/)
 ![PyPI version](https://img.shields.io/pypi/pyversions/saagieapi?style=for-the-badge)
@@ -60,17 +62,16 @@ project_id = project_dict['createProject']['id']
 
 # Create a python job named 'Python test job' inside this project
 job_dict = saagie.jobs.create(job_name="Python test job",
-                             project_id=project_id,
-                             file='<path-to-local-file>',
-                             description='Amazing python job',
-                             category='Processing',
-                             technology_catalog='Saagie',
-                             technology='python',
-                             runtime_version='3.6',
-                             command_line='python {file} arg1 arg2',
-                             release_note='',
-                             extra_technology=''
-                             )
+                              project_id=project_id,
+                              file='<path-to-local-file>',
+                              description='Amazing python job',
+                              category='Processing',
+                              technology_catalog='Saagie',
+                              technology='python',
+                              runtime_version='3.6',
+                              command_line='python {file} arg1 arg2',
+                              release_note='',
+                              extra_technology='')
 
 # Save the job id
 job_id = job_dict['data']['createJob']['id']
@@ -82,28 +83,29 @@ saagie.jobs.run_with_callback(job_id=job_id, freq=10, timeout=-1)
 
 ### Connecting to your platform
 
-There are 2 options to connect to your platform :  
+There are 2 options to connect to your platform :
 
-1. using the default constructor : 
-```python
-from saagieapi import *
-saagie = SaagieApi(url_saagie="<url>",
-                   id_platform="1",
-                   user="<saagie-user-name>",
-                   password="<saagie-user-password>",
-                   realm="saagie")
- ```
+1. using the default constructor:
 
+    ```python
+    from saagieapi import *
+    saagie = SaagieApi(url_saagie="<url>",
+                       id_platform="1",
+                       user="<saagie-user-name>",
+                       password="<saagie-user-password>",
+                       realm="saagie")
+    ```
 
-2. Using the `easy_connect` alternative constructor which uses the complete URL (eg: 
-        https://mysaagie-workspace.prod.saagie.com/projects/platform/6/) and will 
-        parse it in order to retrieve the platform URL, platform id and the 
-        realm.
-```python
-from saagieapi import *
-saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
-                   user="<saagie-user-name>",
-                   password="<saagie-user-password>")
-```
+2. Using the `easy_connect` alternative constructor which uses the complete URL (eg:
+    <https://mysaagie-workspace.prod.saagie.com/projects/platform/6/>) and will
+    parse it in order to retrieve the platform URL, platform id and the realm.
 
-Iy you wan to know how to find the correct values for the URL, platform id and the realm, please refer to the [Wiki](https://github.com/saagie/api-saagie/wiki#connecting-to-your-platform).
+    ```python
+    from saagieapi import *
+    saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
+                    user="<saagie-user-name>",
+                    password="<saagie-user-password>")
+    ```
+
+If you want to know how to find the correct values for the URL, platform id and the realm,
+please refer to the [Wiki](https://github.com/saagie/api-saagie/wiki#connecting-to-your-platform).
