@@ -128,11 +128,14 @@ class TestIntegrationProject:
 
     def test_get_project_rights(self):
         rights = self.saagie.projects.get_rights(self.project_id)
-        expected_right = {"name": self.group,
-                          "role": "ROLE_PROJECT_MANAGER",
-                          "isAllProjects": True}
+        expected_right_all_project = {"name": self.group,
+                                      "role": "ROLE_PROJECT_MANAGER",
+                                      "isAllProjects": True}
+        expected_right_project = {"name": self.group,
+                                  "role": "ROLE_PROJECT_MANAGER",
+                                  "isAllProjects": False}
         assert type(rights["rights"]) is list
-        assert expected_right in rights["rights"]
+        assert expected_right_all_project in rights["rights"] or expected_right_project in rights["rights"]
 
     def test_edit_project(self):
         project_input = {

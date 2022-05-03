@@ -175,7 +175,6 @@ class Projects:
                 if techno["__typename"] == "AppTechnology"
             ]
         tech_ids = []
-        print(apps_technologies_allowed)
         for catalog, technos in apps_technologies_allowed.items():
             tech_ids.extend(
                 self.saagie_api.check_technology_valid(
@@ -289,7 +288,6 @@ class Projects:
         """
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        print(f"Previous project version: {previous_project_version}")
         if role:
             if role == "Manager":
                 role = "ROLE_PROJECT_MANAGER"
@@ -330,7 +328,6 @@ class Projects:
         else:
             params["appTechnologies"] = self.get_apps_technologies(project_id)["appTechnologies"]
 
-        print(f"New project version: {params}")
         query = gql(GQL_EDIT_PROJECT)
         return self.client.execute(query, variable_values=params)
 
