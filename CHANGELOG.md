@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.2 (2022-05-03)
+### :robot:
+* :robot: Adding precommit hooks and improving CI ([#97](https://github.com/saagie/api-saagie/issues/97)) ([`d3bb243`](https://github.com/saagie/api-saagie/commit/d3bb243e91417c3e29cc1a1c68f3fe51df56f8d6))
+
 ## v1.0.1 (2022-04-29)
 ### :zap:
 * :zap: ajout d'un timestamp sur le nom du projet créé pendant le test ([#95](https://github.com/saagie/api-saagie/issues/95)) ([`e52b611`](https://github.com/saagie/api-saagie/commit/e52b611b23be494d4f10b56d1eeceeaf02bbcafb))
