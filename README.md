@@ -17,7 +17,7 @@
 - [Presentation](#presentation)
 - [Installation](#installing)
 - [Usage](#usage)
-- [Contributing](https://github.com/saagie/api-saagie/blob/master/CONTRIBUTING.md)
+- [Contributing](#contributing)
 
 ## Presentation
 
@@ -109,3 +109,8 @@ There are 2 options to connect to your platform :
 
 If you want to know how to find the correct values for the URL, platform id and the realm,
 please refer to the [Wiki](https://github.com/saagie/api-saagie/wiki#connecting-to-your-platform).
+
+## Contributing
+
+The complete guide to contribute is available here:
+[Contributing](https://github.com/saagie/api-saagie/blob/master/CONTRIBUTING.md)
