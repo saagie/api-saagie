@@ -30,6 +30,14 @@ class TestProjects:
         query = gql(GQL_CREATE_PROJECT)
         self.client.validate(query)
 
+    def test_edit_project(self):
+        query = gql(GQL_EDIT_PROJECT)
+        self.client.validate(query)
+
+    def get_project_rights(self):
+        query = gql(GQL_GET_PROJECT_RIGHTS)
+        self.client.validate(query)
+
     def test_delete_project(self):
         query = gql(GQL_DELETE_PROJECT)
         self.client.validate(query)
