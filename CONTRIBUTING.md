@@ -36,9 +36,12 @@ In order to work properly, you need to follow
 the  [Emoji Parser commit style](https://python-semantic-release.readthedocs.io/en/latest/configuration.html#major-emoji)
 when squashing the commits during the merge of the PR to master.
 
-- Messages with :ambulance:, :lock:, :bug:, :zap:, :goal_net:, :alien:, :wheelchair:, :speech_balloon:, :mag:, :apple:
-  , :penguin:, :checkered_flag:, :robot:, :green_apple: emojis in the commit will make the release process to bump the
-  patch version
-- Messages with :sparkles:, :children_crossing:, :lipstick:, :iphone:, :egg:, :chart_with_upwards_trend: emojis in the
-  commit will make the release process to bump the minor version
-- Messages with a :boom: emoji in the commit will make the release process to bump the major version
+- Commit messages starting with the following emoji will generate a new patch version :
+    - :ambulance: : hot fix
+    - :lock: :  security fix
+    - :bug: : bug fix
+    - :zap: : performance improvment
+    - :penguin: : updating dependency update
+    - :robot: : CI update 
+- Commit messages starting with the :sparkles: emoji (new feature) will generate a new minor version 
+- Commit messages starting with the :boom: emoji will (breaking change) generate a new major version 
