@@ -43,5 +43,6 @@ when squashing the commits during the merge of the PR to master.
     - :zap: : performance improvment
     - :penguin: : updating dependency update
     - :robot: : CI update 
+    - :wheelchair: : refactoring 
 - Commit messages starting with the :sparkles: emoji (new feature) will generate a new minor version 
 - Commit messages starting with the :boom: emoji will (breaking change) generate a new major version 
