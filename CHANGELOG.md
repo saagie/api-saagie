@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.4 (2022-05-04)
+### :penguin:
+* :penguin: Add edit project and get project rights ([`75ad677`](https://github.com/saagie/api-saagie/commit/75ad6774329ab682314b689f3f0c9541a4032fc3))
+
 ## v1.0.3 (2022-05-03)
 ### :apple:
 * :apple: Fixed linting and typos in Readme ([#100](https://github.com/saagie/api-saagie/issues/100)) ([`1f3f6cf`](https://github.com/saagie/api-saagie/commit/1f3f6cf89b66af88157ae84582d899b3a0fcd263))
