@@ -258,7 +258,7 @@ class Projects:
             Dict of rights associated for the project
         """
         query = gql(GQL_GET_PROJECT_RIGHTS)
-        return self.client.execute(query, variable_values={"id": project_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": project_id})
 
     def edit(
         self,
@@ -341,7 +341,7 @@ class Projects:
             params["appTechnologies"] = self.get_apps_technologies(project_id)["appTechnologies"]
 
         query = gql(GQL_EDIT_PROJECT)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def delete(self, project_id: str) -> Dict:
         """Delete a given project

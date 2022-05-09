@@ -39,6 +39,7 @@ class BearerAuth(requests.auth.AuthBase):
                 url + "/authentication/api/open/authenticate", json={"login": login, "password": password}, verify=False
             )
             response.raise_for_status()
+            logging.info("Successfully authenticated with Saagie Platform")
             return response.text
         except (HTTPError, ConnectionError, Timeout, RequestException) as err:
             logging.error(err)
