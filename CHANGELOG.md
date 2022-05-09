@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.5 (2022-05-09)
+### :bug:
+* :bug: Fixing auth token expiration ([#102](https://github.com/saagie/api-saagie/issues/102)) ([`c386582`](https://github.com/saagie/api-saagie/commit/c38658237a22901b8f6f46718cd87788d73a4445))
+
 ## v1.0.4 (2022-05-04)
 ### :sparkles:
 * :sparkles: Add edit project and get project rights ([`75ad677`](https://github.com/saagie/api-saagie/commit/75ad6774329ab682314b689f3f0c9541a4032fc3))
