@@ -12,7 +12,6 @@ from .graph_pipeline import GraphPipeline
 class Pipelines:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
-        self.client = saagie_api.client
 
     def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
         """List pipelines of project with their instances.
@@ -34,7 +33,7 @@ class Pipelines:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
         query = gql(GQL_LIST_PIPELINES_FOR_PROJECT)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
         """List pipelines ids and names of project
@@ -50,7 +49,7 @@ class Pipelines:
             Dict of pipelines ids and names
         """
         query = gql(GQL_LIST_PIPELINES_FOR_PROJECT_MINIMAL)
-        return self.client.execute(query, variable_values={"projectId": project_id})
+        return self.saagie_api.client.execute(query, variable_values={"projectId": project_id})
 
     def get_id(self, pipeline_name: str, project_name: str) -> str:
         """Get the pipeline id with the pipeline name and project name
@@ -86,7 +85,7 @@ class Pipelines:
             Dict of pipeline's information
         """
         query = gql(GQL_GET_PIPELINE)
-        return self.client.execute(query, variable_values={"id": pipeline_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": pipeline_id})
 
     def get_instance(self, pipeline_instance_id: str) -> Dict:
         """
@@ -103,7 +102,7 @@ class Pipelines:
             Dict of job information
         """
         query = gql(GQL_GET_PIPELINE_INSTANCE)
-        return self.client.execute(query, variable_values={"id": pipeline_instance_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": pipeline_instance_id})
 
     @deprecation.deprecated(
         deprecated_in="Saagie 2.2.1",
@@ -133,7 +132,7 @@ class Pipelines:
         """
         params = {"name": name, "description": description, "projectId": project_id, "jobsId": jobs_id}
         query = gql(GQL_CREATE_PIPELINE)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def create_graph(
         self,
@@ -205,7 +204,7 @@ class Pipelines:
             params = self.saagie_api.check_alerting(emails, params, status_list)
 
         query = gql(GQL_CREATE_GRAPH_PIPELINE)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def delete(self, pipeline_id: str) -> Dict:
         """Delete a pipeline given pipeline id
@@ -222,7 +221,7 @@ class Pipelines:
         """
         query = gql(GQL_DELETE_PIPELINE)
 
-        return self.client.execute(query, variable_values={"id": pipeline_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": pipeline_id})
 
     def upgrade(self, pipeline_id: str, graph_pipeline: GraphPipeline, release_note: str = "") -> Dict:
         """
@@ -250,7 +249,7 @@ class Pipelines:
             "releaseNote": release_note,
         }
 
-        return self.client.execute(gql(GQL_UPGRADE_PIPELINE), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_UPGRADE_PIPELINE), variable_values=params)
 
     def edit(
         self,
@@ -339,7 +338,7 @@ class Pipelines:
                 }
 
         query = gql(GQL_EDIT_PIPELINE)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def run(self, pipeline_id: str) -> Dict:
         """Run a given pipeline
@@ -357,7 +356,7 @@ class Pipelines:
             Dict of pipeline instance's information
         """
         query = gql(GQL_RUN_PIPELINE)
-        return self.client.execute(query, variable_values={"pipelineId": pipeline_id})
+        return self.saagie_api.client.execute(query, variable_values={"pipelineId": pipeline_id})
 
     def run_with_callback(self, pipeline_id: str, freq: int = 10, timeout: int = -1) -> str:
         """Run a given pipeline and wait for its final status (KILLED, FAILED
@@ -418,4 +417,4 @@ class Pipelines:
             Dict of pipeline's instance information
         """
         query = gql(GQL_STOP_PIPELINE_INSTANCE)
-        return self.client.execute(query, variable_values={"pipelineInstanceId": pipeline_instance_id})
+        return self.saagie_api.client.execute(query, variable_values={"pipelineInstanceId": pipeline_instance_id})

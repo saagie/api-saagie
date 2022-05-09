@@ -8,7 +8,6 @@ from .gql_queries import *
 class DockerCredentials:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
-        self.client = saagie_api.client
 
     def list_for_project(self, project_id: str) -> Dict:
         """
@@ -23,7 +22,7 @@ class DockerCredentials:
 
         """
         params = {"projectId": project_id}
-        return self.client.execute(gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params)
 
     def get_info(self, project_id: str, credential_id: str) -> Dict:
         """
@@ -40,7 +39,7 @@ class DockerCredentials:
 
         """
         params = {"projectId": project_id, "id": credential_id}
-        return self.client.execute(gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params)
 
     def get_info_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
@@ -96,7 +95,7 @@ class DockerCredentials:
         params = {"username": username, "password": password, "projectId": project_id}
         if registry:
             params["registry"] = registry
-        return self.client.execute(gql(GQL_CREATE_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_CREATE_DOCKER_CREDENTIALS), variable_values=params)
 
     def upgrade(
         self, project_id: str, credential_id: str, password: str, registry: str = None, username: str = ""
@@ -127,7 +126,7 @@ class DockerCredentials:
             params["registry"] = registry
         if username:
             params["username"] = username
-        return self.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
 
     def upgrade_for_username(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
@@ -153,7 +152,7 @@ class DockerCredentials:
         if registry:
             params["registry"] = registry
 
-        return self.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
 
     def delete(self, project_id: str, credential_id: str) -> Dict:
         """
@@ -169,7 +168,7 @@ class DockerCredentials:
         dict
         """
         params = {"id": credential_id, "projectId": project_id}
-        return self.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
 
     def delete_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
@@ -189,4 +188,4 @@ class DockerCredentials:
         """
         credential_id = self.get_info_for_username(project_id, username, registry)["id"]
         params = {"id": credential_id, "projectId": project_id}
-        return self.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)

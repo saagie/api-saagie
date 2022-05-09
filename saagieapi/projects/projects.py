@@ -8,7 +8,6 @@ from .gql_queries import *
 class Projects:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
-        self.client = saagie_api.client
 
     @staticmethod
     def __create_groupe_role(params: Dict, group: str, role: str) -> Dict:
@@ -55,7 +54,7 @@ class Projects:
             Dict of projects information
         """
         query = gql(GQL_LIST_PROJECTS)
-        return self.client.execute(query)
+        return self.saagie_api.client.execute(query)
 
     def get_id(self, project_name: str) -> Dict:
         """Get the project id with the project name
@@ -92,7 +91,7 @@ class Projects:
             Dict of project information
         """
         query = gql(GQL_GET_PROJECT_INFO)
-        return self.client.execute(query, variable_values={"id": project_id})
+        return self.saagie_api.client.execute(query, variable_values={"id": project_id})
 
     def get_jobs_technologies(self, project_id: str) -> Dict:
         """List available jobs technologies id for the project
@@ -108,7 +107,7 @@ class Projects:
             Dict of available jobs technology ids
         """
         query = gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES)
-        return self.client.execute(query, variable_values={"id": project_id})["project"]
+        return self.saagie_api.client.execute(query, variable_values={"id": project_id})["project"]
 
     def get_apps_technologies(self, project_id: str) -> Dict:
         """List available apps technology ids for the project
@@ -124,7 +123,7 @@ class Projects:
             Dict of available apps technology ids
         """
         query = gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES)
-        return self.client.execute(query, variable_values={"id": project_id})["project"]
+        return self.saagie_api.client.execute(query, variable_values={"id": project_id})["project"]
 
     def create(
         self,
@@ -173,7 +172,7 @@ class Projects:
         params["appTechnologies"] = self.__get_apps_for_projects(apps_technologies_allowed)
 
         query = gql(GQL_CREATE_PROJECT)
-        return self.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def __get_apps_for_projects(self, apps_technologies_allowed) -> List:
         """
@@ -359,4 +358,4 @@ class Projects:
             dict of archived project
         """
         query = gql(GQL_DELETE_PROJECT)
-        return self.client.execute(query, variable_values={"projectId": project_id})
+        return self.saagie_api.client.execute(query, variable_values={"projectId": project_id})
