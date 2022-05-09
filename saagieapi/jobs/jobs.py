@@ -1,10 +1,11 @@
 import logging
 import time
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from gql import gql
 
+from ..utils.rich_console import console
 from .gql_queries import *
 
 
@@ -33,8 +34,10 @@ class Jobs:
         params = {"projectId": project_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
-        query = gql(GQL_LIST_JOBS_FOR_PROJECT)
-        return self.saagie_api.client.execute(query, variable_values=params)
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=True
+        )
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
         """List only job names and ids in the given project .
@@ -51,24 +54,32 @@ class Jobs:
         dict
             Dict of jobs ids and names
         """
-        query = gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL)
-        return self.saagie_api.client.execute(query, variable_values={"projectId": project_id})
 
-    def get_instance(self, job_instance_id: str) -> Dict:
+        return self.saagie_api.client.execute(
+            query=gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL), variable_values={"projectId": project_id}
+        )
+
+    def get_instance(self, job_instance_id: str, pprint_result: Optional[bool] = True) -> Dict:
         """Get the given job instance
 
         Parameters
         ----------
         job_instance_id : str
             UUID of your job instance (see README on how to find it)
+        pprint_result : bool, optional
+            Whether tp pretty print the result of the query, default to true
 
         Returns
         -------
         dict
             Dict of instance information
         """
-        query = gql(GQL_GET_JOB_INSTANCE)
-        return self.saagie_api.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_JOB_INSTANCE),
+            variable_values={"jobInstanceId": job_instance_id},
+            pprint_result=pprint_result,
+        )
 
     def get_id(self, job_name: str, project_name: str) -> str:
         """Get the job id with the job name and project name
@@ -91,9 +102,9 @@ class Jobs:
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         if job:
             return job[0]["id"]
-        raise NameError(f"Job {job_name} does not exist.")
+        raise NameError(f"❌ Job {job_name} does not exist.")
 
-    def get_info(self, job_id: str, instances_limit: int = -1) -> Dict:
+    def get_info(self, job_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = True) -> Dict:
         """Get job's info
 
         Parameters
@@ -103,6 +114,8 @@ class Jobs:
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
+        pprint_result : bool, optional
+            Whether tp pretty print the result of the query, default to true
 
         Returns
         -------
@@ -113,8 +126,10 @@ class Jobs:
         params = {"jobId": job_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
-        query = gql(GQL_GET_JOB_INFO)
-        return self.saagie_api.client.execute(query, variable_values=params)
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_JOB_INFO), variable_values=params, pprint_result=pprint_result
+        )
 
     def create(
         self,
@@ -203,7 +218,15 @@ class Jobs:
             "commandLine": command_line,
         }
 
-        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id)["technologiesByCategory"]
+        if category not in ["Extraction", "Processing", "Smart App"]:
+            raise RuntimeError(
+                f"❌ Category {category} does not exist in Saagie. "
+                f"Please specify either Extraction, Processing or Smart App"
+            )
+
+        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id, pprint_result=False)[
+            "technologiesByCategory"
+        ]
         technologies_for_project_and_category = [
             tech["id"]
             for tech in [tech["technologies"] for tech in technologies_for_project if tech["jobCategory"] == category][
@@ -220,7 +243,7 @@ class Jobs:
         ]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
-                f"Runtime {runtime_version} for technology {technology} does not exist "
+                f"❌ Runtime {runtime_version} for technology {technology} does not exist "
                 f"in the catalog {technology_catalog} or is deprecated"
             )
         if extra_technology != "":
@@ -238,7 +261,9 @@ class Jobs:
         if resources:
             params["resources"] = resources
 
-        return self.__launch_request(file, GQL_CREATE_JOB, params)
+        result = self.__launch_request(file, GQL_CREATE_JOB, params)
+        logging.info("✅ Job [%s] successfully created", job_name)
+        return result
 
     def edit(
         self,
@@ -295,7 +320,9 @@ class Jobs:
             Dict of job information
         """
         params = {"jobId": job_id}
-        previous_job_version = self.get_info(job_id)["job"]
+        previous_job_version = self.get_info(job_id, pprint_result=False)["job"]
+        if not previous_job_version:
+            raise RuntimeError(f"❌ The job {job_id} you're trying to edit does not exist")
 
         if job_name:
             params["name"] = job_name
@@ -335,8 +362,9 @@ class Jobs:
                     "statusList": previous_alerting["statusList"],
                 }
 
-        query = gql(GQL_EDIT_JOB)
-        return self.saagie_api.client.execute(query, variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_EDIT_JOB), variable_values=params)
+        logging.info("✅ Job [%s] successfully edited", job_id)
+        return result
 
     def upgrade(
         self,
@@ -381,11 +409,11 @@ class Jobs:
         """
 
         # Verify if specified runtime exists
-        technology_id = self.get_info(job_id)["job"]["technology"]["id"]
+        technology_id = self.get_info(job_id, pprint_result=False)["job"]["technology"]["id"]
         available_runtimes = [c["label"] for c in self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
-                f"Specified runtime does not exist ({runtime_version}). "
+                f"❌ Specified runtime does not exist ({runtime_version}). "
                 f"Available runtimes : {','.join(available_runtimes)}."
             )
 
@@ -405,7 +433,9 @@ class Jobs:
 
         if extra_technology != "":
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
-        return self.__launch_request(file, GQL_UPGRADE_JOB, params)
+        result = self.__launch_request(file, GQL_UPGRADE_JOB, params)
+        logging.info("✅ Job [%s] successfully upgraded", job_id)
+        return result
 
     def upgrade_by_name(
         self,
@@ -477,8 +507,10 @@ class Jobs:
             Dict of deleted job
 
         """
-        query = gql(GQL_DELETE_JOB)
-        return self.saagie_api.client.execute(query, variable_values={"jobId": job_id})
+
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB), variable_values={"jobId": job_id})
+        logging.info("✅ Job [%s] successfully deleted", job_id)
+        return result
 
     def run(self, job_id: str) -> Dict:
         """Run a given job
@@ -493,8 +525,10 @@ class Jobs:
         dict
             Dict of the given job information
         """
-        query = gql(GQL_RUN_JOB)
-        return self.saagie_api.client.execute(query, variable_values={"jobId": job_id})
+
+        result = self.saagie_api.client.execute(query=gql(GQL_RUN_JOB), variable_values={"jobId": job_id})
+        logging.info("✅ Job [%s] successfully launched", job_id)
+        return result
 
     def run_with_callback(self, job_id: str, freq: int = 10, timeout: int = -1) -> Dict:
         """Run a job and wait for the final status (KILLED, FAILED or SUCCESS).
@@ -522,18 +556,24 @@ class Jobs:
         res = self.run(job_id)
         job_instance_id = res.get("runJob").get("id")
         final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
-        job_instance_info = self.get_instance(job_instance_id)
+        job_instance_info = self.get_instance(job_instance_id, pprint_result=False)
         state = job_instance_info.get("jobInstance").get("status")
         sec = 0
+
+        logging.info("⏳ Job id %s with instance %s has just been requested", job_id, job_instance_id)
         while state not in final_status_list:
-            to = False if timeout == -1 else sec >= timeout
-            if to:
-                raise TimeoutError("Last state known : " + state)
-            time.sleep(freq)
-            sec += freq
-            job_instance_info = self.get_instance(job_instance_id)
-            state = job_instance_info.get("jobInstance").get("status")
-            logging.info(f"Job id {job_id} with instance {job_instance_id} is currently : " + state)
+            with console.status(f"Job is currently {state}", refresh_per_second=100):
+                to = False if timeout == -1 else sec >= timeout
+                if to:
+                    raise TimeoutError("❌ Last state known : " + state)
+                time.sleep(freq)
+                sec += freq
+                job_instance_info = self.get_instance(job_instance_id, pprint_result=False)
+                state = job_instance_info.get("jobInstance").get("status")
+        if state == "SUCCEEDED":
+            logging.info("✅ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
+        elif state in ["FAILED", "KILLED"]:
+            logging.error("❌ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
         return state
 
     def stop(self, job_instance_id: str) -> Dict:
@@ -549,8 +589,12 @@ class Jobs:
         dict
             Job instance information
         """
-        query = gql(GQL_STOP_JOB_INSTANCE)
-        return self.saagie_api.client.execute(query, variable_values={"jobInstanceId": job_instance_id})
+
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_STOP_JOB_INSTANCE), variable_values={"jobInstanceId": job_instance_id}
+        )
+        logging.info("✅ Job instance [%s] successfully stopped", job_instance_id)
+        return result
 
     def __launch_request(self, file: str, payload_str: str, params: Dict) -> Dict:
         """Launch a GQL request with specified file, payload and params
@@ -573,7 +617,9 @@ class Jobs:
             with file.open(mode="rb") as f:
                 params["file"] = f
                 try:
-                    req = self.saagie_api.client.execute(gql(payload_str), variable_values=params, upload_files=True)
+                    req = self.saagie_api.client.execute(
+                        query=gql(payload_str), variable_values=params, upload_files=True
+                    )
                     res = {"data": req}
                 except Exception as e:
                     logging.error("Something went wrong %s", e)
@@ -582,7 +628,7 @@ class Jobs:
 
         else:
             try:
-                req = self.saagie_api.client.execute(gql(payload_str), variable_values=params)
+                req = self.saagie_api.client.execute(query=gql(payload_str), variable_values=params)
                 res = {"data": req}
             except Exception as e:
                 logging.error("Something went wrong %s", e)

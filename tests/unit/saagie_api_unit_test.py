@@ -112,4 +112,4 @@ class TestGQLTemplate:
             SaagieApi.check_technology_configured(
                 params={}, technology="python", technology_id="123", technologies_configured_for_project=["456"]
             )
-        assert "Technology python does not exist in the target project  and for the catalog specified" == str(rte.value)
+        assert "Technology python does not exist in the target project and for the catalog specified" == str(rte.value)

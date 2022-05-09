@@ -43,7 +43,7 @@ class SaagieApi:
             url_saagie += "/"
 
         self.auth = BearerAuth(realm=realm, url=url_saagie, platform=id_platform, login=user, password=password)
-
+        logging.info("✅ Successfully connected to your platform %s", url_saagie)
         url_api = f"{url_saagie}projects/api/platform/{str(id_platform)}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
 
@@ -300,7 +300,7 @@ class SaagieApi:
         """
         if technology_id not in technologies_configured_for_project:
             raise RuntimeError(
-                f"Technology {technology} does not exist in the target project  " f"and for the catalog specified"
+                f"Technology {technology} does not exist in the target project and for the catalog specified"
             )
 
         params["technologyId"] = technology_id

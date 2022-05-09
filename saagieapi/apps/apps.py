@@ -1,4 +1,5 @@
-from typing import Dict, List
+import logging
+from typing import Dict, List, Optional
 
 from gql import gql
 
@@ -18,27 +19,32 @@ class Apps:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
+
         Returns
         -------
         dict
             Dict of app information
         """
-        query = gql(GQL_LIST_APPS_FOR_PROJECT)
-        return self.saagie_api.client.execute(query, variable_values={"id": project_id})
+        return self.saagie_api.client.execute(
+            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=True
+        )
 
-    def get_info(self, app_id: str) -> Dict:
+    def get_info(self, app_id: str, pprint_result: Optional[bool] = True) -> Dict:
         """Get app with given UUID.
         Parameters
         ----------
         app_id : str
             UUID of your app
+        pprint_result : str
+            Whether to pretty print the results in the console or not
         Returns
         -------
         dict
             Dict of app information
         """
-        query = gql(GQL_GET_APP_INFO)
-        return self.saagie_api.client.execute(query, variable_values={"id": app_id})
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_APP_INFO), variable_values={"id": app_id}, pprint_result=pprint_result
+        )
 
     def create_from_scratch(
         self,
@@ -135,8 +141,9 @@ class Apps:
 
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
-        query = gql(GQL_CREATE_APP)
-        return self.saagie_api.client.execute(query, variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_CREATE_APP), variable_values=params)
+        logging.info("✅ App [%s] successfully created", app_name)
+        return result
 
     def create_from_catalog(
         self,
@@ -257,8 +264,9 @@ class Apps:
         # Add collected information (Docker image, ports exposed, path for the storage) to the list of parameters
         params.update({"image": image_app, "exposedPorts": exposed_ports, "storagePaths": context_app_info["volumes"]})
 
-        query = gql(GQL_CREATE_APP)
-        return self.saagie_api.client.execute(query, variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_CREATE_APP), variable_values=params)
+        logging.info("✅ App [%s] successfully created", app_name)
+        return result
 
     def edit(
         self,
@@ -295,7 +303,7 @@ class Apps:
             Dict of app information
         """
         params = {"id": app_id}
-        previous_app_version = self.get_info(app_id)["labWebApp"]
+        previous_app_version = self.get_info(app_id, pprint_result=False)["labWebApp"]
 
         if app_name:
             params["name"] = app_name
@@ -319,8 +327,9 @@ class Apps:
                     "statusList": previous_alerting["statusList"],
                 }
 
-        query = gql(GQL_EDIT_APP)
-        return self.saagie_api.client.execute(query, variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_EDIT_APP), variable_values=params)
+        logging.info("✅ App [%s] successfully edited", app_name)
+        return result
 
     def delete(self, app_id: str) -> Dict:
         """Delete a given app
@@ -336,8 +345,9 @@ class Apps:
             Dict of deleted app
 
         """
-        query = gql(GQL_DELETE_APP)
-        return self.saagie_api.client.execute(query, variable_values={"appId": app_id})
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_APP), variable_values={"appId": app_id})
+        logging.info("✅ App [%s] successfully deleted", app_id)
+        return result
 
     def run(self, app_id: str) -> Dict:
         """Run a given app
@@ -352,8 +362,9 @@ class Apps:
         dict
             Dict of the given app information
         """
-        query = gql(GQL_RUN_APP)
-        return self.saagie_api.client.execute(query, variable_values={"appId": app_id})
+        result = self.saagie_api.client.execute(query=gql(GQL_RUN_APP), variable_values={"appId": app_id})
+        logging.info("✅ App [%s] successfully started", app_id)
+        return result
 
     def stop(self, app_instance_id: str) -> Dict:
         """Stop a given job instance
@@ -368,8 +379,11 @@ class Apps:
         dict
             app instance information
         """
-        query = gql(GQL_STOP_APP_INSTANCE)
-        return self.saagie_api.client.execute(query, variable_values={"appInstanceId": app_instance_id})
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_STOP_APP_INSTANCE), variable_values={"appInstanceId": app_instance_id}
+        )
+        logging.info("✅ App instance [%s] successfully stopped", app_instance_id)
+        return result
 
     @staticmethod
     def check_exposed_ports(exposed_ports: List):
