@@ -42,13 +42,13 @@ class TestGQLTemplate:
     def test_check_scheduling_bad_timezone():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="")
-        assert str(rte.value) == "Please specify a correct timezone"
+        assert str(rte.value) == "❌ Please specify a correct timezone"
 
     @staticmethod
     def test_check_scheduling_bad_cronexpression():
         with pytest.raises(RuntimeError) as rte:
             SaagieApi.check_scheduling(cron_scheduling="xx", params={}, schedule_timezone="Pacific/Fakaofo")
-        assert str(rte.value) == "xx is not valid cron format"
+        assert str(rte.value) == "❌ xx is not valid cron format"
 
     @staticmethod
     def test_check_alerting():
@@ -77,7 +77,7 @@ class TestGQLTemplate:
             SaagieApi.check_technology_valid(
                 technologies=["python"], all_technologies_in_catalog=[], technology_catalog="catalog"
             )
-        assert str(rte.value) == "Catalog catalog does not exist or does not contain technologies"
+        assert str(rte.value) == "❌ Catalog catalog does not exist or does not contain technologies"
 
     @staticmethod
     def test_check_technology_valid_no_technologies_exists():
@@ -87,7 +87,7 @@ class TestGQLTemplate:
                 all_technologies_in_catalog=[{"label": "python", "id": "123"}, {"label": "java", "id": "456"}],
                 technology_catalog="catalog",
             )
-        assert str(rte.value) == "Technologies ['r'] do not exist in the catalog specified"
+        assert str(rte.value) == "❌ Technologies ['r'] do not exist in the catalog specified"
 
     @staticmethod
     def test_check_technology_valid_some_technology_not_exist():
@@ -97,7 +97,7 @@ class TestGQLTemplate:
                 all_technologies_in_catalog=[{"label": "python", "id": "123"}, {"label": "java", "id": "456"}],
                 technology_catalog="catalog",
             )
-        assert str(rte.value) == "Some technologies among ['r', 'python'] do not exist in the catalog specified"
+        assert str(rte.value) == "❌ Some technologies among ['r', 'python'] do not exist in the catalog specified"
 
     @staticmethod
     def test_check_technology_configured():
@@ -112,4 +112,6 @@ class TestGQLTemplate:
             SaagieApi.check_technology_configured(
                 params={}, technology="python", technology_id="123", technologies_configured_for_project=["456"]
             )
-        assert "Technology python does not exist in the target project and for the catalog specified" == str(rte.value)
+        assert "❌ Technology python does not exist in the target project and for the catalog specified" == str(
+            rte.value
+        )
