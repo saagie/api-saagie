@@ -71,21 +71,27 @@ class Pipelines:
             return pipeline[0]["id"]
         raise NameError(f"pipeline {pipeline_name} does not exist.")
 
-    def get_info(self, pipeline_id: str) -> Dict:
+    def get_info(self, pipeline_id: str, instances_limit: int = -1) -> Dict:
         """Get a given pipeline information
 
         Parameters
         ----------
         pipeline_id : str
             UUID of your pipeline  (see README on how to find it)
+        instances_limit : int, optional
+            Maximum limit of instances to fetch per job. Fetch from most recent
+            to oldest
 
         Returns
         -------
         dict
             Dict of pipeline's information
         """
+        params = {"id": pipeline_id}
+        if instances_limit != -1:
+            params["instancesLimit"] = instances_limit
         query = gql(GQL_GET_PIPELINE)
-        return self.saagie_api.client.execute(query, variable_values={"id": pipeline_id})
+        return self.saagie_api.client.execute(query, variable_values=params)
 
     def get_instance(self, pipeline_instance_id: str) -> Dict:
         """

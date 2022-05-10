@@ -45,11 +45,11 @@ query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
   """
 
 GQL_GET_PIPELINE = """
-query graphPipelineQuery($id: UUID!) {
+query graphPipelineQuery($id: UUID!, $instancesLimit: Int) {
     graphPipeline(id: $id){
         id
         name
-        description,
+        description
         alerting{
             emails
             loginEmails{
@@ -59,6 +59,12 @@ query graphPipelineQuery($id: UUID!) {
             statusList
         }
         pipelineInstanceCount
+        instances(limit: $instancesLimit){
+            id
+            status
+            startTime
+            endTime
+        }
         creationDate
         creator
         isScheduled
