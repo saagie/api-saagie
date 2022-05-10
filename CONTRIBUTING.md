@@ -41,7 +41,7 @@ when squashing the commits during the merge of the PR to master.
     - :lock: :  security fix
     - :bug: : bug fix
     - :zap: : performance improvment
-    - :penguin: : updating dependency update
+    - :penguin: : updating dependency
     - :robot: : CI update 
     - :wheelchair: : refactoring 
 - Commit messages starting with the :sparkles: emoji (new feature) will generate a new minor version 
