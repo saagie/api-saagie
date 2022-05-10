@@ -118,7 +118,7 @@ class Apps:
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
         if not check_format_exposed_port:
             raise ValueError(
-                "The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
+                "❌ The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'"
             )
 
@@ -210,7 +210,7 @@ class Apps:
         app_is_available = [app["id"] for app in techno_app["appTechnologies"] if app["id"] == app_id]
         if not app_is_available:
             raise ValueError(
-                f"App '{technology}' is not available in the project: '{project_id}'. Check your project settings"
+                f"❌ App '{technology}' is not available in the project: '{project_id}'. Check your project settings"
             )
 
         # Get different runtimes of app
@@ -222,7 +222,7 @@ class Apps:
         if not context_app:
             available_contexts = [app["label"] for app in available_runtimes]
             raise ValueError(
-                f"Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: "
+                f"❌ Runtime '{context}' of the app '{technology}' doesn't exist or is not available in the project: "
                 f"'{project_id}'. Available runtimes are: '{available_contexts}'"
             )
         context_app_info = context_app[0]
@@ -254,7 +254,7 @@ class Apps:
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
         if not check_format_exposed_port:
             raise ValueError(
-                "The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
+                "❌ The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
                 "All accept key of each dict is: '{list_exposed_port_field}'"
             )
 

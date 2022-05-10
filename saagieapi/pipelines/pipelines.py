@@ -73,7 +73,7 @@ class Pipelines:
         pipeline = list(filter(lambda j: j["name"] == pipeline_name, pipelines))
         if pipeline:
             return pipeline[0]["id"]
-        raise NameError(f"pipeline {pipeline_name} does not exist.")
+        raise NameError(f"❌ pipeline {pipeline_name} does not exist.")
 
     def get_info(self, pipeline_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = True) -> Dict:
         """Get a given pipeline information

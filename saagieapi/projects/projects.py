@@ -35,7 +35,7 @@ class Projects:
             elif role == "Viewer":
                 role = "ROLE_PROJECT_VIEWER"
             else:
-                raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+                raise ValueError("❌ 'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
 
         # Set group permission
         if group is not None:
@@ -72,7 +72,7 @@ class Projects:
         if project:
             project_id = project[0]["id"]
             return project_id
-        raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
+        raise NameError(f"❌ Project {project_name} does not exist or you don't have permission to see it.")
 
     def get_info(self, project_id: str) -> Dict:
         """Get information for a given project (id, name, creator, description,
