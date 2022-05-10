@@ -73,7 +73,10 @@ query jobInstanceQuery($jobInstanceId: UUID!){
     jobInstance(id: $jobInstanceId){
       id
       status
+      startTime
+      endTime
       version {
+        number
         releaseNote
         runtimeVersion
         commandLine
@@ -223,6 +226,14 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
             status
             startTime
             endTime
+            version {
+                number
+                releaseNote
+                runtimeVersion
+                commandLine
+                isMajor
+                doesUseGPU
+            }
         }
         countJobInstance
         versions {
