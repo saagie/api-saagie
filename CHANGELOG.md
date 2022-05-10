@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.7 (2022-05-10)
+### :bug:
+* :bug: Add consistency on instance information return by job and by instance ([#107](https://github.com/saagie/api-saagie/issues/107)) ([`7c77eaa`](https://github.com/saagie/api-saagie/commit/7c77eaaf357314c11dd63729e313b72b6932aef5))
+
 ## v1.0.6 (2022-05-10)
 ### :wheelchair:
 * :wheelchair: get instance information for pipeline ([`1d8c446`](https://github.com/saagie/api-saagie/commit/1d8c446a42ccc29a0680d64613fcc2e9378bdf58))
