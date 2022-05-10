@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.6 (2022-05-10)
+### :wheelchair:
+* :wheelchair: get instance information for pipeline ([`1d8c446`](https://github.com/saagie/api-saagie/commit/1d8c446a42ccc29a0680d64613fcc2e9378bdf58))
+
 ## v1.0.5 (2022-05-09)
 ### :bug:
 * :bug: Fixing auth token expiration ([#102](https://github.com/saagie/api-saagie/issues/102)) ([`c386582`](https://github.com/saagie/api-saagie/commit/c38658237a22901b8f6f46718cd87788d73a4445))
