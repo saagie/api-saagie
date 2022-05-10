@@ -68,7 +68,7 @@ job_dict = saagie.jobs.create(job_name="Python test job",
                               category='Processing',
                               technology_catalog='Saagie',
                               technology='python',
-                              runtime_version='3.6',
+                              runtime_version='3.8',
                               command_line='python {file} arg1 arg2',
                               release_note='',
                               extra_technology='')
