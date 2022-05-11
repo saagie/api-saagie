@@ -565,7 +565,7 @@ class Jobs:
             with console.status(f"Job is currently {state}", refresh_per_second=100):
                 to = False if timeout == -1 else sec >= timeout
                 if to:
-                    raise TimeoutError("❌ Last state known : " + state)
+                    raise TimeoutError(f"❌ Last state known : {state}")
                 time.sleep(freq)
                 sec += freq
                 job_instance_info = self.get_instance(job_instance_id, pprint_result=False)
