@@ -1,4 +1,5 @@
-from typing import Dict
+import logging
+from typing import Dict, Optional
 
 from gql import gql
 
@@ -9,20 +10,24 @@ class DockerCredentials:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str) -> Dict:
+    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
         """
         Get all saved docker credentials for a specific project
         Parameters
         ----------
         project_id : str
             ID of the project
+        pprint_result : str
+            Whether to pretty print the results in the console or not
         Returns
         -------
         dict
 
         """
         params = {"projectId": project_id}
-        return self.saagie_api.client.execute(gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params, pprint_result=pprint_result
+        )
 
     def get_info(self, project_id: str, credential_id: str) -> Dict:
         """
@@ -39,7 +44,9 @@ class DockerCredentials:
 
         """
         params = {"projectId": project_id, "id": credential_id}
-        return self.saagie_api.client.execute(gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params)
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params, pprint_result=True
+        )
 
     def get_info_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
@@ -58,7 +65,7 @@ class DockerCredentials:
         dict
 
         """
-        all_docker_credentials = self.list_for_project(project_id)["allDockerCredentials"]
+        all_docker_credentials = self.list_for_project(project_id, pprint_result=False)["allDockerCredentials"]
         if len(all_docker_credentials):
             res = [
                 credentials
@@ -68,10 +75,10 @@ class DockerCredentials:
             if len(res):
                 return res[0]
             raise RuntimeError(
-                f"There are no docker credentials in the project: '{project_id}' with the username: '{username}' "
+                f"❌ There are no docker credentials in the project: '{project_id}' with the username: '{username}' "
                 f"and registry '{registry}'"
             )
-        raise RuntimeError(f"There are no docker credentials in the project: '{project_id}'")
+        raise RuntimeError(f"❌ There are no docker credentials in the project: '{project_id}'")
 
     def create(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
@@ -95,7 +102,10 @@ class DockerCredentials:
         params = {"username": username, "password": password, "projectId": project_id}
         if registry:
             params["registry"] = registry
-        return self.saagie_api.client.execute(gql(GQL_CREATE_DOCKER_CREDENTIALS), variable_values=params)
+
+        result = self.saagie_api.client.execute(query=gql(GQL_CREATE_DOCKER_CREDENTIALS), variable_values=params)
+        logging.info("✅ Docker Credentials for user [%s] successfully created", username)
+        return result
 
     def upgrade(
         self, project_id: str, credential_id: str, password: str, registry: str = None, username: str = ""
@@ -126,7 +136,9 @@ class DockerCredentials:
             params["registry"] = registry
         if username:
             params["username"] = username
-        return self.saagie_api.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
+        logging.info("✅ Docker Credentials for user [%s] successfully upgraded", username)
+        return result
 
     def upgrade_for_username(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
@@ -152,7 +164,9 @@ class DockerCredentials:
         if registry:
             params["registry"] = registry
 
-        return self.saagie_api.client.execute(gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_UPGRADE_DOCKER_CREDENTIALS), variable_values=params)
+        logging.info("✅ Docker Credentials for user [%s] successfully upgraded", username)
+        return result
 
     def delete(self, project_id: str, credential_id: str) -> Dict:
         """
@@ -168,7 +182,9 @@ class DockerCredentials:
         dict
         """
         params = {"id": credential_id, "projectId": project_id}
-        return self.saagie_api.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
+        logging.info("✅ Docker Credentials [%s] successfully deleted", credential_id)
+        return result
 
     def delete_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
@@ -188,4 +204,6 @@ class DockerCredentials:
         """
         credential_id = self.get_info_for_username(project_id, username, registry)["id"]
         params = {"id": credential_id, "projectId": project_id}
-        return self.saagie_api.client.execute(gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
+        logging.info("✅ Docker Credentials for user [%s] successfully deleted", username)
+        return result

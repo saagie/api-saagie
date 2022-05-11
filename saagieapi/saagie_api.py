@@ -43,7 +43,7 @@ class SaagieApi:
             url_saagie += "/"
 
         self.auth = BearerAuth(realm=realm, url=url_saagie, platform=id_platform, login=user, password=password)
-
+        logging.info("✅ Successfully connected to your platform %s", url_saagie)
         url_api = f"{url_saagie}projects/api/platform/{str(id_platform)}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
 
@@ -82,7 +82,7 @@ class SaagieApi:
             id_platform = matches_url.group(3)
         else:
             raise ValueError(
-                "Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)"
+                "❌ Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)"
             )
         return cls(url_saagie, id_platform, user, password, realm)
 
@@ -130,7 +130,7 @@ class SaagieApi:
                 wrong_status_list.append(item)
         if wrong_status_list:
             raise RuntimeError(
-                f"The following status are not valid: {wrong_status_list}. "
+                f"❌ The following status are not valid: {wrong_status_list}. "
                 f"Please make sure that each item of the parameter status_list should be "
                 f"one of the following values: 'REQUESTED', 'QUEUED', 'RUNNING', "
                 f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'"
@@ -166,11 +166,11 @@ class SaagieApi:
         if cron_scheduling and croniter.is_valid(cron_scheduling):
             params["cronScheduling"] = cron_scheduling
         else:
-            raise RuntimeError(f"{cron_scheduling} is not valid cron format")
+            raise RuntimeError(f"❌ {cron_scheduling} is not valid cron format")
         if schedule_timezone in list(pytz.all_timezones):
             params["scheduleTimezone"] = schedule_timezone
         else:
-            raise RuntimeError("Please specify a correct timezone")
+            raise RuntimeError("❌ Please specify a correct timezone")
         return params
 
     # ##########################################################
@@ -256,7 +256,7 @@ class SaagieApi:
             - the catalog does not exist or does not contains technologies
         """
         if not all_technologies_in_catalog:
-            raise RuntimeError(f"Catalog {technology_catalog} does not exist or does not contain technologies")
+            raise RuntimeError(f"❌ Catalog {technology_catalog} does not exist or does not contain technologies")
         technology_ids_validated = [
             tech["id"]
             for tech in all_technologies_in_catalog
@@ -264,9 +264,9 @@ class SaagieApi:
         ]
         len(technologies)
         if not technology_ids_validated:
-            raise RuntimeError(f"Technologies {technologies} do not exist in the catalog specified")
+            raise RuntimeError(f"❌ Technologies {technologies} do not exist in the catalog specified")
         if len(technology_ids_validated) != len(technologies):
-            raise RuntimeError(f"Some technologies among {technologies} do not exist in the catalog specified")
+            raise RuntimeError(f"❌ Some technologies among {technologies} do not exist in the catalog specified")
 
         return technology_ids_validated
 
@@ -300,7 +300,7 @@ class SaagieApi:
         """
         if technology_id not in technologies_configured_for_project:
             raise RuntimeError(
-                f"Technology {technology} does not exist in the target project  " f"and for the catalog specified"
+                f"❌ Technology {technology} does not exist in the target project and for the catalog specified"
             )
 
         params["technologyId"] = technology_id

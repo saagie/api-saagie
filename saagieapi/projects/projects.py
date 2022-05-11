@@ -1,4 +1,5 @@
-from typing import Dict, List
+import logging
+from typing import Dict, List, Optional
 
 from gql import gql
 
@@ -34,7 +35,7 @@ class Projects:
             elif role == "Viewer":
                 role = "ROLE_PROJECT_VIEWER"
             else:
-                raise ValueError("'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+                raise ValueError("❌ 'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
 
         # Set group permission
         if group is not None:
@@ -53,8 +54,7 @@ class Projects:
         dict
             Dict of projects information
         """
-        query = gql(GQL_LIST_PROJECTS)
-        return self.saagie_api.client.execute(query)
+        return self.saagie_api.client.execute(query=gql(GQL_LIST_PROJECTS), pprint_result=True)
 
     def get_id(self, project_name: str) -> Dict:
         """Get the project id with the project name
@@ -72,7 +72,7 @@ class Projects:
         if project:
             project_id = project[0]["id"]
             return project_id
-        raise NameError(f"Project {project_name} does not exist or you don't have permission to see it.")
+        raise NameError(f"❌ Project {project_name} does not exist or you don't have permission to see it.")
 
     def get_info(self, project_id: str) -> Dict:
         """Get information for a given project (id, name, creator, description,
@@ -90,40 +90,50 @@ class Projects:
         dict
             Dict of project information
         """
-        query = gql(GQL_GET_PROJECT_INFO)
-        return self.saagie_api.client.execute(query, variable_values={"id": project_id})
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=True
+        )
 
-    def get_jobs_technologies(self, project_id: str) -> Dict:
+    def get_jobs_technologies(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
         """List available jobs technologies id for the project
 
         Parameters
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
+        pprint_result : bool, optional
+            Whether tp pretty print the result of the query, default to true
 
         Returns
         -------
         dict
             Dict of available jobs technology ids
         """
-        query = gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES)
-        return self.saagie_api.client.execute(query, variable_values={"id": project_id})["project"]
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES),
+            variable_values={"id": project_id},
+            pprint_result=pprint_result,
+        )["project"]
 
-    def get_apps_technologies(self, project_id: str) -> Dict:
+    def get_apps_technologies(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
         """List available apps technology ids for the project
 
         Parameters
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
-
+        pprint_result : bool, optional
+            Whether tp pretty print the result of the query, default to true
         Returns
         -------
         dict
             Dict of available apps technology ids
         """
-        query = gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES)
-        return self.saagie_api.client.execute(query, variable_values={"id": project_id})["project"]
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES),
+            variable_values={"id": project_id},
+            pprint_result=pprint_result,
+        )["project"]
 
     def create(
         self,
@@ -171,8 +181,9 @@ class Projects:
         params["technologies"] = self.__get_jobs_for_project(jobs_technologies_allowed)
         params["appTechnologies"] = self.__get_apps_for_projects(apps_technologies_allowed)
 
-        query = gql(GQL_CREATE_PROJECT)
-        return self.saagie_api.client.execute(query, variable_values=params)
+        result = self.saagie_api.client.execute(query=gql(GQL_CREATE_PROJECT), variable_values=params)
+        logging.info("✅ Project [%s] successfully created", name)
+        return result
 
     def __get_apps_for_projects(self, apps_technologies_allowed) -> List:
         """
@@ -257,8 +268,7 @@ class Projects:
         dict
             Dict of rights associated for the project
         """
-        query = gql(GQL_GET_PROJECT_RIGHTS)
-        return self.saagie_api.client.execute(query, variable_values={"id": project_id})
+        return self.saagie_api.client.execute(query=gql(GQL_GET_PROJECT_RIGHTS), variable_values={"id": project_id})
 
     def edit(
         self,
@@ -340,8 +350,7 @@ class Projects:
         else:
             params["appTechnologies"] = self.get_apps_technologies(project_id)["appTechnologies"]
 
-        query = gql(GQL_EDIT_PROJECT)
-        return self.saagie_api.client.execute(query, variable_values=params)
+        return self.saagie_api.client.execute(query=gql(GQL_EDIT_PROJECT), variable_values=params)
 
     def delete(self, project_id: str) -> Dict:
         """Delete a given project
@@ -357,5 +366,8 @@ class Projects:
         dict
             dict of archived project
         """
-        query = gql(GQL_DELETE_PROJECT)
-        return self.saagie_api.client.execute(query, variable_values={"projectId": project_id})
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_DELETE_PROJECT), variable_values={"projectId": project_id}
+        )
+        logging.info("✅ Project [%s] successfully deleted", project_id)
+        return result
