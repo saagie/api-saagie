@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.8 (2022-05-11)
+### :wheelchair:
+* :wheelchair: Chore/improve logging ([#106](https://github.com/saagie/api-saagie/issues/106)) ([`1468149`](https://github.com/saagie/api-saagie/commit/146814901b197bb0c0e1501359521a8d1098b414))
+
 ## v1.0.7 (2022-05-10)
 ### :bug:
 * :bug: Add consistency on instance information return by job and by instance ([#107](https://github.com/saagie/api-saagie/issues/107)) ([`7c77eaa`](https://github.com/saagie/api-saagie/commit/7c77eaaf357314c11dd63729e313b72b6932aef5))
