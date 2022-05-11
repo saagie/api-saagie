@@ -90,7 +90,7 @@ class EnvVars:
         existing_env_var = self.list_globals(pprint_result=False)["globalEnvironmentVariables"]
 
         if name not in [env_var["name"] for env_var in existing_env_var]:
-            raise ValueError("❌ Environment variable does not exists")
+            raise ValueError(f"❌ Environment variable {name} does not exists")
 
         params = [d for d in existing_env_var if d["name"] == name][0]
 
@@ -272,7 +272,7 @@ class EnvVars:
         existing_env_var = self.list_for_project(project_id, pprint_result=False)["projectEnvironmentVariables"]
 
         if name not in [env_var["name"] for env_var in existing_env_var]:
-            raise ValueError("❌ Environment variable does not exists")
+            raise ValueError(f"❌ Environment variable {name} does not exists")
 
         params = [d for d in existing_env_var if d["name"] == name][0]
         params["projectId"] = project_id

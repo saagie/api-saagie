@@ -5,6 +5,8 @@ from gql import gql
 
 from .gql_queries import *
 
+LIST_EXPOSED_PORT_FIELD = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
+
 
 class Apps:
     def __init__(self, saagie_api):
@@ -119,7 +121,7 @@ class Apps:
         if not check_format_exposed_port:
             raise ValueError(
                 "❌ The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
-                "All accept key of each dict is: '{list_exposed_port_field}'"
+                f"All accept key of each dict is: '{LIST_EXPOSED_PORT_FIELD}'"
             )
 
         technology = "Docker image"
@@ -255,7 +257,7 @@ class Apps:
         if not check_format_exposed_port:
             raise ValueError(
                 "❌ The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'port'."
-                "All accept key of each dict is: '{list_exposed_port_field}'"
+                f"All accept key of each dict is: '{LIST_EXPOSED_PORT_FIELD}'"
             )
 
         if emails:
@@ -400,7 +402,7 @@ class Apps:
             True if all exposed port is in the validate format
             Otherwise False
         """
-        list_exposed_port_field = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
+
         if not isinstance(exposed_ports, List):
             return False
 
@@ -410,7 +412,7 @@ class Apps:
                 check_port = all("port" in ep.keys() for ep in exposed_ports)
                 if check_port:
                     check_every_key = all(
-                        all(elem in list_exposed_port_field for elem in ep.keys()) for ep in exposed_ports
+                        all(elem in LIST_EXPOSED_PORT_FIELD for elem in ep.keys()) for ep in exposed_ports
                     )
                     if check_every_key:
                         return True
