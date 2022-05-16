@@ -35,6 +35,18 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
             releaseNote
             runtimeVersion
             commandLine
+            packageInfo{
+                name
+                downloadUrl
+            }
+            dockerInfo{
+                image
+                dockerCredentialsId
+            }
+            extraTechnology{
+                language
+                version
+            }
             isCurrent
             isMajor
         }
@@ -57,6 +69,7 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
         graphPipelines{
             id
         }
+        doesUseGPU
         resources{
             cpu {
                 request
@@ -75,16 +88,18 @@ GQL_GET_JOB_INSTANCE = """
 query jobInstanceQuery($jobInstanceId: UUID!){
     jobInstance(id: $jobInstanceId){
       id
+      number
       status
       startTime
       endTime
+      jobId
       version {
         number
         releaseNote
         runtimeVersion
         commandLine
         isMajor
-        doesUseGPU
+        isCurrent
       }
     }
   }
@@ -240,9 +255,20 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
         }
         countJobInstance
         versions {
+            number
+            creationDate
             releaseNote
             runtimeVersion
             commandLine
+            packageInfo{
+                name
+                downloadUrl
+            }
+            extraTechnology{
+                language
+                version
+            }
+            isCurrent
             isMajor
         }
         category
@@ -261,6 +287,7 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
         graphPipelines(isCurrent: true){
             id
         }
+        doesUseGPU
         resources{
             cpu {
                 request
