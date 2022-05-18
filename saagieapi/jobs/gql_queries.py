@@ -9,7 +9,7 @@ query jobsQuery($projectId: UUID!){
 """
 
 GQL_LIST_JOBS_FOR_PROJECT = """
-query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $instancesLimit: Int){
+query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean){
     jobs(projectId: $projectId, category: $category, technologyId: $technologyId){
         id
         name
@@ -29,10 +29,13 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
             startTime
             endTime
         }
-        versions {
+        versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
+            number
+            creationDate
             releaseNote
             runtimeVersion
             commandLine
+            isCurrent
             isMajor
         }
         category
