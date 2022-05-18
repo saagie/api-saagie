@@ -13,7 +13,9 @@ class Jobs:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
+    def list_for_project(
+        self, project_id: str, instances_limit: int = -1, versions_limit: int = -1, versions_only_current: bool = False
+    ) -> Dict:
         """List jobs in the given project with their instances.
         NB: You can only list jobs if you have at least the viewer role on the
         project
@@ -34,6 +36,11 @@ class Jobs:
         params = {"projectId": project_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
+
+        if versions_limit != -1:
+            params["versionsLimit"] = versions_limit
+
+        params["versionsOnlyCurrent"] = versions_only_current
 
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=True
