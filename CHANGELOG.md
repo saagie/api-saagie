@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.9 (2022-05-18)
+### :zap:
+* :zap: In project's jobs list, get the current version ([#111](https://github.com/saagie/api-saagie/issues/111)) ([`586397d`](https://github.com/saagie/api-saagie/commit/586397d5a3a37a01f715ff33f2171ae6390aaaff))
+
 ## v1.0.8 (2022-05-11)
 ### :wheelchair:
 * :wheelchair: Chore/improve logging ([#106](https://github.com/saagie/api-saagie/issues/106)) ([`1468149`](https://github.com/saagie/api-saagie/commit/146814901b197bb0c0e1501359521a8d1098b414))
