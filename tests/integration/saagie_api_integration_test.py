@@ -143,6 +143,7 @@ class TestIntegrationProject:
             project_id=self.project_id,
             description=project_input["description"],
             jobs_technologies_allowed=project_input["jobs_technologies_allowed"],
+            groups_and_roles=[{self.group: "Manager"}],
         )
         project_info = self.saagie.projects.get_info(self.project_id)
         technologies_allowed = self.saagie.projects.get_jobs_technologies(self.project_id)["technologiesByCategory"][0]
