@@ -10,11 +10,7 @@ from gql import gql
 from .apps import Apps
 from .docker_credentials import DockerCredentials
 from .env_vars import EnvVars
-from .gql_queries import (
-    GQL_GET_CLUSTER_INFO,
-    GQL_GET_REPOSITORIES_INFO,
-    GQL_GET_RUNTIMES,
-)
+from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GET_RUNTIMES
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
