@@ -13,7 +13,7 @@ class Apps:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id: str) -> Dict:
+    def list_for_project(self, project_id: str, instances_limit: int = None) -> Dict:
         """List apps of project.
         NB: You can only list apps if you have at least the viewer role on
         the project.
@@ -21,17 +21,19 @@ class Apps:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
-
+        instances_limit: int
+            limit the nulmber of instances to return, default to none
         Returns
         -------
         dict
             Dict of app information
         """
+        params = {"projectId": project_id, "instancesLimit": instances_limit}
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=True
+            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values=params, pprint_result=True
         )
 
-    def get_info(self, app_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_info(self, app_id: str, instances_limit: int = None, pprint_result: Optional[bool] = True) -> Dict:
         """Get app with given UUID.
         Parameters
         ----------
@@ -39,13 +41,16 @@ class Apps:
             UUID of your app
         pprint_result : str
             Whether to pretty print the results in the console or not
+        instances_limit: int
+            limit the nulmber of instances to return, default to none
         Returns
         -------
         dict
             Dict of app information
         """
+        params = {"id": app_id, "instancesLimit": instances_limit}
         return self.saagie_api.client.execute(
-            query=gql(GQL_GET_APP_INFO), variable_values={"id": app_id}, pprint_result=pprint_result
+            query=gql(GQL_GET_APP_INFO), variable_values=params, pprint_result=pprint_result
         )
 
     def create_from_scratch(
@@ -305,7 +310,7 @@ class Apps:
             Dict of app information
         """
         params = {"id": app_id}
-        previous_app_version = self.get_info(app_id, pprint_result=False)["labWebApp"]
+        previous_app_version = self.get_info(app_id, instances_limit=1, pprint_result=False)["labWebApp"]
 
         if app_name:
             params["name"] = app_name
