@@ -13,7 +13,9 @@ class Apps:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id: str, instances_limit: int = None, pprint_result: Optional[bool] = None) -> Dict:
+    def list_for_project(
+        self, project_id: str, instances_limit: int = None, pprint_result: Optional[bool] = None
+    ) -> Dict:
         """List apps of project.
         NB: You can only list apps if you have at least the viewer role on
         the project.
