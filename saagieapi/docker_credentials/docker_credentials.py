@@ -20,7 +20,7 @@ class DockerCredentials:
             ID of the project
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -28,7 +28,6 @@ class DockerCredentials:
             Dict of all docker credentials for a specific project
         """
         params = {"projectId": project_id}
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params, pprint_result=pprint_result
         )
@@ -45,7 +44,7 @@ class DockerCredentials:
             ID of the credentials of the container registry
             pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -53,7 +52,6 @@ class DockerCredentials:
             Dict of the info of the docker credentials
         """
         params = {"projectId": project_id, "id": credential_id}
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params, pprint_result=pprint_result
         )

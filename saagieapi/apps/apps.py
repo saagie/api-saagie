@@ -23,14 +23,13 @@ class Apps:
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
         dict
             Dict of app information
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=pprint_result
         )
@@ -43,13 +42,12 @@ class Apps:
             UUID of your app
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
         Returns
         -------
         dict
             Dict of app information
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_APP_INFO), variable_values={"id": app_id}, pprint_result=pprint_result
         )

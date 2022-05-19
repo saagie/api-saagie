@@ -20,13 +20,12 @@ class EnvVars:
         ------
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
         Returns
         -------
         dict
             Dict of global environment variable on the platform
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(query=gql(GQL_LIST_GLOBAL_ENV_VARS), pprint_result=pprint_result)
 
     def create_global(self, name: str, value: str, description: str = "", is_password: bool = False) -> Dict:
@@ -187,14 +186,13 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
         Returns
         -------
         dict
             Dict of project environment variables
         """
 
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_PROJECT_ENV_VARS), variable_values={"projectId": project_id}, pprint_result=pprint_result
         )

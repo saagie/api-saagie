@@ -30,7 +30,7 @@ class SaagieApi:
         password: str,
         realm: str,
         retries: int = 0,
-        pprint_global: bool = True,
+        pprint_global: bool = False,
     ):
         """
         Parameters
@@ -68,6 +68,8 @@ class SaagieApi:
         self.apps = Apps(self)
         self.docker_credentials = DockerCredentials(self)
         self.pprint_global = pprint_global
+        self.client.pprint_global = pprint_global
+        self.client_gateway.pprint_global = pprint_global
 
     @classmethod
     def easy_connect(cls, url_saagie_platform: str, user: str, password: str):

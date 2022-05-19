@@ -28,7 +28,7 @@ class Pipelines:
             recent to oldest
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -38,7 +38,6 @@ class Pipelines:
         params = {"projectId": project_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
@@ -63,12 +62,14 @@ class Pipelines:
 
     def get_id(self, pipeline_name: str, project_name: str) -> str:
         """Get the pipeline id with the pipeline name and project name
+
         Parameters
         ----------
         pipeline_name : str
             Name of your pipeline
         project_name : str
             Name of your project
+
         Returns
         -------
         str
@@ -88,14 +89,12 @@ class Pipelines:
         ----------
         pipeline_id : str
             UUID of your pipeline  (see README on how to find it)
-        pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -106,7 +105,6 @@ class Pipelines:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
 
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE), variable_values=params, pprint_result=pprint_result
         )
@@ -121,14 +119,13 @@ class Pipelines:
             Pipeline instance id
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
         dict
             Dict of job information
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE_INSTANCE),
             variable_values={"id": pipeline_instance_id},
@@ -300,6 +297,7 @@ class Pipelines:
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
+
         Parameters
         ----------
         pipeline_id : str
@@ -415,6 +413,7 @@ class Pipelines:
         -------
         str
             the final state of the pipeline
+
         Raises
         ------
         TimeoutError

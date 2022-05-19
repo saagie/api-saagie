@@ -26,10 +26,11 @@ class GqlClient:
         variable_values: Optional[Dict] = None,
         upload_files: Optional[bool] = False,
         is_retry: Optional[bool] = False,
-        pprint_result: Optional[bool] = False,
+        pprint_result: Optional[bool] = None,
     ) -> Dict:
         """
         Execute a GraphQL query and returns the result
+
         Parameters
         ----------
         query : DocumentNode
@@ -40,8 +41,9 @@ class GqlClient:
             whether to upload files
         is_retry : bool
             whether this execution is a retry
-        pprint_result : bool
-            whether to pretty print results in the console
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -50,6 +52,7 @@ class GqlClient:
         """
         try:
             result = self.client.execute(document=query, variable_values=variable_values, upload_files=upload_files)
+            pprint_result = pprint_result if pprint_result is not None else self.pprint_global
             if pprint_result:
                 console.print(result)
             return result
@@ -66,6 +69,6 @@ class GqlClient:
                 )
 
             raise transport_error
-        except Exception:
+        except Exception as e:
             console.print_exception(show_locals=False, max_frames=2)
-            sys.exit(1)
+            raise e

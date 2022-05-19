@@ -53,14 +53,13 @@ class Projects:
         ----------
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
         dict
             Dict of projects information
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(query=gql(GQL_LIST_PROJECTS), pprint_result=pprint_result)
 
     def get_id(self, project_name: str) -> Dict:
@@ -93,14 +92,13 @@ class Projects:
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
         dict
             Dict of project information
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=pprint_result
         )
@@ -114,14 +112,13 @@ class Projects:
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
         dict
             Dict of available jobs technology ids
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES),
             variable_values={"id": project_id},
@@ -137,13 +134,12 @@ class Projects:
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
         Returns
         -------
         dict
             Dict of available apps technology ids
         """
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES),
             variable_values={"id": project_id},

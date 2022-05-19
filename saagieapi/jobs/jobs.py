@@ -39,7 +39,7 @@ class Jobs:
             Whether to only fetch the current version of each job
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -55,7 +55,6 @@ class Jobs:
 
         params["versionsOnlyCurrent"] = versions_only_current
 
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
@@ -89,7 +88,7 @@ class Jobs:
             UUID of your job instance (see README on how to find it)
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -97,7 +96,6 @@ class Jobs:
             Dict of instance information
         """
 
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_JOB_INSTANCE),
             variable_values={"jobInstanceId": job_instance_id},
@@ -139,7 +137,7 @@ class Jobs:
             to oldest
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
-            saagie_api.pprint_global (default to true)
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -151,7 +149,6 @@ class Jobs:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
 
-        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_JOB_INFO), variable_values=params, pprint_result=pprint_result
         )
