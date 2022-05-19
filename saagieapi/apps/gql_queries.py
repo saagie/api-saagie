@@ -1,125 +1,139 @@
 # pylint: disable=duplicate-code
 GQL_LIST_APPS_FOR_PROJECT = """
-query labWebAppQuery($id: UUID!){
-    labWebApps(projectId: $id){ 
+query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
+  labWebApps(projectId: $id) {
+    id
+    name
+    description
+    countJobInstance
+    instances(limit: $instancesLimit, lastExecution: true) {
       id
-      name
-      description
-      countJobInstance
-      versions {
-        number
-        creationDate
-        releaseNote
-        runtimeVersion
-        commandLine
-        isMajor
-        isCurrent
-        dockerInfo{
-            image
-            dockerCredentialsId
-        }
-        exposedPorts{
-            name
-            port
-            isRewriteUrl
-            basePathVariableName
-            isAuthenticationRequired
-        }
-        storagePaths
-      }
-      category,
-      technology {
-        id
-      }
-      alerting {
-        emails
-        statusList
+      status
+      statusDetails
+      startTime
+      endTime
     }
+    versions {
+      number
       creationDate
-      isDeletable
-      graphPipelines {
-        id
+      releaseNote
+      runtimeVersion
+      commandLine
+      isMajor
+      isCurrent
+      dockerInfo {
+        image
+        dockerCredentialsId
       }
-      storageSizeInMB
-      doesUseGPU
-      resources{
-        cpu{
-          limit
-          request
-        }
-        memory{
-          limit
-          request
-        }
-        gpu{
-          limit
-          request
-        }
+      exposedPorts {
+        name
+        port
+        isRewriteUrl
+        basePathVariableName
+        isAuthenticationRequired
+      }
+      storagePaths
+    }
+    category
+    technology {
+      id
+    }
+    alerting {
+      emails
+      statusList
+    }
+    creationDate
+    isDeletable
+    graphPipelines {
+      id
+    }
+    storageSizeInMB
+    doesUseGPU
+    resources {
+      cpu {
+        limit
+        request
+      }
+      memory {
+        limit
+        request
+      }
+      gpu {
+        limit
+        request
       }
     }
+  }
 }
 """
 
 GQL_GET_APP_INFO = """
-query labWebAppQuery($id: UUID!){
-    labWebApp(id: $id){ 
+query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
+  labWebApp(id: $id) {
+    id
+    name
+    description
+    countJobInstance
+    instances(limit: $instancesLimit, lastExecution: true) {
       id
-      name
-      description
-      countJobInstance
-      versions {
-        number
-        creationDate
-        releaseNote
-        runtimeVersion
-        commandLine
-        isMajor
-        isCurrent
-        dockerInfo{
-            image
-            dockerCredentialsId
-        }
-        exposedPorts{
-            name
-            port
-            isRewriteUrl
-            basePathVariableName
-            isAuthenticationRequired
-        }
-        storagePaths
-      }
-      category,
-      technology {
-        id
-      }
-      alerting {
-        emails
-        statusList
+      status
+      statusDetails
+      startTime
+      endTime
     }
+    versions {
+      number
       creationDate
-      isDeletable
-      graphPipelines {
-        id
+      releaseNote
+      runtimeVersion
+      commandLine
+      isMajor
+      isCurrent
+      dockerInfo {
+        image
+        dockerCredentialsId
       }
-      storageSizeInMB
-      doesUseGPU
-      resources{
-        cpu{
-          limit
-          request
-        }
-        memory{
-          limit
-          request
-        }
-        gpu{
-          limit
-          request
-        }
+      exposedPorts {
+        name
+        port
+        isRewriteUrl
+        basePathVariableName
+        isAuthenticationRequired
+      }
+      storagePaths
+    }
+    category
+    technology {
+      id
+    }
+    alerting {
+      emails
+      statusList
+    }
+    creationDate
+    isDeletable
+    graphPipelines {
+      id
+    }
+    storageSizeInMB
+    doesUseGPU
+    resources {
+      cpu {
+        limit
+        request
+      }
+      memory {
+        limit
+        request
+      }
+      gpu {
+        limit
+        request
       }
     }
   }
-  """
+}
+"""
 
 GQL_CREATE_APP = """
 mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $technologyId: UUID!, 
@@ -198,7 +212,6 @@ GQL_STOP_APP_INSTANCE = """
     }
   }
   """
-
 
 GQL_RUN_APP = """
   mutation runJobMutation($appId: UUID!){
