@@ -22,7 +22,16 @@ class SaagieApi:
     # pylint: disable=too-many-instance-attributes
     """Define several methods to interact with Saagie API in Python"""
 
-    def __init__(self, url_saagie: str, id_platform: str, user: str, password: str, realm: str, retries: int = 0):
+    def __init__(
+        self,
+        url_saagie: str,
+        id_platform: str,
+        user: str,
+        password: str,
+        realm: str,
+        retries: int = 0,
+        pprint_global: bool = False,
+    ):
         """
         Parameters
         ----------
@@ -38,6 +47,8 @@ class SaagieApi:
             Saagie realm  (see README on how to find it)
         retries : int
             Pre-setup of the requests’ Session for performing retries
+        pprint_global : bool
+            Change the default pprint of all the requests made with this client
         """
         if not url_saagie.endswith("/"):
             url_saagie += "/"
@@ -56,6 +67,9 @@ class SaagieApi:
         self.env_vars = EnvVars(self)
         self.apps = Apps(self)
         self.docker_credentials = DockerCredentials(self)
+        self.pprint_global = pprint_global
+        self.client.pprint_global = pprint_global
+        self.client_gateway.pprint_global = pprint_global
 
     @classmethod
     def easy_connect(cls, url_saagie_platform: str, user: str, password: str):

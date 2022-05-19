@@ -14,7 +14,9 @@ class Pipelines:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
+    def list_for_project(
+        self, project_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None
+    ) -> Dict:
         """List pipelines of project with their instances.
 
         Parameters
@@ -24,6 +26,9 @@ class Pipelines:
         instances_limit : int, optional
             Maximum limit of instances to fetch per pipelines. Fetch from most
             recent to oldest
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -34,7 +39,7 @@ class Pipelines:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=True
+            query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
@@ -57,12 +62,14 @@ class Pipelines:
 
     def get_id(self, pipeline_name: str, project_name: str) -> str:
         """Get the pipeline id with the pipeline name and project name
+
         Parameters
         ----------
         pipeline_name : str
             Name of your pipeline
         project_name : str
             Name of your project
+
         Returns
         -------
         str
@@ -75,18 +82,19 @@ class Pipelines:
             return pipeline[0]["id"]
         raise NameError(f"❌ pipeline {pipeline_name} does not exist.")
 
-    def get_info(self, pipeline_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = True) -> Dict:
+    def get_info(self, pipeline_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None) -> Dict:
         """Get a given pipeline information
 
         Parameters
         ----------
         pipeline_id : str
             UUID of your pipeline  (see README on how to find it)
-        pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -101,7 +109,7 @@ class Pipelines:
             query=gql(GQL_GET_PIPELINE), variable_values=params, pprint_result=pprint_result
         )
 
-    def get_instance(self, pipeline_instance_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_instance(self, pipeline_instance_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """
         Get the information of a given pipeline instance id
 
@@ -110,7 +118,8 @@ class Pipelines:
         pipeline_instance_id : str
             Pipeline instance id
         pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -288,6 +297,7 @@ class Pipelines:
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
         the project
+
         Parameters
         ----------
         pipeline_id : str
@@ -403,6 +413,7 @@ class Pipelines:
         -------
         str
             the final state of the pipeline
+
         Raises
         ------
         TimeoutError

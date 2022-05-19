@@ -12,14 +12,15 @@ class EnvVars:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_globals(self, pprint_result: Optional[bool] = True):
+    def list_globals(self, pprint_result: Optional[bool] = None):
         """Get global environment variables
         NB: You can only list environment variables if you have at least the
         viewer role on the platform
         Params
         ------
-        pprint_result : str
-            Whether to pretty print the results in the console or not
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
         Returns
         -------
         dict
@@ -174,7 +175,7 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully deleted", name)
         return result
 
-    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """Get project environment variables
         NB: You can only list environment variables if you have at least the
         viewer role on the project
@@ -183,8 +184,9 @@ class EnvVars:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
-        pprint_result : str
-            Whether to pretty print the results in the console or not
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
         Returns
         -------
         dict

@@ -14,7 +14,12 @@ class Jobs:
         self.saagie_api = saagie_api
 
     def list_for_project(
-        self, project_id: str, instances_limit: int = -1, versions_limit: int = -1, versions_only_current: bool = False
+        self,
+        project_id: str,
+        instances_limit: int = -1,
+        versions_limit: int = -1,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
     ) -> Dict:
         """List jobs in the given project with their instances.
         NB: You can only list jobs if you have at least the viewer role on the
@@ -27,6 +32,14 @@ class Jobs:
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per job. Fetch from most recent
+            to oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each job
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -43,7 +56,7 @@ class Jobs:
         params["versionsOnlyCurrent"] = versions_only_current
 
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=True
+            query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
@@ -66,7 +79,7 @@ class Jobs:
             query=gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL), variable_values={"projectId": project_id}
         )
 
-    def get_instance(self, job_instance_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_instance(self, job_instance_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """Get the given job instance
 
         Parameters
@@ -74,7 +87,8 @@ class Jobs:
         job_instance_id : str
             UUID of your job instance (see README on how to find it)
         pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -111,7 +125,7 @@ class Jobs:
             return job[0]["id"]
         raise NameError(f"❌ Job {job_name} does not exist.")
 
-    def get_info(self, job_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = True) -> Dict:
+    def get_info(self, job_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None) -> Dict:
         """Get job's info
 
         Parameters
@@ -122,7 +136,8 @@ class Jobs:
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
         pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------

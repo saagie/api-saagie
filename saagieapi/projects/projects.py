@@ -44,17 +44,23 @@ class Projects:
 
         return params
 
-    def list(self) -> Dict:
+    def list(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get information for all projects (id, name, creator, description,
         jobCount and status)
         NB: You can only list projects you have rights on.
+
+        Parameters
+        ----------
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
         dict
             Dict of projects information
         """
-        return self.saagie_api.client.execute(query=gql(GQL_LIST_PROJECTS), pprint_result=True)
+        return self.saagie_api.client.execute(query=gql(GQL_LIST_PROJECTS), pprint_result=pprint_result)
 
     def get_id(self, project_name: str) -> Dict:
         """Get the project id with the project name
@@ -74,7 +80,7 @@ class Projects:
             return project_id
         raise NameError(f"❌ Project {project_name} does not exist or you don't have permission to see it.")
 
-    def get_info(self, project_id: str) -> Dict:
+    def get_info(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """Get information for a given project (id, name, creator, description,
         jobCount and status)
         NB: You can only get project information if you have at least the
@@ -84,6 +90,9 @@ class Projects:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -91,10 +100,10 @@ class Projects:
             Dict of project information
         """
         return self.saagie_api.client.execute(
-            query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=True
+            query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=pprint_result
         )
 
-    def get_jobs_technologies(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_jobs_technologies(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """List available jobs technologies id for the project
 
         Parameters
@@ -102,7 +111,8 @@ class Projects:
         project_id : str
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
 
         Returns
         -------
@@ -115,7 +125,7 @@ class Projects:
             pprint_result=pprint_result,
         )["project"]
 
-    def get_apps_technologies(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_apps_technologies(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """List available apps technology ids for the project
 
         Parameters
@@ -123,7 +133,8 @@ class Projects:
         project_id : str
             UUID of your project (see README on how to find it)
         pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
         Returns
         -------
         dict
