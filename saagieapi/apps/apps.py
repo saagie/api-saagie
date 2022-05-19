@@ -22,7 +22,7 @@ class Apps:
         project_id : str
             UUID of your project (see README on how to find it)
         instances_limit: int
-            limit the nulmber of instances to return, default to none
+            limit the number of instances to return, default to no limit
         Returns
         -------
         dict
@@ -42,7 +42,7 @@ class Apps:
         pprint_result : str
             Whether to pretty print the results in the console or not
         instances_limit: int
-            limit the nulmber of instances to return, default to none
+            limit the number of instances to return, default to no limit
         Returns
         -------
         dict
