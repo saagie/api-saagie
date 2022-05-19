@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.10 (2022-05-19)
+### :bug:
+* :bug: apps.get_info now returns instances information ([#113](https://github.com/saagie/api-saagie/issues/113)) ([`460e613`](https://github.com/saagie/api-saagie/commit/460e6138e202b8093d67cc1a5bd5aa5852f1951b))
+
 ## v1.0.9 (2022-05-18)
 ### :zap:
 * :zap: In project's jobs list, get the current version ([#111](https://github.com/saagie/api-saagie/issues/111)) ([`586397d`](https://github.com/saagie/api-saagie/commit/586397d5a3a37a01f715ff33f2171ae6390aaaff))
