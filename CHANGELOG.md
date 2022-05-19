@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.11 (2022-05-19)
+### :wheelchair:
+* :wheelchair: chore: Uniform and configurable pprint parameter ([#115](https://github.com/saagie/api-saagie/issues/115)) ([`9a6cc30`](https://github.com/saagie/api-saagie/commit/9a6cc3011ccab4b1483aa46b38836a5391a625ba))
+
 ## v1.0.10 (2022-05-19)
 ### :bug:
 * :bug: apps.get_info now returns instances information ([#113](https://github.com/saagie/api-saagie/issues/113)) ([`460e613`](https://github.com/saagie/api-saagie/commit/460e6138e202b8093d67cc1a5bd5aa5852f1951b))
