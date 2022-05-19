@@ -13,7 +13,7 @@ class Apps:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_for_project(self, project_id: str) -> Dict:
+    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """List apps of project.
         NB: You can only list apps if you have at least the viewer role on
         the project.
@@ -21,29 +21,35 @@ class Apps:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
 
         Returns
         -------
         dict
             Dict of app information
         """
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=True
+            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=pprint_result
         )
 
-    def get_info(self, app_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_info(self, app_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """Get app with given UUID.
         Parameters
         ----------
         app_id : str
             UUID of your app
-        pprint_result : str
-            Whether to pretty print the results in the console or not
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
         Returns
         -------
         dict
             Dict of app information
         """
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_APP_INFO), variable_values={"id": app_id}, pprint_result=pprint_result
         )

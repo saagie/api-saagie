@@ -10,48 +10,59 @@ class DockerCredentials:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """
         Get all saved docker credentials for a specific project
+
         Parameters
         ----------
         project_id : str
             ID of the project
-        pprint_result : str
-            Whether to pretty print the results in the console or not
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
+
         Returns
         -------
         dict
-
+            Dict of all docker credentials for a specific project
         """
         params = {"projectId": project_id}
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_ALL_DOCKER_CREDENTIALS), variable_values=params, pprint_result=pprint_result
         )
 
-    def get_info(self, project_id: str, credential_id: str) -> Dict:
+    def get_info(self, project_id: str, credential_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """
         Get the info of a specific docker credentials in a specific project
+
         Parameters
         ----------
         project_id :
             ID of the project
         credential_id : str
             ID of the credentials of the container registry
+            pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
+
         Returns
         -------
         dict
-
+            Dict of the info of the docker credentials
         """
         params = {"projectId": project_id, "id": credential_id}
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
-            query=gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params, pprint_result=True
+            query=gql(GQL_GET_DOCKER_CREDENTIALS), variable_values=params, pprint_result=pprint_result
         )
 
     def get_info_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
         Get the info of a specific docker credentials in a specific project using the username
         and the registry
+
         Parameters
         ----------
         project_id :
@@ -60,10 +71,11 @@ class DockerCredentials:
             Login of the container registry
         registry : str, optional
             If you do not set a registry, the registry will be Docker Hub.
+
         Returns
         -------
         dict
-
+            Dict of the info of the docker credentials
         """
         all_docker_credentials = self.list_for_project(project_id, pprint_result=False)["allDockerCredentials"]
         if len(all_docker_credentials):
@@ -83,6 +95,7 @@ class DockerCredentials:
     def create(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
         Create docker credentials for a specific project
+
         Parameters
         ----------
         project_id : str
@@ -94,10 +107,11 @@ class DockerCredentials:
         registry : str, optional
             If you do not set a registry, the registry will be Docker Hub.
             Else, you have to put the url of the container registry
+
         Returns
         -------
         dict
-
+            Dict of the created docker credentials
         """
         params = {"username": username, "password": password, "projectId": project_id}
         if registry:
@@ -112,6 +126,7 @@ class DockerCredentials:
     ) -> Dict:
         """
         Update docker credentials for a specific project
+
         Parameters
         ----------
         project_id : str
@@ -126,10 +141,11 @@ class DockerCredentials:
         username : str, optional
             If you want to change the login of the container registry, you have to set it.
             Otherwise, you can let it to default value
+
         Returns
         -------
         dict
-
+            Dict of the updated docker credentials
         """
         params = {"id": credential_id, "password": password, "projectId": project_id}
         if registry:
@@ -143,6 +159,7 @@ class DockerCredentials:
     def upgrade_for_username(self, project_id: str, username: str, password: str, registry: str = None) -> Dict:
         """
         Update docker credentials for a specific project
+
         Parameters
         ----------
         project_id : str
@@ -154,9 +171,11 @@ class DockerCredentials:
         registry : str, optional
             If you do not set a registry, the registry will be Docker Hub.
             Otherwise, you have to put the url of the container registry
+
         Returns
         -------
         dict
+            Dict of the updated docker credentials
         """
         credential_id = self.get_info_for_username(project_id, username, registry)["id"]
         params = {"id": credential_id, "password": password, "projectId": project_id}
@@ -171,15 +190,18 @@ class DockerCredentials:
     def delete(self, project_id: str, credential_id: str) -> Dict:
         """
         Delete a specific container registry credentials in a specific project
+
         Parameters
         ----------
         project_id :
             ID of the project
         credential_id : str
             ID of the credential
+
         Returns
         -------
         dict
+            Dict of the deleted docker credentials
         """
         params = {"id": credential_id, "projectId": project_id}
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_DOCKER_CREDENTIALS), variable_values=params)
@@ -189,6 +211,7 @@ class DockerCredentials:
     def delete_for_username(self, project_id: str, username: str, registry: str = None) -> Dict:
         """
         Delete a specific container registry credentials in a specific project
+
         Parameters
         ----------
         project_id :
@@ -198,9 +221,11 @@ class DockerCredentials:
         registry : str, optional
             If you do not set a registry, the registry will be Docker Hub.
             Otherwise, you have to put the url of the container registry
+
         Returns
         -------
         dict
+            Dict of the deleted docker credentials
         """
         credential_id = self.get_info_for_username(project_id, username, registry)["id"]
         params = {"id": credential_id, "projectId": project_id}

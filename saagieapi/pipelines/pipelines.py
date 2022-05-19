@@ -14,7 +14,7 @@ class Pipelines:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str, instances_limit: int = -1) -> Dict:
+    def list_for_project(self, project_id: str, instances_limit: int = -1, print_result: Optional[bool] = None) -> Dict:
         """List pipelines of project with their instances.
 
         Parameters
@@ -24,6 +24,9 @@ class Pipelines:
         instances_limit : int, optional
             Maximum limit of instances to fetch per pipelines. Fetch from most
             recent to oldest
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
 
         Returns
         -------
@@ -33,8 +36,9 @@ class Pipelines:
         params = {"projectId": project_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=True
+            query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
@@ -75,7 +79,7 @@ class Pipelines:
             return pipeline[0]["id"]
         raise NameError(f"❌ pipeline {pipeline_name} does not exist.")
 
-    def get_info(self, pipeline_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = True) -> Dict:
+    def get_info(self, pipeline_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None) -> Dict:
         """Get a given pipeline information
 
         Parameters
@@ -87,6 +91,9 @@ class Pipelines:
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
 
         Returns
         -------
@@ -97,11 +104,12 @@ class Pipelines:
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
 
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE), variable_values=params, pprint_result=pprint_result
         )
 
-    def get_instance(self, pipeline_instance_id: str, pprint_result: Optional[bool] = True) -> Dict:
+    def get_instance(self, pipeline_instance_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """
         Get the information of a given pipeline instance id
 
@@ -110,13 +118,15 @@ class Pipelines:
         pipeline_instance_id : str
             Pipeline instance id
         pprint_result : bool, optional
-            Whether tp pretty print the result of the query, default to true
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global (default to true)
 
         Returns
         -------
         dict
             Dict of job information
         """
+        pprint_result = pprint_result if pprint_result is not None else self.saagie_api.pprint_global
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE_INSTANCE),
             variable_values={"id": pipeline_instance_id},
