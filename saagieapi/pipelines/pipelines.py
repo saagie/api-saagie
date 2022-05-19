@@ -14,7 +14,9 @@ class Pipelines:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str, instances_limit: int = -1, print_result: Optional[bool] = None) -> Dict:
+    def list_for_project(
+        self, project_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None
+    ) -> Dict:
         """List pipelines of project with their instances.
 
         Parameters
