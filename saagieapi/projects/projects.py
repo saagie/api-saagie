@@ -11,38 +11,53 @@ class Projects:
         self.saagie_api = saagie_api
 
     @staticmethod
-    def __create_groupe_role(params: Dict, group: str, role: str) -> Dict:
+    def __map_role(role: str) -> str:
         """
-        Create a dict with the group and role to add to the project
-        Parameters
+        Map role with valid Saagie Role
         ----------
-        params:Dict
-            Dict of parameters to create the role
-        group : str
-            Authorization management: name of the group to add the given role to
-        role : str
-            Authorization management: role to give to the given group on the project
+        params:role:str
+            Role as simple string
         Returns
         -------
-        Dict
-            Dict that contains the authorized group and role
+        str
+            Valid Saagie role
         """
-        if role:
-            if role == "Manager":
-                role = "ROLE_PROJECT_MANAGER"
-            elif role == "Editor":
-                role = "ROLE_PROJECT_EDITOR"
-            elif role == "Viewer":
-                role = "ROLE_PROJECT_VIEWER"
-            else:
-                raise ValueError("❌ 'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+        if role.lower() in ("manager", "editor", "viewer"):
+            return f"ROLE_PROJECT_{role.upper()}"
+        raise ValueError("❌ 'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
 
-        # Set group permission
-        if group is not None:
-            group_block = [{"name": group, "role": role}]
+    @staticmethod
+    def _create_groupe_role(
+        params: Dict,
+        group: Optional[str],
+        role: Optional[str],
+        groups_and_roles: Optional[List[Dict]],
+    ) -> Dict:
+
+        if groups_and_roles and (group or role):
+            raise RuntimeError(
+                "❌ Too many arguments, specify either a group and role, "
+                "or multiple groups and roles with groups_and_roles"
+            )
+
+        if groups_and_roles:
+            group_block = [
+                {"name": g, "role": Projects.__map_role(r)} for mydict in groups_and_roles for g, r in mydict.items()
+            ]
+
             params["authorizedGroups"] = group_block
+            return params
 
-        return params
+        if group and role:
+            saagie_role = Projects.__map_role(role)
+            group_block = [{"name": group, "role": saagie_role}]
+            params["authorizedGroups"] = group_block
+            return params
+
+        raise RuntimeError(
+            "❌ Too few arguments, specify either a group and role, "
+            "or multiple groups and roles with groups_and_roles"
+        )
 
     def list(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get information for all projects (id, name, creator, description,
@@ -150,7 +165,8 @@ class Projects:
         self,
         name: str,
         group: str = None,
-        role: str = "Manager",
+        role: str = None,
+        groups_and_roles: Optional[List[Dict]] = None,
         description: str = "",
         jobs_technologies_allowed: Dict = None,
         apps_technologies_allowed: Dict = None,
@@ -162,10 +178,8 @@ class Projects:
         ----------
         name : str
             Name of the project (must not already exist)
-        group : None or str, optional
-            Authorization management: name of the group to add the given role to
-        role : str, optional
-            Authorization management: role to give to the given group on the project
+        groups_and_roles:list[dict], optional
+            dict of groups and their respective roles on the project
         description : str, optional
             Description of the project
         jobs_technologies_allowed:list, optional
@@ -185,7 +199,7 @@ class Projects:
         """
         # Create the params of the query
         params = {"name": name}
-        params = self.__create_groupe_role(params, group, role)
+        params = self._create_groupe_role(params, group, role, groups_and_roles)
         if description:
             params["description"] = description
 
@@ -287,6 +301,7 @@ class Projects:
         name: str = None,
         group: str = None,
         role: str = None,
+        groups_and_roles: Optional[List[Dict]] = None,
         description: str = None,
         jobs_technologies_allowed: Dict = None,
         apps_technologies_allowed: Dict = None,
@@ -302,11 +317,13 @@ class Projects:
             Name of the project
             If not filled, defaults to current value, else it will change the job's name
         group : None or str, optional
-            Authorization management: name of the group to add the given role to
-            If not filled, defaults to current value, else it will change the group
+            Authorization management: name of the group to add the given role to,
+            cannot be set if groups_and_roles is already set
         role : str, optional
             Authorization management: role to give to the given group on the project
-            If not filled, defaults to current value, else it will change the role
+            cannot be set if groups_and_roles is already set
+        groups_and_roles:list[dict], optional
+            dict of groups and their respective roles on the project, cannot be set if group or role are already set
         description : str, optional
             Description of the project
             If not filled, defaults to current value, else it will change the job's description
@@ -329,7 +346,7 @@ class Projects:
         """
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        params = self.__create_groupe_role(params, group, role)
+        params = self._create_groupe_role(params, group, role, groups_and_roles)
 
         if not group and not role:
             params["authorizedGroups"] = [
