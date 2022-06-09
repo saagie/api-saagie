@@ -708,6 +708,12 @@ class TestIntegrationProject:
 
         assert pipeline_input == to_validate
 
+    def test_export_pipeline(self, create_then_delete_graph_pipeline):
+        pipeline_id, job_id = create_then_delete_graph_pipeline
+        result = self.saagie.pipelines.export(pipeline_id, "./output/pipelines/")
+        to_validate = True
+        assert result == to_validate
+
     def test_upgrade_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, job_id = create_then_delete_graph_pipeline
 

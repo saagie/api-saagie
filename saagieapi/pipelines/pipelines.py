@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from typing import Dict, List, Optional
@@ -5,6 +6,7 @@ from typing import Dict, List, Optional
 import deprecation
 from gql import gql
 
+from ..utils.folder_functions import create_folder
 from ..utils.rich_console import console
 from .gql_queries import *
 from .graph_pipeline import GraphPipeline
@@ -15,7 +17,12 @@ class Pipelines:
         self.saagie_api = saagie_api
 
     def list_for_project(
-        self, project_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None
+        self,
+        project_id: str,
+        instances_limit: int = -1,
+        versions_limit: int = -1,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
     ) -> Dict:
         """List pipelines of project with their instances.
 
@@ -26,6 +33,11 @@ class Pipelines:
         instances_limit : int, optional
             Maximum limit of instances to fetch per pipelines. Fetch from most
             recent to oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per pipeline. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each pipeline
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
@@ -38,6 +50,11 @@ class Pipelines:
         params = {"projectId": project_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
+
+        if versions_limit != -1:
+            params["versionsLimit"] = versions_limit
+
+        params["versionsOnlyCurrent"] = versions_only_current
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
@@ -82,7 +99,14 @@ class Pipelines:
             return pipeline[0]["id"]
         raise NameError(f"❌ pipeline {pipeline_name} does not exist.")
 
-    def get_info(self, pipeline_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None) -> Dict:
+    def get_info(
+        self,
+        pipeline_id: str,
+        instances_limit: int = -1,
+        versions_limit: int = -1,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
         """Get a given pipeline information
 
         Parameters
@@ -91,7 +115,12 @@ class Pipelines:
             UUID of your pipeline  (see README on how to find it)
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
-            to oldest
+            to the oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per pipeline. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each pipeline
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
@@ -104,6 +133,11 @@ class Pipelines:
         params = {"id": pipeline_id}
         if instances_limit != -1:
             params["instancesLimit"] = instances_limit
+
+        if versions_limit != -1:
+            params["versionsLimit"] = versions_limit
+
+        params["versionsOnlyCurrent"] = versions_only_current
 
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE), variable_values=params, pprint_result=pprint_result
@@ -470,4 +504,42 @@ class Pipelines:
             query=gql(GQL_STOP_PIPELINE_INSTANCE), variable_values={"pipelineInstanceId": pipeline_instance_id}
         )
         logging.info("✅ Pipeline instance [%s] successfully stopped", pipeline_instance_id)
+        return result
+
+    def export(
+        self, pipeline_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
+    ):
+        """Export the job in a folder
+
+        Parameters
+        ----------
+        pipeline_id : str
+            Pipeline ID
+        output_folder : str
+            Path to store the exported pipeline
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per pipeline. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each pipeline
+        Returns
+        -------
+        bool
+            True if pipeline is exported
+        """
+        result = True
+        if not output_folder.endswith("/"):
+            output_folder += "/"
+        pipeline_info = self.get_info(
+            pipeline_id, instances_limit=1, versions_limit=versions_limit, versions_only_current=versions_only_current
+        )["graphPipeline"]
+        if pipeline_info:
+            create_folder(output_folder + pipeline_id)
+            with open(output_folder + pipeline_id + "/pipeline.json", "w") as f:
+                json.dump(pipeline_info, f, indent=4)
+        else:
+            logging.warning(
+                f"❌ Pipeline '{pipeline_id}' has not been successfully exported, the pipeline has not been found"
+            )
+            result = False
         return result
