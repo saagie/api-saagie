@@ -264,6 +264,12 @@ class TestIntegrationProject:
 
         assert job_input == to_validate
 
+    def test_export_job(self, create_then_delete_job):
+        job_id = create_then_delete_job
+        result = self.saagie.jobs.export(job_id, "./output/jobs/")
+        to_validate = True
+        assert result == to_validate
+
     def test_upgrade_job(self, create_then_delete_job):
         job_id = create_then_delete_job
         job_input = {"command_line": "python {file}", "release_note": "hello_world", "runtime_version": "3.9"}

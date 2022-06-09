@@ -53,12 +53,13 @@ class SaagieApi:
         if not url_saagie.endswith("/"):
             url_saagie += "/"
 
-        self.auth = BearerAuth(realm=realm, url=url_saagie, platform=id_platform, login=user, password=password)
-        logging.info("✅ Successfully connected to your platform %s", url_saagie)
-        url_api = f"{url_saagie}projects/api/platform/{str(id_platform)}/graphql"
+        self.url_saagie = url_saagie
+        self.auth = BearerAuth(realm=realm, url=self.url_saagie, platform=id_platform, login=user, password=password)
+        logging.info("✅ Successfully connected to your platform %s", self.url_saagie)
+        url_api = f"{self.url_saagie}projects/api/platform/{str(id_platform)}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
 
-        url_gateway = url_saagie + "gateway/api/graphql"
+        url_gateway = self.url_saagie + "gateway/api/graphql"
         self.client_gateway = GqlClient(auth=self.auth, api_endpoint=url_gateway, retries=retries)
 
         self.projects = Projects(self)
@@ -276,7 +277,6 @@ class SaagieApi:
             for tech in all_technologies_in_catalog
             if tech["label"].lower() in [t.lower() for t in technologies]
         ]
-        len(technologies)
         if not technology_ids_validated:
             raise RuntimeError(f"❌ Technologies {technologies} do not exist in the catalog specified")
         if len(technology_ids_validated) != len(technologies):
@@ -354,6 +354,34 @@ class SaagieApi:
 
         """
         return self.client_gateway.execute(gql(GQL_GET_RUNTIMES), variable_values={"id": technology_id})
+
+    def get_technology_name_by_id(self, technology_id: str) -> (str, str):
+        """
+        Get the name and the repository of a specific technology
+        Parameters
+        ----------
+        technology_id : str
+            Technology ID
+
+        Returns
+        -------
+        (str, str)
+        Repository name and the label of the specific technology
+
+        """
+        all_technologies = self.get_repositories_info()["repositories"]
+
+        technology_label_with_repo_name = [
+            (repo["name"], tech["label"])
+            for repo in all_technologies
+            for tech in repo["technologies"]
+            if tech["id"] == technology_id
+        ]
+        if not technology_label_with_repo_name:
+            return "", ""
+        else:
+            repo_name, tech_name = technology_label_with_repo_name[0]
+            return repo_name, tech_name
 
     # ######################################################
     # ###                    jobs                   ####

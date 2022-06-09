@@ -226,7 +226,7 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
 """
 
 GQL_GET_JOB_INFO = """
-query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
+query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean){
     job(id: $jobId){
         id
         name
@@ -254,7 +254,7 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
             }
         }
         countJobInstance
-        versions {
+        versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
             number
             creationDate
             releaseNote
@@ -263,6 +263,10 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int){
             packageInfo{
                 name
                 downloadUrl
+            }
+            dockerInfo{
+                image
+                dockerCredentialsId
             }
             extraTechnology{
                 language
