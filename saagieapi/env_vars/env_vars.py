@@ -1,8 +1,10 @@
+import json
 import logging
 from typing import Dict, Optional
 
 from gql import gql
 
+from ..utils.folder_functions import create_folder
 from .gql_queries import *
 
 
@@ -299,16 +301,16 @@ class EnvVars:
         self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
     ) -> Dict:
         """
-        Create a new project environnement variable or update it if it already exists
+        Create a new project environment variable or update it if it already exists
 
         Parameters
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
         name: str
-            Unique name of the environnement variable to create or modify
+            Unique name of the environment variable to create or modify
         value: str
-            Value of the environnement variable to create or modify
+            Value of the environment variable to create or modify
         description: str, optional
             Description of the variable
         is_password: boolean, optional
@@ -368,4 +370,41 @@ class EnvVars:
 
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_ENV_VAR), variable_values={"id": project_env_id})
         logging.info("✅ Environment variable [%s] successfully deleted", name)
+        return result
+
+    def export(self, project_id, output_folder: str, project_only: bool = False):
+        """Export the environment variables in a folder
+
+        Parameters
+        ----------
+        project_id : str
+            Project ID
+        output_folder : str
+            Path to store the exported job
+        project_only : boolean, optional
+            True if only project environment variable should be exported False otherwise
+
+        Returns
+        -------
+        bool
+            True if environment variables are exported False otherwise
+        """
+        result = True
+        if not output_folder.endswith("/"):
+            output_folder += "/"
+        project_env_var = self.list_for_project(project_id)["projectEnvironmentVariables"]
+        if project_only:
+            project_env_var = [env for env in project_env_var if env["scope"] == "PROJECT"]
+        if project_env_var:
+            for env in project_env_var:
+                env_var_name = env["name"]
+                create_folder(output_folder + env_var_name)
+                with open(output_folder + env_var_name + "/variable.json", "w") as f:
+                    json.dump(env, f, indent=4)
+        else:
+            logging.warning(
+                f"❌ Environment variables of the project '{project_id}' have not been successfully "
+                f"exported, no environment variables have not been found in the project"
+            )
+            result = False
         return result

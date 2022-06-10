@@ -130,7 +130,7 @@ class TestIntegrationProject:
         rights = self.saagie.projects.get_rights(self.project_id)
         expected_right_all_project = {"name": self.group, "role": "ROLE_PROJECT_MANAGER", "isAllProjects": True}
         expected_right_project = {"name": self.group, "role": "ROLE_PROJECT_MANAGER", "isAllProjects": False}
-        assert type(rights["rights"]) is list
+        assert isinstance(rights["rights"], list)
         assert expected_right_all_project in rights["rights"] or expected_right_project in rights["rights"]
 
     def test_edit_project(self):
@@ -546,6 +546,14 @@ class TestIntegrationProject:
         assert env_var_input == to_validate
 
         self.saagie.env_vars.delete_for_project(self.project_id, name=name)
+
+    def test_export_variable(self, create_then_delete_project_env_var):
+        name = create_then_delete_project_env_var
+        result = self.saagie.env_vars.export(self.project_id, "./output/variables/")
+        env_var_folder_exist = os.path.isdir(f"./output/variables/{name}")
+        to_validate = True
+        assert result == to_validate
+        assert env_var_folder_exist is True
 
     @pytest.fixture
     def create_docker_credential(self):
