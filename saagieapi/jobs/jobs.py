@@ -739,4 +739,4 @@ class Jobs:
                                 f"please verify if everything is ok"
                             )
                             result = False
-            return result
+        return result

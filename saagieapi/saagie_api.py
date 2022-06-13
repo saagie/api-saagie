@@ -379,9 +379,8 @@ class SaagieApi:
         ]
         if not technology_label_with_repo_name:
             return "", ""
-        else:
-            repo_name, tech_name = technology_label_with_repo_name[0]
-            return repo_name, tech_name
+        repo_name, tech_name = technology_label_with_repo_name[0]
+        return repo_name, tech_name
 
     # ######################################################
     # ###                    jobs                   ####

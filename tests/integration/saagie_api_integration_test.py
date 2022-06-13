@@ -770,6 +770,12 @@ class TestIntegrationProject:
 
         assert app["labWebApp"]["name"] == "hello_world"
 
+    def export_app(self, create_then_delete_app_from_scratch):
+        app_id = create_then_delete_app_from_scratch
+        result = self.saagie.apps.export(app_id, "./output/apps/")
+        to_validate = True
+        assert result == to_validate
+
     # def test_run_app(self, create_then_delete_app_from_scratch):
     #     app_id = create_then_delete_app_from_scratch
     #

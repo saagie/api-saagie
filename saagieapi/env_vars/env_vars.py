@@ -380,7 +380,7 @@ class EnvVars:
         project_id : str
             Project ID
         output_folder : str
-            Path to store the exported job
+            Path to store the exported environment variables
         project_only : boolean, optional
             True if only project environment variable should be exported False otherwise
 
