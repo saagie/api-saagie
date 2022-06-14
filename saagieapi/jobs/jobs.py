@@ -732,11 +732,12 @@ class Jobs:
                                 for chunk in r.iter_content(chunk_size=1024):
                                     if chunk:
                                         f.write(chunk)
-                            logging.info("✅ Job [%s] successfully exported", job_id)
                         else:
                             logging.warning(
                                 f"❌ Cannot download the version '{version['number']}' of the job '{job_id}', "
                                 f"please verify if everything is ok"
                             )
                             result = False
+                if result:
+                    logging.info("✅ Job [%s] successfully exported", job_id)
         return result

@@ -491,7 +491,7 @@ class Apps:
     def export(
         self, app_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
     ) -> bool:
-        """Export the job in a folder
+        """Export the app in a folder
 
         Parameters
         ----------

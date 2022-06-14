@@ -399,3 +399,73 @@ class Projects:
         )
         logging.info("✅ Project [%s] successfully deleted", project_id)
         return result
+
+    def export(
+        self, project_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
+    ) -> bool:
+        """Export the project in a folder
+
+        Parameters
+        ----------
+        project_id : str
+            Job ID
+        output_folder : str
+            Path to store the exported project
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per job/app/pipeline. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each job/app/pipeline
+        Returns
+        -------
+        bool
+            True if project is successfully exported False otherwise
+        """
+
+        result = True
+        output_folder += project_id + "/"
+        output_folder_job = output_folder + "jobs/"
+        output_folder_pipeline = output_folder + "pipelines/"
+        output_folder_app = output_folder + "apps/"
+        list_jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)
+        id_jobs = [job["id"] for job in list_jobs["jobs"]]
+
+        list_pipelines = self.saagie_api.pipelines.list_for_project_minimal(project_id)["project"]
+        id_pipelines = [pipeline["id"] for pipeline in list_pipelines["pipelines"]]
+
+        list_apps = self.saagie_api.apps.list_for_project_minimal(project_id)
+        id_apps = [app["id"] for app in list_apps["labWebApps"]]
+
+        job_failed = []
+        pipeline_failed = []
+        app_failed = []
+
+        for id_job in id_jobs:
+            job_export = self.saagie_api.jobs.export(
+                id_job, output_folder_job, versions_limit=versions_limit, versions_only_current=True
+            )
+            if not job_export:
+                job_failed.append(id_job)
+
+        for id_pipeline in id_pipelines:
+            pipeline_export = self.saagie_api.pipelines.export(
+                id_pipeline,
+                output_folder_pipeline,
+                versions_limit=versions_limit,
+                versions_only_current=versions_only_current,
+            )
+            if not pipeline_export:
+                pipeline_failed.append(id_pipeline)
+
+        for id_app in id_apps:
+            app_export = self.saagie_api.apps.export(
+                id_app, output_folder_app, versions_limit=versions_limit, versions_only_current=True
+            )
+            if not app_export:
+                app_failed.append(id_app)
+        if job_failed or pipeline_failed or app_failed:
+            result = False
+            logging.warning("❌ Project [%s] has not been successfully exported", project_id)
+        else:
+            logging.info("✅ Project [%s] successfully exported", project_id)
+        return result
