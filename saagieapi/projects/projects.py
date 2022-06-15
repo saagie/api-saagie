@@ -401,14 +401,18 @@ class Projects:
         return result
 
     def export(
-        self, project_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
+        self,
+        project_id: str,
+        output_folder: str,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
     ) -> bool:
         """Export the project in a folder
 
         Parameters
         ----------
         project_id : str
-            Job ID
+            Project ID
         output_folder : str
             Path to store the exported project
         versions_limit : int, optional
@@ -442,7 +446,7 @@ class Projects:
 
         for id_job in id_jobs:
             job_export = self.saagie_api.jobs.export(
-                id_job, output_folder_job, versions_limit=versions_limit, versions_only_current=True
+                id_job, output_folder_job, versions_limit=versions_limit, versions_only_current=versions_only_current
             )
             if not job_export:
                 job_failed.append(id_job)
@@ -459,7 +463,7 @@ class Projects:
 
         for id_app in id_apps:
             app_export = self.saagie_api.apps.export(
-                id_app, output_folder_app, versions_limit=versions_limit, versions_only_current=True
+                id_app, output_folder_app, versions_limit=versions_limit, versions_only_current=versions_only_current
             )
             if not app_export:
                 app_failed.append(id_app)

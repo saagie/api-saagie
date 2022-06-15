@@ -401,6 +401,7 @@ class EnvVars:
                 create_folder(output_folder + env_var_name)
                 with open(output_folder + env_var_name + "/variable.json", "w") as f:
                     json.dump(env, f, indent=4)
+            logging.info(f"✅ Environment variables of the project '{project_id}' have been successfully exported")
         else:
             logging.warning(
                 f"❌ Environment variables of the project '{project_id}' have not been successfully "

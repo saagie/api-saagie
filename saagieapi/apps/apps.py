@@ -18,8 +18,8 @@ class Apps:
     def list_for_project(
         self,
         project_id: str,
-        instances_limit: int = None,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -47,13 +47,14 @@ class Apps:
         dict
             Dict of app information
         """
-        params = {"projectId": project_id, "instancesLimit": instances_limit}
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
+        params = {
+            "projectId": project_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=pprint_result
+            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
 
     def list_for_project_minimal(self, project_id: str) -> Dict:
@@ -79,8 +80,8 @@ class Apps:
     def get_info(
         self,
         app_id: str,
-        instances_limit: int = None,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -93,7 +94,7 @@ class Apps:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
-        instances_limit: int
+        instances_limit: int, optional
             limit the number of instances to return, default to no limit
         versions_limit : int, optional
             Maximum limit of versions to fetch per app. Fetch from most recent
@@ -106,11 +107,12 @@ class Apps:
         dict
             Dict of app information
         """
-        params = {"id": app_id, "instancesLimit": instances_limit}
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
+        params = {
+            "id": app_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_APP_INFO), variable_values=params, pprint_result=pprint_result
         )
@@ -372,7 +374,9 @@ class Apps:
             Dict of app information
         """
         params = {"id": app_id}
-        previous_app_version = self.get_info(app_id, instances_limit=1, pprint_result=False)["labWebApp"]
+        previous_app_version = self.get_info(
+            app_id, instances_limit=1, versions_limit=1, versions_only_current=True, pprint_result=False
+        )["labWebApp"]
 
         if app_name:
             params["name"] = app_name
@@ -489,7 +493,7 @@ class Apps:
         return True
 
     def export(
-        self, app_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
+        self, app_id: str, output_folder: str, versions_limit: Optional[int] = None, versions_only_current: bool = False
     ) -> bool:
         """Export the app in a folder
 
@@ -498,16 +502,16 @@ class Apps:
         app_id : str
             App ID
         output_folder : str
-            Path to store the exported job
+            Path to store the exported app
         versions_limit : int, optional
-            Maximum limit of versions to fetch per job. Fetch from most recent
+            Maximum limit of versions to fetch per app. Fetch from most recent
             to the oldest
         versions_only_current : bool, optional
-            Whether to only fetch the current version of each job
+            Whether to only fetch the current version of each app
         Returns
         -------
         bool
-            True if job is exported False otherwise
+            True if app is exported False otherwise
         """
         result = True
         if not output_folder.endswith("/"):
@@ -524,6 +528,6 @@ class Apps:
                 json.dump(app_info, f, indent=4)
             logging.info("✅ App [%s] successfully exported", app_id)
         else:
-            logging.warning(f"❌ App [%s] has not been successfully exported", app_id)
+            logging.warning("❌ App [%s] has not been successfully exported", app_id)
             result = False
         return result

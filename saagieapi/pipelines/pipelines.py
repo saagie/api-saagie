@@ -19,8 +19,8 @@ class Pipelines:
     def list_for_project(
         self,
         project_id: str,
-        instances_limit: int = -1,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -47,14 +47,12 @@ class Pipelines:
         Dict
             Dict of pipelines information
         """
-        params = {"projectId": project_id}
-        if instances_limit != -1:
-            params["instancesLimit"] = instances_limit
-
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
+        params = {
+            "projectId": project_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_PIPELINES_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
@@ -102,8 +100,8 @@ class Pipelines:
     def get_info(
         self,
         pipeline_id: str,
-        instances_limit: int = -1,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -130,15 +128,12 @@ class Pipelines:
         dict
             Dict of pipeline's information
         """
-        params = {"id": pipeline_id}
-        if instances_limit != -1:
-            params["instancesLimit"] = instances_limit
-
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
-
+        params = {
+            "id": pipeline_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE), variable_values=params, pprint_result=pprint_result
         )
@@ -507,9 +502,13 @@ class Pipelines:
         return result
 
     def export(
-        self, pipeline_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
-    ):
-        """Export the job in a folder
+        self,
+        pipeline_id: str,
+        output_folder: str,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+    ) -> bool:
+        """Export the pipeline in a folder
 
         Parameters
         ----------

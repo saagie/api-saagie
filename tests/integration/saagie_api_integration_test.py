@@ -155,6 +155,11 @@ class TestIntegrationProject:
         assert project_input["description"] == to_validate["description"]
         assert len(technologies_allowed["technologies"]) == 2  # R and Python for extraction
 
+    def test_export_project(self):
+        result = self.saagie.projects.export(self.project_id, "./output/projects/")
+        to_validate = True
+        assert result == to_validate
+
     @pytest.fixture
     def create_job(self):
         job_name = "python_test"

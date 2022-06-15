@@ -19,8 +19,8 @@ class Jobs:
     def list_for_project(
         self,
         project_id: str,
-        instances_limit: int = -1,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -49,14 +49,12 @@ class Jobs:
         dict
             Dict of jobs information
         """
-        params = {"projectId": project_id}
-        if instances_limit != -1:
-            params["instancesLimit"] = instances_limit
-
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
+        params = {
+            "projectId": project_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
 
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
@@ -131,8 +129,8 @@ class Jobs:
     def get_info(
         self,
         job_id: str,
-        instances_limit: int = -1,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -160,13 +158,12 @@ class Jobs:
             Dict of job's info
 
         """
-        params = {"jobId": job_id}
-        if instances_limit != -1:
-            params["instancesLimit"] = instances_limit
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
+        params = {
+            "jobId": job_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
 
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_JOB_INFO), variable_values=params, pprint_result=pprint_result
@@ -677,7 +674,7 @@ class Jobs:
             return res
 
     def export(
-        self, job_id: str, output_folder: str, versions_limit: int = -1, versions_only_current: bool = False
+        self, job_id: str, output_folder: str, versions_limit: Optional[int] = None, versions_only_current: bool = False
     ) -> bool:
         """Export the job in a folder
 
