@@ -1,4 +1,3 @@
-import json
 import logging
 import time
 from typing import Dict, List, Optional
@@ -6,7 +5,7 @@ from typing import Dict, List, Optional
 import deprecation
 from gql import gql
 
-from ..utils.folder_functions import create_folder
+from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
 from ..utils.rich_console import console
 from .gql_queries import *
 from .graph_pipeline import GraphPipeline
@@ -527,18 +526,23 @@ class Pipelines:
             True if pipeline is exported
         """
         result = True
-        if not output_folder.endswith("/"):
-            output_folder += "/"
-        pipeline_info = self.get_info(
-            pipeline_id, instances_limit=1, versions_limit=versions_limit, versions_only_current=versions_only_current
-        )["graphPipeline"]
+        output_folder = check_folder_path(output_folder)
+        pipeline_info = None
+        try:
+            pipeline_info = self.get_info(
+                pipeline_id,
+                instances_limit=1,
+                versions_limit=versions_limit,
+                versions_only_current=versions_only_current,
+            )["graphPipeline"]
+        except Exception as e:
+            logging.warning("Cannot get the information of the pipeline [%s]", pipeline_id)
+            logging.error("Something went wrong %s", e)
         if pipeline_info:
             create_folder(output_folder + pipeline_id)
-            with open(output_folder + pipeline_id + "/pipeline.json", "w") as f:
-                json.dump(pipeline_info, f, indent=4)
+            write_to_json_file(output_folder + pipeline_id + "/pipeline.json", pipeline_info)
+            logging.info("✅ Pipeline [%s] successfully exported", pipeline_id)
         else:
-            logging.warning(
-                f"❌ Pipeline '{pipeline_id}' has not been successfully exported, the pipeline has not been found"
-            )
+            logging.warning("❌ Pipeline [%s] has not been successfully exported", pipeline_id)
             result = False
         return result

@@ -1,10 +1,9 @@
-import json
 import logging
 from typing import Dict, List, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import create_folder
+from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
 from .gql_queries import *
 
 LIST_EXPOSED_PORT_FIELD = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
@@ -514,18 +513,20 @@ class Apps:
             True if app is exported False otherwise
         """
         result = True
-        if not output_folder.endswith("/"):
-            output_folder += "/"
+        output_folder = check_folder_path(output_folder)
+        app_info = None
 
-        app_info = self.get_info(
-            app_id, instances_limit=1, versions_limit=versions_limit, versions_only_current=versions_only_current
-        )["labWebApp"]
-
-        create_folder(output_folder + app_id)
+        try:
+            app_info = self.get_info(
+                app_id, instances_limit=1, versions_limit=versions_limit, versions_only_current=versions_only_current
+            )["labWebApp"]
+            create_folder(output_folder + app_id)
+        except Exception as e:
+            logging.warning("Cannot get the information of the app [%s]", app_id)
+            logging.error("Something went wrong %s", e)
 
         if app_info:
-            with open(output_folder + app_id + "/app.json", "w") as f:
-                json.dump(app_info, f, indent=4)
+            write_to_json_file(output_folder + app_id + "/app.json", app_info)
             logging.info("✅ App [%s] successfully exported", app_id)
         else:
             logging.warning("❌ App [%s] has not been successfully exported", app_id)

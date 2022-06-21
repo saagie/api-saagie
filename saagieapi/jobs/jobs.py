@@ -7,7 +7,12 @@ from typing import Dict, List, Optional
 import requests
 from gql import gql
 
-from ..utils.folder_functions import create_folder
+from ..utils.folder_functions import (
+    check_folder_path,
+    create_folder,
+    remove_slash_folder_path,
+    write_request_response_to_file,
+)
 from ..utils.rich_console import console
 from .gql_queries import *
 
@@ -695,46 +700,57 @@ class Jobs:
             True if job is exported False otherwise
         """
         result = True
-        if not output_folder.endswith("/"):
-            output_folder += "/"
-        if self.saagie_api.url_saagie.endswith("/"):
-            url_saagie = self.saagie_api.url_saagie[:-1]
-        else:
-            url_saagie = self.saagie_api.url_saagie
-        job_info = self.get_info(
-            job_id=job_id, instances_limit=1, versions_limit=versions_limit, versions_only_current=versions_only_current
-        )["job"]
-        create_folder(output_folder + job_id)
-        job_techno_id = job_info["technology"]["id"]
-        repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
-        if not repo_name:
-            logging.warning(f"Cannot export the job: '{job_id}' because the technology used for this job was deleted")
-        else:
-            job_info["technology"]["name"] = techno_name
-            job_info["technology"]["technology_catalog"] = repo_name
-            with open(output_folder + job_id + "/job.json", "w") as f:
-                json.dump(job_info, f, indent=4)
+        job_info = None
+        output_folder = check_folder_path(output_folder)
+        url_saagie = remove_slash_folder_path(self.saagie_api.url_saagie)
 
-            if job_info["versions"]:
-                for version in job_info["versions"]:
-                    if version["packageInfo"]:
-                        download_url = url_saagie + version["packageInfo"]["downloadUrl"]
-                        local_folder = output_folder + job_id + f"/version/{version['number']}/"
-                        local_file_name = version["packageInfo"]["name"]
-                        create_folder(local_folder)
-                        r = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
-                        if r.status_code == 200:
-                            logging.info(f"Downloading the version {version['number']} of the job")
-                            with open(local_folder + local_file_name, "wb") as f:
-                                for chunk in r.iter_content(chunk_size=1024):
-                                    if chunk:
-                                        f.write(chunk)
-                        else:
-                            logging.warning(
-                                f"❌ Cannot download the version '{version['number']}' of the job '{job_id}', "
-                                f"please verify if everything is ok"
-                            )
-                            result = False
-                if result:
-                    logging.info("✅ Job [%s] successfully exported", job_id)
+        try:
+            job_info = self.get_info(
+                job_id=job_id,
+                instances_limit=1,
+                versions_limit=versions_limit,
+                versions_only_current=versions_only_current,
+            )["job"]
+            create_folder(output_folder + job_id)
+        except Exception as e:
+            result = False
+            logging.warning("Cannot get the information of the job [%s]", job_id)
+            logging.error("Something went wrong %s", e)
+
+        if job_info:
+            job_techno_id = job_info["technology"]["id"]
+            repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
+            if not repo_name:
+                result = False
+                logging.warning(
+                    "Cannot export the job: [%s] because the technology used for this job was deleted", job_id
+                )
+            else:
+                job_info["technology"]["name"] = techno_name
+                job_info["technology"]["technology_catalog"] = repo_name
+                with open(output_folder + job_id + "/job.json", "w") as f:
+                    json.dump(job_info, f, indent=4)
+
+                if job_info["versions"]:
+                    for version in job_info["versions"]:
+                        if version["packageInfo"]:
+                            download_url = url_saagie + version["packageInfo"]["downloadUrl"]
+                            local_folder = output_folder + job_id + f"/version/{version['number']}/"
+                            local_file_name = version["packageInfo"]["name"]
+                            create_folder(local_folder)
+                            r = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
+                            if r.status_code == 200:
+                                logging.info(f"Downloading the version {version['number']} of the job")
+                                write_request_response_to_file(local_folder + local_file_name, r)
+
+                            else:
+                                logging.warning(
+                                    f"❌ Cannot download the version [{version['number']}] of the job [{job_id}], "
+                                    f"please verify if everything is ok"
+                                )
+                                result = False
+        if result:
+            logging.info("✅ Job [%s] successfully exported", job_id)
+        else:
+            logging.warning("❌ Job [%s] has not been successfully exported", job_id)
         return result

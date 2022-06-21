@@ -1,10 +1,9 @@
-import json
 import logging
 from typing import Dict, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import create_folder
+from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
 from .gql_queries import *
 
 
@@ -390,22 +389,26 @@ class EnvVars:
             True if environment variables are exported False otherwise
         """
         result = True
-        if not output_folder.endswith("/"):
-            output_folder += "/"
-        project_env_var = self.list_for_project(project_id)["projectEnvironmentVariables"]
-        if project_only:
-            project_env_var = [env for env in project_env_var if env["scope"] == "PROJECT"]
+        output_folder = check_folder_path(output_folder)
+        project_env_var = None
+
+        try:
+            project_env_var = self.list_for_project(project_id)["projectEnvironmentVariables"]
+            if project_only:
+                project_env_var = [env for env in project_env_var if env["scope"] == "PROJECT"]
+        except Exception as e:
+            logging.warning("Cannot get the information of environment variable of the project [%s]", project_id)
+            logging.error("Something went wrong %s", e)
         if project_env_var:
             for env in project_env_var:
                 env_var_name = env["name"]
                 create_folder(output_folder + env_var_name)
-                with open(output_folder + env_var_name + "/variable.json", "w") as f:
-                    json.dump(env, f, indent=4)
-            logging.info(f"✅ Environment variables of the project '{project_id}' have been successfully exported")
+                write_to_json_file(output_folder + env_var_name + "/variable.json", env)
+
+            logging.info("✅ Environment variables of the project [%s] have been successfully exported", project_id)
         else:
             logging.warning(
-                f"❌ Environment variables of the project '{project_id}' have not been successfully "
-                f"exported, no environment variables have not been found in the project"
+                "❌ Environment variables of the project [%s] have not been successfully exported", project_id
             )
             result = False
         return result
