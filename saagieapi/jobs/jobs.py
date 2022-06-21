@@ -12,6 +12,7 @@ from ..utils.folder_functions import (
     create_folder,
     remove_slash_folder_path,
     write_request_response_to_file,
+    write_to_json_file,
 )
 from ..utils.rich_console import console
 from .gql_queries import *
@@ -728,8 +729,7 @@ class Jobs:
             else:
                 job_info["technology"]["name"] = techno_name
                 job_info["technology"]["technology_catalog"] = repo_name
-                with open(output_folder + job_id + "/job.json", "w") as f:
-                    json.dump(job_info, f, indent=4)
+                write_to_json_file(output_folder + job_id + "/job.json", job_info)
 
                 if job_info["versions"]:
                     for version in job_info["versions"]:
