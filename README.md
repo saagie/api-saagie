@@ -114,3 +114,7 @@ please refer to the [Wiki](https://github.com/saagie/api-saagie/wiki#connecting-
 
 The complete guide to contribute is available here:
 [Contributing](https://github.com/saagie/api-saagie/blob/master/CONTRIBUTING.md)
+
+
+## /!\ Warning /!\ 
+This library is provided on an experimental basis and is not covered by Saagie support for the moment.
