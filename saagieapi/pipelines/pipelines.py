@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 import deprecation
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
+from ..utils.folder_functions import check_folder_path, create_folder, write_string_to_file, write_to_json_file
 from ..utils.rich_console import console
 from .gql_queries import *
 from .graph_pipeline import GraphPipeline
@@ -504,6 +504,7 @@ class Pipelines:
         self,
         pipeline_id: str,
         output_folder: str,
+        error_folder: Optional[str] = "",
         versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
     ) -> bool:
@@ -515,6 +516,8 @@ class Pipelines:
             Pipeline ID
         output_folder : str
             Path to store the exported pipeline
+        error_folder : str, optional
+            Path to store the pipeline ID in case of error. If not set, pipeline ID is not write
         versions_limit : int, optional
             Maximum limit of versions to fetch per pipeline. Fetch from most recent
             to the oldest
@@ -544,5 +547,10 @@ class Pipelines:
             logging.info("✅ Pipeline [%s] successfully exported", pipeline_id)
         else:
             logging.warning("❌ Pipeline [%s] has not been successfully exported", pipeline_id)
+            if error_folder:
+                error_folder = check_folder_path(error_folder) + "pipelines/"
+                create_folder(error_folder)
+                error_file_path = error_folder + "pipelines_error.txt"
+                write_string_to_file(error_file_path, pipeline_id)
             result = False
         return result

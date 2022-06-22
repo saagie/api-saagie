@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from gql import gql
 
+from ..utils.folder_functions import check_folder_path
 from .gql_queries import *
 
 
@@ -404,8 +405,10 @@ class Projects:
         self,
         project_id: str,
         output_folder: str,
+        error_folder: Optional[str] = "",
         versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
+        project_only_env_vars: bool = False,
     ) -> bool:
         """Export the project in a folder
 
@@ -415,11 +418,15 @@ class Projects:
             Project ID
         output_folder : str
             Path to store the exported project
+        error_folder : str, optional
+            Path to store the non exported job/app/pipeline ID in case of error. If not set, error is not write
         versions_limit : int, optional
             Maximum limit of versions to fetch per job/app/pipeline. Fetch from most recent
             to the oldest
         versions_only_current : bool, optional
             Whether to only fetch the current version of each job/app/pipeline
+        project_only_env_vars : bool, optional
+            True if only project environment variable should be exported False otherwise
         Returns
         -------
         bool
@@ -427,10 +434,12 @@ class Projects:
         """
 
         result = True
+        output_folder = check_folder_path(output_folder)
         output_folder += project_id + "/"
         output_folder_job = output_folder + "jobs/"
         output_folder_pipeline = output_folder + "pipelines/"
         output_folder_app = output_folder + "apps/"
+        output_folder_env_vars = output_folder + "env_vars/"
         list_jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)
         id_jobs = [job["id"] for job in list_jobs["jobs"]]
 
@@ -443,10 +452,21 @@ class Projects:
         job_failed = []
         pipeline_failed = []
         app_failed = []
+        env_var_failed = []
+
+        env_vars_export = self.saagie_api.env_vars.export(
+            project_id, output_folder_env_vars, error_folder=error_folder, project_only=project_only_env_vars
+        )
+        if not env_vars_export:
+            env_var_failed.append(project_id)
 
         for id_job in id_jobs:
             job_export = self.saagie_api.jobs.export(
-                id_job, output_folder_job, versions_limit=versions_limit, versions_only_current=versions_only_current
+                id_job,
+                output_folder_job,
+                error_folder=error_folder,
+                versions_limit=versions_limit,
+                versions_only_current=versions_only_current,
             )
             if not job_export:
                 job_failed.append(id_job)
@@ -455,6 +475,7 @@ class Projects:
             pipeline_export = self.saagie_api.pipelines.export(
                 id_pipeline,
                 output_folder_pipeline,
+                error_folder=error_folder,
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
             )
@@ -463,11 +484,15 @@ class Projects:
 
         for id_app in id_apps:
             app_export = self.saagie_api.apps.export(
-                id_app, output_folder_app, versions_limit=versions_limit, versions_only_current=versions_only_current
+                id_app,
+                output_folder_app,
+                error_folder=error_folder,
+                versions_limit=versions_limit,
+                versions_only_current=versions_only_current,
             )
             if not app_export:
                 app_failed.append(id_app)
-        if job_failed or pipeline_failed or app_failed:
+        if job_failed or pipeline_failed or app_failed or env_var_failed:
             result = False
             logging.warning("❌ Project [%s] has not been successfully exported", project_id)
         else:

@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
+from ..utils.folder_functions import check_folder_path, create_folder, write_string_to_file, write_to_json_file
 from .gql_queries import *
 
 
@@ -371,7 +371,7 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully deleted", name)
         return result
 
-    def export(self, project_id, output_folder: str, project_only: bool = False):
+    def export(self, project_id, output_folder: str, error_folder: Optional[str] = "", project_only: bool = False):
         """Export the environment variables in a folder
 
         Parameters
@@ -382,6 +382,8 @@ class EnvVars:
             Path to store the exported environment variables
         project_only : boolean, optional
             True if only project environment variable should be exported False otherwise
+        error_folder : str, optional
+            Path to store the project ID in case of error. If not set, project ID is not write
 
         Returns
         -------
@@ -410,5 +412,10 @@ class EnvVars:
             logging.warning(
                 "❌ Environment variables of the project [%s] have not been successfully exported", project_id
             )
+            if error_folder:
+                error_folder = check_folder_path(error_folder) + "env_vars/"
+                create_folder(error_folder)
+                error_file_path = error_folder + "env_vars_error.txt"
+                write_string_to_file(error_file_path, project_id)
             result = False
         return result

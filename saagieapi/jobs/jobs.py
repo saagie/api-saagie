@@ -11,6 +11,7 @@ from ..utils.folder_functions import (
     create_folder,
     remove_slash_folder_path,
     write_request_response_to_file,
+    write_string_to_file,
     write_to_json_file,
 )
 from ..utils.rich_console import console
@@ -679,7 +680,12 @@ class Jobs:
             return res
 
     def export(
-        self, job_id: str, output_folder: str, versions_limit: Optional[int] = None, versions_only_current: bool = False
+        self,
+        job_id: str,
+        output_folder: str,
+        error_folder: Optional[str] = "",
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
     ) -> bool:
         """Export the job in a folder
 
@@ -689,6 +695,8 @@ class Jobs:
             Job ID
         output_folder : str
             Path to store the exported job
+        error_folder : str, optional
+            Path to store the job ID in case of error. If not set, job ID is not write
         versions_limit : int, optional
             Maximum limit of versions to fetch per job. Fetch from most recent
             to the oldest
@@ -751,5 +759,10 @@ class Jobs:
         if result:
             logging.info("✅ Job [%s] successfully exported", job_id)
         else:
+            if error_folder:
+                error_folder = check_folder_path(error_folder) + "jobs/"
+                create_folder(error_folder)
+                error_file_path = error_folder + "jobs_error.txt"
+                write_string_to_file(error_file_path, job_id)
             logging.warning("❌ Job [%s] has not been successfully exported", job_id)
         return result

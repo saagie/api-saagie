@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
+from ..utils.folder_functions import check_folder_path, create_folder, write_string_to_file, write_to_json_file
 from .gql_queries import *
 
 LIST_EXPOSED_PORT_FIELD = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
@@ -492,7 +492,12 @@ class Apps:
         return True
 
     def export(
-        self, app_id: str, output_folder: str, versions_limit: Optional[int] = None, versions_only_current: bool = False
+        self,
+        app_id: str,
+        output_folder: str,
+        error_folder: Optional[str] = "",
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
     ) -> bool:
         """Export the app in a folder
 
@@ -502,6 +507,10 @@ class Apps:
             App ID
         output_folder : str
             Path to store the exported app
+        error_folder : str
+            Path to store the error
+        error_folder : str, optional
+            Path to store the app ID in case of error. If not set, app ID is not write
         versions_limit : int, optional
             Maximum limit of versions to fetch per app. Fetch from most recent
             to the oldest
@@ -530,5 +539,10 @@ class Apps:
             logging.info("✅ App [%s] successfully exported", app_id)
         else:
             logging.warning("❌ App [%s] has not been successfully exported", app_id)
+            if error_folder:
+                error_folder = check_folder_path(error_folder) + "apps/"
+                create_folder(error_folder)
+                error_file_path = error_folder + "apps_error.txt"
+                write_string_to_file(error_file_path, app_id)
             result = False
         return result

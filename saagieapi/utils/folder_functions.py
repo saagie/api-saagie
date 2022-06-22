@@ -72,7 +72,7 @@ def write_to_json_file(file_path: str, content: object) -> None:
     -------
 
     """
-    with open(file_path, "w") as file:
+    with open(file_path, "w", encoding="utf-8") as file:
         json.dump(content, file, indent=4)
 
 
@@ -114,3 +114,31 @@ def remove_slash_folder_path(folder_path: str) -> str:
     if folder_path.endswith("/"):
         folder_path = folder_path[:-1]
     return folder_path
+
+
+def write_string_to_file(file_path: str, content: str) -> None:
+    """
+    Write the content in the file. If the file is not empty, append the content in the file
+    Parameters
+    ----------
+    file_path : str
+        Path of the file
+    content : str
+        Content to be stored in the file
+
+    Returns
+    -------
+
+    """
+    file_exist = os.path.exists(file_path)
+    if file_exist:
+        file_size = os.path.getsize(file_path)
+        if file_size == 0:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(f"{content}\n")
+        else:
+            with open(file_path, "a", encoding="utf-8") as f:
+                f.write(f"{content}\n")
+    else:
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(f"{content}\n")
