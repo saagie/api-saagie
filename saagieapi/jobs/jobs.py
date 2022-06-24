@@ -10,8 +10,8 @@ from ..utils.folder_functions import (
     check_folder_path,
     create_folder,
     remove_slash_folder_path,
+    write_error,
     write_request_response_to_file,
-    write_string_to_file,
     write_to_json_file,
 )
 from ..utils.rich_console import console
@@ -719,13 +719,13 @@ class Jobs:
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
             )["job"]
-            create_folder(output_folder + job_id)
         except Exception as e:
             result = False
             logging.warning("Cannot get the information of the job [%s]", job_id)
             logging.error("Something went wrong %s", e)
 
         if job_info:
+            create_folder(output_folder + job_id)
             job_techno_id = job_info["technology"]["id"]
             repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
             if not repo_name:
@@ -756,13 +756,11 @@ class Jobs:
                                     f"please verify if everything is ok"
                                 )
                                 result = False
+        else:
+            result = False
         if result:
             logging.info("✅ Job [%s] successfully exported", job_id)
         else:
-            if error_folder:
-                error_folder = check_folder_path(error_folder) + "jobs/"
-                create_folder(error_folder)
-                error_file_path = error_folder + "jobs_error.txt"
-                write_string_to_file(error_file_path, job_id)
             logging.warning("❌ Job [%s] has not been successfully exported", job_id)
+            write_error(error_folder, "jobs", job_id)
         return result

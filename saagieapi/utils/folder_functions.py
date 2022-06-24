@@ -134,11 +134,35 @@ def write_string_to_file(file_path: str, content: str) -> None:
     if file_exist:
         file_size = os.path.getsize(file_path)
         if file_size == 0:
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(f"{content}\n")
+            with open(file_path, "w", encoding="utf-8") as file:
+                file.write(f"{content}\n")
         else:
-            with open(file_path, "a", encoding="utf-8") as f:
-                f.write(f"{content}\n")
+            with open(file_path, "a", encoding="utf-8") as file:
+                file.write(f"{content}\n")
     else:
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write(f"{content}\n")
+        with open(file_path, "w", encoding="utf-8") as file:
+            file.write(f"{content}\n")
+
+
+def write_error(error_folder, element, error_content):
+    """
+    Write the error content in a file inside the sub folder of error_folder.
+    Parameters
+    ----------
+    error_folder : str
+        Path of the error file
+    element : str
+        Specify the sub folder of the error folder to store the error file
+        Should be 'apps', 'env_vars', 'jobs', 'pipelines'
+    error_content : str
+        Content to be stored in the file
+
+    Returns
+    -------
+
+    """
+    if error_folder:
+        error_folder = check_folder_path(error_folder) + f"{element}/"
+        create_folder(error_folder)
+        error_file_path = error_folder + f"{element}_error.txt"
+        write_string_to_file(error_file_path, error_content)

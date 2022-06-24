@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_string_to_file, write_to_json_file
+from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
 from .gql_queries import *
 
 
@@ -412,10 +412,6 @@ class EnvVars:
             logging.warning(
                 "❌ Environment variables of the project [%s] have not been successfully exported", project_id
             )
-            if error_folder:
-                error_folder = check_folder_path(error_folder) + "env_vars/"
-                create_folder(error_folder)
-                error_file_path = error_folder + "env_vars_error.txt"
-                write_string_to_file(error_file_path, project_id)
+            write_error(error_folder, "env_vars", project_id)
             result = False
         return result

@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 import deprecation
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_string_to_file, write_to_json_file
+from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
 from ..utils.rich_console import console
 from .gql_queries import *
 from .graph_pipeline import GraphPipeline
@@ -547,10 +547,6 @@ class Pipelines:
             logging.info("✅ Pipeline [%s] successfully exported", pipeline_id)
         else:
             logging.warning("❌ Pipeline [%s] has not been successfully exported", pipeline_id)
-            if error_folder:
-                error_folder = check_folder_path(error_folder) + "pipelines/"
-                create_folder(error_folder)
-                error_file_path = error_folder + "pipelines_error.txt"
-                write_string_to_file(error_file_path, pipeline_id)
+            write_error(error_folder, "pipelines", pipeline_id)
             result = False
         return result
