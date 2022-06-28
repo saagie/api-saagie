@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.0 (2022-06-28)
+### :sparkles:
+* :sparkles: Add export functions ([`fc16c9e`](https://github.com/saagie/api-saagie/commit/fc16c9e8b7f407b13da12d1dc5058b75ba576406))
+
 ## v1.0.11 (2022-05-19)
 ### :wheelchair:
 * :wheelchair: chore: Uniform and configurable pprint parameter ([#115](https://github.com/saagie/api-saagie/issues/115)) ([`9a6cc30`](https://github.com/saagie/api-saagie/commit/9a6cc3011ccab4b1483aa46b38836a5391a625ba))
