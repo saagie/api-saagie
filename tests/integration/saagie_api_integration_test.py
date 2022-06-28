@@ -130,7 +130,7 @@ class TestIntegrationProject:
         rights = self.saagie.projects.get_rights(self.project_id)
         expected_right_all_project = {"name": self.group, "role": "ROLE_PROJECT_MANAGER", "isAllProjects": True}
         expected_right_project = {"name": self.group, "role": "ROLE_PROJECT_MANAGER", "isAllProjects": False}
-        assert type(rights["rights"]) is list
+        assert isinstance(rights["rights"], list)
         assert expected_right_all_project in rights["rights"] or expected_right_project in rights["rights"]
 
     def test_edit_project(self):
@@ -154,6 +154,11 @@ class TestIntegrationProject:
 
         assert project_input["description"] == to_validate["description"]
         assert len(technologies_allowed["technologies"]) == 2  # R and Python for extraction
+
+    def test_export_project(self):
+        result = self.saagie.projects.export(self.project_id, "./output/projects/")
+        to_validate = True
+        assert result == to_validate
 
     @pytest.fixture
     def create_job(self):
@@ -263,6 +268,12 @@ class TestIntegrationProject:
         }
 
         assert job_input == to_validate
+
+    def test_export_job(self, create_then_delete_job):
+        job_id = create_then_delete_job
+        result = self.saagie.jobs.export(job_id, "./output/jobs/")
+        to_validate = True
+        assert result == to_validate
 
     def test_upgrade_job(self, create_then_delete_job):
         job_id = create_then_delete_job
@@ -541,6 +552,14 @@ class TestIntegrationProject:
 
         self.saagie.env_vars.delete_for_project(self.project_id, name=name)
 
+    def test_export_variable(self, create_then_delete_project_env_var):
+        name = create_then_delete_project_env_var
+        result = self.saagie.env_vars.export(self.project_id, "./output/variables/")
+        env_var_folder_exist = os.path.isdir(f"./output/variables/{name}")
+        to_validate = True
+        assert result == to_validate
+        assert env_var_folder_exist is True
+
     @pytest.fixture
     def create_docker_credential(self):
         cred = self.saagie.docker_credentials.create(
@@ -702,6 +721,12 @@ class TestIntegrationProject:
 
         assert pipeline_input == to_validate
 
+    def test_export_pipeline(self, create_then_delete_graph_pipeline):
+        pipeline_id, job_id = create_then_delete_graph_pipeline
+        result = self.saagie.pipelines.export(pipeline_id, "./output/pipelines/")
+        to_validate = True
+        assert result == to_validate
+
     def test_upgrade_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, job_id = create_then_delete_graph_pipeline
 
@@ -749,6 +774,12 @@ class TestIntegrationProject:
         app = self.saagie.apps.get_info(app_id)
 
         assert app["labWebApp"]["name"] == "hello_world"
+
+    def export_app(self, create_then_delete_app_from_scratch):
+        app_id = create_then_delete_app_from_scratch
+        result = self.saagie.apps.export(app_id, "./output/apps/")
+        to_validate = True
+        assert result == to_validate
 
     # def test_run_app(self, create_then_delete_app_from_scratch):
     #     app_id = create_then_delete_app_from_scratch

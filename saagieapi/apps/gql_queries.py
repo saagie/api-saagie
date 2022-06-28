@@ -1,6 +1,6 @@
 # pylint: disable=duplicate-code
 GQL_LIST_APPS_FOR_PROJECT = """
-query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
+query labWebAppQuery($id: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean) {
   labWebApps(projectId: $id) {
     id
     name
@@ -13,7 +13,7 @@ query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
       startTime
       endTime
     }
-    versions {
+    versions (limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
       number
       creationDate
       releaseNote
@@ -67,8 +67,17 @@ query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
 }
 """
 
+GQL_LIST_APPS_FOR_PROJECT_MINIMAL = """
+query labWebAppQuery($projectId: UUID!){
+    labWebApps(projectId: $projectId) {
+        id
+        name
+    }
+}
+"""
+
 GQL_GET_APP_INFO = """
-query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
+query labWebAppQuery($id: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean) {
   labWebApp(id: $id) {
     id
     name
@@ -81,7 +90,7 @@ query labWebAppQuery($id: UUID!, $instancesLimit: Int) {
       startTime
       endTime
     }
-    versions {
+    versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent)  {
       number
       creationDate
       releaseNote

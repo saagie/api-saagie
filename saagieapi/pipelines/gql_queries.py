@@ -11,7 +11,7 @@ query projectPipelinesQuery($projectId: UUID!) {
   """
 
 GQL_LIST_PIPELINES_FOR_PROJECT = """
-query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
+query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean) {
     project(id: $projectId){
         pipelines{
             id
@@ -32,6 +32,37 @@ query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
               startTime
               endTime
             }
+            versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
+                number
+                releaseNote
+                graph{
+                    jobNodes{
+                        id
+                        job{
+                            id
+                            name
+                        }
+                        position{
+                            x
+                            y
+                        }
+                        nextNodes
+                    }
+                    conditionNodes{
+                        id
+                        position{
+                            x
+                            y
+                        }
+                        nextNodesSuccess
+                        nextNodesFailure
+                    }
+                }
+                creationDate
+                creator
+                isCurrent
+                isMajor
+            }
             creationDate
             creator
             isScheduled
@@ -45,7 +76,7 @@ query projectPipelinesQuery($projectId: UUID!, $instancesLimit: Int) {
   """
 
 GQL_GET_PIPELINE = """
-query graphPipelineQuery($id: UUID!, $instancesLimit: Int) {
+query graphPipelineQuery($id: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean) {
     graphPipeline(id: $id){
         id
         name
@@ -64,6 +95,37 @@ query graphPipelineQuery($id: UUID!, $instancesLimit: Int) {
             status
             startTime
             endTime
+        }
+        versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
+            number
+            releaseNote
+            graph{
+                jobNodes{
+                    id
+                    job{
+                        id
+                        name
+                    }
+                    position{
+                        x
+                        y
+                    }
+                    nextNodes
+                }
+                conditionNodes{
+                    id
+                    position{
+                        x
+                        y
+                    }
+                    nextNodesSuccess
+                    nextNodesFailure
+                }
+            }
+            creationDate
+            creator
+            isCurrent
+            isMajor
         }
         creationDate
         creator

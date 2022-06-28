@@ -63,3 +63,7 @@ class TestApps:
 
         assert result_valid is True
         assert result_invalid is False
+
+    def test_list_project_apps_minimal(self):
+        query = gql(GQL_LIST_APPS_FOR_PROJECT_MINIMAL)
+        self.client.validate(query)

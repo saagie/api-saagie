@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from gql import gql
 
+from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
 from .gql_queries import *
 
 LIST_EXPOSED_PORT_FIELD = ["basePathVariableName", "isRewriteUrl", "isAuthenticationRequired", "port", "name"]
@@ -14,7 +15,12 @@ class Apps:
         self.client = saagie_api.client
 
     def list_for_project(
-        self, project_id: str, instances_limit: int = None, pprint_result: Optional[bool] = None
+        self,
+        project_id: str,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
     ) -> Dict:
         """List apps of project.
         NB: You can only list apps if you have at least the viewer role on
@@ -24,8 +30,13 @@ class Apps:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
-        instances_limit: int
+        instances_limit: int, optional
             limit the number of instances to return, default to no limit
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per app. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each app
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
@@ -35,12 +46,44 @@ class Apps:
         dict
             Dict of app information
         """
-        params = {"projectId": project_id, "instancesLimit": instances_limit}
+        params = {
+            "projectId": project_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=pprint_result
+            query=gql(GQL_LIST_APPS_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
 
-    def get_info(self, app_id: str, instances_limit: int = None, pprint_result: Optional[bool] = None) -> Dict:
+    def list_for_project_minimal(self, project_id: str) -> Dict:
+        """List only app names and ids in the given project .
+        NB: You can only list apps if you have at least the viewer role on the
+        project
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of apps ids and names
+        """
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_LIST_APPS_FOR_PROJECT_MINIMAL), variable_values={"projectId": project_id}
+        )
+
+    def get_info(
+        self,
+        app_id: str,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
         """Get app with given UUID.
 
         Parameters
@@ -50,15 +93,25 @@ class Apps:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
-        instances_limit: int
+        instances_limit: int, optional
             limit the number of instances to return, default to no limit
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per app. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each app
 
         Returns
         -------
         dict
             Dict of app information
         """
-        params = {"id": app_id, "instancesLimit": instances_limit}
+        params = {
+            "id": app_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_APP_INFO), variable_values=params, pprint_result=pprint_result
         )
@@ -320,7 +373,9 @@ class Apps:
             Dict of app information
         """
         params = {"id": app_id}
-        previous_app_version = self.get_info(app_id, instances_limit=1, pprint_result=False)["labWebApp"]
+        previous_app_version = self.get_info(
+            app_id, instances_limit=1, versions_limit=1, versions_only_current=True, pprint_result=False
+        )["labWebApp"]
 
         if app_name:
             params["name"] = app_name
@@ -435,3 +490,55 @@ class Apps:
                 return False
             return False
         return True
+
+    def export(
+        self,
+        app_id: str,
+        output_folder: str,
+        error_folder: Optional[str] = "",
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+    ) -> bool:
+        """Export the app in a folder
+
+        Parameters
+        ----------
+        app_id : str
+            App ID
+        output_folder : str
+            Path to store the exported app
+        error_folder : str
+            Path to store the error
+        error_folder : str, optional
+            Path to store the app ID in case of error. If not set, app ID is not write
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per app. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each app
+        Returns
+        -------
+        bool
+            True if app is exported False otherwise
+        """
+        result = True
+        output_folder = check_folder_path(output_folder)
+        app_info = None
+
+        try:
+            app_info = self.get_info(
+                app_id, instances_limit=1, versions_limit=versions_limit, versions_only_current=versions_only_current
+            )["labWebApp"]
+            create_folder(output_folder + app_id)
+        except Exception as e:
+            logging.warning("Cannot get the information of the app [%s]", app_id)
+            logging.error("Something went wrong %s", e)
+
+        if app_info:
+            write_to_json_file(output_folder + app_id + "/app.json", app_info)
+            logging.info("✅ App [%s] successfully exported", app_id)
+        else:
+            logging.warning("❌ App [%s] has not been successfully exported", app_id)
+            write_error(error_folder, "apps", app_id)
+            result = False
+        return result

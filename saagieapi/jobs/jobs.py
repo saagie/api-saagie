@@ -3,8 +3,17 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import requests
 from gql import gql
 
+from ..utils.folder_functions import (
+    check_folder_path,
+    create_folder,
+    remove_slash_folder_path,
+    write_error,
+    write_request_response_to_file,
+    write_to_json_file,
+)
 from ..utils.rich_console import console
 from .gql_queries import *
 
@@ -16,8 +25,8 @@ class Jobs:
     def list_for_project(
         self,
         project_id: str,
-        instances_limit: int = -1,
-        versions_limit: int = -1,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -46,14 +55,12 @@ class Jobs:
         dict
             Dict of jobs information
         """
-        params = {"projectId": project_id}
-        if instances_limit != -1:
-            params["instancesLimit"] = instances_limit
-
-        if versions_limit != -1:
-            params["versionsLimit"] = versions_limit
-
-        params["versionsOnlyCurrent"] = versions_only_current
+        params = {
+            "projectId": project_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
 
         return self.saagie_api.client.execute(
             query=gql(GQL_LIST_JOBS_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
@@ -125,7 +132,14 @@ class Jobs:
             return job[0]["id"]
         raise NameError(f"❌ Job {job_name} does not exist.")
 
-    def get_info(self, job_id: str, instances_limit: int = -1, pprint_result: Optional[bool] = None) -> Dict:
+    def get_info(
+        self,
+        job_id: str,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
         """Get job's info
 
         Parameters
@@ -135,6 +149,11 @@ class Jobs:
         instances_limit : int, optional
             Maximum limit of instances to fetch per job. Fetch from most recent
             to oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per job. Fetch from most recent
+            to oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each job
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
@@ -145,9 +164,12 @@ class Jobs:
             Dict of job's info
 
         """
-        params = {"jobId": job_id}
-        if instances_limit != -1:
-            params["instancesLimit"] = instances_limit
+        params = {
+            "jobId": job_id,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
 
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_JOB_INFO), variable_values=params, pprint_result=pprint_result
@@ -656,3 +678,89 @@ class Jobs:
                 logging.error("Something went wrong %s", e)
                 raise e
             return res
+
+    def export(
+        self,
+        job_id: str,
+        output_folder: str,
+        error_folder: Optional[str] = "",
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+    ) -> bool:
+        """Export the job in a folder
+
+        Parameters
+        ----------
+        job_id : str
+            Job ID
+        output_folder : str
+            Path to store the exported job
+        error_folder : str, optional
+            Path to store the job ID in case of error. If not set, job ID is not write
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per job. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each job
+        Returns
+        -------
+        bool
+            True if job is exported False otherwise
+        """
+        result = True
+        job_info = None
+        output_folder = check_folder_path(output_folder)
+        url_saagie = remove_slash_folder_path(self.saagie_api.url_saagie)
+
+        try:
+            job_info = self.get_info(
+                job_id=job_id,
+                instances_limit=1,
+                versions_limit=versions_limit,
+                versions_only_current=versions_only_current,
+            )["job"]
+        except Exception as e:
+            result = False
+            logging.warning("Cannot get the information of the job [%s]", job_id)
+            logging.error("Something went wrong %s", e)
+
+        if job_info:
+            create_folder(output_folder + job_id)
+            job_techno_id = job_info["technology"]["id"]
+            repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
+            if not repo_name:
+                result = False
+                logging.warning(
+                    "Cannot export the job: [%s] because the technology used for this job was deleted", job_id
+                )
+            else:
+                job_info["technology"]["name"] = techno_name
+                job_info["technology"]["technology_catalog"] = repo_name
+                write_to_json_file(output_folder + job_id + "/job.json", job_info)
+
+                if job_info["versions"]:
+                    for version in job_info["versions"]:
+                        if version["packageInfo"]:
+                            download_url = url_saagie + version["packageInfo"]["downloadUrl"]
+                            local_folder = output_folder + job_id + f"/version/{version['number']}/"
+                            local_file_name = version["packageInfo"]["name"]
+                            create_folder(local_folder)
+                            r = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
+                            if r.status_code == 200:
+                                logging.info(f"Downloading the version {version['number']} of the job")
+                                write_request_response_to_file(local_folder + local_file_name, r)
+
+                            else:
+                                logging.warning(
+                                    f"❌ Cannot download the version [{version['number']}] of the job [{job_id}], "
+                                    f"please verify if everything is ok"
+                                )
+                                result = False
+        else:
+            result = False
+        if result:
+            logging.info("✅ Job [%s] successfully exported", job_id)
+        else:
+            logging.warning("❌ Job [%s] has not been successfully exported", job_id)
+            write_error(error_folder, "jobs", job_id)
+        return result
