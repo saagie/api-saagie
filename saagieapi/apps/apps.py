@@ -47,7 +47,7 @@ class Apps:
             Dict of app information
         """
         params = {
-            "projectId": project_id,
+            "id": project_id,
             "instancesLimit": instances_limit,
             "versionsLimit": versions_limit,
             "versionsOnlyCurrent": versions_only_current,
