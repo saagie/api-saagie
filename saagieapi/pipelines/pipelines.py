@@ -393,8 +393,8 @@ class Pipelines:
             previous_alerting = previous_pipeline_info["alerting"]
             if previous_alerting:
                 params["alerting"] = {
-                    "emails": previous_pipeline_info["emails"],
-                    "statusList": previous_pipeline_info["statusList"],
+                    "emails": previous_alerting["emails"],
+                    "statusList": previous_alerting["statusList"],
                 }
 
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_PIPELINE), variable_values=params)
