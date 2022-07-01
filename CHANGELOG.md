@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.1 (2022-07-01)
+### :bug:
+* :bug: fix app variable error and edit pipeline error ([`353819f`](https://github.com/saagie/api-saagie/commit/353819f477024d34baf1f7d13b232b24271a36a2))
+
 ## v1.1.0 (2022-06-28)
 ### :sparkles:
 * :sparkles: Add export functions ([`fc16c9e`](https://github.com/saagie/api-saagie/commit/fc16c9e8b7f407b13da12d1dc5058b75ba576406))
