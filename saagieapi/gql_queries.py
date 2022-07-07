@@ -47,7 +47,10 @@ query technologyQuery($id: UUID!){
         id 
         label 
         available}}
-        ... on SparkTechnology {contexts{label}}
+        ... on SparkTechnology {contexts{
+        id
+        label
+        available}}
         ... on AppTechnology{
             id
             label
