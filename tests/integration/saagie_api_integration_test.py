@@ -93,7 +93,7 @@ class TestIntegrationProject:
             group=self.group,
             role="Manager",
             description="For integration test",
-            jobs_technologies_allowed={"saagie": ["python"]},
+            jobs_technologies_allowed={"saagie": ["python", "spark"]},
         )
         self.project_id = result["createProject"]["id"]
 
@@ -136,7 +136,7 @@ class TestIntegrationProject:
     def test_edit_project(self):
         project_input = {
             "description": "new description",
-            "jobs_technologies_allowed": {"saagie": ["python", "r"]},
+            "jobs_technologies_allowed": {"saagie": ["python", "spark", "r"]},
         }
 
         self.saagie.projects.edit(
@@ -153,7 +153,7 @@ class TestIntegrationProject:
         }
 
         assert project_input["description"] == to_validate["description"]
-        assert len(technologies_allowed["technologies"]) == 2  # R and Python for extraction
+        assert len(technologies_allowed["technologies"]) == 3  # R and Spark and Python for extraction
 
     def test_export_project(self):
         result = self.saagie.projects.export(self.project_id, "./output/projects/")
@@ -200,6 +200,29 @@ class TestIntegrationProject:
         project_jobs_ids = [job["id"] for job in project_jobs["jobs"]]
 
         assert job_id in project_jobs_ids
+
+    def test_create_spark_job(self):
+        job = self.saagie.jobs.create(
+            job_name="job_name",
+            project_id=self.project_id,
+            file=dir_path + "/resources/hello_world.py",
+            description="",
+            category="Extraction",
+            technology_catalog="Saagie",
+            technology="spark",
+            runtime_version="2.4",
+            command_line="spark-submit",
+            release_note="release_note",
+            extra_technology="Python",
+            extra_technology_version="3.7",
+        )
+        job_id = job["data"]["createJob"]["id"]
+        project_jobs = self.saagie.jobs.list_for_project(project_id=self.project_id, instances_limit=0)
+
+        project_jobs_ids = [job["id"] for job in project_jobs["jobs"]]
+
+        assert job_id in project_jobs_ids
+        self.saagie.jobs.delete(job_id)
 
     def test_get_job_id(self, create_then_delete_job):
         job_id = create_then_delete_job
