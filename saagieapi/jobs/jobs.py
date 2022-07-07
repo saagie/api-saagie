@@ -219,7 +219,7 @@ class Jobs:
         technology_catalog : str, optional
             Technology catalog containing the technology to use for this job
         runtime_version : str, optional
-            Technology version of the job
+            Technology version of the job, the ID of the context
         command_line : str, optional
             Command line of the job
         release_note : str, optional
@@ -281,7 +281,7 @@ class Jobs:
             params, technology, technology_catalog, technologies_for_project_and_category
         )
         available_runtimes = [
-            tech["label"]
+            tech["id"]
             for tech in self.saagie_api.get_runtimes(params["technologyId"])["technology"]["contexts"]
             if tech["available"] is True
         ]
@@ -432,7 +432,7 @@ class Jobs:
         use_previous_artifact: bool (optional)
             Use previous artifact
         runtime_version: str (optional)
-            Runtime version
+            Runtime version, the ID of the context
         command_line: str (optional)
             Command line
         release_note: str (optional)
@@ -454,7 +454,11 @@ class Jobs:
 
         # Verify if specified runtime exists
         technology_id = self.get_info(job_id, pprint_result=False)["job"]["technology"]["id"]
-        available_runtimes = [c["label"] for c in self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]]
+        available_runtimes = [
+            tech["id"]
+            for tech in self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]
+            if tech["available"] is True
+        ]
         if runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"❌ Specified runtime does not exist ({runtime_version}). "
