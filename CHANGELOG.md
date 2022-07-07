@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.2 (2022-07-07)
+### :bug:
+* :bug: use ID instead label to check runtime version ([`49b3f07`](https://github.com/saagie/api-saagie/commit/49b3f073ce333cbae6684e06990135a57e213816))
+
 ## v1.1.1 (2022-07-01)
 ### :bug:
 * :bug: fix app variable error and edit pipeline error ([`353819f`](https://github.com/saagie/api-saagie/commit/353819f477024d34baf1f7d13b232b24271a36a2))
