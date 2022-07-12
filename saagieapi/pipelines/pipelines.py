@@ -401,6 +401,101 @@ class Pipelines:
         logging.info("✅ Pipeline [%s] successfully edited", name)
         return result
 
+    def create_or_upgrade(
+        self,
+        name: str,
+        project_id: str,
+        graph_pipeline: GraphPipeline,
+        description: str = "",
+        release_note: str = "",
+        emails: List[str] = None,
+        status_list: List[str] = None,
+        is_scheduled: bool = None,
+        cron_scheduling: str = None,
+        schedule_timezone: str = "UTC",
+    ) -> Dict:
+        """Create or upgrade a pipeline in a given project
+
+        Parameters
+        ----------
+        name : str
+            Pipeline name
+        project_id : str
+            UUID of your project (see README on how to find it)
+        graph_pipeline : GraphPipeline
+            Example: If you want to create a simple pipeline with 2 jobs that started by job_node_1,
+            you can use the following example
+                job_node1 = JobNode(job_id_1)
+                job_node2 = JobNode(job_id_2)
+                job_node1.add_next_node(job_node2) # Indicates that the job_node_1 is followed by job_node_2
+                graph_pipeline = GraphPipeline()
+                graph_pipeline.add_root_node(job_node1) # Indicates the pipeline will start with job_node1
+        description : str, optional
+            Description of the pipeline
+            if not filled, defaults to current value, else it will change the description of the pipeline
+        release_note: str, optional
+            Release note of the pipeline
+        emails: List[String], optional
+            Emails to receive alerts for the job, each item should be a valid email,
+            If you want to remove alerting, please set emails to [] or list()
+            if not filled, defaults to current value
+        status_list: List[String], optional
+            Receive an email when the job status change to a specific status
+            Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
+            "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
+        is_scheduled : bool, optional
+            True to activate the pipeline scheduling
+        cron_scheduling : str, optional
+            Scheduling CRON format
+            When is_scheduled is set to True, it will be mandatory to fill this value
+            if not filled, defaults to current value
+            Example: "0 0 * * *" (for every day At 00:00)
+        schedule_timezone : str, optional
+            Timezone of the scheduling
+            Example: "UTC", "Pacific/Pago_Pago"
+
+        Returns
+        -------
+        dict
+            Dict of pipeline information
+        """
+        pipeline_list = self.saagie_api.pipelines.list_for_project_minimal(project_id)["project"]["pipelines"]
+        pipeline_names = [pipeline["name"] for pipeline in pipeline_list]
+
+        if name in pipeline_names:
+            pipeline_id = [pipeline["id"] for pipeline in pipeline_list if pipeline["name"] == name][0]
+
+            responses = {}
+            responses["editPipeline"] = self.edit(
+                pipeline_id,
+                name,
+                description,
+                emails,
+                status_list,
+                is_scheduled,
+                cron_scheduling,
+                schedule_timezone,
+            )["editPipeline"]
+
+            responses["addGraphPipelineVersion"] = self.upgrade(pipeline_id, graph_pipeline, release_note)[
+                "addGraphPipelineVersion"
+            ]
+
+            return responses
+
+        else:
+            return self.create_graph(
+                name,
+                project_id,
+                graph_pipeline,
+                description,
+                release_note,
+                emails,
+                status_list,
+                cron_scheduling,
+                schedule_timezone,
+            )
+
     def run(self, pipeline_id: str) -> Dict:
         """Run a given pipeline
         NB : You can only run pipeline if you have at least the editor role on
