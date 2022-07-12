@@ -550,7 +550,11 @@ class Jobs:
         category: str = "Processing",
         technology: str = "python",
         technology_catalog: str = "Saagie",
+<<<<<<< HEAD
         runtime_version: str = "3.8",
+=======
+        runtime_version: str = "3.7",
+>>>>>>> add create or upgrade job
         command_line: str = "python {file} arg1 arg2",
         release_note: str = "",
         extra_technology: str = "",
@@ -592,8 +596,11 @@ class Jobs:
         extra_technology_version: str (optional)
             Version of the extra technology. Leave to empty string when not
             needed
+<<<<<<< HEAD
         is_scheduled: bool (optional)
             True if the job is scheduled, False to deactivate scheduling
+=======
+>>>>>>> add create or upgrade job
         cron_scheduling: str (optional)
             Cron scheduling
         schedule_timezone: str (optional)
@@ -616,8 +623,12 @@ class Jobs:
         job_names = [job["name"] for job in job_list]
 
         if job_name in job_names:
+<<<<<<< HEAD
             job_id = [job["id"] for job in job_list if job["name"] == job_name][0]
 
+=======
+            job_id = self.get_id(job_name, self.saagie_api.projects.get_info(project_id)["project"]["name"])
+>>>>>>> add create or upgrade job
             responses = {}
 
             responses["addJobVersion"] = self.upgrade(
