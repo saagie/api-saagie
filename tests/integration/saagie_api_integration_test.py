@@ -192,6 +192,16 @@ class TestIntegrationProject:
 
         self.saagie.jobs.delete(job_id)
 
+    @pytest.fixture
+    def delete_job(self):
+        job_name = "python_test_upgrade"
+
+        yield job_name
+
+        job_id = self.saagie.jobs.get_id(job_name, self.project_name)
+
+        self.saagie.jobs.delete(job_id)
+
     def test_create_python_job(self, create_then_delete_job):
         job_id = create_then_delete_job
 
@@ -317,6 +327,47 @@ class TestIntegrationProject:
         }
 
         assert job_input == to_validate
+
+    def test_create_or_upgrade_job(self, delete_job):
+        job_name = delete_job
+        file = dir_path + "/resources/hello_world.py"
+
+        job_create = self.saagie.jobs.create_or_upgrade(
+            job_name=job_name,
+            project_id=self.project_id,
+            file=file,
+            description="",
+            category="Processing",
+            technology="python",
+            technology_catalog="Saagie",
+            runtime_version="3.9",
+            command_line="python {file} arg1 arg2",
+            release_note="",
+            extra_technology="",
+            extra_technology_version="",
+        )
+
+        job_id = job_create["data"]["createJob"]["id"]
+
+        assert job_id is not None
+
+        job_upgrade = self.saagie.jobs.create_or_upgrade(
+            job_name=job_name,
+            project_id=self.project_id,
+            file=file,
+            description="",
+            category="Processing",
+            technology="python",
+            technology_catalog="Saagie",
+            runtime_version="3.9",
+            command_line="python {file} arg1 arg2",
+            release_note="",
+            extra_technology="",
+            extra_technology_version="",
+        )
+
+        assert "addJobVersion" in job_upgrade
+        assert "editJob" in job_upgrade
 
     @pytest.fixture
     def create_global_env_var(self):

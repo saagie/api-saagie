@@ -541,6 +541,127 @@ class Jobs:
             extra_technology_version,
         )
 
+    def create_or_upgrade(
+        self,
+        job_name: str,
+        project_id: str,
+        file: str = None,
+        description: str = "",
+        category: str = "Processing",
+        technology: str = "python",
+        technology_catalog: str = "Saagie",
+        runtime_version: str = "3.7",
+        command_line: str = "python {file} arg1 arg2",
+        release_note: str = "",
+        extra_technology: str = "",
+        extra_technology_version: str = "",
+        is_scheduled: bool = False,
+        cron_scheduling: str = None,
+        schedule_timezone: str = "UTC",
+        resources: Dict = None,
+        emails: List = None,
+        status_list: List = None,
+    ) -> Dict:
+        """Create or upgrade a job
+
+        Parameters
+        ----------
+        job_name : str
+            Name of your job
+        project_id : str
+            UUID of your project
+        file: str (optional)
+            Path to your file
+        description: str (optional)
+            Description of your job
+        category: str (optional)
+            Category of your job
+        technology: str (optional)
+            Technology of your job
+        technology_catalog: str (optional)
+            Technology catalog of your job
+        runtime_version: str (optional)
+            Runtime version
+        command_line: str (optional)
+            Command line
+        release_note: str (optional)
+            Release note
+        extra_technology: str (optional)
+            Extra technology when needed (spark jobs). If not needed, leave to
+            empty string or the request will not work
+        extra_technology_version: str (optional)
+            Version of the extra technology. Leave to empty string when not
+            needed
+        cron_scheduling: str (optional)
+            Cron scheduling
+        schedule_timezone: str (optional)
+            Schedule timezone
+        resources: dict (optional)
+            Resources
+        emails: list (optional)
+            Emails
+        status_list: list (optional)
+            Status list
+
+        Returns
+        -------
+        dict
+            Either the same dict as create_job, or the one returned by
+            concatenation of upgrade_job and edit_job
+        """
+
+        job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
+        job_names = [job["name"] for job in job_list]
+
+        if job_name in job_names:
+            job_id = self.get_id(job_name, self.saagie_api.projects.get_info(project_id)["project"]["name"])
+            responses = {}
+
+            responses["addJobVersion"] = self.upgrade(
+                job_id=job_id,
+                file=file,
+                use_previous_artifact=True,
+                runtime_version=runtime_version,
+                command_line=command_line,
+                release_note=release_note,
+                extra_technology=extra_technology,
+                extra_technology_version=extra_technology_version,
+            )["data"]["addJobVersion"]
+
+            responses["editJob"] = self.edit(
+                job_id=job_id,
+                job_name=job_name,
+                description=description,
+                is_scheduled=is_scheduled,
+                cron_scheduling=cron_scheduling,
+                schedule_timezone=schedule_timezone,
+                resources=resources,
+                emails=emails,
+                status_list=status_list,
+            )["editJob"]
+
+            return responses
+        else:
+            return self.create(
+                job_name=job_name,
+                project_id=project_id,
+                file=file,
+                description=description,
+                category=category,
+                technology=technology,
+                technology_catalog=technology_catalog,
+                runtime_version=runtime_version,
+                command_line=command_line,
+                release_note=release_note,
+                extra_technology=extra_technology,
+                extra_technology_version=extra_technology_version,
+                cron_scheduling=cron_scheduling,
+                schedule_timezone=schedule_timezone,
+                resources=resources,
+                emails=emails,
+                status_list=status_list,
+            )
+
     def delete(self, job_id: str) -> Dict:
         """Delete a given job
 
