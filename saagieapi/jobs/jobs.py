@@ -614,7 +614,9 @@ class Jobs:
         job_names = [job["name"] for job in job_list]
 
         if job_name in job_names:
-            job_id = self.get_id(job_name, self.saagie_api.projects.get_info(project_id)["project"]["name"])
+            job_id = self.get_id(
+                job_name, self.saagie_api.projects.get_info(project_id, pprint_result=False)["project"]["name"]
+            )
             responses = {}
 
             responses["addJobVersion"] = self.upgrade(
