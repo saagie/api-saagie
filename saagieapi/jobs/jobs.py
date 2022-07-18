@@ -550,7 +550,7 @@ class Jobs:
         category: str = "Processing",
         technology: str = "python",
         technology_catalog: str = "Saagie",
-        runtime_version: str = "3.7",
+        runtime_version: str = "3.8",
         command_line: str = "python {file} arg1 arg2",
         release_note: str = "",
         extra_technology: str = "",
@@ -592,6 +592,8 @@ class Jobs:
         extra_technology_version: str (optional)
             Version of the extra technology. Leave to empty string when not
             needed
+        is_scheduled: bool (optional)
+            True if the job is scheduled, False to deactivate scheduling
         cron_scheduling: str (optional)
             Cron scheduling
         schedule_timezone: str (optional)
