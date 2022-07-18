@@ -592,11 +592,8 @@ class Jobs:
         extra_technology_version: str (optional)
             Version of the extra technology. Leave to empty string when not
             needed
-<<<<<<< HEAD
         is_scheduled: bool (optional)
             True if the job is scheduled, False to deactivate scheduling
-=======
->>>>>>> add create or upgrade job
         cron_scheduling: str (optional)
             Cron scheduling
         schedule_timezone: str (optional)
