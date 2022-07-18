@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.1.3 (2022-07-18)
+### :bug:
+* :bug: Feature Create or Update ([#128](https://github.com/saagie/api-saagie/issues/128)) ([`3afe680`](https://github.com/saagie/api-saagie/commit/3afe680f0f854df0ee8a7e0fb4efe3bf39f5cb69))
+
 ## v1.1.2 (2022-07-07)
 ### :bug:
 * :bug: use ID instead label to check runtime version ([`49b3f07`](https://github.com/saagie/api-saagie/commit/49b3f073ce333cbae6684e06990135a57e213816))
