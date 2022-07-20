@@ -1,4 +1,5 @@
 # pylint: disable=attribute-defined-outside-init
+import json
 import os
 import sys
 import time
@@ -313,6 +314,17 @@ class TestIntegrationProject:
     def test_export_job(self, create_then_delete_job):
         job_id = create_then_delete_job
         result = self.saagie.jobs.export(job_id, "./output/jobs/")
+        to_validate = True
+        assert result == to_validate
+
+    def test_import_job(self):
+        with open(f"{dir_path}/resources/import/job.json", "r") as file:
+            job = json.load(file)
+
+        result = self.saagie.jobs.import_job(
+            job, self.project_id, f"{dir_path}/resources/import/version/1/hello_world.py"
+        )
+
         to_validate = True
         assert result == to_validate
 

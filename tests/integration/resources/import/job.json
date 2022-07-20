@@ -1,0 +1,80 @@
+{
+    "id": "9d488144-a9d0-4183-8422-a343a8efd4ed",
+    "name": "test_job_python",
+    "description": "test job python",
+    "alerting": {
+        "emails": [
+            "test@example.com"
+        ],
+        "loginEmails": [],
+        "statusList": [
+            "FAILED",
+            "SUCCEEDED"
+        ]
+    },
+    "instances": [
+        {
+            "id": "c5e82d87-d547-4f8d-aa6c-9fa9dc765c48",
+            "status": "SUCCEEDED",
+            "startTime": "2022-07-12T13:04:46.172Z",
+            "endTime": "2022-07-12T13:06:00.299Z",
+            "version": {
+                "number": 2,
+                "releaseNote": "",
+                "runtimeVersion": "3.8",
+                "commandLine": "",
+                "isMajor": false,
+                "doesUseGPU": false
+            }
+        }
+    ],
+    "countJobInstance": 1,
+    "versions": [
+        {
+            "number": 1,
+            "creationDate": "2022-07-12T13:02:06.913Z",
+            "releaseNote": "",
+            "runtimeVersion": "3.8",
+            "commandLine": "python {file} arg1 arg2",
+            "packageInfo": {
+                "name": "hello_world.py",
+                "downloadUrl": "/projects/api/platform/6/project/1ca15012-aefd-4fef-a179-62c5bd95858a/job/9d488144-a9d0-4183-8422-a343a8efd4ed/version/1/artifact/hello_world.py"
+            },
+            "dockerInfo": null,
+            "extraTechnology": null,
+            "isCurrent": true,
+            "isMajor": false
+        }
+    ],
+    "category": "Processing",
+    "technology": {
+        "id": "0db6d0a7-ad4b-45cd-8082-913a192daa25",
+        "name": "Python",
+        "technology_catalog": "Saagie"
+    },
+    "isScheduled": false,
+    "cronScheduling": null,
+    "scheduleStatus": null,
+    "scheduleTimezone": "UTC",
+    "isStreaming": false,
+    "creationDate": "2022-07-12T13:02:06.913Z",
+    "migrationStatus": null,
+    "migrationProjectId": null,
+    "isDeletable": false,
+    "graphPipelines": [
+        {
+            "id": "bd17ddcc-b932-4917-a2a4-17ea582bb3fe"
+        }
+    ],
+    "doesUseGPU": false,
+    "resources": {
+        "cpu": {
+            "request": 0.1,
+            "limit": 0.1
+        },
+        "memory": {
+            "request": 0.5,
+            "limit": null
+        }
+    }
+}
