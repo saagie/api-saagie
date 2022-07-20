@@ -892,3 +892,83 @@ class Jobs:
             logging.warning("❌ Job [%s] has not been successfully exported", job_id)
             write_error(error_folder, "jobs", job_id)
         return result
+
+    def import_job(
+        self,
+        job_info: str,
+        project_id: str,
+        path_to_package: str = None,
+    ) -> bool:
+        """Import a job from a folder
+
+        Parameters
+        ----------
+        job_info : str
+            Info of the job in JSON format
+        project_id : str
+            Project ID to import the job
+        path_to_package : str, optional
+            Path to the package of the job to import
+        Returns
+        -------
+        bool
+            True if job is imported False otherwise
+        """
+        result = True
+
+        try:
+            jobId = job_info["id"]
+            jobName = job_info["name"]
+            jobDescription = job_info["description"]
+            jobCategory = job_info["category"]
+            jobTechnologyName = job_info["technology"]["name"]
+            jobTechnologyCatalog = job_info["technology"]["technology_catalog"]
+
+            for version in job_info["versions"]:
+                if version["isCurrent"]:
+                    jobRuntimeVersion = version["runtimeVersion"]
+                    jobCommandLine = version["commandLine"]
+                    jobReleaseNote = version["releaseNote"]
+                    jobExtraTechnologyName = ""
+                    jobExtraTechnologyVersion = ""
+
+                    if version["extraTechnology"] is not None:
+                        for extraTechnology in version["extraTechnology"]:
+                            jobExtraTechnologyName = extraTechnology["language"]
+                            jobExtraTechnologyVersion = extraTechnology["version"]
+
+            jobCronScheduling = job_info["cronScheduling"]
+            jobScheduleTimezone = job_info["scheduleTimezone"]
+            jobResources = job_info["resources"]
+            jobEmails = ""
+            jobStatusList = ""
+
+            if job_info["alerting"] is not None:
+                jobEmails = job_info["alerting"]["emails"]
+                jobStatusList = job_info["alerting"]["statusList"]
+
+            self.create(
+                jobName,
+                project_id,
+                path_to_package,
+                jobDescription,
+                jobCategory,
+                jobTechnologyName,
+                jobTechnologyCatalog,
+                jobRuntimeVersion,
+                jobCommandLine,
+                jobReleaseNote,
+                jobExtraTechnologyName,
+                jobExtraTechnologyVersion,
+                jobCronScheduling,
+                jobScheduleTimezone,
+                jobResources,
+                jobEmails,
+                jobStatusList,
+            )
+        except Exception as e:
+            result = False
+            logging.warning("Cannot import the job [%s]", jobName)
+            logging.error("Something went wrong %s", e)
+
+        return result
