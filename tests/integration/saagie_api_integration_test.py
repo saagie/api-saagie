@@ -113,6 +113,10 @@ class TestIntegrationProject:
                 f"aborting integration tests after {project_creation_timeout} seconds"
             )
 
+    ############################################################################
+    ################################# PROJECTS #################################
+    ############################################################################
+
     def test_get_project_id(self):
         expected_project_id = self.project_id
         output_project_id = self.saagie.projects.get_id(self.project_name)
@@ -159,6 +163,10 @@ class TestIntegrationProject:
         result = self.saagie.projects.export(self.project_id, "./output/projects/")
         to_validate = True
         assert result == to_validate
+
+    ############################################################################
+    ################################## JOBS ####################################
+    ############################################################################
 
     @pytest.fixture
     def create_job(self):
@@ -368,6 +376,10 @@ class TestIntegrationProject:
 
         assert "addJobVersion" in job_upgrade
         assert "editJob" in job_upgrade
+
+    ############################################################################
+    ########################## ENVIRONMENT VARIABLES ###########################
+    ############################################################################
 
     @pytest.fixture
     def create_global_env_var(self):
@@ -634,6 +646,10 @@ class TestIntegrationProject:
         assert result == to_validate
         assert env_var_folder_exist is True
 
+    ############################################################################
+    ################################## DOCKER ##################################
+    ############################################################################
+
     @pytest.fixture
     def create_docker_credential(self):
         cred = self.saagie.docker_credentials.create(
@@ -697,6 +713,10 @@ class TestIntegrationProject:
         assert result["updateDockerCredentials"]["id"] == cred_id
         assert cred["registry"] == "test-registry"
 
+    ############################################################################
+    ################################# PIPELINES ################################
+    ############################################################################
+
     @pytest.fixture
     def create_graph_pipeline(self, create_job):
         job_id = create_job
@@ -730,6 +750,17 @@ class TestIntegrationProject:
 
         self.saagie.pipelines.delete(pipeline_id)
         self.saagie.jobs.delete(job_id)
+
+    @pytest.fixture
+    def delete_pipeline(self):
+        pipeline_name = "pipeline_upgrade_test"
+
+        yield pipeline_name
+
+        # Temporary workaround for issue #117, get_id doesn't work for pipelines
+        # pipeline_id = self.saagie.pipelines.get_id(pipeline_name, self.project_name)
+
+        # self.saagie.pipelines.delete(pipeline_id)
 
     def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
@@ -827,6 +858,55 @@ class TestIntegrationProject:
         )
 
         assert result
+
+    def test_create_or_upgrade_pipeline(self, delete_pipeline, create_job):
+        pipeline_name = delete_pipeline
+
+        job_id = create_job
+        job_node1 = JobNode(job_id)
+        job_node2 = JobNode(job_id)
+        condition_node_1 = ConditionNode()
+        job_node1.add_next_node(condition_node_1)
+        condition_node_1.add_success_node(job_node2)
+        graph_pipeline = GraphPipeline()
+        graph_pipeline.add_root_node(job_node1)
+
+        pipeline_create = self.saagie.pipelines.create_or_upgrade(
+            name=pipeline_name,
+            project_id=self.project_id,
+            description="Description pipeline dev test",
+            release_note="First release",
+            emails=["example@test.com"],
+            status_list=["FAILED"],
+            is_scheduled=True,
+            cron_scheduling="5 12 5 * *",
+            schedule_timezone="Europe/Paris",
+            graph_pipeline=graph_pipeline,
+        )
+
+        pipeline_id = pipeline_create["createGraphPipeline"]["id"]
+
+        assert pipeline_id is not None
+
+        pipeline_upgrade = self.saagie.pipelines.create_or_upgrade(
+            name=pipeline_name,
+            project_id=self.project_id,
+            description="Description pipeline dev test",
+            release_note="Second release",
+            emails=["example@test.com"],
+            status_list=["FAILED"],
+            is_scheduled=True,
+            cron_scheduling="5 12 5 * *",
+            schedule_timezone="Europe/Paris",
+            graph_pipeline=graph_pipeline,
+        )
+
+        assert "editPipeline" in pipeline_upgrade
+        assert "addGraphPipelineVersion" in pipeline_upgrade
+
+    ############################################################################
+    ################################### APPS ###################################
+    ############################################################################
 
     @pytest.fixture
     def create_app_from_scratch(self):
