@@ -893,13 +893,13 @@ class Jobs:
             write_error(error_folder, "jobs", job_id)
         return result
 
-    def import_job(
+    def import_from_json(
         self,
         job_info: str,
         project_id: str,
         path_to_package: str = None,
     ) -> bool:
-        """Import a job from a folder
+        """Import a job from JSON format
 
         Parameters
         ----------
@@ -917,58 +917,59 @@ class Jobs:
         result = True
 
         try:
-            jobId = job_info["id"]
-            jobName = job_info["name"]
-            jobDescription = job_info["description"]
-            jobCategory = job_info["category"]
-            jobTechnologyName = job_info["technology"]["name"]
-            jobTechnologyCatalog = job_info["technology"]["technology_catalog"]
+            job_id = job_info["id"]
+            job_name = job_info["name"]
+            job_description = job_info["description"]
+            job_category = job_info["category"]
+            job_technology_name = job_info["technology"]["name"]
+            job_technology_catalog = job_info["technology"]["technology_catalog"]
 
             for version in job_info["versions"]:
                 if version["isCurrent"]:
-                    jobRuntimeVersion = version["runtimeVersion"]
-                    jobCommandLine = version["commandLine"]
-                    jobReleaseNote = version["releaseNote"]
-                    jobExtraTechnologyName = ""
-                    jobExtraTechnologyVersion = ""
+                    job_runtime_version = version["runtimeVersion"]
+                    job_command_line = version["commandLine"]
+                    job_release_note = version["releaseNote"]
+                    job_extra_technology_name = ""
+                    job_extra_technology_version = ""
 
                     if version["extraTechnology"] is not None:
                         for extraTechnology in version["extraTechnology"]:
-                            jobExtraTechnologyName = extraTechnology["language"]
-                            jobExtraTechnologyVersion = extraTechnology["version"]
+                            job_extra_technology_name = extraTechnology["language"]
+                            job_extra_technology_version = extraTechnology["version"]
 
-            jobCronScheduling = job_info["cronScheduling"]
-            jobScheduleTimezone = job_info["scheduleTimezone"]
-            jobResources = job_info["resources"]
-            jobEmails = ""
-            jobStatusList = ""
+            job_cron_scheduling = job_info["cronScheduling"]
+            job_schedule_timezone = job_info["scheduleTimezone"]
+            job_resources = job_info["resources"]
+            job_emails = ""
+            job_status_list = ""
 
             if job_info["alerting"] is not None:
-                jobEmails = job_info["alerting"]["emails"]
-                jobStatusList = job_info["alerting"]["statusList"]
+                job_emails = job_info["alerting"]["emails"]
+                job_status_list = job_info["alerting"]["statusList"]
 
             self.create(
-                jobName,
+                job_name,
                 project_id,
                 path_to_package,
-                jobDescription,
-                jobCategory,
-                jobTechnologyName,
-                jobTechnologyCatalog,
-                jobRuntimeVersion,
-                jobCommandLine,
-                jobReleaseNote,
-                jobExtraTechnologyName,
-                jobExtraTechnologyVersion,
-                jobCronScheduling,
-                jobScheduleTimezone,
-                jobResources,
-                jobEmails,
-                jobStatusList,
+                job_description,
+                job_category,
+                job_technology_name,
+                job_technology_catalog,
+                job_runtime_version,
+                job_command_line,
+                job_release_note,
+                job_extra_technology_name,
+                job_extra_technology_version,
+                job_cron_scheduling,
+                job_schedule_timezone,
+                job_resources,
+                job_emails,
+                job_status_list,
             )
+            logging.info("✅ Job [%s] successfully imported", job_name)
         except Exception as e:
             result = False
-            logging.warning("Cannot import the job [%s]", jobName)
+            logging.warning("❌ Job [%s] has not been successfully imported", job_name)
             logging.error("Something went wrong %s", e)
 
         return result

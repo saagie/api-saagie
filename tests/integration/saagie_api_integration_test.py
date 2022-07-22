@@ -321,7 +321,7 @@ class TestIntegrationProject:
         with open(f"{dir_path}/resources/import/job.json", "r") as file:
             job = json.load(file)
 
-        result = self.saagie.jobs.import_job(
+        result = self.saagie.jobs.import_from_json(
             job, self.project_id, f"{dir_path}/resources/import/version/1/hello_world.py"
         )
 
