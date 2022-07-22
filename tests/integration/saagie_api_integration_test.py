@@ -317,12 +317,11 @@ class TestIntegrationProject:
         to_validate = True
         assert result == to_validate
 
-    def test_import_job(self):
-        with open(f"{dir_path}/resources/import/job.json", "r") as file:
-            job = json.load(file)
-
+    def test_import_from_json(self):
         result = self.saagie.jobs.import_from_json(
-            job, self.project_id, f"{dir_path}/resources/import/version/1/hello_world.py"
+            f"{dir_path}/resources/import/job.json",
+            self.project_id,
+            f"{dir_path}/resources/import/version/1/hello_world.py",
         )
 
         to_validate = True

@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from pathlib import Path
@@ -895,7 +896,7 @@ class Jobs:
 
     def import_from_json(
         self,
-        job_info: str,
+        json_file: str,
         project_id: str,
         path_to_package: str = None,
     ) -> bool:
@@ -915,6 +916,14 @@ class Jobs:
             True if job is imported False otherwise
         """
         result = True
+
+        try:
+            with open(json_file, "r") as file:
+                job_info = json.load(file)
+        except Exception as e:
+            logging.warning("Cannot open the JSON file %s", json_file)
+            logging.error("Something went wrong %s", e)
+            return False
 
         try:
             job_id = job_info["id"]
