@@ -904,8 +904,8 @@ class Jobs:
 
         Parameters
         ----------
-        job_info : str
-            Info of the job in JSON format
+        job_file : str
+            Path to the JSON file
         project_id : str
             Project ID to import the job
         path_to_package : str, optional
