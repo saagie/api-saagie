@@ -47,6 +47,22 @@ class TestIntegrationProjectCreationAndDeletion:
 
         project_id = result["createProject"]["id"]
 
+        # Waiting for the project to be ready
+        project_status = self.saagie.projects.get_info(project_id=project_id)["project"]["status"]
+        waiting_time = 0
+
+        # Safety: wait for 5min max for project initialisation
+        project_creation_timeout = 400
+        while project_status != "READY" and waiting_time <= project_creation_timeout:
+            time.sleep(10)
+            project_status = self.saagie.projects.get_info(project_id)["project"]["status"]
+            waiting_time += 10
+        if project_status != "READY":
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds"
+            )
+
         return project_id
 
     @pytest.fixture
@@ -313,6 +329,16 @@ class TestIntegrationProject:
     def test_export_job(self, create_then_delete_job):
         job_id = create_then_delete_job
         result = self.saagie.jobs.export(job_id, "./output/jobs/")
+        to_validate = True
+        assert result == to_validate
+
+    def test_import_from_json(self):
+        result = self.saagie.jobs.import_from_json(
+            f"{dir_path}/resources/import/job.json",
+            self.project_id,
+            f"{dir_path}/resources/import/version/1/hello_world.py",
+        )
+
         to_validate = True
         assert result == to_validate
 
