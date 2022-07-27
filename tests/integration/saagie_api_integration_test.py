@@ -1,5 +1,4 @@
 # pylint: disable=attribute-defined-outside-init
-import json
 import os
 import sys
 import time
