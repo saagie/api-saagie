@@ -449,20 +449,30 @@ class EnvVars:
             env_var_is_password = env_var_info["isPassword"]
 
             if env_var_scope == "PROJECT":
-                self.create_for_project(
+                res = self.create_for_project(
                     project_id=project_id,
                     name=env_var_name,
                     value=env_var_value,
                     description=env_var_description,
                     is_password=env_var_is_password,
                 )
+                if res["saveEnvironmentVariable"] is not None:
+                    result = True
+                else:
+                    result = False
+                    logging.error("❌ Something went wrong %s", res)
             elif env_var_scope == "GLOBAL":
-                self.create_global(
+                res = self.create_global(
                     name=env_var_name,
                     value=env_var_value,
                     description=env_var_description,
                     is_password=env_var_is_password,
                 )
+                if res["saveEnvironmentVariable"] is not None:
+                    result = True
+                else:
+                    result = False
+                    logging.error("❌ Something went wrong %s", res)
             else:
                 result = False
         except Exception as e:
