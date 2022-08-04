@@ -1,0 +1,8 @@
+{
+    "id": "80061f3f-d8ba-4279-9e3b-40980cb95438",
+    "name": "GLOBAL_VARIABLE",
+    "scope": "GLOBAL",
+    "value": "Global variable",
+    "description": "Test import global variable from JSON",
+    "isPassword": false
+}
