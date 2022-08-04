@@ -2,7 +2,6 @@ import logging
 import time
 from typing import Dict, List, Optional
 
-import deprecation
 from gql import gql
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
@@ -159,35 +158,6 @@ class Pipelines:
             variable_values={"id": pipeline_instance_id},
             pprint_result=pprint_result,
         )
-
-    @deprecation.deprecated(
-        deprecated_in="Saagie 2.2.1",
-        details="This deprecated endpoint allows to create only linear pipeline. "
-        "To create graph pipelines, use `create_graph` instead.",
-    )
-    def create(self, name: str, project_id: str, jobs_id: List[str], description: str = "") -> Dict:
-        """
-        Create a pipeline in a given project
-
-        Parameters
-        ----------
-        name : str
-            Name of the pipeline. Must not already exist in the project
-        project_id : str
-            UUID of your project (see README on how to find it)
-        jobs_id : List
-            Ordered list of job's id (example : ["id1", "id2", "id3"]
-            will result in the following pipeline id1 -> id2 -> id3)
-        description : str, optional
-            Description of the pipeline
-
-        Returns
-        -------
-        dict
-            Dict of job information
-        """
-        params = {"name": name, "description": description, "projectId": project_id, "jobsId": jobs_id}
-        return self.saagie_api.client.execute(query=gql(GQL_CREATE_PIPELINE), variable_values=params)
 
     def create_graph(
         self,
@@ -483,18 +453,17 @@ class Pipelines:
 
             return responses
 
-        else:
-            return self.create_graph(
-                name,
-                project_id,
-                graph_pipeline,
-                description,
-                release_note,
-                emails,
-                status_list,
-                cron_scheduling,
-                schedule_timezone,
-            )
+        return self.create_graph(
+            name,
+            project_id,
+            graph_pipeline,
+            description,
+            release_note,
+            emails,
+            status_list,
+            cron_scheduling,
+            schedule_timezone,
+        )
 
     def run(self, pipeline_id: str) -> Dict:
         """Run a given pipeline
@@ -555,8 +524,8 @@ class Pipelines:
 
         while state not in final_status_list:
             with console.status(f"Job is currently {state}", refresh_per_second=100):
-                to = False if timeout == -1 else sec >= timeout
-                if to:
+                t_out = False if timeout == -1 else sec >= timeout
+                if t_out:
                     raise TimeoutError(f"❌ Last state known : {state}")
                 time.sleep(freq)
                 sec += freq
@@ -633,9 +602,9 @@ class Pipelines:
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
             )["graphPipeline"]
-        except Exception as e:
+        except Exception as exception:
             logging.warning("Cannot get the information of the pipeline [%s]", pipeline_id)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
         if pipeline_info:
             create_folder(output_folder + pipeline_id)
             write_to_json_file(output_folder + pipeline_id + "/pipeline.json", pipeline_info)

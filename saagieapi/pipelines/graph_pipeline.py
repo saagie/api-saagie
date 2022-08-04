@@ -4,7 +4,7 @@ from typing import List
 
 class Node:
     def __init__(self) -> None:
-        self.id = uuid.uuid4()
+        self.uid = uuid.uuid4()
 
 
 class JobNode(Node):
@@ -40,31 +40,31 @@ class GraphPipeline:
         self.root_nodes.append(node)
 
     def fill_nodes_lists(self, node):
-        if str(node.id) not in [jn.get("id") for jn in self.list_job_nodes] and str(node.id) not in [
-            cn.get("id") for cn in self.list_conditions_nodes
+        if str(node.uid) not in [jn.get("uid") for jn in self.list_job_nodes] and str(node.uid) not in [
+            cn.get("uid") for cn in self.list_conditions_nodes
         ]:
 
             if isinstance(node, JobNode):
-                dict_job = {"id": str(node.id), "nextNodes": [str(nn.id) for nn in node.next_nodes], "job": {}}
+                dict_job = {"id": str(node.uid), "nextNodes": [str(nn.uid) for nn in node.next_nodes], "job": {}}
                 dict_job["job"]["id"] = node.job_id
                 self.list_job_nodes.append(dict_job)
                 if node.next_nodes:
-                    for n in node.next_nodes:
-                        self.fill_nodes_lists(n)
+                    for nex in node.next_nodes:
+                        self.fill_nodes_lists(nex)
             elif isinstance(node, ConditionNode):
                 dict_condition = {
-                    "id": str(node.id),
-                    "nextNodesSuccess": [str(nn.id) for nn in node.next_nodes_success],
-                    "nextNodesFailure": [str(nn.id) for nn in node.next_nodes_failure],
+                    "id": str(node.uid),
+                    "nextNodesSuccess": [str(nn.uid) for nn in node.next_nodes_success],
+                    "nextNodesFailure": [str(nn.uid) for nn in node.next_nodes_failure],
                 }
                 self.list_conditions_nodes.append(dict_condition)
                 if node.next_nodes_success:
-                    for n in node.next_nodes_success:
-                        self.fill_nodes_lists(n)
+                    for nex in node.next_nodes_success:
+                        self.fill_nodes_lists(nex)
                 if node.next_nodes_failure:
-                    for n in node.next_nodes_failure:
-                        self.fill_nodes_lists(n)
+                    for nex in node.next_nodes_failure:
+                        self.fill_nodes_lists(nex)
 
     def to_pipeline_graph_input(self):
-        for rn in self.root_nodes:
-            self.fill_nodes_lists(rn)
+        for root_n in self.root_nodes:
+            self.fill_nodes_lists(root_n)

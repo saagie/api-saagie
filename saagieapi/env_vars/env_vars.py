@@ -398,9 +398,9 @@ class EnvVars:
             project_env_var = self.list_for_project(project_id)["projectEnvironmentVariables"]
             if project_only:
                 project_env_var = [env for env in project_env_var if env["scope"] == "PROJECT"]
-        except Exception as e:
+        except Exception as exception:
             logging.warning("Cannot get the information of environment variable of the project [%s]", project_id)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
         if project_env_var:
             for env in project_env_var:
                 env_var_name = env["name"]

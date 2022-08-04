@@ -1,232 +1,298 @@
 # pylint: disable=duplicate-code
 GQL_LIST_APPS_FOR_PROJECT = """
-query labWebAppQuery($id: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean) {
-  labWebApps(projectId: $id) {
-    id
+fragment versionInfo on AppVersion {
+  number
+  creationDate
+  releaseNote
+  dockerInfo {
+    image
+    dockerCredentialsId
+  }
+  runtimeContextId
+  creator
+  ports {
     name
-    description
-    countJobInstance
-    instances(limit: $instancesLimit, lastExecution: true) {
+    number
+    isRewriteUrl
+    basePathVariableName
+    scope
+    internalUrl
+  }
+  isMajor
+  volumesWithPath {
+    path
+    volume {
       id
-      status
-      statusDetails
-      startTime
-      endTime
-    }
-    versions (limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
-      number
+      name
+      creator
+      description
+      size
+      projectId
       creationDate
-      releaseNote
-      runtimeVersion
-      commandLine
-      isMajor
-      isCurrent
-      dockerInfo {
-        image
-        dockerCredentialsId
-      }
-      exposedPorts {
+      linkedApp {
+        id
         name
-        port
-        isRewriteUrl
-        basePathVariableName
-        isAuthenticationRequired
-      }
-      storagePaths
-    }
-    category
-    technology {
-      id
-    }
-    alerting {
-      emails
-      statusList
-    }
-    creationDate
-    isDeletable
-    graphPipelines {
-      id
-    }
-    storageSizeInMB
-    doesUseGPU
-    resources {
-      cpu {
-        limit
-        request
-      }
-      memory {
-        limit
-        request
-      }
-      gpu {
-        limit
-        request
       }
     }
   }
 }
-"""
 
-GQL_LIST_APPS_FOR_PROJECT_MINIMAL = """
-query labWebAppQuery($projectId: UUID!){
-    labWebApps(projectId: $projectId) {
-        id
-        name
+fragment appInformations on App {
+  description
+  creationDate
+  creator
+  versions @skip(if: $versionsOnlyCurrent) {
+    ...versionInfo
+  }
+  currentVersion {
+    ...versionInfo
+  }
+  technology {
+    id
+  }
+  linkedVolumes {
+    id
+    name
+    creator
+    description
+    size
+    creationDate
+  }
+  isGenericApp
+  history {
+    id
+    events {
+      event {
+        recordAt
+        executionId
+      }
+      transitionTime
+    }
+    runningVersionNumber
+    currentDockerInfo {
+      image
+      dockerCredentialsId
+    }
+    currentStatus
+    currentExecutionId
+    startTime
+    stopTime
+  }
+  alerting {
+    emails
+    statusList
+    loginEmails {
+      login
+      email
+    }
+  }
+  resources {
+    cpu {
+      request
+      limit
+    }
+    memory {
+      request
+      limit
+    }
+  }
+}
+
+query projectQuery($id: UUID!, $minimal: Boolean!, $versionsOnlyCurrent: Boolean!) {
+    project(id: $id){
+        apps {
+          id
+          name
+          ...appInformations @skip(if: $minimal)
+        }
     }
 }
 """
 
 GQL_GET_APP_INFO = """
-query labWebAppQuery($id: UUID!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean) {
-  labWebApp(id: $id) {
+fragment appVersionFieldFullInformation on AppVersion {
+  number
+  creator
+  creationDate
+  releaseNote
+  dockerInfo {
+    image
+    dockerCredentialsId
+  }
+  runtimeContextId
+  ports {
+    name
+    number
+    isRewriteUrl
+    basePathVariableName
+    scope
+    internalUrl
+  }
+  volumesWithPath {
+    path
+    volume {
+      id
+      name
+      creator
+      description
+      size
+      projectId
+      creationDate
+      linkedApp {
+        id
+        name
+      }
+    }
+  }
+  isMajor
+}
+
+query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
+  app(id: $id) {
     id
     name
-    description
-    countJobInstance
-    instances(limit: $instancesLimit, lastExecution: true) {
-      id
-      status
-      statusDetails
-      startTime
-      endTime
-    }
-    versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent)  {
-      number
-      creationDate
-      releaseNote
-      runtimeVersion
-      commandLine
-      isMajor
-      isCurrent
-      dockerInfo {
-        image
-        dockerCredentialsId
-      }
-      exposedPorts {
-        name
-        port
-        isRewriteUrl
-        basePathVariableName
-        isAuthenticationRequired
-      }
-      storagePaths
-    }
-    category
+    creationDate
     technology {
       id
     }
+    project {
+      id
+      name
+    }
+    description
+    creationDate
+    versions @skip(if: $versionsOnlyCurrent) {
+      ...appVersionFieldFullInformation
+    }
+    currentVersion {
+      ...appVersionFieldFullInformation
+    }
+    history {
+      id
+      currentStatus
+      currentExecutionId
+      currentDockerInfo {
+        image
+        dockerCredentialsId
+      }
+      startTime
+      events {
+        event {
+          recordAt
+          executionId
+          ... on RunAction {
+            versionNumber
+            author
+          }
+          ... on StopAction {
+            author
+          }
+          ... on RollbackAction {
+            versionNumber
+            author
+          }
+          ... on UpgradeAction {
+            versionNumber
+            author
+          }
+          ... on RestartAction {
+            versionNumber
+            author
+          }
+          ... on StatusRetrieve {
+            status
+          }
+        }
+      }
+    }
+    isGenericApp
     alerting {
       emails
       statusList
+      loginEmails {
+        login
+        email
+      }
     }
-    creationDate
-    isDeletable
-    graphPipelines {
-      id
-    }
-    storageSizeInMB
-    doesUseGPU
     resources {
       cpu {
-        limit
         request
+        limit
       }
       memory {
-        limit
         request
-      }
-      gpu {
         limit
-        request
       }
+    }
+    linkedVolumes {
+      size
     }
   }
 }
 """
 
-GQL_CREATE_APP = """
-mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $technologyId: UUID!, 
-                           $storageSizeInMB: Int,
-                           $image: String!, $dockerCredentialsId: UUID, $exposedPorts: [ExposedPortInput!],
-                           $storagePaths: [String!],
-                           $releaseNote: String, $alerting: JobPipelineAlertingInput) {
-    createJob(job: {
-            projectId: $projectId
-            name: $name
-            description: $description
-            category: ""
-            technology: {
-                id: $technologyId
-            }
-            isStreaming: false
-            isScheduled: false
-            storageSizeInMB: $storageSizeInMB
-            alerting: $alerting
-        }
-        jobVersion: {
-            dockerInfo: {
-                image: $image
-                dockerCredentialsId: $dockerCredentialsId
-            }
-            exposedPorts: $exposedPorts
-            storagePaths: $storagePaths 
-            releaseNote: $releaseNote
-        }){
-        id
-        versions {
-            number
-            __typename
-        }
-        __typename
-    }}
+GQL_CREATE_APP_CATALOG = """
+mutation installAppMutation($projectId: UUID!, $technologyId: UUID!, $contextId: String!) {
+  installApp(projectId: $projectId, technologyId: $technologyId, contextId: $contextId) {
+    id
+    name
+  }
+}
+"""
+
+GQL_CREATE_APP_SCRATCH = """
+mutation createAppMutation($app: AppInput!) {
+  createApp(app: $app) {
+    id
+  }
+}
 """
 
 GQL_EDIT_APP = """
-mutation editJobMutation($id: UUID!, $name: String, $description: String, $alerting: JobPipelineAlertingInput) {
-    editJob(job: {
-        id: $id
-        name: $name
-        description: $description
-        alerting: $alerting
-    }){
-        id
-        name
-        description
-        creationDate
-        technology{
-            id
-        }
-        alerting{
-            emails
-            statusList
-        }
-    }
-}
-"""
-GQL_DELETE_APP = """
-mutation deleteJobMutation($appId: UUID!){
-    deleteJob(jobId: $appId)
+mutation editAppMutation($app: AppEditionInput!) {
+  editApp(appEdition: $app) {
+    id
+  }
 }
 """
 
-GQL_STOP_APP_INSTANCE = """
-  mutation stopJobInstanceMutation($appInstanceId: UUID!){
-    stopJobInstance(jobInstanceId: $appInstanceId){
+GQL_DELETE_APP = """
+mutation deleteAppMutation($appId: UUID!) {
+  deleteApp(appId: $appId) {
+    id
+  }
+}
+"""
+
+GQL_STOP_APP = """
+mutation stopAppMutation($id: UUID!) {
+  stopApp(id: $id) {
+    id
+    history {
       id
-      number
-      status
-      startTime
-      endTime
-      jobId
+      runningVersionNumber
+      currentStatus
     }
   }
-  """
+}
+"""
 
 GQL_RUN_APP = """
-  mutation runJobMutation($appId: UUID!){
-    runJob(jobId: $appId){
+mutation runAppMutation($id: UUID!) {
+  runApp(id: $id) {
+    id
+    versions {
+      number
+    }
+    history {
       id
-      status
+      currentDockerInfo {
+        image
+        dockerCredentialsId
+      }
+      runningVersionNumber
+      currentStatus
     }
   }
-  """
+}
+"""

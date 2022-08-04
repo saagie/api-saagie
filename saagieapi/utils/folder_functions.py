@@ -20,7 +20,7 @@ def create_folder(folder_path: str) -> None:
     """
     is_exist = os.path.exists(folder_path)
     if not is_exist:
-        logging.info(f"Creating folder: '{folder_path}'")
+        logging.info("Creating folder: '%s'", folder_path)
         os.makedirs(folder_path)
 
 
@@ -36,7 +36,7 @@ def delete_folder(folder_path: str) -> None:
     -------
 
     """
-    logging.info(f"Deleting folder: '{folder_path}'")
+    logging.info("Deleting folder: '%s'", folder_path)
     shutil.rmtree(folder_path)
 
 

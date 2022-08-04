@@ -32,7 +32,7 @@ class TestIntegrationProjectCreationAndDeletion:
         password = os.environ["PWD_TEST_SAAGIE"]
         realm = os.environ["REALM_TEST_SAAGIE"]
 
-        self.saagie = SaagieApi(
+        self.saagie_api = SaagieApi(
             url_saagie=url_saagie, id_platform=id_platform, user=user, password=password, realm=realm
         )
 
@@ -41,21 +41,21 @@ class TestIntegrationProjectCreationAndDeletion:
 
     @pytest.fixture
     def create_project(self):
-        result = self.saagie.projects.create(
+        result = self.saagie_api.projects.create(
             name=self.project_name, group=self.group, role="Manager", description="For integration test"
         )
 
         project_id = result["createProject"]["id"]
 
         # Waiting for the project to be ready
-        project_status = self.saagie.projects.get_info(project_id=project_id)["project"]["status"]
+        project_status = self.saagie_api.projects.get_info(project_id=project_id)["project"]["status"]
         waiting_time = 0
 
         # Safety: wait for 5min max for project initialisation
         project_creation_timeout = 400
         while project_status != "READY" and waiting_time <= project_creation_timeout:
             time.sleep(10)
-            project_status = self.saagie.projects.get_info(project_id)["project"]["status"]
+            project_status = self.saagie_api.projects.get_info(project_id)["project"]["status"]
             waiting_time += 10
         if project_status != "READY":
             raise TimeoutError(
@@ -71,18 +71,12 @@ class TestIntegrationProjectCreationAndDeletion:
 
         yield
 
-        self.saagie.projects.delete(project_id)
-
-    def test_create_project(self, create_then_delete_project):
-        projects = self.saagie.projects.list()["projects"]
-        projects_names = [project["name"] for project in projects]
-
-        assert self.project_name in projects_names
+        self.saagie_api.projects.delete(project_id)
 
     def test_delete_project(self, create_project):
         project_id = create_project
 
-        result = self.saagie.projects.delete(project_id)
+        result = self.saagie_api.projects.delete(project_id)
 
         assert result == {"deleteProject": True}
 
@@ -96,7 +90,7 @@ class TestIntegrationProject:
         password = os.environ["PWD_TEST_SAAGIE"]
         realm = os.environ["REALM_TEST_SAAGIE"]
 
-        self.saagie = SaagieApi(
+        self.saagie_api = SaagieApi(
             url_saagie=url_saagie, id_platform=id_platform, user=user, password=password, realm=realm
         )
 
@@ -104,7 +98,7 @@ class TestIntegrationProject:
         self.group = os.environ["USER_GROUP_TEST_SAAGIE"]
         self.project_name = "Integration_test_Saagie_API " + str(datetime.timestamp(datetime.now()))
 
-        result = self.saagie.projects.create(
+        result = self.saagie_api.projects.create(
             name=self.project_name,
             group=self.group,
             role="Manager",
@@ -114,14 +108,14 @@ class TestIntegrationProject:
         self.project_id = result["createProject"]["id"]
 
         # Waiting for the project to be ready
-        project_status = self.saagie.projects.get_info(project_id=self.project_id)["project"]["status"]
+        project_status = self.saagie_api.projects.get_info(project_id=self.project_id)["project"]["status"]
         waiting_time = 0
 
         # Safety: wait for 5min max for project initialisation
         project_creation_timeout = 400
         while project_status != "READY" and waiting_time <= project_creation_timeout:
             time.sleep(10)
-            project_status = self.saagie.projects.get_info(self.project_id)["project"]["status"]
+            project_status = self.saagie_api.projects.get_info(self.project_id)["project"]["status"]
             waiting_time += 10
         if project_status != "READY":
             raise TimeoutError(
@@ -135,19 +129,19 @@ class TestIntegrationProject:
 
     def test_get_project_id(self):
         expected_project_id = self.project_id
-        output_project_id = self.saagie.projects.get_id(self.project_name)
+        output_project_id = self.saagie_api.projects.get_id(self.project_name)
         assert expected_project_id == output_project_id
 
     def test_get_project_technologies(self):
-        jobs_technologies = self.saagie.projects.get_jobs_technologies(self.project_id)
-        apps_technologies = self.saagie.projects.get_apps_technologies(self.project_id)
+        jobs_technologies = self.saagie_api.projects.get_jobs_technologies(self.project_id)
+        apps_technologies = self.saagie_api.projects.get_apps_technologies(self.project_id)
         assert isinstance(jobs_technologies["technologiesByCategory"], List)
         assert len(jobs_technologies["technologiesByCategory"]) == 2  # Only python for Extraction and Processing
         assert isinstance(apps_technologies["appTechnologies"], List)
         assert len(apps_technologies["appTechnologies"]) > 2  # All Apps from saagie official catalog
 
     def test_get_project_rights(self):
-        rights = self.saagie.projects.get_rights(self.project_id)
+        rights = self.saagie_api.projects.get_rights(self.project_id)
         expected_right_all_project = {"name": self.group, "role": "ROLE_PROJECT_MANAGER", "isAllProjects": True}
         expected_right_project = {"name": self.group, "role": "ROLE_PROJECT_MANAGER", "isAllProjects": False}
         assert isinstance(rights["rights"], list)
@@ -159,14 +153,16 @@ class TestIntegrationProject:
             "jobs_technologies_allowed": {"saagie": ["python", "spark", "r"]},
         }
 
-        self.saagie.projects.edit(
+        self.saagie_api.projects.edit(
             project_id=self.project_id,
             description=project_input["description"],
             jobs_technologies_allowed=project_input["jobs_technologies_allowed"],
             groups_and_roles=[{self.group: "Manager"}],
         )
-        project_info = self.saagie.projects.get_info(self.project_id)
-        technologies_allowed = self.saagie.projects.get_jobs_technologies(self.project_id)["technologiesByCategory"][0]
+        project_info = self.saagie_api.projects.get_info(self.project_id)
+        technologies_allowed = self.saagie_api.projects.get_jobs_technologies(self.project_id)[
+            "technologiesByCategory"
+        ][0]
 
         to_validate = {
             "description": project_info["project"]["description"],
@@ -176,7 +172,7 @@ class TestIntegrationProject:
         assert len(technologies_allowed["technologies"]) == 3  # R and Spark and Python for extraction
 
     def test_export_project(self):
-        result = self.saagie.projects.export(self.project_id, "./output/projects/")
+        result = self.saagie_api.projects.export(self.project_id, "./output/projects/")
         to_validate = True
         assert result == to_validate
 
@@ -189,7 +185,7 @@ class TestIntegrationProject:
         job_name = "python_test"
         file = dir_path + "/resources/hello_world.py"
 
-        job = self.saagie.jobs.create(
+        job = self.saagie_api.jobs.create(
             job_name=job_name,
             project_id=self.project_id,
             file=file,
@@ -214,7 +210,7 @@ class TestIntegrationProject:
 
         yield job_id
 
-        self.saagie.jobs.delete(job_id)
+        self.saagie_api.jobs.delete(job_id)
 
     @pytest.fixture
     def delete_job(self):
@@ -222,21 +218,21 @@ class TestIntegrationProject:
 
         yield job_name
 
-        job_id = self.saagie.jobs.get_id(job_name, self.project_name)
+        job_id = self.saagie_api.jobs.get_id(job_name, self.project_name)
 
-        self.saagie.jobs.delete(job_id)
+        self.saagie_api.jobs.delete(job_id)
 
     def test_create_python_job(self, create_then_delete_job):
         job_id = create_then_delete_job
 
-        project_jobs = self.saagie.jobs.list_for_project(project_id=self.project_id, instances_limit=0)
+        project_jobs = self.saagie_api.jobs.list_for_project(project_id=self.project_id, instances_limit=0)
 
         project_jobs_ids = [job["id"] for job in project_jobs["jobs"]]
 
         assert job_id in project_jobs_ids
 
     def test_create_spark_job(self):
-        job = self.saagie.jobs.create(
+        job = self.saagie_api.jobs.create(
             job_name="job_name",
             project_id=self.project_id,
             file=dir_path + "/resources/hello_world.py",
@@ -251,35 +247,36 @@ class TestIntegrationProject:
             extra_technology_version="3.7",
         )
         job_id = job["data"]["createJob"]["id"]
-        project_jobs = self.saagie.jobs.list_for_project(project_id=self.project_id, instances_limit=0)
+        project_jobs = self.saagie_api.jobs.list_for_project(project_id=self.project_id, instances_limit=0)
 
         project_jobs_ids = [job["id"] for job in project_jobs["jobs"]]
 
         assert job_id in project_jobs_ids
-        self.saagie.jobs.delete(job_id)
+        self.saagie_api.jobs.delete(job_id)
 
     def test_get_job_id(self, create_then_delete_job):
         job_id = create_then_delete_job
+
         job_name = "python_test"
-        output_job_id = self.saagie.jobs.get_id(job_name, self.project_name)
+        output_job_id = self.saagie_api.jobs.get_id(job_name, self.project_name)
         assert job_id == output_job_id
 
     def test_delete_job(self, create_job):
         job_id = create_job
 
-        result = self.saagie.jobs.delete(job_id)
+        result = self.saagie_api.jobs.delete(job_id)
 
         assert result == {"deleteJob": True}
 
     def test_run_job(self, create_then_delete_job):
         job_id = create_then_delete_job
 
-        job_before_run = self.saagie.jobs.get_info(job_id=job_id)
+        job_before_run = self.saagie_api.jobs.get_info(job_id=job_id)
         num_instances_before_run = job_before_run["job"]["countJobInstance"]
 
-        self.saagie.jobs.run_with_callback(job_id=job_id, freq=10, timeout=-1)
+        self.saagie_api.jobs.run_with_callback(job_id=job_id, freq=10, timeout=-1)
 
-        job_after_run = self.saagie.jobs.get_info(job_id=job_id)
+        job_after_run = self.saagie_api.jobs.get_info(job_id=job_id)
         num_instances_after_run = job_after_run["job"]["countJobInstance"]
 
         assert num_instances_after_run == (num_instances_before_run + 1)
@@ -287,12 +284,12 @@ class TestIntegrationProject:
     def test_stop_job(self, create_then_delete_job):
         job_id = create_then_delete_job
 
-        runjob = self.saagie.jobs.run(job_id)
+        runjob = self.saagie_api.jobs.run(job_id)
         job_instance_id = runjob["runJob"]["id"]
 
-        self.saagie.jobs.stop(job_instance_id)
+        self.saagie_api.jobs.stop(job_instance_id)
 
-        job_instance_status = self.saagie.jobs.get_instance(job_instance_id)["jobInstance"]["status"]
+        job_instance_status = self.saagie_api.jobs.get_instance(job_instance_id)["jobInstance"]["status"]
 
         assert job_instance_status in ["KILLED", "KILLING"]
 
@@ -306,7 +303,7 @@ class TestIntegrationProject:
             "schedule_timezone": "UTC",
             "alerting": None,
         }
-        self.saagie.jobs.edit(
+        self.saagie_api.jobs.edit(
             job_id,
             job_name=job_input["name"],
             description=job_input["description"],
@@ -314,7 +311,7 @@ class TestIntegrationProject:
             cron_scheduling=job_input["cron_scheduling"],
             schedule_timezone=job_input["schedule_timezone"],
         )
-        job_info = self.saagie.jobs.get_info(job_id)
+        job_info = self.saagie_api.jobs.get_info(job_id)
         to_validate = {
             "name": job_info["job"]["name"],
             "description": job_info["job"]["description"],
@@ -328,12 +325,12 @@ class TestIntegrationProject:
 
     def test_export_job(self, create_then_delete_job):
         job_id = create_then_delete_job
-        result = self.saagie.jobs.export(job_id, "./output/jobs/")
+        result = self.saagie_api.jobs.export(job_id, "./output/jobs/")
         to_validate = True
         assert result == to_validate
 
     def test_import_from_json(self):
-        result = self.saagie.jobs.import_from_json(
+        result = self.saagie_api.jobs.import_from_json(
             f"{dir_path}/resources/import/job.json",
             self.project_id,
             f"{dir_path}/resources/import/version/1/hello_world.py",
@@ -345,14 +342,14 @@ class TestIntegrationProject:
     def test_upgrade_job(self, create_then_delete_job):
         job_id = create_then_delete_job
         job_input = {"command_line": "python {file}", "release_note": "hello_world", "runtime_version": "3.9"}
-        self.saagie.jobs.upgrade(
+        self.saagie_api.jobs.upgrade(
             job_id,
             use_previous_artifact=True,
             runtime_version=job_input["runtime_version"],
             command_line=job_input["command_line"],
             release_note=job_input["release_note"],
         )
-        job_info = self.saagie.jobs.get_info(job_id)
+        job_info = self.saagie_api.jobs.get_info(job_id)
         version = job_info["job"]["versions"][0]
         to_validate = {
             "command_line": version["commandLine"],
@@ -366,7 +363,7 @@ class TestIntegrationProject:
         job_name = delete_job
         file = dir_path + "/resources/hello_world.py"
 
-        job_create = self.saagie.jobs.create_or_upgrade(
+        job_create = self.saagie_api.jobs.create_or_upgrade(
             job_name=job_name,
             project_id=self.project_id,
             file=file,
@@ -385,7 +382,7 @@ class TestIntegrationProject:
 
         assert job_id is not None
 
-        job_upgrade = self.saagie.jobs.create_or_upgrade(
+        job_upgrade = self.saagie_api.jobs.create_or_upgrade(
             job_name=job_name,
             project_id=self.project_id,
             file=file,
@@ -413,7 +410,7 @@ class TestIntegrationProject:
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
-        self.saagie.env_vars.create_global(name=name, value=value, description=description, is_password=False)
+        self.saagie_api.env_vars.create_global(name=name, value=value, description=description, is_password=False)
 
         return name
 
@@ -423,7 +420,7 @@ class TestIntegrationProject:
         value = "VALUE_TEST_VIA_API_PASSWORD"
         description = "DESCRIPTION_TEST_VIA_API_PASSWORD"
 
-        self.saagie.env_vars.create_global(name=name, value=value, description=description, is_password=True)
+        self.saagie_api.env_vars.create_global(name=name, value=value, description=description, is_password=True)
 
         return name
 
@@ -433,7 +430,7 @@ class TestIntegrationProject:
 
         yield name
 
-        self.saagie.env_vars.delete_global(name)
+        self.saagie_api.env_vars.delete_global(name)
 
     @pytest.fixture
     def create_then_delete_global_env_var_password(self, create_global_env_var_password):
@@ -441,12 +438,12 @@ class TestIntegrationProject:
 
         yield name
 
-        self.saagie.env_vars.delete_global(name)
+        self.saagie_api.env_vars.delete_global(name)
 
     def test_create_global_env_var(self, create_then_delete_global_env_var):
         name = create_then_delete_global_env_var
 
-        global_envs = self.saagie.env_vars.list_globals()["globalEnvironmentVariables"]
+        global_envs = self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
 
         global_envs_names = [env["name"] for env in global_envs]
 
@@ -455,7 +452,7 @@ class TestIntegrationProject:
     def test_delete_global_env_var(self, create_global_env_var):
         name = create_global_env_var
 
-        result = self.saagie.env_vars.delete_global(name)
+        result = self.saagie_api.env_vars.delete_global(name)
 
         assert result == {"deleteEnvironmentVariable": True}
 
@@ -463,7 +460,7 @@ class TestIntegrationProject:
         name = create_then_delete_global_env_var
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
-        self.saagie.env_vars.update_global(
+        self.saagie_api.env_vars.update_global(
             name,
             value=env_var_input["value"],
             description=env_var_input["description"],
@@ -472,7 +469,7 @@ class TestIntegrationProject:
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_globals()["globalEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
 
@@ -488,13 +485,13 @@ class TestIntegrationProject:
         name = create_then_delete_global_env_var_password
         env_var_input = {"description": "new description", "isPassword": True}
 
-        self.saagie.env_vars.update_global(
+        self.saagie_api.env_vars.update_global(
             name, description=env_var_input["description"], is_password=env_var_input["isPassword"]
         )
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_globals()["globalEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
 
@@ -507,7 +504,7 @@ class TestIntegrationProject:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # First call to create the variable
-        self.saagie.env_vars.create_or_update_global(
+        self.saagie_api.env_vars.create_or_update_global(
             name,
             value=env_var_input["value"],
             description=env_var_input["description"],
@@ -516,7 +513,7 @@ class TestIntegrationProject:
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_globals()["globalEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
 
@@ -529,7 +526,7 @@ class TestIntegrationProject:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        self.saagie.env_vars.create_or_update_global(
+        self.saagie_api.env_vars.create_or_update_global(
             name,
             value=env_var_input["value"],
             description=env_var_input["description"],
@@ -538,7 +535,7 @@ class TestIntegrationProject:
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_globals()["globalEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
 
@@ -550,7 +547,7 @@ class TestIntegrationProject:
 
         assert env_var_input == to_validate
 
-        self.saagie.env_vars.delete_global(name)
+        self.saagie_api.env_vars.delete_global(name)
 
     @pytest.fixture
     def create_project_env_var(self):
@@ -558,7 +555,7 @@ class TestIntegrationProject:
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
-        self.saagie.env_vars.create_for_project(
+        self.saagie_api.env_vars.create_for_project(
             project_id=self.project_id, name=name, value=value, description=description, is_password=False
         )
 
@@ -570,12 +567,12 @@ class TestIntegrationProject:
 
         yield name
 
-        self.saagie.env_vars.delete_for_project(project_id=self.project_id, name=name)
+        self.saagie_api.env_vars.delete_for_project(project_id=self.project_id, name=name)
 
     def test_create_project_env_var(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
 
-        project_envs = self.saagie.env_vars.list_for_project(self.project_id)
+        project_envs = self.saagie_api.env_vars.list_for_project(self.project_id)
         project_env_names = [env["name"] for env in project_envs["projectEnvironmentVariables"]]
 
         assert name in project_env_names
@@ -583,7 +580,7 @@ class TestIntegrationProject:
     def test_delete_project_env_var(self, create_project_env_var):
         name = create_project_env_var
 
-        result = self.saagie.env_vars.delete_for_project(self.project_id, name)
+        result = self.saagie_api.env_vars.delete_for_project(self.project_id, name)
 
         assert result == {"deleteEnvironmentVariable": True}
 
@@ -591,7 +588,7 @@ class TestIntegrationProject:
         name = create_then_delete_project_env_var
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
-        self.saagie.env_vars.update_for_project(
+        self.saagie_api.env_vars.update_for_project(
             self.project_id,
             name,
             value=env_var_input["value"],
@@ -601,7 +598,7 @@ class TestIntegrationProject:
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_for_project(self.project_id)["projectEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_for_project(self.project_id)["projectEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
         to_validate = {
@@ -617,7 +614,7 @@ class TestIntegrationProject:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # First call to create the variable
-        self.saagie.env_vars.create_or_update_for_project(
+        self.saagie_api.env_vars.create_or_update_for_project(
             project_id=self.project_id,
             name=name,
             value=env_var_input["value"],
@@ -627,7 +624,7 @@ class TestIntegrationProject:
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_for_project(self.project_id)["projectEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_for_project(self.project_id)["projectEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
 
@@ -640,7 +637,7 @@ class TestIntegrationProject:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        self.saagie.env_vars.create_or_update_for_project(
+        self.saagie_api.env_vars.create_or_update_for_project(
             project_id=self.project_id,
             name=name,
             value=env_var_input["value"],
@@ -650,7 +647,7 @@ class TestIntegrationProject:
 
         env_var = [
             env_var
-            for env_var in self.saagie.env_vars.list_for_project(self.project_id)["projectEnvironmentVariables"]
+            for env_var in self.saagie_api.env_vars.list_for_project(self.project_id)["projectEnvironmentVariables"]
             if env_var["name"] == name
         ][0]
 
@@ -662,11 +659,11 @@ class TestIntegrationProject:
 
         assert env_var_input == to_validate
 
-        self.saagie.env_vars.delete_for_project(self.project_id, name=name)
+        self.saagie_api.env_vars.delete_for_project(self.project_id, name=name)
 
     def test_export_variable(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
-        result = self.saagie.env_vars.export(self.project_id, "./output/variables/")
+        result = self.saagie_api.env_vars.export(self.project_id, "./output/variables/")
         env_var_folder_exist = os.path.isdir(f"./output/variables/{name}")
         to_validate = True
         assert result == to_validate
@@ -678,7 +675,7 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_docker_credential(self):
-        cred = self.saagie.docker_credentials.create(
+        cred = self.saagie_api.docker_credentials.create(
             project_id=self.project_id, username="myuser", registry="test-registry", password="mypassword"
         )
 
@@ -690,19 +687,19 @@ class TestIntegrationProject:
 
         yield cred_id
 
-        self.saagie.docker_credentials.delete(project_id=self.project_id, credential_id=cred_id)
+        self.saagie_api.docker_credentials.delete(project_id=self.project_id, credential_id=cred_id)
 
     def test_create_docker_credential(self, create_then_delete_docker_credential):
         cred_id = create_then_delete_docker_credential
 
-        cred = self.saagie.docker_credentials.get_info(self.project_id, cred_id)
+        cred = self.saagie_api.docker_credentials.get_info(self.project_id, cred_id)
 
         assert cred["dockerCredentials"]["username"] == "myuser"
 
     def test_delete_docker_credential(self, create_docker_credential):
         cred_id = create_docker_credential
-        result = self.saagie.docker_credentials.delete(self.project_id, cred_id)
-        all_creds = self.saagie.docker_credentials.list_for_project(self.project_id)
+        result = self.saagie_api.docker_credentials.delete(self.project_id, cred_id)
+        all_creds = self.saagie_api.docker_credentials.list_for_project(self.project_id)
 
         assert result == {"deleteDockerCredentials": True}
         assert len(all_creds["allDockerCredentials"]) == 0
@@ -710,19 +707,19 @@ class TestIntegrationProject:
     def test_upgrade_docker_credential(self, create_then_delete_docker_credential):
         cred_id = create_then_delete_docker_credential
 
-        result = self.saagie.docker_credentials.upgrade(
+        result = self.saagie_api.docker_credentials.upgrade(
             self.project_id, cred_id, username="myuser", password="mypassword", registry="new-registry"
         )
-        cred = self.saagie.docker_credentials.get_info(self.project_id, cred_id)
+        cred = self.saagie_api.docker_credentials.get_info(self.project_id, cred_id)
         assert result["updateDockerCredentials"]["id"] == cred_id
         assert cred["dockerCredentials"]["registry"] == "new-registry"
 
     def test_delete_docker_credential_for_username(self, create_docker_credential):
-        cred_id = create_docker_credential
-        result = self.saagie.docker_credentials.delete_for_username(
+        _ = create_docker_credential
+        result = self.saagie_api.docker_credentials.delete_for_username(
             self.project_id, username="myuser", registry="test-registry"
         )
-        all_creds = self.saagie.docker_credentials.list_for_project(self.project_id)
+        all_creds = self.saagie_api.docker_credentials.list_for_project(self.project_id)
 
         assert result == {"deleteDockerCredentials": True}
         assert len(all_creds["allDockerCredentials"]) == 0
@@ -730,10 +727,10 @@ class TestIntegrationProject:
     def test_upgrade_docker_credential_for_username(self, create_then_delete_docker_credential):
         cred_id = create_then_delete_docker_credential
 
-        result = self.saagie.docker_credentials.upgrade_for_username(
+        result = self.saagie_api.docker_credentials.upgrade_for_username(
             self.project_id, username="myuser", password="newpassword", registry="test-registry"
         )
-        cred = self.saagie.docker_credentials.get_info_for_username(
+        cred = self.saagie_api.docker_credentials.get_info_for_username(
             self.project_id, username="myuser", registry="test-registry"
         )
         assert result["updateDockerCredentials"]["id"] == cred_id
@@ -758,7 +755,7 @@ class TestIntegrationProject:
         description = "DESCRIPTION_TEST_VIA_API"
         cron_scheduling = "0 0 * * *"
         schedule_timezone = "Pacific/Fakaofo"
-        result = self.saagie.pipelines.create_graph(
+        result = self.saagie_api.pipelines.create_graph(
             project_id=self.project_id,
             graph_pipeline=graph_pipeline,
             name=name,
@@ -774,8 +771,8 @@ class TestIntegrationProject:
 
         yield pipeline_id, job_id
 
-        self.saagie.pipelines.delete(pipeline_id)
-        self.saagie.jobs.delete(job_id)
+        self.saagie_api.pipelines.delete(pipeline_id)
+        self.saagie_api.jobs.delete(job_id)
 
     @pytest.fixture
     def delete_pipeline(self):
@@ -790,7 +787,7 @@ class TestIntegrationProject:
 
     def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        list_pipelines = self.saagie.pipelines.list_for_project(self.project_id)
+        list_pipelines = self.saagie_api.pipelines.list_for_project(self.project_id)
         list_pipelines_id = [pipeline["id"] for pipeline in list_pipelines["project"]["pipelines"]]
 
         assert pipeline_id in list_pipelines_id
@@ -798,18 +795,18 @@ class TestIntegrationProject:
     def test_get_graph_pipeline_id(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
         pipeline_name = "TEST_VIA_API"
-        output_pipeline_id = self.saagie.pipelines.get_id(pipeline_name, self.project_name)
+        output_pipeline_id = self.saagie_api.pipelines.get_id(pipeline_name, self.project_name)
         assert pipeline_id == output_pipeline_id
 
     def test_run_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        output_pipeline_run_status = self.saagie.pipelines.run(pipeline_id)["runPipeline"]["status"]
+        output_pipeline_run_status = self.saagie_api.pipelines.run(pipeline_id)["runPipeline"]["status"]
         assert output_pipeline_run_status == "REQUESTED"
 
     def test_stop_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        output_pipeline_run_id = self.saagie.pipelines.run(pipeline_id)["runPipeline"]["id"]
-        output_pipeline_stop_status = self.saagie.pipelines.stop(output_pipeline_run_id)["stopPipelineInstance"][
+        output_pipeline_run_id = self.saagie_api.pipelines.run(pipeline_id)["runPipeline"]["id"]
+        output_pipeline_stop_status = self.saagie_api.pipelines.stop(output_pipeline_run_id)["stopPipelineInstance"][
             "status"
         ]
         assert output_pipeline_stop_status == "KILLING"
@@ -817,8 +814,8 @@ class TestIntegrationProject:
     def test_delete_graph_pipeline(self, create_graph_pipeline):
         pipeline_id, job_id = create_graph_pipeline
 
-        result = self.saagie.pipelines.delete(pipeline_id)
-        self.saagie.jobs.delete(job_id)
+        result = self.saagie_api.pipelines.delete(pipeline_id)
+        self.saagie_api.jobs.delete(job_id)
 
         assert result == {"deletePipeline": True}
 
@@ -832,7 +829,7 @@ class TestIntegrationProject:
             "schedule_timezone": "UTC",
             "alerting": None,
         }
-        self.saagie.pipelines.edit(
+        self.saagie_api.pipelines.edit(
             pipeline_id,
             name=pipeline_input["name"],
             description=pipeline_input["description"],
@@ -840,7 +837,7 @@ class TestIntegrationProject:
             cron_scheduling=pipeline_input["cron_scheduling"],
             schedule_timezone=pipeline_input["schedule_timezone"],
         )
-        pipeline_info = self.saagie.pipelines.get_info(pipeline_id)
+        pipeline_info = self.saagie_api.pipelines.get_info(pipeline_id)
         to_validate = {
             "name": pipeline_info["graphPipeline"]["name"],
             "description": pipeline_info["graphPipeline"]["description"],
@@ -853,8 +850,8 @@ class TestIntegrationProject:
         assert pipeline_input == to_validate
 
     def test_export_pipeline(self, create_then_delete_graph_pipeline):
-        pipeline_id, job_id = create_then_delete_graph_pipeline
-        result = self.saagie.pipelines.export(pipeline_id, "./output/pipelines/")
+        pipeline_id, _ = create_then_delete_graph_pipeline
+        result = self.saagie_api.pipelines.export(pipeline_id, "./output/pipelines/")
         to_validate = True
         assert result == to_validate
 
@@ -873,13 +870,13 @@ class TestIntegrationProject:
 
         release_note = "amazing new version !"
 
-        pipeline_version_info = self.saagie.pipelines.upgrade(pipeline_id, graph_pipeline, release_note)
+        pipeline_version_info = self.saagie_api.pipelines.upgrade(pipeline_id, graph_pipeline, release_note)
 
         job_nodes_id = [
             job_node["id"] for job_node in pipeline_version_info["addGraphPipelineVersion"]["graph"]["jobNodes"]
         ]
 
-        result = (str(job_node3.id) in job_nodes_id) and (
+        result = (str(job_node3.uid) in job_nodes_id) and (
             pipeline_version_info["addGraphPipelineVersion"]["releaseNote"] == release_note
         )
 
@@ -897,7 +894,7 @@ class TestIntegrationProject:
         graph_pipeline = GraphPipeline()
         graph_pipeline.add_root_node(job_node1)
 
-        pipeline_create = self.saagie.pipelines.create_or_upgrade(
+        pipeline_create = self.saagie_api.pipelines.create_or_upgrade(
             name=pipeline_name,
             project_id=self.project_id,
             description="Description pipeline dev test",
@@ -914,7 +911,7 @@ class TestIntegrationProject:
 
         assert pipeline_id is not None
 
-        pipeline_upgrade = self.saagie.pipelines.create_or_upgrade(
+        pipeline_upgrade = self.saagie_api.pipelines.create_or_upgrade(
             name=pipeline_name,
             project_id=self.project_id,
             description="Description pipeline dev test",
@@ -936,10 +933,15 @@ class TestIntegrationProject:
 
     @pytest.fixture
     def create_app_from_scratch(self):
-        app = self.saagie.apps.create_from_scratch(
-            project_id=self.project_id, app_name="hello_world", image="hello-world:latest", description="Be happy"
+        app_name = "hello_world" + str(datetime.now())
+        app = self.saagie_api.apps.create_from_scratch(
+            project_id=self.project_id,
+            app_name=app_name,
+            image="httpd:2.4.54-alpine",
+            description="Be happy",
+            exposed_ports=[{"number": 80, "isRewriteUrl": True, "scope": "PROJECT"}],
         )
-        return app["createJob"]["id"]
+        return app["createApp"]["id"]
 
     @pytest.fixture
     def create_then_delete_app_from_scratch(self, create_app_from_scratch):
@@ -947,76 +949,86 @@ class TestIntegrationProject:
 
         yield app_id
 
-        self.saagie.apps.delete(app_id=app_id)
+        self.saagie_api.apps.delete(app_id=app_id)
 
     def test_create_app_from_scratch(self, create_app_from_scratch):
         app_id = create_app_from_scratch
-        app = self.saagie.apps.get_info(app_id)
+        app = self.saagie_api.apps.get_info(app_id)
 
-        assert app["labWebApp"]["name"] == "hello_world"
+        assert app["app"]["description"] == "Be happy"
 
     def export_app(self, create_then_delete_app_from_scratch):
         app_id = create_then_delete_app_from_scratch
-        result = self.saagie.apps.export(app_id, "./output/apps/")
+        result = self.saagie_api.apps.export(app_id, "./output/apps/")
         to_validate = True
         assert result == to_validate
 
-    # def test_run_app(self, create_then_delete_app_from_scratch):
-    #     app_id = create_then_delete_app_from_scratch
-    #
-    #     app_before_run = self.saagie.apps.get_info(app_id=app_id)
-    #     num_instances_before_run = app_before_run['job']['countJobInstance']
-    #     self.saagie.apps.run(app_id=app_id)
-    #
-    #     app_after_run = self.saagie.jobs.get_info(app_id=app_id)
-    #     num_instances_after_run = app_after_run['job']['countJobInstance']
-    #
-    #     assert num_instances_after_run == (num_instances_before_run + 1)
-    #
-    # def test_stop_app(self, create_then_delete_app_from_scratch):
-    #     app_id = create_then_delete_app_from_scratch
-    #
-    #     run_app = self.saagie.apps.run(app_id=app_id)
-    #     app_instance_id = run_app['runJob']['id']
-    #
-    #     self.saagie.jobs.stop(app_instance_id=app_instance_id)
-    #
-    #     app_instance_status = self.saagie \
-    #         .jobs.get_instance(app_instance_id)['jobInstance']['status']
-    #
-    #     assert app_instance_status in ['KILLED', 'KILLING']
+    def test_run_app(self, create_then_delete_app_from_scratch):
+        app_id = create_then_delete_app_from_scratch
 
-    # def test_edit_app(self, create_then_delete_app_from_scratch):
-    #
-    #     app_id = create_then_delete_app_from_scratch
-    #     app_input = {
-    #         'name': "hi new name",
-    #         'description': "new description",
-    #         "alerting": {
-    #             "emails": ["hello.world@gmail.com"],
-    #             "statusList": ["FAILED"]
-    #         }
-    #     }
-    #     self.saagie.apps.edit(app_id, app_name=app_input["name"], description=app_input["description"],
-    #                           emails=app_input["alerting"]["emails"], status_list=app_input["alerting"]["statusList"])
-    #
-    #     app_info = self.saagie.apps.get_info(app_id)
-    #     to_validate = {'name': app_info["labWebApp"]["name"], 'description': app_info["labWebApp"]["description"],
-    #                    'alerting': app_info["labWebApp"]["alerting"]}
-    #
-    #     assert app_input == to_validate
+        app_info = self.saagie_api.apps.get_info(app_id=app_id)
+        if app_info["app"]["history"]["currentStatus"].startswith("START"):
+            self.saagie_api.apps.stop(app_id=app_id)
+            tries = 60
+            while app_info["app"]["history"]["currentStatus"] != "STOPPED" and tries > 0:
+                app_info = self.saagie_api.apps.get_info(app_id=app_id)
+                time.sleep(1)
+                tries -= 1
+            if tries == 0:
+                raise Exception("App is not stopped")
+
+        self.saagie_api.apps.run(app_id=app_id)
+
+        app_after_run = self.saagie_api.apps.get_info(app_id=app_id)
+
+        assert app_after_run["app"]["history"]["currentStatus"].startswith("START")
+
+    def test_stop_app(self, create_then_delete_app_from_scratch):
+        app_id = create_then_delete_app_from_scratch
+
+        self.saagie_api.apps.stop(app_id=app_id)
+
+        app_after_run = self.saagie_api.apps.get_info(app_id=app_id)
+
+        assert app_after_run["app"]["history"]["currentStatus"].startswith("STOP")
+
+    def test_edit_app(self, create_then_delete_app_from_scratch):
+        app_id = create_then_delete_app_from_scratch
+
+        app_input = {
+            "name": "hi new name",
+            "description": "new description",
+            "alerting": {
+                "emails": ["hello.world@gmail.com"],
+                "statusList": ["FAILED", "STOPPED"],
+            },
+        }
+        self.saagie_api.apps.edit(
+            app_id,
+            app_name=app_input["name"],
+            description=app_input["description"],
+            emails=app_input["alerting"]["emails"],
+            status_list=app_input["alerting"]["statusList"],
+        )
+
+        app_info = self.saagie_api.apps.get_info(app_id)
+        to_validate = {
+            "name": app_info["app"]["name"],
+            "description": app_info["app"]["description"],
+            "alerting": app_info["app"]["alerting"],
+        }
+        del to_validate["alerting"]["loginEmails"]
+        assert app_input == to_validate
 
     @pytest.fixture
     def create_app_from_catalog(self):
-        app = self.saagie.apps.create_from_catalog(
+        app = self.saagie_api.apps.create_from_catalog(
             project_id=self.project_id,
-            app_name="hello_world2",
-            technology="Kibana",
+            technology_name="Kibana",
             context="7.15.1",
-            description="Be happy ",
         )
 
-        return app["createJob"]["id"]
+        return app["installApp"]["id"]
 
     @pytest.fixture
     def create_then_delete_app_from_catalog(self, create_app_from_catalog):
@@ -1024,21 +1036,21 @@ class TestIntegrationProject:
 
         yield app_id
 
-        self.saagie.apps.delete(app_id=app_id)
+        self.saagie_api.apps.delete(app_id=app_id)
 
     def test_create_app_from_catalog(self, create_app_from_catalog):
         app_id = create_app_from_catalog
 
-        app = self.saagie.apps.get_info(app_id)
+        app = self.saagie_api.apps.get_info(app_id)
 
-        assert app["labWebApp"]["name"] == "hello_world2"
+        assert app["app"]["name"] == "Kibana"
 
-    # def test_delete_app_from_catalog(self, create_app_from_catalog):
-    #     app_id = create_app_from_catalog
-    #     result = self.saagie.apps.delete(app_id)
-    #
-    #     assert result == {'deleteJob': True}
+    def test_delete_app_from_catalog(self, create_app_from_catalog):
+        app_id = create_app_from_catalog
+        result = self.saagie_api.apps.delete(app_id)
+
+        assert result == {"deleteApp": {"id": app_id}}
 
     def teardown_class(self):
         # Delete Project
-        self.saagie.projects.delete(self.project_id)
+        self.saagie_api.projects.delete(self.project_id)

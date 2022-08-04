@@ -68,6 +68,6 @@ class GqlClient:
                 )
 
             raise transport_error
-        except Exception as e:
+        except Exception as exception:
             console.print_exception(show_locals=False, max_frames=2)
-            raise e
+            raise exception

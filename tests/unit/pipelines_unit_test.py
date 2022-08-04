@@ -34,10 +34,6 @@ class TestPipelines:
         query = gql(GQL_RUN_PIPELINE)
         self.client.validate(query)
 
-    def test_create_pipeline(self):
-        query = gql(GQL_CREATE_PIPELINE)
-        self.client.validate(query)
-
     def test_get_pipeline_instance(self):
         query = gql(GQL_GET_PIPELINE_INSTANCE)
         self.client.validate(query)

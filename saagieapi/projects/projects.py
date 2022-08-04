@@ -447,7 +447,7 @@ class Projects:
         id_pipelines = [pipeline["id"] for pipeline in list_pipelines["pipelines"]]
 
         list_apps = self.saagie_api.apps.list_for_project_minimal(project_id)
-        id_apps = [app["id"] for app in list_apps["labWebApps"]]
+        id_apps = [app["id"] for app in list_apps["project"]["apps"]]
 
         job_failed = []
         pipeline_failed = []

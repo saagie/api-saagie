@@ -2,7 +2,8 @@ import logging
 import sys
 
 import requests
-from requests import ConnectionError, HTTPError, RequestException, Timeout
+from requests import ConnectionError as requestsConnectionError
+from requests import HTTPError, RequestException, Timeout
 
 
 class BearerAuth(requests.auth.AuthBase):
@@ -40,6 +41,6 @@ class BearerAuth(requests.auth.AuthBase):
             )
             response.raise_for_status()
             return response.text
-        except (HTTPError, ConnectionError, Timeout, RequestException) as err:
+        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
             logging.error(err)
             sys.exit(1)
