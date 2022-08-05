@@ -895,7 +895,7 @@ class TestIntegrationProject:
 
     def test_import_pipeline_from_json_with_non_existing_jobs(self):
         result = self.saagie.pipelines.import_from_json(
-            f"{dir_path}/resources/import/pipeline_non_existing_jobs.json",
+            f"{dir_path}/resources/import/pipeline/pipeline_non_existing_jobs.json",
             self.project_id,
         )
         assert result == False
@@ -913,7 +913,7 @@ class TestIntegrationProject:
             )
 
         result = self.saagie.pipelines.import_from_json(
-            f"{dir_path}/resources/import/pipeline_existing_jobs.json",
+            f"{dir_path}/resources/import/pipeline/pipeline_existing_jobs.json",
             self.project_id,
         )
         assert result == True

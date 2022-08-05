@@ -441,10 +441,9 @@ class EnvVars:
             return False
 
         try:
-            env_var_id = env_var_info["id"]
             env_var_name = env_var_info["name"]
             env_var_scope = env_var_info["scope"]
-            env_var_value = env_var_info["value"]
+            env_var_value = env_var_info["value"] if env_var_info["value"] is not None else ""
             env_var_description = env_var_info["description"]
             env_var_is_password = env_var_info["isPassword"]
 

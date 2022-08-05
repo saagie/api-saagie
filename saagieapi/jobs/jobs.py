@@ -926,7 +926,6 @@ class Jobs:
             return False
 
         try:
-            job_id = job_info["id"]
             job_name = job_info["name"]
             job_description = job_info["description"]
             job_category = job_info["category"]
