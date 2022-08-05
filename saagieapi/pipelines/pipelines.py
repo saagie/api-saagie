@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 from typing import Dict, List, Optional
@@ -644,4 +645,107 @@ class Pipelines:
             logging.warning("❌ Pipeline [%s] has not been successfully exported", pipeline_id)
             write_error(error_folder, "pipelines", pipeline_id)
             result = False
+        return result
+
+    def import_from_json(self, json_file: str, project_id: str) -> bool:
+        """Import pipeline from JSON format
+        Parameters
+        ----------
+        json_file : str
+            IPath to the JSON file that contains pipeline information
+        project_id : str
+            Project ID
+        Returns
+        -------
+        bool
+            True if pipelines are imported False otherwise
+        """
+        result = True
+
+        try:
+            with open(json_file, "r") as file:
+                pipeline_info = json.load(file)
+        except Exception as e:
+            logging.warning("Cannot open the JSON file %s", json_file)
+            logging.error("Something went wrong %s", e)
+            return False
+
+        try:
+            pipeline_name = pipeline_info["name"]
+            pipeline_description = pipeline_info["description"]
+            emails = pipeline_info["alerting"]["emails"]
+            status_list = pipeline_info["alerting"]["statusList"]
+            cron_scheduling = pipeline_info["cronScheduling"]
+            schedule_timezone = pipeline_info["scheduleTimezone"]
+
+            all_jobs_for_target_project = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
+
+            for version in pipeline_info["versions"]:
+                if version["isCurrent"]:
+                    release_note = version["releaseNote"]
+                    jobs_not_found = []
+                    jobs_found = []
+                    for job_node in version["graph"]["jobNodes"]:
+                        job_found_in_target_project = False
+                        for job in all_jobs_for_target_project:
+                            if job["name"] == job_node["job"]["name"]:
+                                job_found_in_target_project = True
+                                node_dict = {
+                                    "id": job_node["id"],
+                                    "job": {"id": job["id"]},
+                                    "nextNodes": job_node["nextNodes"],
+                                }
+                                jobs_found.append(node_dict)
+                                break
+                        if not job_found_in_target_project:
+                            jobs_not_found.append(job_node["job"]["name"])
+
+                    conditions_found = []
+                    for condition_node in version["graph"]["conditionNodes"]:
+                        condition_dict = {
+                            "id": condition_node["id"],
+                            "nextNodesSuccess": condition_node["nextNodesSuccess"],
+                            "nextNodesFailure": condition_node["nextNodesFailure"],
+                        }
+                        conditions_found.append(condition_dict)
+
+                    if len(jobs_not_found) > 0:
+                        result = False
+                        not_found = ""
+                        for job in jobs_not_found:
+                            not_found += job + ", "
+                        logging.error(
+                            "❌ Import aborted, in target project (id : %s), the following jobs were not found: %s",
+                            project_id,
+                            not_found,
+                        )
+                    else:
+                        graph_pipeline = GraphPipeline()
+                        graph_pipeline.list_job_nodes = jobs_found
+                        graph_pipeline.list_conditions_nodes = conditions_found
+                        res = self.saagie_api.pipelines.create_graph(
+                            pipeline_name,
+                            project_id,
+                            graph_pipeline,
+                            pipeline_description,
+                            release_note,
+                            emails,
+                            status_list,
+                            cron_scheduling,
+                            schedule_timezone,
+                        )
+                        if res["createGraphPipeline"] is not None:
+                            result = True
+                        else:
+                            result = False
+                            logging.error("❌ Something went wrong %s", res)
+        except Exception as e:
+            result = False
+            logging.error("❌ Something went wrong %s", e)
+
+        if result:
+            logging.info("✅ Pipeline [%s] has been successfully imported", pipeline_name)
+        else:
+            logging.warning("❌ Pipeline [%s] has not been successfully imported", pipeline_name)
+
         return result

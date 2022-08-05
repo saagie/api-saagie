@@ -904,8 +904,8 @@ class Jobs:
 
         Parameters
         ----------
-        job_file : str
-            Path to the JSON file
+        json_file : str
+            Path to the JSON file that contains job information
         project_id : str
             Project ID to import the job
         path_to_package : str, optional
@@ -926,7 +926,6 @@ class Jobs:
             return False
 
         try:
-            job_id = job_info["id"]
             job_name = job_info["name"]
             job_description = job_info["description"]
             job_category = job_info["category"]
@@ -942,9 +941,8 @@ class Jobs:
                     job_extra_technology_version = ""
 
                     if version["extraTechnology"] is not None:
-                        for extraTechnology in version["extraTechnology"]:
-                            job_extra_technology_name = extraTechnology["language"]
-                            job_extra_technology_version = extraTechnology["version"]
+                        job_extra_technology_name = version["extraTechnology"]["language"]
+                        job_extra_technology_version = version["extraTechnology"]["version"]
 
             job_cron_scheduling = job_info["cronScheduling"]
             job_schedule_timezone = job_info["scheduleTimezone"]

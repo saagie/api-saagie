@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Dict, Optional
 
@@ -414,4 +415,74 @@ class EnvVars:
             )
             write_error(error_folder, "env_vars", project_id)
             result = False
+        return result
+
+    def import_from_json(self, json_file: str, project_id: str = None) -> bool:
+        """Import environment variables from JSON format
+        Parameters
+        ----------
+        json_file : str
+            Path to the JSON file that contains env var information
+        project_id : str, optional
+            Project ID
+        Returns
+        -------
+        bool
+            True if environment variables are imported False otherwise
+        """
+        result = True
+
+        try:
+            with open(json_file, "r") as file:
+                env_var_info = json.load(file)
+        except Exception as e:
+            logging.warning("Cannot open the JSON file %s", json_file)
+            logging.error("Something went wrong %s", e)
+            return False
+
+        try:
+            env_var_name = env_var_info["name"]
+            env_var_scope = env_var_info["scope"]
+            env_var_value = env_var_info["value"] if env_var_info["value"] is not None else ""
+            env_var_description = env_var_info["description"]
+            env_var_is_password = env_var_info["isPassword"]
+
+            if env_var_scope == "PROJECT":
+                res = self.create_for_project(
+                    project_id=project_id,
+                    name=env_var_name,
+                    value=env_var_value,
+                    description=env_var_description,
+                    is_password=env_var_is_password,
+                )
+                if res["saveEnvironmentVariable"] is not None:
+                    result = True
+                else:
+                    result = False
+                    logging.error("❌ Something went wrong %s", res)
+            elif env_var_scope == "GLOBAL":
+                res = self.create_global(
+                    name=env_var_name,
+                    value=env_var_value,
+                    description=env_var_description,
+                    is_password=env_var_is_password,
+                )
+                if res["saveEnvironmentVariable"] is not None:
+                    result = True
+                else:
+                    result = False
+                    logging.error("❌ Something went wrong %s", res)
+            else:
+                result = False
+        except Exception as e:
+            result = False
+            logging.error("Something went wrong %s", e)
+
+        if result:
+            logging.info("✅ Environment variables of the project [%s] have been successfully imported", project_id)
+        else:
+            logging.warning(
+                "❌ Environment variables of the project [%s] have not been successfully imported", project_id
+            )
+
         return result
