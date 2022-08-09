@@ -1,0 +1,8 @@
+{
+    "id": "78f9e18c-2d82-44ce-9949-b5f33ed81c96",
+    "name": "PROJECT_VARIABLE",
+    "scope": "PROJECT",
+    "value": "Project variable",
+    "description": "Test import project variable from JSON",
+    "isPassword": false
+}

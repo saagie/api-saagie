@@ -1,0 +1,71 @@
+{
+    "id": "c9df19c7-f3ef-495f-9f83-121b0a349517",
+    "name": "test_job_api_spark2",
+    "description": "",
+    "alerting": null,
+    "instances": [],
+    "countJobInstance": 0,
+    "versions": [
+        {
+            "number": 2,
+            "creationDate": "2022-07-12T15:25:11.099Z",
+            "releaseNote": "release_note",
+            "runtimeVersion": "3.1",
+            "commandLine": "spark-submit",
+            "packageInfo": {
+                "name": "Documents_empty.txt",
+                "downloadUrl": "/projects/api/platform/6/project/1ca15012-aefd-4fef-a179-62c5bd95858a/job/c9df19c7-f3ef-495f-9f83-121b0a349517/version/2/artifact/Documents_empty.txt"
+            },
+            "dockerInfo": null,
+            "extraTechnology": {
+                "language": "Java/Scala",
+                "version": "11"
+            },
+            "isCurrent": true,
+            "isMajor": false
+        },
+        {
+            "number": 1,
+            "creationDate": "2022-07-12T15:24:52.68Z",
+            "releaseNote": "release_note",
+            "runtimeVersion": "3.1",
+            "commandLine": "spark-submit",
+            "packageInfo": {
+                "name": "Documents_empty.txt",
+                "downloadUrl": "/projects/api/platform/6/project/1ca15012-aefd-4fef-a179-62c5bd95858a/job/c9df19c7-f3ef-495f-9f83-121b0a349517/version/1/artifact/Documents_empty.txt"
+            },
+            "dockerInfo": null,
+            "extraTechnology": {
+                "language": "Java/Scala",
+                "version": "11"
+            },
+            "isCurrent": false,
+            "isMajor": false
+        }
+    ],
+    "category": "Extraction",
+    "technology": {
+        "id": "1d117fb6-0697-438a-b419-a69e0e7406e8",
+        "name": "Spark",
+        "technology_catalog": "Saagie"
+    },
+    "isScheduled": false,
+    "cronScheduling": null,
+    "scheduleStatus": null,
+    "scheduleTimezone": "UTC",
+    "isStreaming": false,
+    "creationDate": "2022-07-12T15:24:52.68Z",
+    "migrationStatus": null,
+    "migrationProjectId": null,
+    "isDeletable": false,
+    "graphPipelines": [
+        {
+            "id": "0deac4f6-7ebc-44f8-af77-6e9ed44db1c7"
+        },
+        {
+            "id": "bd17ddcc-b932-4917-a2a4-17ea582bb3fe"
+        }
+    ],
+    "doesUseGPU": false,
+    "resources": null
+}
