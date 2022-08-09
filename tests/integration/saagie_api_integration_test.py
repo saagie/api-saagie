@@ -7,7 +7,6 @@ from typing import List
 
 import pytest
 import urllib3
-from pyparsing import empty
 
 from saagieapi import SaagieApi
 from saagieapi.pipelines.graph_pipeline import ConditionNode, GraphPipeline, JobNode
@@ -341,7 +340,7 @@ class TestIntegrationProject:
         assert result == to_validate
 
     def test_import_job_spark_from_json(self):
-        result = self.saagie.jobs.import_from_json(
+        result = self.saagie_api.jobs.import_from_json(
             f"{dir_path}/resources/import/job_spark/job.json",
             self.project_id,
             f"{dir_path}/resources/import/job_spark/Documents_empty.txt",
@@ -681,28 +680,28 @@ class TestIntegrationProject:
         assert env_var_folder_exist is True
 
     def test_import_global_env_var_from_json(self):
-        result = self.saagie.env_vars.import_from_json(
+        result = self.saagie_api.env_vars.import_from_json(
             f"{dir_path}/resources/import/env_var/global_variable.json",
             self.project_id,
         )
 
-        assert result == True
+        assert result
 
     def test_import_project_env_var_from_json(self):
-        result = self.saagie.env_vars.import_from_json(
+        result = self.saagie_api.env_vars.import_from_json(
             f"{dir_path}/resources/import/env_var/project_variable.json",
             self.project_id,
         )
 
-        assert result == True
+        assert result
 
     def test_import_wrong_env_var_from_json(self):
-        result = self.saagie.env_vars.import_from_json(
+        result = self.saagie_api.env_vars.import_from_json(
             f"{dir_path}/resources/import/env_var/wrong_variable.json",
             self.project_id,
         )
 
-        assert result == False
+        assert not result
 
     ############################################################################
     ################################## DOCKER ##################################
@@ -891,29 +890,29 @@ class TestIntegrationProject:
         assert result == to_validate
 
     def test_import_pipeline_from_json_with_non_existing_jobs(self):
-        result = self.saagie.pipelines.import_from_json(
+        result = self.saagie_api.pipelines.import_from_json(
             f"{dir_path}/resources/import/pipeline/pipeline_non_existing_jobs.json",
             self.project_id,
         )
-        assert result == False
+        assert not result
 
     def test_import_pipeline_from_json_with_existing_jobs(self):
         job_name = "test_job_python"
-        jobs = self.saagie.jobs.list_for_project_minimal(self.project_id)["jobs"]
+        jobs = self.saagie_api.jobs.list_for_project_minimal(self.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         print(job)
         if len(job) == 0:
-            self.saagie.jobs.import_from_json(
+            self.saagie_api.jobs.import_from_json(
                 f"{dir_path}/resources/import/job/job.json",
                 self.project_id,
                 f"{dir_path}/resources/import/job/hello_world.py",
             )
 
-        result = self.saagie.pipelines.import_from_json(
+        result = self.saagie_api.pipelines.import_from_json(
             f"{dir_path}/resources/import/pipeline/pipeline_existing_jobs.json",
             self.project_id,
         )
-        assert result == True
+        assert result
 
     def test_upgrade_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, job_id = create_then_delete_graph_pipeline
