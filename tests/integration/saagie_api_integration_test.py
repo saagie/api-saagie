@@ -1,6 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
+import json
 import os
-import sys
 import time
 from datetime import datetime
 from typing import List
@@ -10,10 +10,6 @@ import urllib3
 
 from saagieapi import SaagieApi
 from saagieapi.pipelines.graph_pipeline import ConditionNode, GraphPipeline, JobNode
-
-dir_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append("../..")
-sys.path.append(dir_path + "/..")
 
 
 @pytest.fixture(autouse=True)
@@ -89,6 +85,9 @@ class TestIntegrationProject:
         user = os.environ["USER_TEST_SAAGIE"]
         password = os.environ["PWD_TEST_SAAGIE"]
         realm = os.environ["REALM_TEST_SAAGIE"]
+
+        self.dir_path = os.path.dirname(os.path.abspath(__file__))
+        self.import_dir = os.path.join(self.dir_path, "resources", "import")
 
         self.saagie_api = SaagieApi(
             url_saagie=url_saagie, id_platform=id_platform, user=user, password=password, realm=realm
@@ -172,7 +171,7 @@ class TestIntegrationProject:
         assert len(technologies_allowed["technologies"]) == 3  # R and Spark and Python for extraction
 
     def test_export_project(self):
-        result = self.saagie_api.projects.export(self.project_id, "./output/projects/")
+        result = self.saagie_api.projects.export(self.project_id, os.path.join(os.getcwd(), "output", "projects"))
         to_validate = True
         assert result == to_validate
 
@@ -183,7 +182,7 @@ class TestIntegrationProject:
     @pytest.fixture
     def create_job(self):
         job_name = "python_test"
-        file = dir_path + "/resources/hello_world.py"
+        file = os.path.join(self.dir_path, "resources", "hello_world.py")
 
         job = self.saagie_api.jobs.create(
             job_name=job_name,
@@ -235,7 +234,7 @@ class TestIntegrationProject:
         job = self.saagie_api.jobs.create(
             job_name="job_name",
             project_id=self.project_id,
-            file=dir_path + "/resources/hello_world.py",
+            file=os.path.join(self.dir_path, "resources", "hello_world.py"),
             description="",
             category="Extraction",
             technology_catalog="Saagie",
@@ -325,15 +324,15 @@ class TestIntegrationProject:
 
     def test_export_job(self, create_then_delete_job):
         job_id = create_then_delete_job
-        result = self.saagie_api.jobs.export(job_id, "./output/jobs/")
+        result = self.saagie_api.jobs.export(job_id, os.path.join(os.getcwd(), "output", "jobs"))
         to_validate = True
         assert result == to_validate
 
     def test_import_job_from_json(self):
         result = self.saagie_api.jobs.import_from_json(
-            f"{dir_path}/resources/import/job/job.json",
+            os.path.join(self.import_dir, "job", "job.json"),
             self.project_id,
-            f"{dir_path}/resources/import/job/hello_world.py",
+            os.path.join(self.import_dir, "job", "hello_world.py"),
         )
 
         to_validate = True
@@ -341,9 +340,9 @@ class TestIntegrationProject:
 
     def test_import_job_spark_from_json(self):
         result = self.saagie_api.jobs.import_from_json(
-            f"{dir_path}/resources/import/job_spark/job.json",
+            os.path.join(self.import_dir, "job_spark", "job.json"),
             self.project_id,
-            f"{dir_path}/resources/import/job_spark/Documents_empty.txt",
+            os.path.join(self.import_dir, "job_spark", "Documents_empty.txt"),
         )
 
         to_validate = True
@@ -371,7 +370,7 @@ class TestIntegrationProject:
 
     def test_create_or_upgrade_job(self, delete_job):
         job_name = delete_job
-        file = dir_path + "/resources/hello_world.py"
+        file = os.path.join(self.dir_path, "resources", "hello_world.py")
 
         job_create = self.saagie_api.jobs.create_or_upgrade(
             job_name=job_name,
@@ -673,15 +672,24 @@ class TestIntegrationProject:
 
     def test_export_variable(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
-        result = self.saagie_api.env_vars.export(self.project_id, "./output/variables/")
-        env_var_folder_exist = os.path.isdir(f"./output/variables/{name}")
+        export_dir = os.path.join(os.getcwd(), "output", "variables")
+        result = self.saagie_api.env_vars.export(self.project_id, export_dir)
+        env_var_folder_exist = os.path.isdir(os.path.join(export_dir, name))
         to_validate = True
         assert result == to_validate
         assert env_var_folder_exist is True
 
     def test_import_global_env_var_from_json(self):
+        path = os.path.join(self.dir_path, "resources", "import", "env_var", "global_variable.json")
+        # Delete variable if it already exist
+        with open(path, encoding="UTF-8") as json_file:
+            var_name = json.load(json_file)["name"]
+        var_list = [var["name"] for var in self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]]
+        if var_name in var_list:
+            self.saagie_api.env_vars.delete_global(var_name)
+
         result = self.saagie_api.env_vars.import_from_json(
-            f"{dir_path}/resources/import/env_var/global_variable.json",
+            path,
             self.project_id,
         )
 
@@ -689,7 +697,7 @@ class TestIntegrationProject:
 
     def test_import_project_env_var_from_json(self):
         result = self.saagie_api.env_vars.import_from_json(
-            f"{dir_path}/resources/import/env_var/project_variable.json",
+            os.path.join(self.import_dir, "env_var", "project_variable.json"),
             self.project_id,
         )
 
@@ -697,7 +705,7 @@ class TestIntegrationProject:
 
     def test_import_wrong_env_var_from_json(self):
         result = self.saagie_api.env_vars.import_from_json(
-            f"{dir_path}/resources/import/env_var/wrong_variable.json",
+            os.path.join(self.import_dir, "env_var", "wrong_variable.json"),
             self.project_id,
         )
 
@@ -885,13 +893,13 @@ class TestIntegrationProject:
 
     def test_export_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        result = self.saagie_api.pipelines.export(pipeline_id, "./output/pipelines/")
+        result = self.saagie_api.pipelines.export(pipeline_id, os.path.join(os.getcwd(), "output", "pipelines"))
         to_validate = True
         assert result == to_validate
 
     def test_import_pipeline_from_json_with_non_existing_jobs(self):
         result = self.saagie_api.pipelines.import_from_json(
-            f"{dir_path}/resources/import/pipeline/pipeline_non_existing_jobs.json",
+            os.path.join(self.import_dir, "pipeline", "pipeline_non_existing_jobs.json"),
             self.project_id,
         )
         assert not result
@@ -903,13 +911,13 @@ class TestIntegrationProject:
         print(job)
         if len(job) == 0:
             self.saagie_api.jobs.import_from_json(
-                f"{dir_path}/resources/import/job/job.json",
+                os.path.join(self.import_dir, "job", "job.json"),
                 self.project_id,
-                f"{dir_path}/resources/import/job/hello_world.py",
+                os.path.join(self.import_dir, "job", "hello_world.py"),
             )
 
         result = self.saagie_api.pipelines.import_from_json(
-            f"{dir_path}/resources/import/pipeline/pipeline_existing_jobs.json",
+            os.path.join(self.import_dir, "pipeline", "pipeline_existing_jobs.json"),
             self.project_id,
         )
         assert result
@@ -1018,7 +1026,7 @@ class TestIntegrationProject:
 
     def export_app(self, create_then_delete_app_from_scratch):
         app_id = create_then_delete_app_from_scratch
-        result = self.saagie_api.apps.export(app_id, "./output/apps/")
+        result = self.saagie_api.apps.export(app_id, os.path.join(os.getcwd(), "output", "apps"))
         to_validate = True
         assert result == to_validate
 
