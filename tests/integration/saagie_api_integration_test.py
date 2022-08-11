@@ -1,6 +1,7 @@
 # pylint: disable=attribute-defined-outside-init
 import json
 import os
+import shutil
 import time
 from datetime import datetime
 from typing import List
@@ -88,6 +89,8 @@ class TestIntegrationProject:
 
         self.dir_path = os.path.dirname(os.path.abspath(__file__))
         self.import_dir = os.path.join(self.dir_path, "resources", "import")
+        self.output_dir = os.path.join(os.getcwd(), "output")
+        self.output_dir_present = os.path.isdir(self.output_dir)
 
         self.saagie_api = SaagieApi(
             url_saagie=url_saagie, id_platform=id_platform, user=user, password=password, realm=realm
@@ -171,7 +174,7 @@ class TestIntegrationProject:
         assert len(technologies_allowed["technologies"]) == 3  # R and Spark and Python for extraction
 
     def test_export_project(self):
-        result = self.saagie_api.projects.export(self.project_id, os.path.join(os.getcwd(), "output", "projects"))
+        result = self.saagie_api.projects.export(self.project_id, os.path.join(self.output_dir, "projects"))
         to_validate = True
         assert result == to_validate
 
@@ -324,7 +327,7 @@ class TestIntegrationProject:
 
     def test_export_job(self, create_then_delete_job):
         job_id = create_then_delete_job
-        result = self.saagie_api.jobs.export(job_id, os.path.join(os.getcwd(), "output", "jobs"))
+        result = self.saagie_api.jobs.export(job_id, os.path.join(self.output_dir, "jobs"))
         to_validate = True
         assert result == to_validate
 
@@ -672,21 +675,26 @@ class TestIntegrationProject:
 
     def test_export_variable(self, create_then_delete_project_env_var):
         name = create_then_delete_project_env_var
-        export_dir = os.path.join(os.getcwd(), "output", "variables")
+        export_dir = os.path.join(self.output_dir, "variables")
         result = self.saagie_api.env_vars.export(self.project_id, export_dir)
         env_var_folder_exist = os.path.isdir(os.path.join(export_dir, name))
         to_validate = True
         assert result == to_validate
         assert env_var_folder_exist is True
 
-    def test_import_global_env_var_from_json(self):
-        path = os.path.join(self.dir_path, "resources", "import", "env_var", "global_variable.json")
+    @staticmethod
+    def delete_test_global_env_var(self_obj):
+        path = os.path.join(self_obj.import_dir, "env_var", "global_variable.json")
         # Delete variable if it already exist
         with open(path, encoding="UTF-8") as json_file:
             var_name = json.load(json_file)["name"]
-        var_list = [var["name"] for var in self.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]]
+        var_list = [var["name"] for var in self_obj.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]]
         if var_name in var_list:
-            self.saagie_api.env_vars.delete_global(var_name)
+            self_obj.saagie_api.env_vars.delete_global(var_name)
+
+    def test_import_global_env_var_from_json(self):
+        path = os.path.join(self.import_dir, "env_var", "global_variable.json")
+        self.delete_test_global_env_var(self)
 
         result = self.saagie_api.env_vars.import_from_json(
             path,
@@ -893,7 +901,7 @@ class TestIntegrationProject:
 
     def test_export_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
-        result = self.saagie_api.pipelines.export(pipeline_id, os.path.join(os.getcwd(), "output", "pipelines"))
+        result = self.saagie_api.pipelines.export(pipeline_id, os.path.join(self.output_dir, "pipelines"))
         to_validate = True
         assert result == to_validate
 
@@ -1026,7 +1034,7 @@ class TestIntegrationProject:
 
     def export_app(self, create_then_delete_app_from_scratch):
         app_id = create_then_delete_app_from_scratch
-        result = self.saagie_api.apps.export(app_id, os.path.join(os.getcwd(), "output", "apps"))
+        result = self.saagie_api.apps.export(app_id, os.path.join(self.output_dir, "apps"))
         to_validate = True
         assert result == to_validate
 
@@ -1119,5 +1127,12 @@ class TestIntegrationProject:
         assert result == {"deleteApp": {"id": app_id}}
 
     def teardown_class(self):
+        # Delete output directory if it wasn't present before
+        if not self.output_dir_present:
+            shutil.rmtree(self.output_dir)
+
+        # Delete global environment variable
+        self.delete_test_global_env_var(self)
+
         # Delete Project
         self.saagie_api.projects.delete(self.project_id)
