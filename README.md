@@ -1,5 +1,3 @@
-# Saagie api
-
 ![Saagie api logo](https://github.com/saagie/api-saagie/blob/master/.github/banner.png?raw=true)
 
 [![PyPI version](https://img.shields.io/pypi/v/saagieapi?style=for-the-badge)](https://pypi.org/project/saagieapi/)
