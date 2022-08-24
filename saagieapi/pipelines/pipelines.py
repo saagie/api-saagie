@@ -634,9 +634,9 @@ class Pipelines:
         try:
             with open(json_file, "r") as file:
                 pipeline_info = json.load(file)
-        except Exception as e:
+        except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
             return False
 
         try:
@@ -708,9 +708,9 @@ class Pipelines:
                         else:
                             result = False
                             logging.error("❌ Something went wrong %s", res)
-        except Exception as e:
+        except Exception as exception:
             result = False
-            logging.error("❌ Something went wrong %s", e)
+            logging.error("❌ Something went wrong %s", exception)
 
         if result:
             logging.info("✅ Pipeline [%s] has been successfully imported", pipeline_name)

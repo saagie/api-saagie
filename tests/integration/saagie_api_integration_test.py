@@ -62,14 +62,6 @@ class TestIntegrationProjectCreationAndDeletion:
 
         return project_id
 
-    @pytest.fixture
-    def create_then_delete_project(self, create_project):
-        project_id = create_project
-
-        yield
-
-        self.saagie_api.projects.delete(project_id)
-
     def test_delete_project(self, create_project):
         project_id = create_project
 
@@ -686,7 +678,7 @@ class TestIntegrationProject:
     def delete_test_global_env_var(self_obj):
         path = os.path.join(self_obj.import_dir, "env_var", "global_variable.json")
         # Delete variable if it already exist
-        with open(path, encoding="UTF-8") as json_file:
+        with open(path, encoding="utf-8") as json_file:
             var_name = json.load(json_file)["name"]
         var_list = [var["name"] for var in self_obj.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]]
         if var_name in var_list:
