@@ -187,20 +187,6 @@ mutation runPipelineMutation($pipelineId: UUID!){
   }
 """
 
-GQL_CREATE_PIPELINE = """
-mutation createPipelineMutation($name: String!, $description: String, $projectId: UUID!, $jobsId: [UUID!]!){
-    createPipeline(pipeline: {
-                                name: $name
-                                description: $description
-                                projectId: $projectId
-                                jobsId: $jobsId
-                                isScheduled: false
-        }){
-        id
-    }
-}
-"""
-
 GQL_GET_PIPELINE_INSTANCE = """
 query pipelineInstanceQuery($id: UUID!){
     pipelineInstance(id: $id){
@@ -213,7 +199,7 @@ query pipelineInstanceQuery($id: UUID!){
 """
 
 GQL_CREATE_GRAPH_PIPELINE = """
-mutation createGraphPipelineMutation($name: String!, $description: String, $projectId: UUID!, 
+mutation createGraphPipelineMutation($name: String!, $description: String, $projectId: UUID!,
                                      $releaseNote: String, $alerting: JobPipelineAlertingInput,
                                      $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone:TimeZone,
                                      $jobNodes: [JobNodeInput!], $conditionNodes: [ConditionNodeInput!]) {

@@ -399,9 +399,9 @@ class EnvVars:
             project_env_var = self.list_for_project(project_id)["projectEnvironmentVariables"]
             if project_only:
                 project_env_var = [env for env in project_env_var if env["scope"] == "PROJECT"]
-        except Exception as e:
+        except Exception as exception:
             logging.warning("Cannot get the information of environment variable of the project [%s]", project_id)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
         if project_env_var:
             for env in project_env_var:
                 env_var_name = env["name"]
@@ -433,11 +433,11 @@ class EnvVars:
         result = True
 
         try:
-            with open(json_file, "r") as file:
+            with open(json_file, "r", encoding="utf-8") as file:
                 env_var_info = json.load(file)
-        except Exception as e:
+        except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
             return False
 
         try:
@@ -474,9 +474,9 @@ class EnvVars:
                     logging.error("❌ Something went wrong %s", res)
             else:
                 result = False
-        except Exception as e:
+        except Exception as exception:
             result = False
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
 
         if result:
             logging.info("✅ Environment variables of the project [%s] have been successfully imported", project_id)

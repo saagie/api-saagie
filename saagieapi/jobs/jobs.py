@@ -645,26 +645,26 @@ class Jobs:
             )["editJob"]
 
             return responses
-        else:
-            return self.create(
-                job_name=job_name,
-                project_id=project_id,
-                file=file,
-                description=description,
-                category=category,
-                technology=technology,
-                technology_catalog=technology_catalog,
-                runtime_version=runtime_version,
-                command_line=command_line,
-                release_note=release_note,
-                extra_technology=extra_technology,
-                extra_technology_version=extra_technology_version,
-                cron_scheduling=cron_scheduling,
-                schedule_timezone=schedule_timezone,
-                resources=resources,
-                emails=emails,
-                status_list=status_list,
-            )
+
+        return self.create(
+            job_name=job_name,
+            project_id=project_id,
+            file=file,
+            description=description,
+            category=category,
+            technology=technology,
+            technology_catalog=technology_catalog,
+            runtime_version=runtime_version,
+            command_line=command_line,
+            release_note=release_note,
+            extra_technology=extra_technology,
+            extra_technology_version=extra_technology_version,
+            cron_scheduling=cron_scheduling,
+            schedule_timezone=schedule_timezone,
+            resources=resources,
+            emails=emails,
+            status_list=status_list,
+        )
 
     def delete(self, job_id: str) -> Dict:
         """Delete a given job
@@ -736,8 +736,8 @@ class Jobs:
         logging.info("⏳ Job id %s with instance %s has just been requested", job_id, job_instance_id)
         while state not in final_status_list:
             with console.status(f"Job is currently {state}", refresh_per_second=100):
-                to = False if timeout == -1 else sec >= timeout
-                if to:
+                t_out = False if timeout == -1 else sec >= timeout
+                if t_out:
                     raise TimeoutError(f"❌ Last state known : {state}")
                 time.sleep(freq)
                 sec += freq
@@ -787,25 +787,25 @@ class Jobs:
         """
         if file:
             file = Path(file)
-            with file.open(mode="rb") as f:
-                params["file"] = f
+            with file.open(mode="rb") as file_content:
+                params["file"] = file_content
                 try:
                     req = self.saagie_api.client.execute(
                         query=gql(payload_str), variable_values=params, upload_files=True
                     )
                     res = {"data": req}
-                except Exception as e:
-                    logging.error("Something went wrong %s", e)
-                    raise e
+                except Exception as exception:
+                    logging.error("Something went wrong %s", exception)
+                    raise exception
                 return res
 
         else:
             try:
                 req = self.saagie_api.client.execute(query=gql(payload_str), variable_values=params)
                 res = {"data": req}
-            except Exception as e:
-                logging.error("Something went wrong %s", e)
-                raise e
+            except Exception as exception:
+                logging.error("Something went wrong %s", exception)
+                raise exception
             return res
 
     def export(
@@ -848,10 +848,10 @@ class Jobs:
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
             )["job"]
-        except Exception as e:
+        except Exception as exception:
             result = False
             logging.warning("Cannot get the information of the job [%s]", job_id)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
 
         if job_info:
             create_folder(output_folder + job_id)
@@ -874,15 +874,17 @@ class Jobs:
                             local_folder = output_folder + job_id + f"/version/{version['number']}/"
                             local_file_name = version["packageInfo"]["name"]
                             create_folder(local_folder)
-                            r = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
-                            if r.status_code == 200:
-                                logging.info(f"Downloading the version {version['number']} of the job")
-                                write_request_response_to_file(local_folder + local_file_name, r)
+                            req = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
+                            if req.status_code == 200:
+                                logging.info("Downloading the version %s of the job", version["number"])
+                                write_request_response_to_file(local_folder + local_file_name, req)
 
                             else:
                                 logging.warning(
-                                    f"❌ Cannot download the version [{version['number']}] of the job [{job_id}], "
-                                    f"please verify if everything is ok"
+                                    "❌ Cannot download the version [%s] of the job [%s], \
+                                    please verify if everything is ok",
+                                    {version["number"]},
+                                    job_id,
                                 )
                                 result = False
         else:
@@ -918,11 +920,11 @@ class Jobs:
         result = True
 
         try:
-            with open(json_file, "r") as file:
+            with open(json_file, "r", encoding="utf-8") as file:
                 job_info = json.load(file)
-        except Exception as e:
+        except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
             return False
 
         try:
@@ -974,9 +976,9 @@ class Jobs:
                 job_status_list,
             )
             logging.info("✅ Job [%s] successfully imported", job_name)
-        except Exception as e:
+        except Exception as exception:
             result = False
             logging.warning("❌ Job [%s] has not been successfully imported", job_name)
-            logging.error("Something went wrong %s", e)
+            logging.error("Something went wrong %s", exception)
 
         return result
