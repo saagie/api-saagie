@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.0 (2022-08-25)
+### Breaking
+* * New gql api for apps and overall code refactoring ([`fd5fa60`](https://github.com/saagie/api-saagie/commit/fd5fa6012fdba6cf0c85b4219b5a41666aa81633))
+
+### :boom:
+* :boom: New gql api for apps and overall code refactoring ([#134](https://github.com/saagie/api-saagie/issues/134)) ([`fd5fa60`](https://github.com/saagie/api-saagie/commit/fd5fa6012fdba6cf0c85b4219b5a41666aa81633))
+
 ## v1.1.4 (2022-08-05)
 ### :bug:
 * :bug: Feat/import from json ([#133](https://github.com/saagie/api-saagie/issues/133)) ([`24ece67`](https://github.com/saagie/api-saagie/commit/24ece67a7a06397e113529c0d2121110ba94289a))
