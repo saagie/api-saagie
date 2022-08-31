@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.1 (2022-08-31)
+### :bug:
+* :bug: Bug/117 deleted technology ([#135](https://github.com/saagie/api-saagie/issues/135)) ([`dd3582b`](https://github.com/saagie/api-saagie/commit/dd3582b3b53cd5889cc453c4f3cded98653b8351))
+
 ## v2.0.0 (2022-08-25)
 ### Breaking
 * * New gql api for apps and overall code refactoring ([`fd5fa60`](https://github.com/saagie/api-saagie/commit/fd5fa6012fdba6cf0c85b4219b5a41666aa81633))
