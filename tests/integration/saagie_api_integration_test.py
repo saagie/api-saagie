@@ -822,10 +822,9 @@ class TestIntegrationProject:
 
         yield pipeline_name
 
-        # Temporary workaround for issue #117, get_id doesn't work for pipelines
-        # pipeline_id = self.saagie.pipelines.get_id(pipeline_name, self.project_name)
+        pipeline_id = self.saagie_api.pipelines.get_id(pipeline_name, self.project_name)
 
-        # self.saagie.pipelines.delete(pipeline_id)
+        self.saagie_api.pipelines.delete(pipeline_id)
 
     def test_create_graph_pipeline(self, create_then_delete_graph_pipeline):
         pipeline_id, _ = create_then_delete_graph_pipeline
