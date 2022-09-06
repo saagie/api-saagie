@@ -4,9 +4,6 @@ from typing import List
 
 
 class TestIntegrationProject:
-    def setup_class(self):
-        pass
-
     @staticmethod
     def test_get_project_id(create_global_project):
         conf = create_global_project
