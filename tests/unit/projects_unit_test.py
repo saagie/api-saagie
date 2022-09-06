@@ -1,4 +1,4 @@
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access
 import pytest
 from gql import gql
 
