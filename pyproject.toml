@@ -49,6 +49,7 @@ disable = [
     "too-many-locals",
     "too-few-public-methods",
     "too-many-public-methods",
+    "wildcard-import",
 ]
 
 [tool.pylint.format]
