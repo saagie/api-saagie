@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.0.2 (2022-09-06)
+### :wheelchair:
+* :wheelchair: split integration tests ([#136](https://github.com/saagie/api-saagie/issues/136)) ([`aeaa152`](https://github.com/saagie/api-saagie/commit/aeaa152f7fb7c9d29a00772e049832c1923d9116))
+
 ## v2.0.1 (2022-08-31)
 ### :bug:
 * :bug: Bug/117 deleted technology ([#135](https://github.com/saagie/api-saagie/issues/135)) ([`dd3582b`](https://github.com/saagie/api-saagie/commit/dd3582b3b53cd5889cc453c4f3cded98653b8351))
