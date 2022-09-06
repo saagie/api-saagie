@@ -487,7 +487,6 @@ class Projects:
                 id_app,
                 output_folder_app,
                 error_folder=error_folder,
-                versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
             )
             if not app_export:

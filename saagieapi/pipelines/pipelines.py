@@ -632,7 +632,7 @@ class Pipelines:
         result = True
 
         try:
-            with open(json_file, "r") as file:
+            with open(json_file, "r", encoding="utf-8") as file:
                 pipeline_info = json.load(file)
         except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)

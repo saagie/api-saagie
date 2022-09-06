@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "saagieapi"
-version = "2.0.0"
+version = "2.0.2"
 description = "Python API to interact with Saagie"
 authors = ["Saagie"]
 license = "GLWTPL"
@@ -49,6 +49,7 @@ disable = [
     "too-many-locals",
     "too-few-public-methods",
     "too-many-public-methods",
+    "wildcard-import",
 ]
 
 [tool.pylint.format]

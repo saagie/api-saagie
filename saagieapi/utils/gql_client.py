@@ -3,7 +3,7 @@ from typing import Dict, Optional
 
 import requests
 from gql import Client
-from gql.transport.exceptions import TransportServerError
+from gql.transport.exceptions import TransportQueryError, TransportServerError
 from gql.transport.requests import RequestsHTTPTransport
 from graphql import DocumentNode
 
@@ -49,12 +49,18 @@ class GqlClient:
         dict
             Dict containing the query result
         """
+        pprint_result = pprint_result if pprint_result is not None else self.pprint_global
         try:
             result = self.client.execute(document=query, variable_values=variable_values, upload_files=upload_files)
-            pprint_result = pprint_result if pprint_result is not None else self.pprint_global
             if pprint_result:
                 console.print(result)
             return result
+        except TransportQueryError as transport_error:
+            logging.warning("❗Unexpected error, printing result anyway")
+            console.print_exception(show_locals=False, max_frames=2)
+            if pprint_result:
+                console.print(transport_error.data)
+            return transport_error.data
         except TransportServerError as transport_error:
             if transport_error.code == 401 and not is_retry:
                 logging.warning("❗Authentication error, error 401 received, trying to refresh token")
@@ -66,7 +72,6 @@ class GqlClient:
                 return self.execute(
                     query=query, variable_values=variable_values, upload_files=upload_files, is_retry=True
                 )
-
             raise transport_error
         except Exception as exception:
             console.print_exception(show_locals=False, max_frames=2)
