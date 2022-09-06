@@ -562,6 +562,7 @@ class Apps:
 
         """
         runtimes = self.saagie_api.get_runtimes(technology_id)
+        runtime_label = ""
         for runtime in runtimes["technology"]["appContexts"]:
             if runtime["id"] == runtime_id:
                 runtime_label = runtime["label"]
