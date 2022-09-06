@@ -147,9 +147,3 @@ class TestIntegrationApps:
         result = conf.saagie_api.apps.delete(app_id)
 
         assert result == {"deleteApp": {"id": app_id}}
-
-    # @staticmethod
-    # def teardown_class(create_global_project):
-
-    #     # Delete Project
-    #     conf.saagie_api.projects.delete(conf.project_id)
