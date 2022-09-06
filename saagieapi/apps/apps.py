@@ -557,7 +557,7 @@ class Apps:
 
         Returns
         -------
-        dict
+        str
             String of runtime label
 
         """
