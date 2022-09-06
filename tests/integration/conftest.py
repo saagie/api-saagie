@@ -1,4 +1,4 @@
-# pylint: disable=duplicate-code
+# pylint: disable=duplicate-code,redefined-outer-name
 import json
 import os
 import shutil
@@ -93,7 +93,7 @@ def create_global_project():
 
 @pytest.fixture
 @staticmethod
-def create_job():
+def create_job(create_global_project):
     conf = create_global_project
     job_name = "python_test"
     file = os.path.join(conf.dir_path, "resources", "hello_world.py")
