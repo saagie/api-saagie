@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Dict, List, Optional
 
@@ -115,7 +116,7 @@ class Apps:
         self,
         project_id: str,
         app_name: str,
-        image: str,
+        image: str = "",
         description: str = "",
         exposed_ports: List[Dict] = None,
         storage_paths: List[Dict] = None,
@@ -124,6 +125,9 @@ class Apps:
         emails: List = None,
         logins: List = None,
         status_list: List = None,
+        resources: Dict = None,
+        technology_id: str = None,
+        technology_context: str = None,
     ) -> Dict:
         """Create an app in a specific project
         Parameters
@@ -136,9 +140,11 @@ class Apps:
             Description of the app
         image: str
             tag of the Docker Image
+            Incompatible with parameters technology_id & technology_context
             ex: hello-world:nanoserver-ltc2022
         docker_credentials_id: str
             Credentials's ID for the image if the image is not public
+            Incompatible with parameters technology_id & technology_context
         exposed_ports: List[dict]
             List of dict of exposed ports
             Each dict should contains 'port' as key
@@ -149,9 +155,18 @@ class Apps:
                 "name":"Test Port"}]
         storage_paths: List[Dict], optional
             List of dictionnaries indicating the volume path to the persistent storage
-            and the id of the volume to be associated with the app.
-            Ex: [{"path": "/home",
-                  "volumeId": "cb70ad1d-7883-48ac-8740-2c8e5c5166ee"}]
+            and :
+            - the id of the volume to be associated with the app.
+                Ex: [{"path": "/home",
+                    "volumeId": "cb70ad1d-7883-48ac-8740-2c8e5c5166ee"}]
+            - or the information needed to created the volume
+                Ex: [{"path": "/home",
+                    "volume": {
+                            "name":"storage name",
+                            "size":"64 MB",
+                            "description":"storage description"
+                        }
+                    }]
         release_note: str,
             Release note for the app version
         emails: List[String], optional
@@ -162,6 +177,14 @@ class Apps:
             Receive an email when the job status change to a specific status
             Each item of the list should be one of these following values: "STARTING","STARTED",
             "ROLLING_BACK","UPGRADING","RECOVERING","RESTARTING","STOPPING","STOPPED","FAILED"
+        resources: Dict, optional
+            Resources CPU, RAM & GPU limited and guaranteed for the app
+        technology_id: str, optional
+            Technology id of the app
+            Incompatible with parameters image & docker_credentials_id
+        technology_context: str, optional
+            Context version of the app
+            Incompatible with parameters image & docker_credentials_id
         Returns
         -------
         dict
@@ -172,16 +195,22 @@ class Apps:
         if exposed_ports is None:
             exposed_ports = []
 
-        repos = self.saagie_api.get_repositories_info()["repositories"]
-        # Find Saagie repository
-        repos = [repo for repo in repos if repo["name"] == "Saagie"][0]["technologies"]
-        # Find docker technology id
-        docker_techno_id = [techno["id"] for techno in repos if techno["label"] == "Docker image"][0]
+        if storage_paths is not None:
+            for storage in storage_paths:
+                if "volume" in storage.keys():
+                    result = self.saagie_api.storages.create(
+                        project_id,
+                        storage["volume"]["name"],
+                        storage["volume"]["size"],
+                        storage["volume"]["description"],
+                    )["createVolume"]
+                    storage["volumeId"] = result["id"]
+                    del storage["volume"]
+
         params = {
             "projectId": project_id,
             "name": app_name,
             "description": description,
-            "technologyId": docker_techno_id,
             "version": {
                 "dockerInfo": {
                     "image": image,
@@ -191,6 +220,19 @@ class Apps:
                 "volumesWithPath": storage_paths,
             },
         }
+        # in case of catalog app imported
+        if technology_id:
+            techno_id = technology_id
+
+            del params["version"]["dockerInfo"]
+            params["version"]["runtimeContextId"] = technology_context
+        else:
+            repos = self.saagie_api.get_repositories_info()["repositories"]
+            # Find Saagie repository
+            repos = [repo for repo in repos if repo["name"] == "Saagie"][0]["technologies"]
+            # Find docker technology id
+            techno_id = [techno["id"] for techno in repos if techno["label"] == "Docker image"][0]
+        params["technologyId"] = techno_id
 
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
 
@@ -205,6 +247,9 @@ class Apps:
 
         if emails or logins or status_list:
             params["alerting"] = self.saagie_api.apps.check_alerting({}, emails, logins, status_list)
+
+        if resources:
+            params["resources"] = resources
 
         # Add the app layer in params object
         params = {"app": params}
@@ -500,6 +545,29 @@ class Apps:
 
         return alerting
 
+    def get_runtime_label_by_id(self, technology_id: str, runtime_id: str) -> str:
+        """Get the label of runtime
+
+        Parameters
+        ----------
+        technology_id : str
+            UUID of the technology
+        runtime_id : str
+            UUID of the runtime
+
+        Returns
+        -------
+        dict
+            String of runtime label
+
+        """
+        runtimes = self.saagie_api.get_runtimes(technology_id)
+        for runtime in runtimes["technology"]["appContexts"]:
+            if runtime["id"] == runtime_id:
+                runtime_label = runtime["label"]
+
+        return runtime_label
+
     def export(
         self,
         app_id: str,
@@ -527,11 +595,22 @@ class Apps:
             True if app is exported False otherwise
         """
         result = True
-        output_folder = check_folder_path(output_folder)
         app_info = None
+        output_folder = check_folder_path(output_folder)
 
         try:
             app_info = self.get_info(app_id, versions_only_current=versions_only_current)["app"]
+            app_techno_id = app_info["technology"]["id"]
+            repo_name, techno_name = self.saagie_api.get_technology_name_by_id(app_techno_id)
+            app_info["technology"]["name"] = techno_name
+            app_info["technology"]["technology_catalog"] = repo_name
+            for version in app_info["versions"]:
+                version["runtimeContextLabel"] = self.get_runtime_label_by_id(
+                    app_techno_id, version["runtimeContextId"]
+                )
+            app_info["currentVersion"]["runtimeContextLabel"] = self.get_runtime_label_by_id(
+                app_techno_id, version["runtimeContextId"]
+            )
             create_folder(output_folder + app_id)
         except Exception as exception:
             logging.warning("Cannot get the information of the app [%s]", app_id)
@@ -544,4 +623,129 @@ class Apps:
             logging.warning("❌ App [%s] has not been successfully exported", app_id)
             write_error(error_folder, "apps", app_id)
             result = False
+        return result
+
+    def import_from_json(
+        self,
+        json_file: str,
+        project_id: str,
+    ) -> bool:
+        """Import an app from JSON format
+
+        Parameters
+        ----------
+        json_file : str
+            Path to the JSON file that contains app information
+        project_id : str
+            Project ID to import the app
+        Returns
+        -------
+        bool
+            True if app is imported False otherwise
+        """
+        try:
+            with open(json_file, "r", encoding="utf-8") as file:
+                app_info = json.load(file)
+        except Exception as exception:
+            logging.warning("Cannot open the JSON file %s", json_file)
+            logging.error("Something went wrong %s", exception)
+            return False
+
+        result = True
+        try:
+            # used for create_from_catalog (one click deploy app)
+            app_technology_name = app_info["technology"]["name"]
+            app_technology_catalog = app_info["technology"]["technology_catalog"]
+            app_runtime_context = (
+                app_info["currentVersion"]["runtimeContextLabel"]
+                if "runtimeContextLabel" in app_info["currentVersion"].keys()
+                else None
+            )
+            app_runtime_id = app_info["currentVersion"]["runtimeContextId"]
+
+            # used for create_from_scratch (custom app)
+            app_name = app_info["name"]
+            app_description = app_info["description"]
+            app_release_note = app_info["currentVersion"]["releaseNote"]
+            app_docker_image_name = ""
+            app_docker_credentials = None
+            if app_info["currentVersion"]["dockerInfo"] is not None:
+                app_docker_image_name = app_info["currentVersion"]["dockerInfo"]["image"]
+                app_docker_credentials = app_info["currentVersion"]["dockerInfo"]["dockerCredentialsId"]
+            app_ports = app_info["currentVersion"]["ports"]
+            for elem in app_ports:
+                del elem["internalUrl"]
+            app_volumes = app_info["currentVersion"]["volumesWithPath"]
+
+            app_emails = ""
+            app_status_list = ""
+
+            if app_info["alerting"] is not None:
+                app_emails = app_info["alerting"]["emails"]
+                app_status_list = app_info["alerting"]["statusList"]
+
+            app_resources_list = app_info["resources"]
+
+            params = {
+                "projectId": project_id,
+            }
+
+            if app_runtime_id:
+                # Get all id technologies in our project
+                technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
+                technologies_for_project = [tech["id"] for tech in technologies_for_project]
+
+                # Check if the technology exist
+                params = self.saagie_api.check_technology(
+                    params, app_technology_name, app_technology_catalog, technologies_for_project
+                )
+                technology_id = params["technologyId"]
+
+                # Check if technology is is available in our project
+                techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
+                app_is_available = [app["id"] for app in techno_app["appTechnologies"] if app["id"] == technology_id]
+                if not app_is_available:
+                    raise ValueError(
+                        f"❌ App '{app_technology_name}' is not available in the project: '{project_id}'. "
+                        "Check your project settings"
+                    )
+
+                # Get different runtimes of app
+                runtimes = self.saagie_api.get_runtimes(technology_id)["technology"]["appContexts"]
+                # Check if runtime is available
+                available_runtimes = [app for app in runtimes if app["available"] is True]
+                context_app = [app for app in available_runtimes if app["label"] == app_runtime_context]
+
+                if not context_app:
+                    available_contexts = [app["label"] for app in available_runtimes]
+                    raise ValueError(
+                        f"❌ Runtime '{app_runtime_context}' of the app '{technology_id}' doesn't exist or is not available in the project: "
+                        f"'{project_id}'. Available runtimes are: '{available_contexts}'"
+                    )
+                context_app_info = context_app[0]["id"]
+            else:
+                technology_id = None
+                context_app_info = None
+
+            self.create_from_scratch(
+                project_id=project_id,
+                app_name=app_name,
+                image=app_docker_image_name,
+                description=app_description,
+                exposed_ports=app_ports,
+                storage_paths=app_volumes,
+                release_note=app_release_note,
+                docker_credentials_id=app_docker_credentials,
+                emails=app_emails,
+                status_list=app_status_list,
+                resources=app_resources_list,
+                technology_id=technology_id,
+                technology_context=context_app_info,
+            )
+            logging.info("✅ App [%s] successfully imported", app_name)
+        except Exception as exception:
+            result = False
+            logging.warning("❌ App [%s] has not been successfully imported", app_name)
+            logging.error("Something went wrong %s", exception)
+
         return result
