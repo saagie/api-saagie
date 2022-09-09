@@ -90,6 +90,15 @@ def create_global_project():
     # Delete global environment variable
     delete_test_global_env_var(Conf)
 
+    # Delete created repository
+    try:
+        id_repository_from_zip = Conf.saagie_api.repositories.get_id("repository from zip")
+        id_repository_from_url = Conf.saagie_api.repositories.get_id("repository from url")
+        Conf.saagie_api.repositories.delete(id_repository_from_zip)
+        Conf.saagie_api.repositories.delete(id_repository_from_url)
+    except NameError:
+        print("Test repositories are already cleaned")
+
 
 @pytest.fixture
 @staticmethod
