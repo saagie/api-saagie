@@ -1,20 +1,17 @@
-GQL_LIST_REPOSITORIES_MINIMAL = """
-{
+GQL_LIST_REPOSITORIES = """
+query repsositoriesQuery($minimal: Boolean!, $lastSynchronization: Boolean) {
   repositories {
     id
     name
-    synchronizationReports(lastSynchronization: true) {
-        lastReversibleId
+    synchronizationReports(lastSynchronization: $lastSynchronization) {
+      lastReversibleId
+      ...reportInformations @skip(if: $minimal)
     }
+    ...repositoryInformations @skip(if: $minimal)
   }
 }
-"""
 
-GQL_LIST_REPOSITORIES = """
-{
-  repositories {
-    id
-    name
+fragment repositoryInformations on Repository {
     technologies {
       available
       id
@@ -28,8 +25,10 @@ GQL_LIST_REPOSITORIES = """
         name
       }
     }
-    synchronizationReports(lastSynchronization: true) {
-      count
+}
+
+fragment reportInformations on SynchronizationReports {
+    count
       list {
         endedAt
         ... on SuccessfulSynchronization {
@@ -47,9 +46,6 @@ GQL_LIST_REPOSITORIES = """
           failure
         }
       }
-      lastReversibleId
-    }
-  }
 }
 """
 

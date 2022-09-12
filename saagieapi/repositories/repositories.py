@@ -11,7 +11,9 @@ class Repositories:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list(self, pprint_result: Optional[bool] = None) -> Dict:
+    def list(
+        self, minimal: Optional[bool] = False, last_synchronization: bool = True, pprint_result: Optional[bool] = None
+    ) -> Dict:
         """
         Get information for all repositories
         NB: You can only get repositories information if you have the right to
@@ -19,6 +21,10 @@ class Repositories:
 
         Parameters
         ----------
+        minimal : bool, optional
+            Whether to only return the repository's name and id, default to False
+        last_synchronization : bool, optional
+            Whether to only fetch the last synchronization of each repository
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
@@ -28,8 +34,12 @@ class Repositories:
         dict
             Dict of repositories
         """
+        params = {
+            "minimal": minimal,
+            "lastSynchronization": last_synchronization,
+        }
         query = gql(GQL_LIST_REPOSITORIES)
-        return self.saagie_api.client_gateway.execute(query, pprint_result=pprint_result)
+        return self.saagie_api.client_gateway.execute(query, variable_values=params, pprint_result=pprint_result)
 
     def list_minimal(self) -> Dict:
         """List only repository names, ids and last reversible IDs.
@@ -41,8 +51,9 @@ class Repositories:
         dict
             Dict of repository ids, names and last reversible IDs
         """
+        params = {"minimal": True, "lastSynchronization": True}
 
-        return self.saagie_api.client_gateway.execute(query=gql(GQL_LIST_REPOSITORIES_MINIMAL))
+        return self.saagie_api.client_gateway.execute(query=gql(GQL_LIST_REPOSITORIES), variable_values=params)
 
     def get_info(
         self,
