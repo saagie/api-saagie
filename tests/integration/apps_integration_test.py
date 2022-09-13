@@ -39,6 +39,30 @@ class TestIntegrationApps:
         assert app["app"]["description"] == "Be happy"
 
     @staticmethod
+    def test_upgrade_app_from_scratch(create_app_from_scratch, create_global_project):
+        conf = create_global_project
+
+        app_id = create_app_from_scratch
+        app = conf.saagie_api.apps.get_info(app_id)["app"]
+
+        app_upgraded = conf.saagie_api.apps.upgrade(app_id, "my new release note")
+
+        assert app_upgraded["addAppVersion"]["number"] == app["currentVersion"]["number"] + 1
+
+    @staticmethod
+    def test_upgrade_app_wrong_parameter(create_app_from_scratch, create_global_project):
+        conf = create_global_project
+
+        app_id = create_app_from_scratch
+
+        with pytest.raises(ValueError) as vale:
+            conf.saagie_api.apps.upgrade(
+                app_id=app_id, release_note="my new release note", technology_context="jupyter", image="nginx"
+            )
+
+        assert str(vale.value).startswith(f"❌ Incompatible parameters setted up.")
+
+    @staticmethod
     def export_app(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
         app_id = create_then_delete_app_from_scratch

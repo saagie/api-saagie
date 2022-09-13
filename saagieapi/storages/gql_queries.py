@@ -1,32 +1,36 @@
 # pylint: disable=duplicate-code
 GQL_LIST_STORAGE_FOR_PROJECT = """
-query projectQuery($id: UUID!) {  
-    project(id: $id) {    
-        volumes {      
-            id      
-            name      
-            size      
-            description      
-            creationDate      
-            creator      
-            linkedApp {        
-                id        
-                name        
-                versions {          
-                    number          
-                    volumesWithPath {            
-                        path            
-                        volume {              
-                            id        
-                        }                      
-                    }     
-                }        
-                currentVersion {          
-                    number               
-                }     
-            }   
-        }
+fragment appVersionFieldInformation on AppVersion {
+  number
+  volumesWithPath {
+    path
+    volume {
+      id
     }
+  }
+}
+
+query projectQuery($id: UUID!) {
+  project(id: $id) {
+    volumes {
+      id
+      name
+      size
+      description
+      creationDate
+      creator
+      linkedApp {
+        id
+        name
+        versions {
+          ...appVersionFieldInformation
+        }
+        currentVersion {
+          ...appVersionFieldInformation
+        }
+      }
+    }
+  }
 }
 """
 
@@ -55,9 +59,9 @@ mutation editVolumeMutation($volume: VolumeEditionInput!) {
 """
 
 GQL_DELETE_STORAGE = """
-mutation deleteVolumeMutation($id: UUID!) {  
-    deleteVolume(id: $id) {    
-        id    
+mutation deleteVolumeMutation($id: UUID!) {
+    deleteVolume(id: $id) {
+        id
         name
     }
 }
@@ -68,7 +72,6 @@ mutation unlinkVolumeMutation($id: UUID!) {
   unlinkVolume(id: $id) {
     id
     name
-    __typename
   }
 }
 """

@@ -569,6 +569,108 @@ class Apps:
 
         return runtime_label
 
+    def upgrade(
+        self,
+        app_id: str,
+        release_note: str = "",
+        exposed_ports: List[Dict] = None,
+        storage_paths: List[Dict] = None,
+        technology_context: str = None,
+        image: str = None,
+        docker_credentials_id: str = None,
+    ) -> Dict:
+        """Update the app
+
+        Parameters
+        ----------
+        app_id : str
+            App ID
+        release_note : str, optional
+            Release note for the app version
+        exposed_ports: List[dict], optional
+            List of dict of exposed ports
+            If not filled, it takes exposed_ports of previous version
+            Each dict should contains 'port' as key
+            Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
+                "isRewriteUrl":True,
+                "isAuthenticationRequired":True,
+                "port":5000,
+                "name":"Test Port"}]
+        storage_paths: List[Dict], optional
+            List of dict indicating the volume path to the persistent storage
+            and :
+            - the id of the volume to be associated with the app.
+                Ex: [{"path": "/home",
+                    "volumeId": "cb70ad1d-7883-48ac-8740-2c8e5c5166ee"}]
+        technology_context: str, optional
+            Context version of the app
+            Incompatible with parameters image & docker_credentials_id
+            If not filled, it takes technology_context of previous version
+        image: str, optional
+            tag of the Docker Image
+            Incompatible with parameter technology_context
+            If not filled, it takes image of previous version
+            ex: hello-world:nanoserver-ltc2022
+        docker_credentials_id: str, optional
+            Credentials's ID for the image if the image is not public
+            Incompatible with parameter technology_context
+        Returns
+        -------
+        dict
+            Dict of app version information
+        """
+
+        if (technology_context or technology_context == "") and (
+            (image or image == "") or (docker_credentials_id or docker_credentials_id == "")
+        ):
+            raise ValueError(
+                f"❌ Incompatible parameters setted up."
+                "'technology_context' can't be associated to 'image' and/or 'docker_credentials_id'"
+            )
+
+        app_info = self.saagie_api.apps.get_info(app_id)["app"]
+
+        if exposed_ports is None:
+            exposed_ports = app_info["currentVersion"]["ports"]
+            for port in exposed_ports:
+                if "internalUrl" in port.keys():
+                    del port["internalUrl"]
+
+        params = {
+            "appId": app_id,
+            "appVersion": {
+                "ports": exposed_ports,
+                "releaseNote": release_note,
+                "volumesWithPath": storage_paths,
+                "dockerInfo": {},
+            },
+        }
+
+        if technology_context is None and image is None:
+            technology_context = app_info["currentVersion"]["runtimeContextId"]
+            if (
+                app_info["currentVersion"]["dockerInfo"] is not None
+                and "image" in app_info["currentVersion"]["dockerInfo"].keys()
+            ):
+                image = app_info["currentVersion"]["dockerInfo"]["image"]
+
+        if image:
+            params["appVersion"]["dockerInfo"]["image"] = image
+
+        if docker_credentials_id:
+            params["appVersion"]["dockerInfo"]["dockerCredentialsId"] = docker_credentials_id
+
+        # in case of catalog app updated
+        if technology_context:
+            if "dockerInfo" in params["appVersion"].keys():
+                del params["appVersion"]["dockerInfo"]
+            params["appVersion"]["runtimeContextId"] = technology_context
+
+        result = self.saagie_api.client.execute(query=gql(GQL_UPDATE_APP), variable_values=params)
+        logging.info("✅ App [%s] successfully updated", app_id)
+
+        return result
+
     def export(
         self,
         app_id: str,

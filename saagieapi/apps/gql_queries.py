@@ -296,3 +296,32 @@ mutation runAppMutation($id: UUID!) {
   }
 }
 """
+
+GQL_UPDATE_APP = """
+mutation addAppVersion($appId: UUID!, $appVersion: AppVersionInput!) {
+  addAppVersion(appId: $appId, version: $appVersion) {
+    number
+    releaseNote
+    dockerInfo {
+      image
+      dockerCredentialsId
+    }
+    ports {
+      number
+      name
+      basePathVariableName
+      isRewriteUrl
+      scope
+    }
+    volumesWithPath {
+      path
+      volume {
+        id
+        name
+        size
+        creator
+      }
+    }
+  }
+}
+"""
