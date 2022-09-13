@@ -41,20 +41,6 @@ class Repositories:
         query = gql(GQL_LIST_REPOSITORIES)
         return self.saagie_api.client_gateway.execute(query, variable_values=params, pprint_result=pprint_result)
 
-    def list_minimal(self) -> Dict:
-        """List only repository names, ids and last reversible IDs.
-        NB: You can only list repository if you have at least the viewer role on the
-        catalog
-
-        Returns
-        -------
-        dict
-            Dict of repository ids, names and last reversible IDs
-        """
-        params = {"minimal": True, "lastSynchronization": True}
-
-        return self.saagie_api.client_gateway.execute(query=gql(GQL_LIST_REPOSITORIES), variable_values=params)
-
     def get_info(
         self,
         repository_id: str,
@@ -274,7 +260,7 @@ class Repositories:
         NameError
             If the repository does not exist or the user don't have the permission to see it or can not be revert
         """
-        repositories = self.list_minimal()["repositories"]
+        repositories = self.list(minimal=True, last_synchronization=True)["repositories"]
         repository = list(filter(lambda p: p["id"] == repository_id, repositories))
         if repository:
             synchronization_report_id = repository[0]["synchronizationReports"]["lastReversibleId"]
@@ -304,7 +290,7 @@ class Repositories:
         NameError
             If repository does not exist or the user don't have permission to see it
         """
-        repositories = self.list_minimal()["repositories"]
+        repositories = self.list(minimal=True, last_synchronization=True)["repositories"]
         repository = list(filter(lambda p: p["name"] == repository_name, repositories))
         if repository:
             repository_id = repository[0]["id"]
