@@ -63,12 +63,34 @@ class TestIntegrationApps:
         assert str(vale.value).startswith(f"❌ Incompatible parameters setted up.")
 
     @staticmethod
-    def export_app(create_then_delete_app_from_scratch, create_global_project):
+    def test_export_app(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
         app_id = create_then_delete_app_from_scratch
         result = conf.saagie_api.apps.export(app_id, os.path.join(conf.output_dir, "apps"))
         to_validate = True
         assert result == to_validate
+
+    @staticmethod
+    def test_import_app_from_catalog(create_global_project):
+        conf = create_global_project
+
+        result = conf.saagie_api.apps.import_from_json(
+            os.path.join(conf.import_dir, "app", "app_from_catalog.json"),
+            conf.project_id,
+        )
+
+        assert result == True
+
+    @staticmethod
+    def test_import_app_from_scratch(create_global_project):
+        conf = create_global_project
+
+        result = conf.saagie_api.apps.import_from_json(
+            os.path.join(conf.import_dir, "app", "app_from_scratch.json"),
+            conf.project_id,
+        )
+
+        assert result == True
 
     @staticmethod
     def test_run_app(create_then_delete_app_from_scratch, create_global_project):
