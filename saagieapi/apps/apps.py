@@ -197,7 +197,7 @@ class Apps:
 
         if storage_paths is not None:
             for storage in storage_paths:
-                if "volume" in storage.keys():
+                if "volume" in storage:
                     result = self.saagie_api.storages.create(
                         project_id,
                         storage["volume"]["name"],
@@ -620,11 +620,9 @@ class Apps:
             Dict of app version information
         """
 
-        if (technology_context or technology_context == "") and (
-            (image or image == "") or (docker_credentials_id or docker_credentials_id == "")
-        ):
+        if technology_context is not None and (image is not None or docker_credentials_id is not None):
             raise ValueError(
-                f"❌ Incompatible parameters setted up."
+                "❌ Incompatible parameters setted up."
                 "'technology_context' can't be associated to 'image' and/or 'docker_credentials_id'"
             )
 
@@ -633,7 +631,7 @@ class Apps:
         if exposed_ports is None:
             exposed_ports = app_info["currentVersion"]["ports"]
             for port in exposed_ports:
-                if "internalUrl" in port.keys():
+                if "internalUrl" in port:
                     del port["internalUrl"]
 
         params = {
@@ -650,7 +648,7 @@ class Apps:
             technology_context = app_info["currentVersion"]["runtimeContextId"]
             if (
                 app_info["currentVersion"]["dockerInfo"] is not None
-                and "image" in app_info["currentVersion"]["dockerInfo"].keys()
+                and "image" in app_info["currentVersion"]["dockerInfo"]
             ):
                 image = app_info["currentVersion"]["dockerInfo"]["image"]
 
@@ -662,7 +660,7 @@ class Apps:
 
         # in case of catalog app updated
         if technology_context:
-            if "dockerInfo" in params["appVersion"].keys():
+            if "dockerInfo" in params["appVersion"]:
                 del params["appVersion"]["dockerInfo"]
             params["appVersion"]["runtimeContextId"] = technology_context
 
@@ -712,7 +710,7 @@ class Apps:
                     app_techno_id, version["runtimeContextId"]
                 )
             app_info["currentVersion"]["runtimeContextLabel"] = self.get_runtime_label_by_id(
-                app_techno_id, version["runtimeContextId"]
+                app_techno_id, app_info["currentVersion"]["runtimeContextId"]
             )
             create_folder(output_folder + app_id)
         except Exception as exception:
@@ -761,7 +759,7 @@ class Apps:
             app_technology_catalog = app_info["technology"]["technology_catalog"]
             app_runtime_context = (
                 app_info["currentVersion"]["runtimeContextLabel"]
-                if "runtimeContextLabel" in app_info["currentVersion"].keys()
+                if "runtimeContextLabel" in app_info["currentVersion"]
                 else None
             )
             app_runtime_id = app_info["currentVersion"]["runtimeContextId"]
@@ -822,8 +820,9 @@ class Apps:
                 if not context_app:
                     available_contexts = [app["label"] for app in available_runtimes]
                     raise ValueError(
-                        f"❌ Runtime '{app_runtime_context}' of the app '{technology_id}' doesn't exist or is not available in the project: "
-                        f"'{project_id}'. Available runtimes are: '{available_contexts}'"
+                        f"❌ Runtime '{app_runtime_context}' of the app '{technology_id}' doesn't exist "
+                        f"or is not available in the project: '{project_id}'."
+                        f"Available runtimes are: '{available_contexts}'"
                     )
                 context_app_info = context_app[0]["id"]
             else:
