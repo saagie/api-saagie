@@ -195,17 +195,16 @@ class Apps:
         if exposed_ports is None:
             exposed_ports = []
 
-        if storage_paths is not None:
-            for storage in storage_paths:
-                if "volume" in storage:
-                    result = self.saagie_api.storages.create(
-                        project_id,
-                        storage["volume"]["name"],
-                        storage["volume"]["size"],
-                        storage["volume"]["description"],
-                    )["createVolume"]
-                    storage["volumeId"] = result["id"]
-                    del storage["volume"]
+        for storage in storage_paths:
+            if "volume" in storage:
+                result = self.saagie_api.storages.create(
+                    project_id,
+                    storage["volume"]["name"],
+                    storage["volume"]["size"],
+                    storage["volume"]["description"],
+                )["createVolume"]
+                storage["volumeId"] = result["id"]
+                del storage["volume"]
 
         params = {
             "projectId": project_id,
@@ -622,7 +621,7 @@ class Apps:
 
         if technology_context is not None and (image is not None or docker_credentials_id is not None):
             raise ValueError(
-                "❌ Incompatible parameters setted up."
+                "❌ Incompatible parameters set up."
                 "'technology_context' can't be associated to 'image' and/or 'docker_credentials_id'"
             )
 

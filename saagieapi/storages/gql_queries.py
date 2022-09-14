@@ -10,25 +10,29 @@ fragment appVersionFieldInformation on AppVersion {
   }
 }
 
-query projectQuery($id: UUID!) {
+fragment volumeInformation on Volume {
+  size
+  description
+  creationDate
+  creator
+  linkedApp {
+    id
+    name
+    versions {
+      ...appVersionFieldInformation
+    }
+    currentVersion {
+      ...appVersionFieldInformation
+    }
+  }
+}
+
+query projectQuery($id: UUID!, $minimal: Boolean!) {
   project(id: $id) {
     volumes {
       id
       name
-      size
-      description
-      creationDate
-      creator
-      linkedApp {
-        id
-        name
-        versions {
-          ...appVersionFieldInformation
-        }
-        currentVersion {
-          ...appVersionFieldInformation
-        }
-      }
+      ...volumeInformation @skip(if: $minimal)
     }
   }
 }

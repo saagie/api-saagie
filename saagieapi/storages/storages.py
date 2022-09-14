@@ -10,7 +10,9 @@ class Storages:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list_for_project(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
+    def list_for_project(
+        self, project_id: str, minimal: Optional[bool] = False, pprint_result: Optional[bool] = None
+    ) -> Dict:
         """List storages of project.
         NB: You can only list storage if you have at least the viewer role on
         the project.
@@ -19,6 +21,8 @@ class Storages:
         ----------
         project_id : str
             UUID of your project (see README on how to find it)
+        minimal : bool, optional
+            Whether to only return the storage's name and id, default to False
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
@@ -28,8 +32,13 @@ class Storages:
         dict
             Dict of storage information
         """
+        params = {
+            "id": project_id,
+            "minimal": minimal,
+        }
+
         return self.saagie_api.client.execute(
-            query=gql(GQL_LIST_STORAGE_FOR_PROJECT), variable_values={"id": project_id}, pprint_result=pprint_result
+            query=gql(GQL_LIST_STORAGE_FOR_PROJECT), variable_values=params, pprint_result=pprint_result
         )
 
     def get_info(self, project_id: str, storage_id: str) -> Dict:
