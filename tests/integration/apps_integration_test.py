@@ -60,7 +60,7 @@ class TestIntegrationApps:
                 app_id=app_id, release_note="my new release note", technology_context="jupyter", image="nginx"
             )
 
-        assert str(vale.value).startswith("❌ Incompatible parameters setted up.")
+        assert str(vale.value).startswith("❌ Incompatible parameters set up.")
 
     @staticmethod
     def test_export_app(create_then_delete_app_from_scratch, create_global_project):
