@@ -39,12 +39,58 @@ class TestIntegrationApps:
         assert app["app"]["description"] == "Be happy"
 
     @staticmethod
-    def export_app(create_then_delete_app_from_scratch, create_global_project):
+    def test_upgrade_app_from_scratch(create_app_from_scratch, create_global_project):
+        conf = create_global_project
+
+        app_id = create_app_from_scratch
+        app = conf.saagie_api.apps.get_info(app_id)["app"]
+
+        app_upgraded = conf.saagie_api.apps.upgrade(app_id, "my new release note")
+
+        assert app_upgraded["addAppVersion"]["number"] == app["currentVersion"]["number"] + 1
+
+    @staticmethod
+    def test_upgrade_app_wrong_parameter(create_app_from_scratch, create_global_project):
+        conf = create_global_project
+
+        app_id = create_app_from_scratch
+
+        with pytest.raises(ValueError) as vale:
+            conf.saagie_api.apps.upgrade(
+                app_id=app_id, release_note="my new release note", technology_context="jupyter", image="nginx"
+            )
+
+        assert str(vale.value).startswith("❌ Incompatible parameters set up.")
+
+    @staticmethod
+    def test_export_app(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
         app_id = create_then_delete_app_from_scratch
         result = conf.saagie_api.apps.export(app_id, os.path.join(conf.output_dir, "apps"))
         to_validate = True
         assert result == to_validate
+
+    @staticmethod
+    def test_import_app_from_catalog(create_global_project):
+        conf = create_global_project
+
+        result = conf.saagie_api.apps.import_from_json(
+            os.path.join(conf.import_dir, "app", "app_from_catalog.json"),
+            conf.project_id,
+        )
+
+        assert result is True
+
+    @staticmethod
+    def test_import_app_from_scratch(create_global_project):
+        conf = create_global_project
+
+        result = conf.saagie_api.apps.import_from_json(
+            os.path.join(conf.import_dir, "app", "app_from_scratch.json"),
+            conf.project_id,
+        )
+
+        assert result is True
 
     @staticmethod
     def test_run_app(create_then_delete_app_from_scratch, create_global_project):

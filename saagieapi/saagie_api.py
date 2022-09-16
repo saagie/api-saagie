@@ -13,6 +13,7 @@ from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GE
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
+from .storages import Storages
 from .utils.bearer_auth import BearerAuth
 from .utils.gql_client import GqlClient
 
@@ -67,6 +68,7 @@ class SaagieApi:
         self.env_vars = EnvVars(self)
         self.apps = Apps(self)
         self.docker_credentials = DockerCredentials(self)
+        self.storages = Storages(self)
         self.pprint_global = pprint_global
         self.client.pprint_global = pprint_global
         self.client_gateway.pprint_global = pprint_global
@@ -380,3 +382,26 @@ class SaagieApi:
             return "", ""
         repo_name, tech_name = technology_label_with_repo_name[0]
         return repo_name, tech_name
+
+    def get_runtime_label_by_id(self, technology_id: str, runtime_id: str) -> str:
+        """Get the label of runtime
+
+        Parameters
+        ----------
+        technology_id : str
+            UUID of the technology
+        runtime_id : str
+            UUID of the runtime
+
+        Returns
+        -------
+        dict
+            String of runtime label
+
+        """
+        runtimes = self.get_runtimes(technology_id)
+        runtime_label = [
+            runtime["label"] for runtime in runtimes["technology"]["appContexts"] if runtime["id"] == runtime_id
+        ]
+
+        return runtime_label

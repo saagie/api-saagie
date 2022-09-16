@@ -32,6 +32,10 @@ class TestApps:
         query = gql(GQL_EDIT_APP)
         self.client.validate(query)
 
+    def test_upgrade_app(self):
+        query = gql(GQL_UPDATE_APP)
+        self.client.validate(query)
+
     def test_run_app(self):
         query = gql(GQL_RUN_APP)
         self.client.validate(query)
