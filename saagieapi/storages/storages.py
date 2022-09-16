@@ -161,7 +161,7 @@ class Storages:
             When the storage is currently used
         """
         storage_info = self.get_info(project_id, storage_id)
-        if storage_info["linkedApp"] is not None and "currentVersion" in storage_info["linkedApp"].keys():
+        if storage_info["linkedApp"] is not None and "currentVersion" in storage_info["linkedApp"]:
             for volume in storage_info["linkedApp"]["currentVersion"]["volumesWithPath"]:
                 if volume["volume"]["id"] == storage_id:
                     raise ValueError(f"❌ Storage '{storage_id}' is currently used by an App. Deletion impossible.")
