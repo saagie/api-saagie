@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.1.0 (2022-09-16)
+### :sparkles:
+* :sparkles:  Feat/import apps from json ([#138](https://github.com/saagie/api-saagie/issues/138)) ([`478148e`](https://github.com/saagie/api-saagie/commit/478148e23f809e6ccf4676e450a48921c3ed7f09))
+
 ## v2.0.2 (2022-09-06)
 ### :wheelchair:
 * :wheelchair: split integration tests ([#136](https://github.com/saagie/api-saagie/issues/136)) ([`aeaa152`](https://github.com/saagie/api-saagie/commit/aeaa152f7fb7c9d29a00772e049832c1923d9116))
