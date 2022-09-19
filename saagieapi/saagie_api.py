@@ -13,8 +13,8 @@ from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GE
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
-from .storages import Storages
 from .repositories import Repositories
+from .storages import Storages
 from .utils.bearer_auth import BearerAuth
 from .utils.gql_client import GqlClient
 
