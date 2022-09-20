@@ -10,14 +10,20 @@ from saagieapi import SaagieApi
 from saagieapi.gql_queries import GQL_GET_CLUSTER_INFO
 
 
-def create_gql_client():
+def create_gql_client(file_name: str = "schema.graphqls"):
+    """Return a GQL Client with a defined schema
+
+    Parameters
+    ----------
+    file_name : str
+        Name of the environment variable to create
+
+    Returns
+    -------
+    dict
+        GQL Client
     """
-    Return a GQL Client with a defined schema
-    :return: GQL Client
-    """
-    with open(
-        file=os.path.dirname(os.path.abspath(__file__)) + "/resources/schema.graphqls", encoding="utf-8"
-    ) as source:
+    with open(file=os.path.dirname(os.path.abspath(__file__)) + f"/resources/{file_name}", encoding="utf-8") as source:
         document = parse(source.read())
     schema = build_ast_schema(document)
     client = Client(schema=schema)

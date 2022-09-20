@@ -13,6 +13,7 @@ from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GE
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
+from .repositories import Repositories
 from .storages import Storages
 from .utils.bearer_auth import BearerAuth
 from .utils.gql_client import GqlClient
@@ -68,6 +69,7 @@ class SaagieApi:
         self.env_vars = EnvVars(self)
         self.apps = Apps(self)
         self.docker_credentials = DockerCredentials(self)
+        self.repositories = Repositories(self)
         self.storages = Storages(self)
         self.pprint_global = pprint_global
         self.client.pprint_global = pprint_global
