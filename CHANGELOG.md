@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.0 (2022-09-20)
+### :sparkles:
+* :sparkles: add repository functions ([`e2101d1`](https://github.com/saagie/api-saagie/commit/e2101d103a35e53f1b2786d933e86a7a7a7e7aac))
+
 ## v2.1.0 (2022-09-16)
 ### :sparkles:
 * :sparkles:  Feat/import apps from json ([#138](https://github.com/saagie/api-saagie/issues/138)) ([`478148e`](https://github.com/saagie/api-saagie/commit/478148e23f809e6ccf4676e450a48921c3ed7f09))
