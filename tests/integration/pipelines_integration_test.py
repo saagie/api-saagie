@@ -170,6 +170,26 @@ class TestIntegrationPipelines:
         assert result
 
     @staticmethod
+    def test_import_pipeline_from_json_without_alerting(create_global_project):
+        conf = create_global_project
+        job_name = "test_job_python"
+        jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
+        job = list(filter(lambda j: j["name"] == job_name, jobs))
+        print(job)
+        if len(job) == 0:
+            conf.saagie_api.jobs.import_from_json(
+                os.path.join(conf.import_dir, "job", "job.json"),
+                conf.project_id,
+                os.path.join(conf.import_dir, "job", "hello_world.py"),
+            )
+
+        result = conf.saagie_api.pipelines.import_from_json(
+            os.path.join(conf.import_dir, "pipeline", "pipeline_without_alerting.json"),
+            conf.project_id,
+        )
+        assert result
+
+    @staticmethod
     def test_upgrade_graph_pipeline(create_then_delete_graph_pipeline, create_global_project):
         conf = create_global_project
         pipeline_id, job_id = create_then_delete_graph_pipeline
