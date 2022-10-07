@@ -155,7 +155,6 @@ class TestIntegrationPipelines:
         job_name = "test_job_python"
         jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
-        print(job)
         if len(job) == 0:
             conf.saagie_api.jobs.import_from_json(
                 os.path.join(conf.import_dir, "job", "job.json"),
@@ -175,7 +174,6 @@ class TestIntegrationPipelines:
         job_name = "test_job_python"
         jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
-        print(job)
         if len(job) == 0:
             conf.saagie_api.jobs.import_from_json(
                 os.path.join(conf.import_dir, "job", "job.json"),
