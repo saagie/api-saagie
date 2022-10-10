@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.1 (2022-10-10)
+### :bug:
+* :bug: correct pipeline import from json ([#141](https://github.com/saagie/api-saagie/issues/141)) ([`c2edcef`](https://github.com/saagie/api-saagie/commit/c2edcef9a79c24f2b2cec0323a5323f656ff55b5))
+
 ## v2.2.0 (2022-09-20)
 ### :sparkles:
 * :sparkles: add repository functions ([`e2101d1`](https://github.com/saagie/api-saagie/commit/e2101d103a35e53f1b2786d933e86a7a7a7e7aac))
