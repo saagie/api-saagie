@@ -71,6 +71,14 @@ class TestIntegrationApps:
         assert result == to_validate
 
     @staticmethod
+    def test_export_app_only_current_version(create_then_delete_app_from_scratch, create_global_project):
+        conf = create_global_project
+        app_id = create_then_delete_app_from_scratch
+        result = conf.saagie_api.apps.export(app_id, os.path.join(conf.output_dir, "apps"), versions_only_current=True)
+        to_validate = True
+        assert result == to_validate
+
+    @staticmethod
     def test_import_app_from_catalog(create_global_project):
         conf = create_global_project
 
@@ -153,6 +161,21 @@ class TestIntegrationApps:
             "alerting": app_info["app"]["alerting"],
         }
         del to_validate["alerting"]["loginEmails"]
+        assert app_input == to_validate
+
+    @staticmethod
+    def test_edit_app_without_alerting(create_then_delete_app_from_scratch, create_global_project):
+        conf = create_global_project
+        app_id = create_then_delete_app_from_scratch
+
+        app_input = {
+            "name": "hi new name",
+            "description": "new description",
+        }
+        conf.saagie_api.apps.edit(app_id, app_name=app_input["name"], description=app_input["description"])
+
+        app_info = conf.saagie_api.apps.get_info(app_id)
+        to_validate = {"name": app_info["app"]["name"], "description": app_info["app"]["description"]}
         assert app_input == to_validate
 
     @pytest.fixture

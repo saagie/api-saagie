@@ -150,8 +150,8 @@ class Apps:
             Each dict should contains 'port' as key
             Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
                 "isRewriteUrl":True,
-                "isAuthenticationRequired":True,
-                "port":5000,
+                "scope":"PROJECT",
+                "number":5000,
                 "name":"Test Port"}]
         storage_paths: List[Dict], optional
             List of dictionnaries indicating the volume path to the persistent storage
@@ -245,7 +245,7 @@ class Apps:
             params["version"]["dockerInfo"]["dockerCredentialsId"] = docker_credentials_id
 
         if emails or logins or status_list:
-            params["alerting"] = self.saagie_api.apps.check_alerting({}, emails, logins, status_list)
+            params["alerting"] = self.check_alerting({}, emails, logins, status_list)
 
         if resources:
             params["resources"] = resources
@@ -381,8 +381,9 @@ class Apps:
         if description:
             params["description"] = description
 
-        params["alerting"] = self.saagie_api.apps.get_info(app_id)["app"]["alerting"]
-        params["alerting"] = self.saagie_api.apps.check_alerting(params["alerting"], emails, logins, status_list)
+        params["alerting"] = self.get_info(app_id)["app"]["alerting"]
+        if emails or logins or status_list:
+            params["alerting"] = self.check_alerting({}, emails, logins, status_list)
 
         params = {"app": params}
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_APP), variable_values=params)
@@ -592,8 +593,8 @@ class Apps:
             Each dict should contains 'port' as key
             Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
                 "isRewriteUrl":True,
-                "isAuthenticationRequired":True,
-                "port":5000,
+                "scope":"PROJECT",
+                "number":5000,
                 "name":"Test Port"}]
         storage_paths: List[Dict], optional
             List of dict indicating the volume path to the persistent storage
@@ -625,7 +626,7 @@ class Apps:
                 "'technology_context' can't be associated to 'image' and/or 'docker_credentials_id'"
             )
 
-        app_info = self.saagie_api.apps.get_info(app_id)["app"]
+        app_info = self.get_info(app_id)["app"]
 
         if exposed_ports is None:
             exposed_ports = app_info["currentVersion"]["ports"]
@@ -704,10 +705,11 @@ class Apps:
             repo_name, techno_name = self.saagie_api.get_technology_name_by_id(app_techno_id)
             app_info["technology"]["name"] = techno_name
             app_info["technology"]["technology_catalog"] = repo_name
-            for version in app_info["versions"]:
-                version["runtimeContextLabel"] = self.get_runtime_label_by_id(
-                    app_techno_id, version["runtimeContextId"]
-                )
+            if not versions_only_current:
+                for version in app_info["versions"]:
+                    version["runtimeContextLabel"] = self.get_runtime_label_by_id(
+                        app_techno_id, version["runtimeContextId"]
+                    )
             app_info["currentVersion"]["runtimeContextLabel"] = self.get_runtime_label_by_id(
                 app_techno_id, app_info["currentVersion"]["runtimeContextId"]
             )
