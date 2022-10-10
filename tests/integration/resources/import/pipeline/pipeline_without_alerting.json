@@ -1,0 +1,92 @@
+{
+    "id": "bd17ddcc-b932-4917-a2a4-17ea582bb3fe",
+    "name": "Pipeline test without alerting",
+    "description": "Description pipeline dev test",
+    "alerting": null,
+    "pipelineInstanceCount": 0,
+    "instances": [],
+    "versions": [
+        {
+            "number": 1,
+            "releaseNote": "New release",
+            "graph": {
+                "jobNodes": [
+                    {
+                        "id": "7a7b1003-ba9b-4fa5-92ef-494a3852b6ca",
+                        "job": {
+                            "id": "9d488144-a9d0-4183-8422-a343a8efd4ed",
+                            "name": "test_job_python"
+                        },
+                        "position": null,
+                        "nextNodes": [
+                            "77dc1d3f-83d6-4604-8191-290f7b213b7d"
+                        ]
+                    },
+                    {
+                        "id": "77dc1d3f-83d6-4604-8191-290f7b213b7d",
+                        "job": {
+                            "id": "9d488144-a9d0-4183-8422-a343a8efd4ed",
+                            "name": "test_job_python"
+                        },
+                        "position": null,
+                        "nextNodes": [
+                            "4bb73338-580f-4c3c-b3ca-b0651389cf85"
+                        ]
+                    },
+                    {
+                        "id": "4bb73338-580f-4c3c-b3ca-b0651389cf85",
+                        "job": {
+                            "id": "9d488144-a9d0-4183-8422-a343a8efd4ed",
+                            "name": "test_job_python"
+                        },
+                        "position": null,
+                        "nextNodes": [
+                            "27ea0f93-5824-4a9e-a183-08281df95e52"
+                        ]
+                    },
+                    {
+                        "id": "29d3fd32-7d8d-4411-a27b-28dc97e71077",
+                        "job": {
+                            "id": "9d488144-a9d0-4183-8422-a343a8efd4ed",
+                            "name": "test_job_python"
+                        },
+                        "position": null,
+                        "nextNodes": []
+                    },
+                    {
+                        "id": "5623219b-5b36-4986-8082-6b4874823236",
+                        "job": {
+                            "id": "9d488144-a9d0-4183-8422-a343a8efd4ed",
+                            "name": "test_job_python"
+                        },
+                        "position": null,
+                        "nextNodes": []
+                    }
+                ],
+                "conditionNodes": [
+                    {
+                        "id": "27ea0f93-5824-4a9e-a183-08281df95e52",
+                        "position": null,
+                        "nextNodesSuccess": [
+                            "29d3fd32-7d8d-4411-a27b-28dc97e71077"
+                        ],
+                        "nextNodesFailure": [
+                            "5623219b-5b36-4986-8082-6b4874823236"
+                        ]
+                    }
+                ]
+            },
+            "creationDate": "2022-08-03T13:16:26.431Z",
+            "creator": "guillaume.prevost",
+            "isCurrent": true,
+            "isMajor": false
+        }
+    ],
+    "creationDate": "2022-08-03T13:16:26.431Z",
+    "creator": "guillaume.prevost",
+    "isScheduled": true,
+    "cronScheduling": "5 12 5 * *",
+    "scheduleStatus": "READY",
+    "scheduleTimezone": "Europe/Paris",
+    "isLegacyPipeline": false
+}

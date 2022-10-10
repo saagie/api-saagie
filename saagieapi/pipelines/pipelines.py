@@ -642,10 +642,13 @@ class Pipelines:
         try:
             pipeline_name = pipeline_info["name"]
             pipeline_description = pipeline_info["description"]
-            emails = pipeline_info["alerting"]["emails"]
-            status_list = pipeline_info["alerting"]["statusList"]
             cron_scheduling = pipeline_info["cronScheduling"]
             schedule_timezone = pipeline_info["scheduleTimezone"]
+            emails = None
+            status_list = None
+            if pipeline_info["alerting"] is not None:
+                emails = pipeline_info["alerting"]["emails"]
+                status_list = pipeline_info["alerting"]["statusList"]
 
             all_jobs_for_target_project = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
 
