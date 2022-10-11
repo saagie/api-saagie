@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.2 (2022-10-11)
+### :bug:
+* :bug: fix app edit and export with only current version ([`55d02f7`](https://github.com/saagie/api-saagie/commit/55d02f77753c9ee4af1badcca49f72206bac08b2))
+
 ## v2.2.1 (2022-10-10)
 ### :bug:
 * :bug: correct pipeline import from json ([#141](https://github.com/saagie/api-saagie/issues/141)) ([`c2edcef`](https://github.com/saagie/api-saagie/commit/c2edcef9a79c24f2b2cec0323a5323f656ff55b5))
