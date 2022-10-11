@@ -275,7 +275,7 @@ class EnvVars:
 
         existing_env_var = self.list_for_project(project_id, pprint_result=False)["projectEnvironmentVariables"]
 
-        if name not in [env_var["name"] for env_var in existing_env_var]:
+        if name not in [env_var["name"] for env_var in existing_env_var if env_var["scope"] == "PROJECT"]:
             raise ValueError(f"❌ Environment variable {name} does not exists")
 
         params = [d for d in existing_env_var if d["name"] == name][0]
@@ -323,7 +323,7 @@ class EnvVars:
         """
 
         existing_env_var = self.list_for_project(project_id, pprint_result=False)["projectEnvironmentVariables"]
-        present = name in [env["name"] for env in existing_env_var]
+        present = name in [env["name"] for env in existing_env_var if env["scope"] == "PROJECT"]
 
         # If variable not present, create it
         if not present:
