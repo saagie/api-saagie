@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.3 (2022-10-12)
+### :bug:
+* :bug: fix create_or_update env var for project ([`8438c43`](https://github.com/saagie/api-saagie/commit/8438c43e87433cda3cf2680d4653c96e180ce6c0))
+
 ## v2.2.2 (2022-10-11)
 ### :bug:
 * :bug: fix app edit and export with only current version ([`55d02f7`](https://github.com/saagie/api-saagie/commit/55d02f77753c9ee4af1badcca49f72206bac08b2))
