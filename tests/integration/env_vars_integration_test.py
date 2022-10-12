@@ -240,6 +240,22 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
     @staticmethod
+    def test_update_project_env_var_not_exist(create_then_delete_global_env_var, create_global_project):
+        conf = create_global_project
+        name = create_then_delete_global_env_var
+        env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
+
+        with pytest.raises(ValueError) as rte:
+            conf.saagie_api.env_vars.update_for_project(
+                conf.project_id,
+                name,
+                value=env_var_input["value"],
+                description=env_var_input["description"],
+                is_password=env_var_input["isPassword"],
+            )
+        assert str(rte.value) == f"❌ Environment variable {name} does not exists"
+
+    @staticmethod
     def test_create_or_update_project_env_var(create_global_project):
         conf = create_global_project
         name = "TEST_VIA_API_CREATE_OR_UPDATE_PROJECT"
@@ -292,6 +308,83 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         conf.saagie_api.env_vars.delete_for_project(conf.project_id, name=name)
+
+    @staticmethod
+    def test_create_or_update_project_env_var_with_existing_global_env_var(create_global_project):
+        conf = create_global_project
+        name = "TEST_VIA_API_CREATE_OR_UPDATE_PROJECT"
+        env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
+
+        # Create a global env with the same name
+        conf.saagie_api.env_vars.create_global(
+            name=name,
+            value=env_var_input["value"],
+            is_password=env_var_input["isPassword"],
+            description=env_var_input["description"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            if env_var["name"] == name
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        # call to overwrite the variable in the project
+        conf.saagie_api.env_vars.create_or_update_for_project(
+            project_id=conf.project_id,
+            name=name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            if env_var["name"] == name and env_var["scope"] == "PROJECT"
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        # Second call to update the variable
+        conf.saagie_api.env_vars.create_or_update_for_project(
+            project_id=conf.project_id,
+            name=name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            if env_var["name"] == name and env_var["scope"] == "PROJECT"
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        conf.saagie_api.env_vars.delete_for_project(conf.project_id, name=name)
+        conf.saagie_api.env_vars.delete_global(name=name)
 
     @staticmethod
     def test_export_variable(create_then_delete_project_env_var, create_global_project):
