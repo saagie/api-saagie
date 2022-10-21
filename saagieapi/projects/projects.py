@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from typing import Dict, List, Optional
 
 from gql import gql
@@ -444,24 +445,24 @@ class Projects:
 
         project_info = self.saagie_api.projects.get_info(project_id)["project"]
 
-        job_tech_list = []
+        job_tech_dict = {}
+        job_tech_dict = defaultdict(list)
         for category in self.saagie_api.projects.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
             for tech in category["technologies"]:
                 catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
-                job_tech_list.append({catalog: techno})
-        job_tech_list_without_dups = [dict(tech) for tech in {tuple(job_tech.items()) for job_tech in job_tech_list}]
-        jobs_technos_allowed = job_tech_list_without_dups if job_tech_list_without_dups else None
+                if catalog != "" and techno != "":
+                    job_tech_dict[catalog].append(techno)
 
-        project_info["jobs_technologies"] = jobs_technos_allowed
+        project_info["jobs_technologies"] = job_tech_dict if job_tech_dict else None
 
-        app_tech_list = []
+        app_tech_dict = {}
+        app_tech_dict = defaultdict(list)
         for tech in self.saagie_api.projects.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
-            app_tech_list.append({catalog: techno})
-        app_tech_list_without_dups = [dict(tech) for tech in {tuple(app_tech.items()) for app_tech in app_tech_list}]
-        apps_technos_allowed = {"saagie": app_tech_list_without_dups} if app_tech_list_without_dups else None
+            if catalog != "" and techno != "":
+                app_tech_dict[catalog].append(techno)
 
-        project_info["apps_technologies"] = apps_technos_allowed
+        project_info["apps_technologies"] = app_tech_dict if app_tech_dict else None
 
         rights = []
         for right in self.saagie_api.projects.get_rights(project_id)["rights"]:
