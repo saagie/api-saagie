@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path
+from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
 from .gql_queries import *
 
 
@@ -436,10 +436,41 @@ class Projects:
         result = True
         output_folder = check_folder_path(output_folder)
         output_folder += project_id + "/"
+        create_folder(output_folder)
         output_folder_job = output_folder + "jobs/"
         output_folder_pipeline = output_folder + "pipelines/"
         output_folder_app = output_folder + "apps/"
         output_folder_env_vars = output_folder + "env_vars/"
+
+        project_info = self.saagie_api.projects.get_info(project_id)["project"]
+
+        job_tech_list = []
+        for category in self.saagie_api.projects.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
+            for tech in category["technologies"]:
+                catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
+                job_tech_list.append({catalog: techno})
+        job_tech_list_without_dups = [dict(tech) for tech in {tuple(job_tech.items()) for job_tech in job_tech_list}]
+        jobs_technos_allowed = job_tech_list_without_dups if job_tech_list_without_dups else None
+
+        project_info["jobs_technologies"] = jobs_technos_allowed
+
+        app_tech_list = []
+        for tech in self.saagie_api.projects.get_apps_technologies(project_id=project_id)["appTechnologies"]:
+            catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
+            app_tech_list.append({catalog: techno})
+        app_tech_list_without_dups = [dict(tech) for tech in {tuple(app_tech.items()) for app_tech in app_tech_list}]
+        apps_technos_allowed = {"saagie": app_tech_list_without_dups} if app_tech_list_without_dups else None
+
+        project_info["apps_technologies"] = apps_technos_allowed
+
+        rights = []
+        for right in self.saagie_api.projects.get_rights(project_id)["rights"]:
+            rights.append({right["name"]: right["role"].split("_")[-1]})
+
+        project_info["rights"] = rights
+
+        write_to_json_file(output_folder + "project.json", project_info)
+
         list_jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)
         id_jobs = [job["id"] for job in list_jobs["jobs"]]
 
