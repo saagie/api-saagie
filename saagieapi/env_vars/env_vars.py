@@ -403,18 +403,24 @@ class EnvVars:
             logging.warning("Cannot get the information of environment variable of the project [%s]", project_id)
             logging.error("Something went wrong %s", exception)
         if project_env_var:
-            for env in project_env_var:
-                env_var_name = env["name"]
-                create_folder(output_folder + env_var_name)
-                write_to_json_file(output_folder + env_var_name + "/variable.json", env)
+            try:
+                for env in project_env_var:
+                    env_var_name = env["name"]
+                    create_folder(output_folder + env_var_name)
+                    write_to_json_file(output_folder + env_var_name + "/variable.json", env)
 
-            logging.info("✅ Environment variables of the project [%s] have been successfully exported", project_id)
+                logging.info("✅ Environment variables of the project [%s] have been successfully exported", project_id)
+            except Exception as exception:
+                logging.warning(
+                    "❌ Environment variables of the project [%s] have not been successfully exported", project_id
+                )
+                logging.error("Something went wrong %s", exception)
+                write_error(error_folder, "env_vars", project_id)
+                result = False
+                return result
         else:
-            logging.warning(
-                "❌ Environment variables of the project [%s] have not been successfully exported", project_id
-            )
-            write_error(error_folder, "env_vars", project_id)
-            result = False
+            logging.info("✅ The project [%s] doesn't have any environment variable", project_id)
+
         return result
 
     def import_from_json(self, json_file: str, project_id: str = None) -> bool:
