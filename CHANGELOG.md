@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.4 (2022-10-24)
+### :bug:
+* :bug: fix empty project env var export ([`3047752`](https://github.com/saagie/api-saagie/commit/3047752245d76fd9df829961d3162bcce4e19612))
+
 ## v2.2.3 (2022-10-12)
 ### :bug:
 * :bug: fix create_or_update env var for project ([`8438c43`](https://github.com/saagie/api-saagie/commit/8438c43e87433cda3cf2680d4653c96e180ce6c0))
