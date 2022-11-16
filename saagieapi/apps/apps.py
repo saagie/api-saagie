@@ -852,3 +852,23 @@ class Apps:
             logging.error("Something went wrong %s", exception)
 
         return result
+
+    def get_id(self, app_name: str, project_name: str) -> str:
+        """Get the app id with the app name and project name
+        Parameters
+        ----------
+        app_name : str
+            Name of your app
+        project_name : str
+            Name of your project
+        Returns
+        -------
+        str
+            App UUID
+        """
+        project_id = self.saagie_api.projects.get_id(project_name)
+        apps = self.saagie_api.apps.list_for_project_minimal(project_id)["project"]["apps"]
+        app = list(filter(lambda j: j["name"] == app_name, apps))
+        if app:
+            return app[0]["id"]
+        raise NameError(f"❌ App {app_name} does not exist.")
