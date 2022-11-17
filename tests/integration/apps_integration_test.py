@@ -192,6 +192,18 @@ class TestIntegrationApps:
 
     @pytest.fixture
     @staticmethod
+    def create_grafana_from_catalog(create_global_project):
+        conf = create_global_project
+        app = conf.saagie_api.apps.create_from_catalog(
+            project_id=conf.project_id,
+            technology_name="Grafana",
+            context="8.2",
+        )
+
+        return app["installApp"]["id"]
+
+    @pytest.fixture
+    @staticmethod
     def create_then_delete_app_from_catalog(create_app_from_catalog, create_global_project):
         conf = create_global_project
         app_id = create_app_from_catalog
@@ -216,3 +228,13 @@ class TestIntegrationApps:
         result = conf.saagie_api.apps.delete(app_id)
 
         assert result == {"deleteApp": {"id": app_id}}
+
+    @staticmethod
+    def test_get_app_id(create_grafana_from_catalog, create_global_project):
+        conf = create_global_project
+        app_id = create_grafana_from_catalog
+
+        app_name = "Grafana"
+        output_app_id = conf.saagie_api.apps.get_id(app_name, conf.project_name)
+        conf.saagie_api.apps.delete(output_app_id)
+        assert app_id == output_app_id
