@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.5 (2022-11-17)
+### :bug:
+* :bug: change python semantic version ([#153](https://github.com/saagie/api-saagie/issues/153)) ([`6bf15fa`](https://github.com/saagie/api-saagie/commit/6bf15fabefdc3958090f9c59dd6b589330d74c26))
+
 ## v2.2.4 (2022-10-24)
 ### :bug:
 * :bug: fix empty project env var export ([`3047752`](https://github.com/saagie/api-saagie/commit/3047752245d76fd9df829961d3162bcce4e19612))
