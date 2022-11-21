@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.6 (2022-11-21)
+### :bug:
+* :bug: add __type_name of app event ([#156](https://github.com/saagie/api-saagie/issues/156)) ([`8789380`](https://github.com/saagie/api-saagie/commit/8789380f02e6bb90d206b1d92ae2cfbee94b6f7e))
+
 ## v2.2.5 (2022-11-17)
 ### :bug:
 * :bug: change python semantic version ([#153](https://github.com/saagie/api-saagie/issues/153)) ([`6bf15fa`](https://github.com/saagie/api-saagie/commit/6bf15fabefdc3958090f9c59dd6b589330d74c26))
