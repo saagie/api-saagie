@@ -65,6 +65,29 @@ fragment appInformations on App {
       event {
         recordAt
         executionId
+        __typename
+        ... on RunAction {
+          versionNumber
+          author
+        }
+        ... on StopAction {
+          author
+        }
+        ... on RollbackAction {
+          versionNumber
+          author
+        }
+        ... on UpgradeAction {
+          versionNumber
+          author
+        }
+        ... on RestartAction {
+          versionNumber
+          author
+        }
+        ... on StatusRetrieve {
+          status
+        }
       }
       transitionTime
     }
@@ -99,13 +122,13 @@ fragment appInformations on App {
 }
 
 query projectQuery($id: UUID!, $minimal: Boolean!, $versionsOnlyCurrent: Boolean!) {
-    project(id: $id){
-        apps {
-          id
-          name
-          ...appInformations @skip(if: $minimal)
-        }
+  project(id: $id) {
+    apps {
+      id
+      name
+      ...appInformations @skip(if: $minimal)
     }
+  }
 }
 """
 
@@ -176,10 +199,12 @@ query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
         dockerCredentialsId
       }
       startTime
+      stopTime
       events {
         event {
           recordAt
           executionId
+          __typename
           ... on RunAction {
             versionNumber
             author
@@ -203,6 +228,7 @@ query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
             status
           }
         }
+        transitionTime
       }
     }
     isGenericApp
@@ -225,7 +251,12 @@ query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
       }
     }
     linkedVolumes {
+      id
+      name
+      creator
+      description
       size
+      creationDate
     }
   }
 }
