@@ -451,7 +451,8 @@ class Projects:
             for tech in category["technologies"]:
                 catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
                 if catalog != "" and techno != "":
-                    job_tech_dict[catalog].append(techno)
+                    if techno not in job_tech_dict[catalog]:
+                        job_tech_dict[catalog].append(techno)
 
         project_info["jobs_technologies"] = job_tech_dict if job_tech_dict else None
 
@@ -460,7 +461,8 @@ class Projects:
         for tech in self.saagie_api.projects.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
             if catalog != "" and techno != "":
-                app_tech_dict[catalog].append(techno)
+                if techno not in app_tech_dict[catalog]:
+                    app_tech_dict[catalog].append(techno)
 
         project_info["apps_technologies"] = app_tech_dict if app_tech_dict else None
 
