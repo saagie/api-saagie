@@ -10,7 +10,7 @@ class TestIntegrationEnvVars:
     @staticmethod
     def create_global_env_var(create_global_project):
         conf = create_global_project
-        name = "TEST_VIA_API" + str(datetime.timestamp(datetime.now()))
+        name = "TEST_VIA_API" + str(datetime.timestamp(datetime.now())).replace(".", "_")
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
@@ -22,7 +22,7 @@ class TestIntegrationEnvVars:
     @staticmethod
     def create_global_env_var_password(create_global_project):
         conf = create_global_project
-        name = "TEST_VIA_API_PASSWORD" + str(datetime.timestamp(datetime.now()))
+        name = "TEST_VIA_API_PASSWORD" + str(datetime.timestamp(datetime.now())).replace(".", "_")
         value = "VALUE_TEST_VIA_API_PASSWORD"
         description = "DESCRIPTION_TEST_VIA_API_PASSWORD"
 
