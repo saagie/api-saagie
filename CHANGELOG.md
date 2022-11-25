@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.7 (2022-11-25)
+### :bug:
+* :bug: add generation of json file for project during export ([#149](https://github.com/saagie/api-saagie/issues/149)) ([`14cd77d`](https://github.com/saagie/api-saagie/commit/14cd77d00eee6c14ec79627be320b1eef2913b29))
+
 ## v2.2.6 (2022-11-21)
 ### :bug:
 * :bug: add __type_name of app event ([#156](https://github.com/saagie/api-saagie/issues/156)) ([`8789380`](https://github.com/saagie/api-saagie/commit/8789380f02e6bb90d206b1d92ae2cfbee94b6f7e))
