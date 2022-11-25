@@ -531,3 +531,19 @@ class Projects:
         else:
             logging.info("✅ Project [%s] successfully exported", project_id)
         return result
+
+    def import_from_json(
+        self,
+        path_to_folder: str = None,
+    ) -> bool:
+        """Import a job from JSON format
+
+        Parameters
+        ----------
+        path_to_folder : str, optional
+            Path to the folder of the project to import
+        Returns
+        -------
+        bool
+            True if project is imported False otherwise
+        """
