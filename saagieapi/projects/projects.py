@@ -1,7 +1,10 @@
+import json
 import logging
+import os
+import time
 from collections import defaultdict
 from typing import Dict, List, Optional
-import os
+
 from gql import gql
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
@@ -548,16 +551,18 @@ class Projects:
             True if project is imported False otherwise
         """
 
-        with open(f"{path_to_folder}/project.json", 'r') as f:
+        with open(f"{path_to_folder}/project.json", "r") as f:
             config_dict = json.load(f)
 
         project_name = config_dict["name"]
         new_project_id = self.saagie_api.projects.create(
             project_name,
-            groups_and_roles=config_dict["rights"],apps_technologies_allowed =config_dict['apps_technologies'] ,
-            jobs_technologies_allowed= config_dict['jobs_technologies'], description = config_dict["description"]
-            )["createProject"]["id"]
-        
+            groups_and_roles=config_dict["rights"],
+            apps_technologies_allowed=config_dict["apps_technologies"],
+            jobs_technologies_allowed=config_dict["jobs_technologies"],
+            description=config_dict["description"],
+        )["createProject"]["id"]
+
         # Waiting for the project to be ready
         project_status = self.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
         waiting_time = 0
@@ -573,7 +578,7 @@ class Projects:
                 f"Project creation is taking longer than usual, "
                 f"aborting integration tests after {project_creation_timeout} seconds"
             )
-        
+
         jobs_list = [item for item in os.listdir(f"{path_to_folder}/jobs")]
         list_files = []
         for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/jobs"):
@@ -600,11 +605,13 @@ class Projects:
                     for f in job_files:
                         if "job.json" not in f:
                             path_to_package = f
-                            self.saagie_api.jobs.import_from_json(json_file=json_file, project_id=new_project_id, path_to_package=path_to_package)
+                            self.saagie_api.jobs.import_from_json(
+                                json_file=json_file, project_id=new_project_id, path_to_package=path_to_package
+                            )
                 else:
-                    print('error')
+                    print("error")
             else:
-                json_files = [f for f in job_files if "job.json" in f ]
+                json_files = [f for f in job_files if "job.json" in f]
                 if len(json_files) == 1:
                     json_file = json_files[0]
                     self.saagie_api.jobs.import_from_json(json_file=json_file, project_id=new_project_id)
@@ -627,5 +634,4 @@ class Projects:
         # Import env vars
         for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/env_vars"):
             for filename in filenames:
-                self.saagie_api.env_vars.import_from_json(json_file=dirpath + "/" + filename,
-                project_id=new_project_id)
+                self.saagie_api.env_vars.import_from_json(json_file=dirpath + "/" + filename, project_id=new_project_id)
