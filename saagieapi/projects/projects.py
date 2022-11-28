@@ -1,7 +1,7 @@
 import logging
 from collections import defaultdict
 from typing import Dict, List, Optional
-
+import os
 from gql import gql
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
@@ -547,3 +547,85 @@ class Projects:
         bool
             True if project is imported False otherwise
         """
+
+        with open(f"{path_to_folder}/project.json", 'r') as f:
+            config_dict = json.load(f)
+
+        project_name = config_dict["name"]
+        new_project_id = self.saagie_api.projects.create(
+            project_name,
+            groups_and_roles=config_dict["rights"],apps_technologies_allowed =config_dict['apps_technologies'] ,
+            jobs_technologies_allowed= config_dict['jobs_technologies'], description = config_dict["description"]
+            )["createProject"]["id"]
+        
+        # Waiting for the project to be ready
+        project_status = self.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
+        waiting_time = 0
+
+        # Safety: wait for 5min max for project initialisation
+        project_creation_timeout = 400
+        while project_status != "READY" and waiting_time <= project_creation_timeout:
+            time.sleep(10)
+            project_status = self.saagie_api.projects.get_info(new_project_id)["project"]["status"]
+            waiting_time += 10
+        if project_status != "READY":
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds"
+            )
+        
+        jobs_list = [item for item in os.listdir(f"{path_to_folder}/jobs")]
+        list_files = []
+        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/jobs"):
+            for filename in filenames:
+                list_files.append(dirpath + "/" + filename)
+
+        file_dict = defaultdict(list)
+
+        for job in jobs_list:
+            print(f"job: {job}")
+            for f in list_files:
+                regex_job = f"{path_to_folder}/jobs/{job}"
+                if regex_job in f.replace("\\", "/"):
+                    file_dict[job].append(f)
+
+        # Import jobs
+        for key in file_dict.keys():
+            print(f"Job id: {key}")
+            job_files = file_dict.get(key)
+            if len(job_files) > 1:
+                json_files = [f for f in job_files if "job.json" in f]
+                if len(json_files) == 1:
+                    json_file = json_files[0]
+                    for f in job_files:
+                        if "job.json" not in f:
+                            path_to_package = f
+                            self.saagie_api.jobs.import_from_json(json_file=json_file, project_id=new_project_id, path_to_package=path_to_package)
+                else:
+                    print('error')
+            else:
+                json_files = [f for f in job_files if "job.json" in f ]
+                if len(json_files) == 1:
+                    json_file = json_files[0]
+                    self.saagie_api.jobs.import_from_json(json_file=json_file, project_id=new_project_id)
+            print("=========")
+
+        # Import pipelines
+        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/pipelines"):
+            for filename in filenames:
+                json_file = dirpath + "/" + filename
+                json_file = json_file.replace("\\", "/")
+                self.saagie_api.pipelines.import_from_json(json_file=json_file, project_id=new_project_id)
+
+        # Import apps
+        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/apps"):
+            for filename in filenames:
+                json_file = dirpath + "/" + filename
+                json_file = json_file.replace("\\", "/")
+                self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
+
+        # Import env vars
+        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/env_vars"):
+            for filename in filenames:
+                self.saagie_api.env_vars.import_from_json(json_file=dirpath + "/" + filename,
+                project_id=new_project_id)
