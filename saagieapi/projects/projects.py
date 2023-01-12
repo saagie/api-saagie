@@ -576,7 +576,7 @@ class Projects:
         if project_status != "READY":
             raise TimeoutError(
                 f"Project creation is taking longer than usual, "
-                f"aborting integration tests after {project_creation_timeout} seconds"
+                f"Aborting project import after {project_creation_timeout} seconds"
             )
 
         jobs_list = [item for item in os.listdir(f"{path_to_folder}/jobs")]
