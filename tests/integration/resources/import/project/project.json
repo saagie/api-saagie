@@ -1,0 +1,42 @@
+{
+    "name": "test import",
+    "creator": "guillaume.prevost",
+    "description": "",
+    "jobsCount": 15,
+    "status": "READY",
+    "jobs_technologies": {
+        "Saagie": [
+            "Bash",
+            "Generic",
+            "Java/Scala",
+            "Python",
+            "R",
+            "Spark",
+            "SQOOP",
+            "Talend"
+        ]
+    },
+    "apps_technologies": {
+        "Saagie": [
+            "CloudBeaver",
+            "Dash",
+            "Docker image",
+            "Grafana",
+            "Jupyter Notebook",
+            "Kibana",
+            "Metabase",
+            "MLFlow Server",
+            "Nifi",
+            "OrientDB",
+            "PGAdmin 4",
+            "RStudio",
+            "Spark History Server",
+            "Zeppelin Notebook"
+        ]
+    },
+    "rights": [
+        {
+            "technical-ci-saagieapi": "MANAGER"
+        }
+    ]
+}

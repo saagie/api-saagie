@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -898,9 +899,8 @@ class Jobs:
 
     def import_from_json(
         self,
-        json_file: str,
         project_id: str,
-        path_to_package: str = None,
+        path_to_folder: str,
     ) -> bool:
         """Import a job from JSON format
 
@@ -919,6 +919,12 @@ class Jobs:
         """
         result = True
 
+        list_files = []
+        for (dirpath, dirnames, filenames) in os.walk(path_to_folder):
+            list_files.extend(f"{dirpath}/{filename}" for filename in filenames)
+        json_files = [f for f in list_files if "job.json" in f]
+        json_file = json_files[0]
+
         try:
             with open(json_file, "r", encoding="utf-8") as file:
                 job_info = json.load(file)
@@ -934,32 +940,30 @@ class Jobs:
             job_technology_name = job_info["technology"]["name"]
             job_technology_catalog = job_info["technology"]["technology_catalog"]
 
-            for version in job_info["versions"]:
-                if version["isCurrent"]:
-                    job_runtime_version = version["runtimeVersion"]
-                    job_command_line = version["commandLine"]
-                    job_release_note = version["releaseNote"]
-                    job_extra_technology_name = ""
-                    job_extra_technology_version = ""
-
-                    if version["extraTechnology"] is not None:
-                        job_extra_technology_name = version["extraTechnology"]["language"]
-                        job_extra_technology_version = version["extraTechnology"]["version"]
-
             job_cron_scheduling = job_info["cronScheduling"]
             job_schedule_timezone = job_info["scheduleTimezone"]
             job_resources = job_info["resources"]
-            job_emails = ""
-            job_status_list = ""
 
-            if job_info["alerting"] is not None:
-                job_emails = job_info["alerting"]["emails"]
-                job_status_list = job_info["alerting"]["statusList"]
+            job_emails = job_info["alerting"]["emails"] if job_info["alerting"] else ""
+            job_status_list = job_info["alerting"]["statusList"] if job_info["alerting"] else ""
+
+            version = [version for version in job_info["versions"] if version["isCurrent"]][0]
+            job_runtime_version = version["runtimeVersion"]
+            job_command_line = version["commandLine"]
+            job_release_note = version["releaseNote"]
+            job_extra_technology_name = version["extraTechnology"]["language"] if version["extraTechnology"] else ""
+            job_extra_technology_version = version["extraTechnology"]["version"] if version["extraTechnology"] else ""
+
+            package = [f for f in list_files if f"/version/{version['number']}/" in f]
+            path_to_package = package[0] if package else None
+
+            file_info = os.path.split(os.path.abspath(path_to_package))
+            os.chdir(file_info[0])
 
             self.create(
                 job_name,
                 project_id,
-                path_to_package,
+                file_info[-1],
                 job_description,
                 job_category,
                 job_technology_name,

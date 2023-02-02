@@ -550,88 +550,87 @@ class Projects:
         bool
             True if project is imported False otherwise
         """
+        try:
+            json_file = f"{path_to_folder}/project.json"
+            with open(json_file, "r") as f:
+                config_dict = json.load(f)
+        except Exception as exception:
+            logging.warning("Cannot open the JSON file %s", json_file)
+            logging.error("Something went wrong %s", exception)
+            return False
 
-        with open(f"{path_to_folder}/project.json", "r") as f:
-            config_dict = json.load(f)
+        try:
+            project_name = config_dict["name"]
+            new_project_id = self.create(
+                name=project_name,
+                groups_and_roles=config_dict["rights"],
+                apps_technologies_allowed=config_dict["apps_technologies"],
+                jobs_technologies_allowed=config_dict["jobs_technologies"],
+                description=config_dict["description"],
+            )["createProject"]["id"]
 
-        project_name = config_dict["name"]
-        new_project_id = self.saagie_api.projects.create(
-            project_name,
-            groups_and_roles=config_dict["rights"],
-            apps_technologies_allowed=config_dict["apps_technologies"],
-            jobs_technologies_allowed=config_dict["jobs_technologies"],
-            description=config_dict["description"],
-        )["createProject"]["id"]
+            # Waiting for the project to be ready
+            project_status = self.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
+            waiting_time = 0
 
-        # Waiting for the project to be ready
-        project_status = self.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
-        waiting_time = 0
+            # Safety: wait for 5min max for project initialisation
+            project_creation_timeout = 400
+            while project_status != "READY" and waiting_time <= project_creation_timeout:
+                time.sleep(10)
+                project_status = self.saagie_api.projects.get_info(new_project_id)["project"]["status"]
+                waiting_time += 10
+            if project_status != "READY":
+                raise TimeoutError(
+                    f"Project creation is taking longer than usual, "
+                    f"Aborting project import after {project_creation_timeout} seconds"
+                )
+        except Exception as exception:
+            logging.warning("❌ Project [%s] has not been successfully imported", project_name)
+            logging.error("Something went wrong %s", exception)
+            return False
 
-        # Safety: wait for 5min max for project initialisation
-        project_creation_timeout = 400
-        while project_status != "READY" and waiting_time <= project_creation_timeout:
-            time.sleep(10)
-            project_status = self.saagie_api.projects.get_info(new_project_id)["project"]["status"]
-            waiting_time += 10
-        if project_status != "READY":
-            raise TimeoutError(
-                f"Project creation is taking longer than usual, "
-                f"Aborting project import after {project_creation_timeout} seconds"
-            )
+        status = True
+        list_failed = {"jobs": [], "pipelines": [], "apps": [], "env_vars": []}
 
-        jobs_list = [item for item in os.listdir(f"{path_to_folder}/jobs")]
-        list_files = []
-        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/jobs"):
-            for filename in filenames:
-                list_files.append(dirpath + "/" + filename)
-
-        file_dict = defaultdict(list)
-
+        jobs_list = list(os.listdir(f"{path_to_folder}/jobs"))
         for job in jobs_list:
-            print(f"job: {job}")
-            for f in list_files:
-                regex_job = f"{path_to_folder}/jobs/{job}"
-                if regex_job in f.replace("\\", "/"):
-                    file_dict[job].append(f)
-
-        # Import jobs
-        for key in file_dict.keys():
-            print(f"Job id: {key}")
-            job_files = file_dict.get(key)
-            if len(job_files) > 1:
-                json_files = [f for f in job_files if "job.json" in f]
-                if len(json_files) == 1:
-                    json_file = json_files[0]
-                    for f in job_files:
-                        if "job.json" not in f:
-                            path_to_package = f
-                            self.saagie_api.jobs.import_from_json(
-                                json_file=json_file, project_id=new_project_id, path_to_package=path_to_package
-                            )
-                else:
-                    print("error")
-            else:
-                json_files = [f for f in job_files if "job.json" in f]
-                if len(json_files) == 1:
-                    json_file = json_files[0]
-                    self.saagie_api.jobs.import_from_json(json_file=json_file, project_id=new_project_id)
-            print("=========")
+            job_status = self.saagie_api.jobs.import_from_json(
+                project_id=new_project_id, path_to_folder=f"{path_to_folder}/jobs/{job}"
+            )
+            if not job_status:
+                list_failed["jobs"].append(job)
+                status = False
 
         # Import pipelines
         for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/pipelines"):
             for filename in filenames:
-                json_file = dirpath + "/" + filename
-                json_file = json_file.replace("\\", "/")
-                self.saagie_api.pipelines.import_from_json(json_file=json_file, project_id=new_project_id)
+                json_file = f"{dirpath}/{filename}".replace("\\", "/")
+                pipeline_status = self.saagie_api.pipelines.import_from_json(
+                    json_file=json_file, project_id=new_project_id
+                )
+                if not pipeline_status:
+                    list_failed["pipelines"].append(dirpath.split("/")[-1])
+                    status = False
 
         # Import apps
         for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/apps"):
             for filename in filenames:
-                json_file = dirpath + "/" + filename
-                json_file = json_file.replace("\\", "/")
-                self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
+                json_file = f"{dirpath}/{filename}".replace("\\", "/")
+                app_status = self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
+                if not app_status:
+                    list_failed["apps"].append(dirpath.split("/")[-1])
+                    status = False
 
         # Import env vars
         for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/env_vars"):
             for filename in filenames:
-                self.saagie_api.env_vars.import_from_json(json_file=dirpath + "/" + filename, project_id=new_project_id)
+                env_var_status = self.saagie_api.env_vars.import_from_json(
+                    json_file=f"{dirpath}/{filename}", project_id=new_project_id
+                )
+                if not env_var_status:
+                    list_failed["env_vars"].append(dirpath.split("/")[-1])
+                    status = False
+
+        if not status:
+            logging.error("Something went wrong during project import %s", list_failed)
+        return status

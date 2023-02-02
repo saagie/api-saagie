@@ -144,7 +144,7 @@ class TestIntegrationPipelines:
     def test_import_pipeline_from_json_with_non_existing_jobs(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.pipelines.import_from_json(
-            os.path.join(conf.import_dir, "pipeline", "pipeline_non_existing_jobs.json"),
+            os.path.join(conf.import_dir, "pipelines", "without-existing-jobs", "pipeline.json"),
             conf.project_id,
         )
         assert not result
@@ -155,15 +155,14 @@ class TestIntegrationPipelines:
         job_name = "test_job_python"
         jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
-        if len(job) == 0:
+        if not job:
             conf.saagie_api.jobs.import_from_json(
-                os.path.join(conf.import_dir, "job", "job.json"),
-                conf.project_id,
-                os.path.join(conf.import_dir, "job", "hello_world.py"),
+                project_id=conf.project_id,
+                path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job"),
             )
 
         result = conf.saagie_api.pipelines.import_from_json(
-            os.path.join(conf.import_dir, "pipeline", "pipeline_existing_jobs.json"),
+            os.path.join(conf.import_dir, "project", "pipelines", "with-existing-jobs", "pipeline.json"),
             conf.project_id,
         )
         assert result
@@ -174,15 +173,14 @@ class TestIntegrationPipelines:
         job_name = "test_job_python"
         jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
-        if len(job) == 0:
+        if not job:
             conf.saagie_api.jobs.import_from_json(
-                os.path.join(conf.import_dir, "job", "job.json"),
-                conf.project_id,
-                os.path.join(conf.import_dir, "job", "hello_world.py"),
+                project_id=conf.project_id,
+                path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job"),
             )
 
         result = conf.saagie_api.pipelines.import_from_json(
-            os.path.join(conf.import_dir, "pipeline", "pipeline_without_alerting.json"),
+            os.path.join(conf.import_dir, "project", "pipelines", "without-alerting", "pipeline.json"),
             conf.project_id,
         )
         assert result

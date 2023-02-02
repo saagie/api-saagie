@@ -62,3 +62,11 @@ class TestIntegrationProject:
         result = conf.saagie_api.projects.export(conf.project_id, os.path.join(conf.output_dir, "projects"))
         to_validate = True
         assert result == to_validate
+
+    @staticmethod
+    def test_import_project(create_global_project):
+        conf = create_global_project
+        result = conf.saagie_api.projects.import_from_json(path_to_folder=os.path.join(conf.import_dir, "project"))
+
+        conf.saagie_api.projects.delete(conf.saagie_api.projects.get_id("test import"))
+        assert result is True

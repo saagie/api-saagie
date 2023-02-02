@@ -400,7 +400,7 @@ class TestIntegrationEnvVars:
     @staticmethod
     def test_import_global_env_var_from_json(create_global_project):
         conf = create_global_project
-        path = os.path.join(conf.import_dir, "env_var", "global_variable.json")
+        path = os.path.join(conf.import_dir, "env_vars", "GLOBAL", "variable.json")
         conf.delete_test_global_env_var(conf)
 
         result = conf.saagie_api.env_vars.import_from_json(
@@ -414,7 +414,7 @@ class TestIntegrationEnvVars:
     def test_import_project_env_var_from_json(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.env_vars.import_from_json(
-            os.path.join(conf.import_dir, "env_var", "project_variable.json"),
+            os.path.join(conf.import_dir, "project", "env_vars", "PROJECT", "variable.json"),
             conf.project_id,
         )
 
@@ -424,7 +424,7 @@ class TestIntegrationEnvVars:
     def test_import_wrong_env_var_from_json(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.env_vars.import_from_json(
-            os.path.join(conf.import_dir, "env_var", "wrong_variable.json"),
+            os.path.join(conf.import_dir, "env_vars", "WRONG", "variable.json"),
             conf.project_id,
         )
 

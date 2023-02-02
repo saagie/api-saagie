@@ -83,7 +83,7 @@ class TestIntegrationApps:
         conf = create_global_project
 
         result = conf.saagie_api.apps.import_from_json(
-            os.path.join(conf.import_dir, "app", "app_from_catalog.json"),
+            os.path.join(conf.import_dir, "project", "apps", "from-catalog", "app.json"),
             conf.project_id,
         )
 
@@ -94,7 +94,7 @@ class TestIntegrationApps:
         conf = create_global_project
 
         result = conf.saagie_api.apps.import_from_json(
-            os.path.join(conf.import_dir, "app", "app_from_scratch.json"),
+            os.path.join(conf.import_dir, "project", "apps", "from-scratch", "app.json"),
             conf.project_id,
         )
 

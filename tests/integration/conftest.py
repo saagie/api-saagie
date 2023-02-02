@@ -69,7 +69,7 @@ def create_global_project():
 
     @staticmethod
     def delete_test_global_env_var(conf):
-        path = os.path.join(conf.import_dir, "env_var", "global_variable.json")
+        path = os.path.join(conf.import_dir, "env_vars", "GLOBAL", "variable.json")
         # Delete variable if it already exist
         with open(path, encoding="utf-8") as json_file:
             var_name = json.load(json_file)["name"]
