@@ -350,7 +350,7 @@ class Projects:
         previous_project_version = self.get_info(project_id)["project"]
         params = self._create_groupe_role(params, group, role, groups_and_roles)
 
-        if not group and not role:
+        if not group and not role and not groups_and_roles:
             params["authorizedGroups"] = [
                 {"name": group_role["name"], "role": group_role["role"]}
                 for group_role in self.get_rights(project_id)["rights"]
