@@ -359,15 +359,8 @@ class Projects:
                 for group_role in self.get_rights(project_id)["rights"]
             ]
 
-        if name:
-            params["name"] = name
-        else:
-            params["name"] = previous_project_version["name"]
-
-        if description:
-            params["description"] = description
-        else:
-            params["description"] = previous_project_version["description"]
+        params["name"] = name or previous_project_version["name"]
+        params["description"] = description or previous_project_version["description"]
 
         if jobs_technologies_allowed:
             params["technologies"] = self.__get_jobs_for_project(jobs_technologies_allowed)
@@ -551,9 +544,9 @@ class Projects:
             True if project is imported False otherwise
         """
         try:
-            json_file = f"{path_to_folder}/project.json"
-            with open(json_file, "r") as f:
-                config_dict = json.load(f)
+            json_file = os.path.join(path_to_folder, "project.json")
+            with open(json_file, "r") as file:
+                config_dict = json.load(file)
         except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
             logging.error("Something went wrong %s", exception)
@@ -592,43 +585,44 @@ class Projects:
         status = True
         list_failed = {"jobs": [], "pipelines": [], "apps": [], "env_vars": []}
 
-        jobs_list = list(os.listdir(f"{path_to_folder}/jobs"))
+        jobs_list = list(os.listdir(os.path.join(path_to_folder, "jobs")))
         for job in jobs_list:
             job_status = self.saagie_api.jobs.import_from_json(
-                project_id=new_project_id, path_to_folder=f"{path_to_folder}/jobs/{job}"
+                project_id=new_project_id, path_to_folder=os.path.join(path_to_folder, "jobs", job)
             )
             if not job_status:
                 list_failed["jobs"].append(job)
                 status = False
 
         # Import pipelines
-        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/pipelines"):
+        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "pipelines")):
             for filename in filenames:
-                json_file = f"{dirpath}/{filename}".replace("\\", "/")
+                json_file = os.path.join(dirpath, filename)
                 pipeline_status = self.saagie_api.pipelines.import_from_json(
                     json_file=json_file, project_id=new_project_id
                 )
                 if not pipeline_status:
-                    list_failed["pipelines"].append(dirpath.split("/")[-1])
+                    list_failed["pipelines"].append(dirpath.split(os.sep)[-1])
                     status = False
 
         # Import apps
-        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/apps"):
+        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "apps")):
             for filename in filenames:
-                json_file = f"{dirpath}/{filename}".replace("\\", "/")
+                json_file = os.path.join(dirpath, filename)
                 app_status = self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
                 if not app_status:
-                    list_failed["apps"].append(dirpath.split("/")[-1])
+                    list_failed["apps"].append(dirpath.split(os.sep)[-1])
                     status = False
 
         # Import env vars
-        for (dirpath, dirnames, filenames) in os.walk(f"{path_to_folder}/env_vars"):
+        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "env_vars")):
             for filename in filenames:
+                json_file = os.path.join(dirpath, filename)
                 env_var_status = self.saagie_api.env_vars.import_from_json(
-                    json_file=f"{dirpath}/{filename}", project_id=new_project_id
+                    json_file=json_file, project_id=new_project_id
                 )
                 if not env_var_status:
-                    list_failed["env_vars"].append(dirpath.split("/")[-1])
+                    list_failed["env_vars"].append(dirpath.split(os.sep)[-1])
                     status = False
 
         if not status:

@@ -910,8 +910,8 @@ class Jobs:
             Path to the JSON file that contains job information
         project_id : str
             Project ID to import the job
-        path_to_package : str, optional
-            Path to the package of the job to import
+        path_to_folder : str
+            Path to the folder of the job to import
         Returns
         -------
         bool
@@ -920,8 +920,8 @@ class Jobs:
         result = True
 
         list_files = []
-        for (dirpath, dirnames, filenames) in os.walk(path_to_folder):
-            list_files.extend(f"{dirpath}/{filename}" for filename in filenames)
+        for (dirpath, _, filenames) in os.walk(path_to_folder):
+            list_files.extend(os.path.join(dirpath, filename) for filename in filenames)
         json_files = [f for f in list_files if "job.json" in f]
         json_file = json_files[0]
 
@@ -954,7 +954,7 @@ class Jobs:
             job_extra_technology_name = version["extraTechnology"]["language"] if version["extraTechnology"] else ""
             job_extra_technology_version = version["extraTechnology"]["version"] if version["extraTechnology"] else ""
 
-            package = [f for f in list_files if f"/version/{version['number']}/" in f]
+            package = [f for f in list_files if os.path.join("version", str(version["number"])) in f]
             path_to_package = package[0] if package else None
 
             file_info = os.path.split(os.path.abspath(path_to_package))
