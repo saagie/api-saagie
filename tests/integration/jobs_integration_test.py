@@ -154,9 +154,8 @@ class TestIntegrationJobs:
     def test_import_job_from_json(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.jobs.import_from_json(
-            os.path.join(conf.import_dir, "job", "job.json"),
-            conf.project_id,
-            os.path.join(conf.import_dir, "job", "hello_world.py"),
+            project_id=conf.project_id,
+            path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job"),
         )
 
         to_validate = True
@@ -166,9 +165,8 @@ class TestIntegrationJobs:
     def test_import_job_spark_from_json(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.jobs.import_from_json(
-            os.path.join(conf.import_dir, "job_spark", "job.json"),
-            conf.project_id,
-            os.path.join(conf.import_dir, "job_spark", "Documents_empty.txt"),
+            project_id=conf.project_id,
+            path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job_spark"),
         )
 
         to_validate = True
