@@ -906,8 +906,6 @@ class Jobs:
 
         Parameters
         ----------
-        json_file : str
-            Path to the JSON file that contains job information
         project_id : str
             Project ID to import the job
         path_to_folder : str
