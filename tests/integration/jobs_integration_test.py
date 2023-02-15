@@ -236,3 +236,25 @@ class TestIntegrationJobs:
 
         assert "addJobVersion" in job_upgrade
         assert "editJob" in job_upgrade
+
+    @staticmethod
+    def test_rollback_job_version(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+        conf.saagie_api.jobs.upgrade(
+            job_id=job_id,
+            file=None,
+            use_previous_artifact=True,
+            runtime_version="3.9",
+            command_line="python {file} arg1 arg2",
+            release_note=None,
+            extra_technology="",
+            extra_technology_version="",
+        )
+
+        job_rollback = conf.saagie_api.jobs.rollback(job_id=job_id, version_number="1")
+        job_rollback_current_version = [
+            version for version in job_rollback["rollbackJobVersion"]["versions"] if version["isCurrent"] == True
+        ]
+
+        assert job_rollback_current_version[0]["number"] == 1

@@ -667,6 +667,28 @@ class Jobs:
             status_list=status_list,
         )
 
+    def rollback(self, job_id: str, version_number: str):
+        """Rollback a given job to the given version
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        version_number : str
+            Number of the version to rollback
+
+        Returns
+        -------
+        dict
+            Dict of rollback job
+
+        """
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_ROLLBACK_JOB_VERSION), variable_values={"jobId": job_id, "versionNumber": version_number}
+        )
+        logging.info("✅ Job [%s] successfully rollbacked to version [%s]", job_id, version_number)
+        return result
+
     def delete(self, job_id: str) -> Dict:
         """Delete a given job
 

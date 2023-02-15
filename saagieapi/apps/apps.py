@@ -669,6 +669,28 @@ class Apps:
 
         return result
 
+    def rollback(self, app_id: str, version_number: str):
+        """Rollback a given app to the given version
+
+        Parameters
+        ----------
+        app_id : str
+            UUID of your app (see README on how to find it)
+        version_number : str
+            Number of the version to rollback
+
+        Returns
+        -------
+        dict
+            Dict of rollback app
+
+        """
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_ROLLBACK_APP_VERSION), variable_values={"appId": app_id, "versionNumber": version_number}
+        )
+        logging.info("✅ App [%s] successfully rollbacked to version [%s]", app_id, version_number)
+        return result
+
     def export(
         self,
         app_id: str,

@@ -356,3 +356,17 @@ mutation addAppVersion($appId: UUID!, $appVersion: AppVersionInput!) {
   }
 }
 """
+
+GQL_ROLLBACK_APP_VERSION = """
+mutation rollbackAppVersionMutation($appId: UUID!, $versionNumber: Int!) {
+  rollbackAppVersion(appId: $appId, versionNumber: $versionNumber) {
+    id
+    versions {
+      number
+    }
+    currentVersion {
+      number
+    }
+  }
+}
+"""

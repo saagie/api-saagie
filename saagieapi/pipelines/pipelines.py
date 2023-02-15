@@ -466,6 +466,29 @@ class Pipelines:
             schedule_timezone,
         )
 
+    def rollback(self, pipeline_id: str, version_number: str):
+        """Rollback a given job to the given version
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        version_number : str
+            Number of the version to rollback
+
+        Returns
+        -------
+        dict
+            Dict of rollback pipeline
+
+        """
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_ROLLBACK_PIPELINE_VERSION),
+            variable_values={"pipelineId": pipeline_id, "versionNumber": version_number},
+        )
+        logging.info("✅ Pipeline [%s] successfully rollbacked to version [%s]", pipeline_id, version_number)
+        return result
+
     def run(self, pipeline_id: str) -> Dict:
         """Run a given pipeline
         NB : You can only run pipeline if you have at least the editor role on

@@ -238,3 +238,16 @@ class TestIntegrationApps:
         output_app_id = conf.saagie_api.apps.get_id(app_name, conf.project_name)
         conf.saagie_api.apps.delete(output_app_id)
         assert app_id == output_app_id
+
+    @staticmethod
+    def test_rollback_app_version(create_app_from_catalog, create_global_project):
+        conf = create_global_project
+        app_id = create_app_from_catalog
+        conf.saagie_api.apps.upgrade(
+            app_id=app_id,
+            release_note="new version",
+        )
+
+        app_rollback = conf.saagie_api.apps.rollback(app_id=app_id, version_number="1")
+
+        assert app_rollback["rollbackAppVersion"]["currentVersion"]["number"] == 1

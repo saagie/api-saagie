@@ -215,6 +215,37 @@ class TestIntegrationPipelines:
         assert result
 
     @staticmethod
+    def test_rollback_pipeline_version(create_then_delete_graph_pipeline, create_global_project):
+        conf = create_global_project
+        pipeline_id, job_id = create_then_delete_graph_pipeline
+
+        job_node1 = JobNode(job_id)
+        job_node2 = JobNode(job_id)
+        condition_node_1 = ConditionNode()
+        job_node1.add_next_node(condition_node_1)
+        condition_node_1.add_success_node(job_node2)
+        graph_pipeline = GraphPipeline()
+        graph_pipeline.add_root_node(job_node1)
+
+        # pipeline_info = conf.saagie_api.pipelines.get_info(pipeline_id=pipeline_id)
+        # print(pipeline_info)
+
+        # pipeline_version = [version for version in pipeline_info["graphPipeline"]["versions"] if version["isCurrent"] == True]
+        # print(pipeline_version)
+        # graph_pipeline = pipeline_version[0]["graph"]
+        # print(graph_pipeline)
+        conf.saagie_api.pipelines.upgrade(pipeline_id=pipeline_id, graph_pipeline=graph_pipeline, release_note="")
+
+        pipeline_rollback = conf.saagie_api.pipelines.rollback(pipeline_id=pipeline_id, version_number="1")
+        pipeline_rollback_current_version = [
+            version
+            for version in pipeline_rollback["rollbackPipelineVersion"]["versions"]
+            if version["isCurrent"] == True
+        ]
+
+        assert pipeline_rollback_current_version[0]["number"] == 1
+
+    @staticmethod
     def test_create_or_upgrade_pipeline(delete_pipeline, create_job, create_global_project):
         conf = create_global_project
         pipeline_name = delete_pipeline
