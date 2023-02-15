@@ -260,3 +260,15 @@ GQL_UPGRADE_PIPELINE = """
     }
   }
 """
+
+GQL_ROLLBACK_PIPELINE_VERSION = """
+mutation rollbackPipelineVersionMutation($pipelineId: UUID!, $versionNumber: Int!) {
+  rollbackPipelineVersion(pipelineId: $pipelineId, versionNumber: $versionNumber) {
+    id
+    versions {
+      number
+      isCurrent
+    }
+  }
+}
+"""

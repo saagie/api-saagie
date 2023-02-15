@@ -312,3 +312,15 @@ mutation deleteJobMutation($jobId: UUID!){
     deleteJob(jobId: $jobId)
 }
 """
+
+GQL_ROLLBACK_JOB_VERSION = """
+mutation rollbackJobVersionMutation($jobId: UUID!, $versionNumber: Int!) {  
+    rollbackJobVersion(jobId: $jobId, versionNumber: $versionNumber) {    
+        id    
+        versions {      
+            number      
+            isCurrent      
+        }    
+    }
+}
+"""
