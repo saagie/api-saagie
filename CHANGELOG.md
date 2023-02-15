@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.8 (2023-02-15)
+### :bug:
+* :bug: Add rollback for jobs, pipelines and apps ([#163](https://github.com/saagie/api-saagie/issues/163)) ([`62848aa`](https://github.com/saagie/api-saagie/commit/62848aaa35083b6578ea898ac72840db01cad038))
+
 ## v2.2.7 (2022-11-25)
 ### :bug:
 * :bug: add generation of json file for project during export ([#149](https://github.com/saagie/api-saagie/issues/149)) ([`14cd77d`](https://github.com/saagie/api-saagie/commit/14cd77d00eee6c14ec79627be320b1eef2913b29))
