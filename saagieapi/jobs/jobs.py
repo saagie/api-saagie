@@ -974,16 +974,18 @@ class Jobs:
             job_extra_technology_name = version["extraTechnology"]["language"] if version["extraTechnology"] else ""
             job_extra_technology_version = version["extraTechnology"]["version"] if version["extraTechnology"] else ""
 
-            package = [f for f in list_files if os.path.join("version", str(version["number"])) in f]
-            path_to_package = package[0] if package else None
-
-            file_info = os.path.split(os.path.abspath(path_to_package))
-            os.chdir(file_info[0])
+            if package := [f for f in list_files if os.path.join("version", str(version["number"])) in f]:
+                path_to_package = package[0]
+                file_info = os.path.split(os.path.abspath(path_to_package))
+                os.chdir(file_info[0])
+                file_name = file_info[-1]
+            else:
+                file_name = ""
 
             self.create(
                 job_name,
                 project_id,
-                file_info[-1],
+                file_name,
                 job_description,
                 job_category,
                 job_technology_name,

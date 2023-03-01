@@ -544,6 +544,7 @@ class Projects:
             True if project is imported False otherwise
         """
         try:
+            path_to_folder = os.path.abspath(path_to_folder)
             json_file = os.path.join(path_to_folder, "project.json")
             with open(json_file, "r") as file:
                 config_dict = json.load(file)
@@ -587,6 +588,8 @@ class Projects:
 
         jobs_list = list(os.listdir(os.path.join(path_to_folder, "jobs")))
         for job in jobs_list:
+            # TODO if conversion of path_to_folder to absolute path is not efficient
+            # os.chdir(os.path.abspath(path_to_folder))
             job_status = self.saagie_api.jobs.import_from_json(
                 project_id=new_project_id, path_to_folder=os.path.join(path_to_folder, "jobs", job)
             )
