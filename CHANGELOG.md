@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.2.9 (2023-03-01)
+### :bug:
+* :bug:  Fix/import from json ([#167](https://github.com/saagie/api-saagie/issues/167)) ([`fb7f99a`](https://github.com/saagie/api-saagie/commit/fb7f99a42bfa264844218e204c9ab213bebaddcf))
+
 ## v2.2.8 (2023-02-15)
 ### :bug:
 * :bug: Add rollback for jobs, pipelines and apps ([#163](https://github.com/saagie/api-saagie/issues/163)) ([`62848aa`](https://github.com/saagie/api-saagie/commit/62848aaa35083b6578ea898ac72840db01cad038))
