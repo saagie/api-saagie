@@ -8,13 +8,35 @@
 
 GQL_GET_CLUSTER_INFO = """
 {
-  getClusterCapacity {
-    cpu
-    gpu
-    memory
-  }
+    getClusterCapacity {
+        cpu
+        gpu
+        memory
+    }
 }
 """
+
+#       _       _    __
+# _ __ | | __ _| |_ / _| ___  _ __ _ __ ___
+# | '_ \| |/ _` | __| |_ / _ \| '__| '_ ` _ \
+# | |_) | | (_| | |_|  _| (_) | |  | | | | | |
+# | .__/|_|\__,_|\__|_|  \___/|_|  |_| |_| |_|
+# |_|
+
+GQL_GET_PLATFORM_INFO = """
+{
+    platform{
+        id
+        counts{
+            projects
+            jobs
+            apps
+            pipelines
+        }
+    }
+}
+"""
+
 
 #                                 _  _                 _
 #  _ __   ___  _ __    ___   ___ (_)| |_   ___   _ __ (_)  ___  ___
@@ -25,32 +47,38 @@ GQL_GET_CLUSTER_INFO = """
 
 
 GQL_GET_REPOSITORIES_INFO = """
-  {
+{
     repositories {
-      id
-      name
-      technologies {
         id
-        label
-        available
-        __typename
-      }
+        name
+        technologies {
+            id
+            label
+            available
+            __typename
+        }
     }
-  }
+}
 """
 
 GQL_GET_RUNTIMES = """
 query technologyQuery($id: UUID!){
     technology(id: $id){ 
         __typename 
-        ... on JobTechnology {contexts{
-        id 
-        label 
-        available}}
-        ... on SparkTechnology {contexts{
-        id
-        label
-        available}}
+        ... on JobTechnology {
+            contexts{
+                id 
+                label 
+                available
+            }
+        }
+        ... on SparkTechnology {
+            contexts{
+                id
+                label
+                available
+            }
+        }
         ... on AppTechnology{
             id
             label
