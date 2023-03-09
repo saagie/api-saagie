@@ -1,64 +1,64 @@
 # pylint: disable=duplicate-code
 GQL_LIST_STORAGE_FOR_PROJECT = """
 fragment appVersionFieldInformation on AppVersion {
-  number
-  volumesWithPath {
-    path
-    volume {
-      id
+    number
+    volumesWithPath {
+        path
+        volume {
+            id
+        }
     }
-  }
 }
 
 fragment volumeInformation on Volume {
-  size
-  description
-  creationDate
-  creator
-  linkedApp {
-    id
-    name
-    versions {
-      ...appVersionFieldInformation
+    size
+    description
+    creationDate
+    creator
+    linkedApp {
+        id
+        name
+        versions {
+            ...appVersionFieldInformation
+        }
+        currentVersion {
+            ...appVersionFieldInformation
+        }
     }
-    currentVersion {
-      ...appVersionFieldInformation
-    }
-  }
 }
 
 query projectQuery($id: UUID!, $minimal: Boolean!) {
-  project(id: $id) {
-    volumes {
-      id
-      name
-      ...volumeInformation @skip(if: $minimal)
+    project(id: $id) {
+        volumes {
+            id
+            name
+            ...volumeInformation @skip(if: $minimal)
+        }
     }
-  }
 }
 """
 
 GQL_CREATE_STORAGE = """
 mutation createVolumeMutation($volume: VolumeInput!) {
-  createVolume(volume: $volume) {
-    id
-    name
-    description
-    size
-    creator
-    linkedApp {
-      id
+    createVolume(volume: $volume) {
+        id
+        name
+        description
+        size
+        creator
+        linkedApp {
+            id
+        }
     }
-  }
 }
 """
 
 GQL_EDIT_STORAGE = """
 mutation editVolumeMutation($volume: VolumeEditionInput!) {
-  editVolume(volumeEdition: $volume) {
-    id
-    name
-  }
+    editVolume(volumeEdition: $volume) {
+        id
+        name
+    }
 }
 """
 
@@ -73,9 +73,9 @@ mutation deleteVolumeMutation($id: UUID!) {
 
 GQL_UNLINK_STORAGE = """
 mutation unlinkVolumeMutation($id: UUID!) {
-  unlinkVolume(id: $id) {
-    id
-    name
-  }
+    unlinkVolume(id: $id) {
+        id
+        name
+    }
 }
 """

@@ -381,7 +381,7 @@ class EnvVars:
         Returns
         -------
         dict
-            Dict of project environment variables
+            Dict of pipeline environment variables
         """
         params = {
             "pipelineId": pipeline_id,

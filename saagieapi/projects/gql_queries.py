@@ -1,16 +1,16 @@
 # pylint: disable=duplicate-code
 GQL_LIST_PROJECTS = """
-  {
-       projects{
-          id,
-          name,
-          creator,
-          description,
-          jobsCount,
-          status
-      }
-  }
-  """
+{
+    projects{
+        id,
+        name,
+        creator,
+        description,
+        jobsCount,
+        status
+    }
+}
+"""
 
 GQL_GET_PROJECT_INFO = """
 query projectQuery($id: UUID!) {
@@ -42,35 +42,40 @@ GQL_GET_PROJECT_APPS_TECHNOLOGIES = """
 query appTechnologiesQuery($id: UUID!) {
     project(id: $id){
         appTechnologies{
-                id
+            id
         }
     }
 }
 """
 
 GQL_CREATE_PROJECT = """
-mutation createProjectMutation($name: String!, $description: String, $technologies: [TechnologyInput!],
-                                $appTechnologies: [TechnologyInput!], $authorizedGroups: [SecurityGroupInput]) {
-  createProject(project: {
-                    name: $name
-                    description: $description
-                    authorizedGroups:  $authorizedGroups
-                    technologiesByCategory: [
-                      {
-                        jobCategory: "Extraction",
-                        technologies: $technologies
-                      },
-                      {
-                        jobCategory: "Processing",
-                        technologies: $technologies
-                      }
-                    ]
-                    appTechnologies: $appTechnologies
-                }) {
-    id
-    name
-    creator
-  }
+mutation createProjectMutation($name: String!, 
+                               $description: String, 
+                               $technologies: [TechnologyInput!],
+                               $appTechnologies: [TechnologyInput!], 
+                               $authorizedGroups: [SecurityGroupInput]) {
+    createProject(
+        project: {
+            name: $name
+            description: $description
+            authorizedGroups:  $authorizedGroups
+            technologiesByCategory: [
+                {
+                    jobCategory: "Extraction",
+                    technologies: $technologies
+                },
+                {
+                    jobCategory: "Processing",
+                    technologies: $technologies
+                }
+            ]
+            appTechnologies: $appTechnologies
+        }
+    ) {
+        id
+        name
+        creator
+    }
 }
 """
 
@@ -82,29 +87,35 @@ mutation deleteProjectMutation($projectId: UUID!){
 """
 
 GQL_EDIT_PROJECT = """
-mutation editProjectMutation($projectId: UUID!, $name: String, $description: String, $technologies: [TechnologyInput!], 
-                             $appTechnologies: [TechnologyInput!], $authorizedGroups: [SecurityGroupInput]) {
-  editProject(project: {
-                    id : $projectId
-                    name: $name
-                    description: $description
-                    authorizedGroups:  $authorizedGroups
-                    technologiesByCategory: [
-                      {
-                        jobCategory: "Extraction",
-                        technologies: $technologies
-                      },
-                      {
-                        jobCategory: "Processing",
-                        technologies: $technologies
-                      }
-                    ]
-                    appTechnologies: $appTechnologies
-                }) {
-    id
-    name
-    creator
-  }
+mutation editProjectMutation($projectId: UUID!, 
+                             $name: String, 
+                             $description: String, 
+                             $technologies: [TechnologyInput!], 
+                             $appTechnologies: [TechnologyInput!], 
+                             $authorizedGroups: [SecurityGroupInput]) {
+    editProject(
+        project: {
+            id : $projectId
+            name: $name
+            description: $description
+            authorizedGroups:  $authorizedGroups
+            technologiesByCategory: [
+                {
+                    jobCategory: "Extraction",
+                    technologies: $technologies
+                },
+                {
+                    jobCategory: "Processing",
+                    technologies: $technologies
+                }
+            ]
+            appTechnologies: $appTechnologies
+        }
+    ) {
+        id
+        name
+        creator
+    }
 }
 """
 

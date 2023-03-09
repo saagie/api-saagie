@@ -152,7 +152,7 @@ class Pipelines:
         Returns
         -------
         dict
-            Dict of job information
+            Dict of pipeline information
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE_INSTANCE),
@@ -364,7 +364,7 @@ class Pipelines:
                     "statusList": previous_alerting["statusList"],
                 }
 
-        if has_execution_variables_enabled or has_execution_variables_enabled == False:
+        if has_execution_variables_enabled in {True, False}:
             params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
         else:
             params["hasExecutionVariablesEnabled"] = previous_pipeline_info["hasExecutionVariablesEnabled"]

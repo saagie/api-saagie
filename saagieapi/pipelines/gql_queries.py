@@ -140,6 +140,7 @@ query graphPipelineQuery($id: UUID!,
         scheduleStatus
         scheduleTimezone
         isLegacyPipeline
+        hasExecutionVariablesEnabled
     }
 }
 """
@@ -209,6 +210,12 @@ query pipelineInstanceQuery($id: UUID!){
         status
         startTime
         endTime
+        runWithExecutionVariables
+        initialExecutionVariables{
+            key
+            value
+            isPassword
+        }
     }
 }
 """
