@@ -34,6 +34,12 @@ query projectPipelinesQuery($projectId: UUID!,
                 status
                 startTime
                 endTime
+                runWithExecutionVariables
+                initialExecutionVariables{
+                    key
+                    value
+                    isPassword
+                }
             }
             versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
                 number
@@ -101,6 +107,12 @@ query graphPipelineQuery($id: UUID!,
             status
             startTime
             endTime
+            runWithExecutionVariables
+            initialExecutionVariables{
+                key
+                value
+                isPassword
+            }
         }
         versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
             number

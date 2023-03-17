@@ -6,6 +6,9 @@ schema {
 directive @preview(reason: String = "This endpoint is in beta version, it may change in future versions") on FIELD_DEFINITION | ENUM_VALUE
 
 type Query {
+  # Get platform details.
+  platform: Platform
+
   # List projects in platform.
   #
   # You can only list projects you belong to and projects you have created.
@@ -68,12 +71,13 @@ type Query {
     skip:Int
   ): [EnvironmentVariable!]
 
-  # List environment variables of a specific job.
+  # This deprecated endpoint allows to retrieve a list environment variables of a specific job.
   #
   # You can only list environment variables if you have at least the viewer role in the project associated to the job or in all projects.
   #
   # Several optional arguments are not yet implemented and may be removed or changed in future versions, so they are deprecated.
   jobEnvironmentVariables(
+    # Argument is deprecated : may be removed or changed in future releases
     jobId: UUID!,
     # Argument is deprecated : it is not implemented and may be removed or changed in future releases
     search: String,
@@ -81,6 +85,15 @@ type Query {
     first: Int,
     # Argument is deprecated : it is not implemented and may be removed or changed in future releases
     skip:Int
+  ): [EnvironmentVariable!]
+
+  # List environment variables of a specific pipeline. Include all variables usable by this pipeline.
+  #
+  # You can only list environment variables if you have at least the viewer role in the project associated to the pipeline or in all projects.
+  pipelineEnvironmentVariables(
+    pipelineId: UUID!,
+    # Allows to get only variables in the scope specified in input. By default if no parameter is specified, all scopes are include.
+    scope: EnvVarScope
   ): [EnvironmentVariable!]
 
   # List global environment variables.
@@ -204,9 +217,7 @@ type Query {
   # You can only get a pipeline's details if you have at least the viewer role in the project associated to the pipeline or in all projects.
   #
   # This endpoint allows to retrieve a pipeline with versions in linear or graph format.
-  #
-  # This endpoint is currently in technical preview.
-  graphPipeline(id: UUID!): Pipeline @preview
+  graphPipeline(id: UUID!): Pipeline
 
   # List users by realm.
   usersByRealm: [UserEmail]
@@ -390,6 +401,22 @@ type Mutation {
   # Entity ID is required for project-specific environment variables.
   saveEnvironmentVariable(entityId: UUID, environmentVariable: EnvironmentVariableInput!): EnvironmentVariable!
 
+  # Replace and save all environment variables in this scope entityId (or else GLOBAL).
+  #
+  # Each variable non specified in `rawEnvironmentVariables` but existing in the platform in this scope entityId (or else GLOBAL), will be deleted (except the password).
+  # Each variable specified in `rawEnvironmentVariables` but not existing in the platform in this scope entityId (or else GLOBAL), will be created.
+  # Each variable specified in `rawEnvironmentVariables` with a key name existing in the platform in this scope entityId (or else GLOBAL), will be modified with this value.
+  #
+  # `rawEnvironmentVariables` must have the format of "env_var_name=value" for one variable and each variable must be separate with '\n'.
+  # For example: "myFirstEnvVar=12\nOTHER_ENV_VAR=30\nAnotherVar=hello".
+  #
+  # Entity ID is required for project and pipeline environment variables.
+  replaceEnvironmentVariablesByRawForScope(
+    entityId: UUID,
+    scope: EnvVarScope!,
+    rawEnvironmentVariables: String!
+  ): [EnvironmentVariable!]
+
   # Delete an environment variable.
   #
   # Entity ID is required for project-specific environment variables.
@@ -426,9 +453,7 @@ type Mutation {
   # Create a pipeline in a graph format based on DAG model (Directed Acyclic Graph)
   #
   # You can only create a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
-  #
-  # This endpoint is currently in technical preview.
-  createGraphPipeline(pipeline: GraphPipelineInput): Pipeline! @preview
+  createGraphPipeline(pipeline: GraphPipelineInput): Pipeline!
 
   # Edit a pipeline.
   #
@@ -457,9 +482,7 @@ type Mutation {
   # Add a new pipeline version in graph format based on DAG model (Directed Acyclic Graph) to an existing pipeline.
   #
   # You can only add a version to a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
-  #
-  # This endpoint is currently in technical preview.
-  addGraphPipelineVersion(pipelineId: UUID!, graph: PipelineGraphInput!, releaseNote: String): PipelineVersion! @preview
+  addGraphPipelineVersion(pipelineId: UUID!, graph: PipelineGraphInput!, releaseNote: String): PipelineVersion!
 
   # Rollback a pipeline to a specific version.
   #
@@ -558,7 +581,7 @@ input TechnologyInput {
 input JobInput {
   projectId: UUID!
   name: String!
-  # Preview: `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
+  # `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
   #
   # Only alphanumeric and underscore characters are allowed.
   alias: String
@@ -577,7 +600,7 @@ input JobInput {
 input JobEditionInput {
   id: UUID!
   name: String
-  # Preview: `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
+  # `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
   #
   # Only alphanumeric and underscore characters are allowed.
   alias: String
@@ -613,7 +636,7 @@ input JobVersionInput {
 
 input ExternalJobParamInput {
   id: String!
-  value: String!
+  value: String
 }
 
 input JobPackageInput {
@@ -742,10 +765,9 @@ input GraphPipelineInput {
   name: String!
   description: String
   alerting: JobPipelineAlertingInput
-  # Preview: execution variables used in pipeline at the start of run
-  executionVariables: String
-  # Preview: enable or disable execution variables in pipeline
+  # Enable or disable modification of variables in jobs during execution
   hasExecutionVariablesEnabled: Boolean
+  environmentVariables: String
   projectId: UUID!
   graph: PipelineGraphInput!
   releaseNote: String
@@ -779,6 +801,21 @@ input ConditionNodeInput {
   position: NodePositionInput
   nextNodesSuccess: [UUID!]
   nextNodesFailure: [UUID!]
+  condition: ConditionInput
+}
+
+input ConditionInput {
+  status: ConditionStatusInput
+}
+
+input ConditionStatusInput {
+  value: ConditionStatusPresetValueInput
+}
+
+enum ConditionStatusPresetValueInput {
+  AllSuccess
+  AllSuccessOrSkipped
+  AtLeastOneSuccess
 }
 
 # Input for a position of the node of a graph pipeline in the GUI
@@ -792,9 +829,7 @@ input PipelineEditionInput {
   name: String
   description: String
   alerting: JobPipelineAlertingInput
-  # Preview: execution variables used in pipeline at the start of run
-  executionVariables: String
-  # Preview: enable or disable execution variables in pipeline
+  # Enable or disable modification of variables in jobs during execution
   hasExecutionVariablesEnabled: Boolean
   isScheduled: Boolean
   cronScheduling: Cron
@@ -833,6 +868,18 @@ input VolumeEditionInput {
 input EntryInput {
   key: String!
   value: String
+}
+
+type PlatformCounts {
+  projects: Int!
+  jobs: Int!
+  apps: Int!
+  pipelines: Int!
+}
+
+type Platform {
+  id: Int!
+  counts: PlatformCounts!
 }
 
 type TechnologyVersion {
@@ -910,7 +957,7 @@ type Volume {
 type Job {
   id: UUID!
   name: String!
-  # Preview: `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
+  # `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
   #
   # Only alphanumeric and underscore characters are allowed.
   alias: String
@@ -960,6 +1007,7 @@ type AppHistory {
   runningVersionNumber: Int!
   currentDockerInfo: AppDocker
   currentStatus: AppStatus!
+  currentStatusReason: String
   currentExecutionId: UUID
   startTime: DateTime
   stopTime: DateTime
@@ -979,6 +1027,7 @@ type StatusRetrieve implements AppEvent {
   recordAt: DateTime!
   status: AppStatus!
   executionId: UUID!
+  reason: String
 }
 
 type RunAction implements AppEvent {
@@ -1069,6 +1118,31 @@ type EnvironmentVariable {
   description: String
   isPassword: Boolean!
   overriddenValues: [OverriddenValues]!
+  # Indicates whether this env var is valid with current rules defined in user documentation
+  isValid: Boolean
+  # Indicate why this variable is invalid, otherwise null
+  invalidReasons: [EnvironmentVariableValidationError]
+}
+
+enum EnvironmentVariableValidationErrorType {
+  NAME_IS_EMPTY,
+  NAME_DOESNT_START_WITH_LETTER,
+  NAME_CONTAINS_INVALID_CHARACTERS,
+  TOO_LONG_NAME,
+  TOO_LONG_VALUE,
+  MAXIMUM_COUNT_EXCEEDED,
+  NULL_VALUE_UNEXPECTED,
+  NAME_ALREADY_USED,
+  PROJECT_IS_NOT_FOUND,
+  JOB_IS_NOT_FOUND,
+  UNEXPECTED_LINKED_ENTITY_ON_GLOBAL_SCOPE,
+  UNEXPECTED_LINKED_ENTITY_ID_IS_NULL
+}
+
+type EnvironmentVariableValidationError {
+  type: EnvironmentVariableValidationErrorType!
+  concernedProperty: String!
+  message: String!
 }
 
 type OverriddenValues {
@@ -1083,19 +1157,71 @@ type OverriddenValues {
 type JobInstance {
   id: UUID!
   number: Int!
-  status: InstanceStatus!
-  statusDetails: String
+  status: InstanceStatus! @deprecated(reason: "Use history.currentStatus.status instead")
+  statusDetails: String @deprecated(reason: "Use history.currentStatus.details instead")
+  history: JobInstanceHistory
   version: JobVersion!
   startTime: DateTime!
   endTime: DateTime
   pipelineInstanceId: UUID
   pipelineInstance: PipelineInstance
+
+  # All execution variables received in input by the job instance. Note: value of password variables are not visible.
+  executionVariablesInput: [ExecutionVariablesInput]
+
+  # Execution global variables received in input by the job instance. Note: value of password variables are not visible.
+  executionGlobalVariablesInput: [ExecutionVariable]
+
+  # Execution variables write in output by the job instance. Note: value of password variables are not visible.
+  executionVariablesOutput: [ExecutionVariable]
+
+  # Execution variables input & output in the job instance, by key. Note: value of password variables are not visible.
+  executionVariablesByKey: [ExecutionVariableByKeyVariable]
+
   jobId: UUID!
   jobNodeId: UUID
+  jobAlias: String
   effectiveDockerImage: String!
   sparkuiUrl: String
   runTrigger: Trigger
   stopTrigger: AuthoredTrigger
+}
+
+type JobInstanceHistory {
+  currentStatus: InstanceStatusDetails!
+}
+
+type InstanceStatusDetails {
+  status: InstanceStatus!
+  details: String
+  reason: StatusReason
+}
+
+type ExecutionVariablesInput {
+  parentJobInstanceId: String
+  parentJobId: String
+  parentJobAlias: String
+  isDirectParent: Boolean
+  executionVariables: [ExecutionVariable]
+  isGlobalVariables: Boolean!
+}
+
+type ExecutionVariableByKeyVariable {
+  keyVariable: String!
+  isPassword: Boolean
+  valueVariablesInputByJobInstance: [ExecutionVariableValueInputByParent]
+  valueGlobalVariableInput: String
+  valueVariableOutput: String
+}
+
+type ExecutionVariableValueInputByParent {
+  jobInstanceId: UUID!
+  jobId: UUID!
+  jobAlias: String!
+  jobName: String!
+  isDirectParent: Boolean!
+  value: String
+  isPassword: Boolean
 }
 
 interface Trigger {
@@ -1252,9 +1378,7 @@ type Pipeline {
   name: String!
   description: String
   alerting: JobPipelineAlerting
-  # Preview: execution variables used in pipeline at the start of run
-  executionVariables: String
-  # Preview: enable or disable execution variables in pipeline
+  # Indicates if modification of variables in jobs of this pipeline is enable or disable during execution
   hasExecutionVariablesEnabled: Boolean
   pipelineInstanceCount: Int!
   instances(limit: Int, skip: Int, lastExecution: Boolean): [PipelineInstance!]
@@ -1303,6 +1427,8 @@ type ConditionNode {
   nextNodesSuccess: [UUID!]
   # List of output nodes of this node in case of failure of the previous node
   nextNodesFailure: [UUID!]
+
+  condition: Condition!
 }
 
 # Graph node for a job in a pipeline
@@ -1320,25 +1446,47 @@ type NodePosition {
   y: Float!
 }
 
+interface Condition {
+  toString: String!
+}
+
+type ConditionStatus implements Condition {
+  toString: String!
+  value: ConditionStatusPresetValue!
+}
+
+enum ConditionStatusPresetValue {
+  AllSuccess
+  AllSuccessOrSkipped
+  AtLeastOneSuccess
+}
+
 type PipelineInstance {
   id: UUID!
   number: Int!
   status: InstanceStatus!
+  statusDetails: InstanceStatusDetails
   jobsInstance(limit: Int, skip: Int): [JobInstance!]!
   # Allows you to know if the condition is successful or not depending on the success of the previous node linked to this condition
   #
   # This field is null for a linear pipeline version and returns an empty list when graph doesn't have conditions.
-  #
-  # This type is currently in technical preview.
-  conditionsInstance: [ConditionInstance] @preview
-  nodeStatuses: [NodeStatus!]! @preview
+  conditionsInstance: [ConditionInstance]
+  nodeStatuses: [NodeStatus!]!
   version: PipelineVersion!
-  initialExecutionVariables: String
+  # Initial execution variables set in pipeline to be using by jobs, structured by key. Note: value of password variables are not visible
+  initialExecutionVariables: [ExecutionVariable!]
+  runWithExecutionVariables: Boolean
   startTime: DateTime!
   endTime: DateTime
   pipelineId: UUID
   runTrigger: Trigger
   stopTrigger: AuthoredTrigger
+}
+
+type ExecutionVariable {
+  key: String!
+  value: String
+  isPassword: Boolean!
 }
 
 # The status of a node in a graph pipeline
@@ -1503,7 +1651,20 @@ scalar TimeZone
 enum EnvVarScope {
   GLOBAL
   PROJECT
+  PIPELINE
+  # Value is deprecated : it will be removed in future releases
   JOB
+}
+
+enum StatusReason {
+  EVICTED
+  EVICTED_EXEC_VARS
+  CREATE_AGGREGATED_EXEC_VARS_ERROR
+  CONTAINER_CREATION_ERROR
+  IMAGE_PULL_ERROR
+  INVALID_IMAGE_NAME
+  OUT_OF_MEMORY
+  GENERIC_ERROR
 }
 
 enum InstanceStatus {
@@ -1541,6 +1702,8 @@ enum ScheduleStatus {
 }
 
 enum LogStream {
+  ENVVARS_STDOUT
+  ENVVARS_STDERR
   ORCHESTRATION_STDOUT
   ORCHESTRATION_STDERR
   STDERR

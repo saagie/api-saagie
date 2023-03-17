@@ -87,6 +87,7 @@ fragment appInformations on App {
                 }
                 ... on StatusRetrieve {
                     status
+                    reason
                 }
             }
             transitionTime
@@ -97,6 +98,7 @@ fragment appInformations on App {
             dockerCredentialsId
         }
         currentStatus
+        currentStatusReason
         currentExecutionId
         startTime
         stopTime
@@ -193,6 +195,7 @@ query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
         history {
             id
             currentStatus
+            currentStatusReason
             currentExecutionId
             currentDockerInfo {
                 image
@@ -226,6 +229,7 @@ query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
                     }
                     ... on StatusRetrieve {
                         status
+                        reason
                     }
                 }
                 transitionTime

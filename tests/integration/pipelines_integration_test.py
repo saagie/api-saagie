@@ -6,32 +6,32 @@ from saagieapi.pipelines.graph_pipeline import ConditionNode, GraphPipeline, Job
 
 
 class TestIntegrationPipelines:
-    @pytest.fixture
-    @staticmethod
-    def create_graph_pipeline(create_job, create_global_project):
-        conf = create_global_project
-        job_id = create_job
-        job_node1 = JobNode(job_id)
-        job_node2 = JobNode(job_id)
-        condition_node_1 = ConditionNode()
-        job_node1.add_next_node(condition_node_1)
-        condition_node_1.add_success_node(job_node2)
-        graph_pipeline = GraphPipeline()
-        graph_pipeline.add_root_node(job_node1)
+    # @pytest.fixture
+    # @staticmethod
+    # def create_graph_pipeline(create_job, create_global_project):
+    #     conf = create_global_project
+    #     job_id = create_job
+    #     job_node1 = JobNode(job_id)
+    #     job_node2 = JobNode(job_id)
+    #     condition_node_1 = ConditionNode()
+    #     job_node1.add_next_node(condition_node_1)
+    #     condition_node_1.add_success_node(job_node2)
+    #     graph_pipeline = GraphPipeline()
+    #     graph_pipeline.add_root_node(job_node1)
 
-        name = "TEST_VIA_API"
-        description = "DESCRIPTION_TEST_VIA_API"
-        cron_scheduling = "0 0 * * *"
-        schedule_timezone = "Pacific/Fakaofo"
-        result = conf.saagie_api.pipelines.create_graph(
-            project_id=conf.project_id,
-            graph_pipeline=graph_pipeline,
-            name=name,
-            description=description,
-            cron_scheduling=cron_scheduling,
-            schedule_timezone=schedule_timezone,
-        )
-        return result["createGraphPipeline"]["id"], job_id
+    #     name = "TEST_VIA_API"
+    #     description = "DESCRIPTION_TEST_VIA_API"
+    #     cron_scheduling = "0 0 * * *"
+    #     schedule_timezone = "Pacific/Fakaofo"
+    #     result = conf.saagie_api.pipelines.create_graph(
+    #         project_id=conf.project_id,
+    #         graph_pipeline=graph_pipeline,
+    #         name=name,
+    #         description=description,
+    #         cron_scheduling=cron_scheduling,
+    #         schedule_timezone=schedule_timezone,
+    #     )
+    #     return result["createGraphPipeline"]["id"], job_id
 
     @pytest.fixture
     @staticmethod

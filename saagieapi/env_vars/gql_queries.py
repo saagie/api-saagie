@@ -8,28 +8,22 @@ GQL_LIST_GLOBAL_ENV_VARS = """
         value,
         description,
         isPassword
+        isValid
+        invalidReasons{
+            type
+            concernedProperty
+            message
+        }
     }
 }
 """
 
 GQL_CREATE_ENV_VAR = """
-mutation saveEnvironmentVariableMutation($id: UUID, 
-                                         $projectId: UUID, 
-                                         $name: String!, 
-                                         $scope: EnvVarScope!, 
-                                         $value: String, 
-                                         $description: String, 
-                                         $isPassword: Boolean!)  {
+mutation saveEnvironmentVariableMutation($entityId: UUID, 
+                                         $envVar: EnvironmentVariableInput!) {
     saveEnvironmentVariable(
-        entityId: $projectId
-        environmentVariable: {
-            id: $id
-            name: $name
-            scope: $scope
-            value: $value
-            description: $description
-            isPassword:$isPassword
-        }
+        entityId: $entityId
+        environmentVariable: $envVar
     ){
         id
     }
@@ -37,23 +31,11 @@ mutation saveEnvironmentVariableMutation($id: UUID,
 """
 
 GQL_UPDATE_ENV_VAR = """
-mutation($id: UUID, 
-         $projectId: UUID, 
-         $name: String!, 
-         $scope: EnvVarScope!, 
-         $value: String, 
-         $description: String, 
-         $isPassword: Boolean!)  {
+mutation updateEnvironmentVariableMutation($entityId: UUID, 
+                                           $envVar: EnvironmentVariableInput!) {
     saveEnvironmentVariable(
-        entityId: $projectId
-        environmentVariable: {
-            id: $id
-            name: $name
-            scope: $scope
-            value: $value
-            description: $description
-            isPassword:$isPassword
-        }
+        entityId: $entityId
+        environmentVariable: $envVar
     ){
         id
     }
@@ -75,6 +57,19 @@ query technologyQuery($projectId: UUID!){
         value
         description
         isPassword
+        isValid
+        overriddenValues {
+            id
+            scope
+            value
+            description
+            isPassword
+        }
+        invalidReasons{
+            type
+            concernedProperty
+            message
+        }
     }
 }
 """
@@ -91,12 +86,18 @@ query pipelineEnvironmentVariablesQuery($pipelineId: UUID!,
         value
         description
         isPassword
+        isValid
         overriddenValues {
             id
             scope
             value
             description
             isPassword
+        }
+        invalidReasons{
+            type
+            concernedProperty
+            message
         }
     }
 }

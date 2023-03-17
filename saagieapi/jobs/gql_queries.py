@@ -4,6 +4,7 @@ query jobsQuery($projectId: UUID!){
     jobs(projectId: $projectId){
         id
         name
+        alias
     }
 }
 """
@@ -13,6 +14,7 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
     jobs(projectId: $projectId, category: $category, technologyId: $technologyId){
         id
         name
+        alias
         description
         alerting{
             emails
@@ -26,6 +28,13 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
         instances(limit: $instancesLimit){
             id
             status
+            history {
+                currentStatus {
+                    status
+                    details
+                    reason
+                }
+            }
             startTime
             endTime
         }
@@ -82,7 +91,7 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
         }
     }
 }
-  """
+"""
 
 GQL_GET_JOB_INSTANCE = """
 query jobInstanceQuery($jobInstanceId: UUID!){
@@ -90,9 +99,17 @@ query jobInstanceQuery($jobInstanceId: UUID!){
         id
         number
         status
+        history {
+            currentStatus {
+                status
+                details
+                reason
+            }
+        }
         startTime
         endTime
         jobId
+        jobAlias
         version {
             number
             releaseNote
@@ -101,9 +118,46 @@ query jobInstanceQuery($jobInstanceId: UUID!){
             isMajor
             isCurrent
         }
+        executionGlobalVariablesInput{
+            key
+            value
+            isPassword
+        }
+        executionVariablesInput {
+            parentJobInstanceId
+            parentJobId
+            parentJobAlias
+            isDirectParent
+            executionVariables {
+                key
+                value
+                isPassword
+            }
+            isGlobalVariables
+        }
+        executionVariablesOutput {
+            key
+            value
+            isPassword
+        }
+        executionVariablesByKey {
+            keyVariable
+            isPassword
+            valueVariablesInputByJobInstance{
+                jobInstanceId
+                jobId
+                jobAlias
+                jobName
+                isDirectParent
+                value
+                isPassword
+            }
+            valueGlobalVariableInput
+            valueVariableOutput
+        }
     }
-  }
-  """
+}
+"""
 
 GQL_RUN_JOB = """
 mutation runJobMutation($jobId: UUID!){
@@ -120,6 +174,13 @@ mutation stopJobInstanceMutation($jobInstanceId: UUID!){
         id
         number
         status
+        history {
+            currentStatus {
+                status
+                details
+                reason
+            }
+        }
         startTime
         endTime
         jobId
@@ -143,6 +204,7 @@ mutation editJobMutation($jobId: UUID!, $name: String, $description: String,
     }){
         id
         name
+        alias
         description
         isScheduled
         cronScheduling
@@ -232,6 +294,7 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
     job(id: $jobId){
         id
         name
+        alias
         description
         alerting{
             emails
@@ -244,6 +307,13 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
         instances(limit: $instancesLimit){
             id
             status
+            history {
+                currentStatus {
+                    status
+                    details
+                    reason
+                }
+            }
             startTime
             endTime
             version {
