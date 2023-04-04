@@ -397,7 +397,6 @@ class EnvVars:
         """
         params = {
             "pipelineId": pipeline_id,
-            # "scopeFilter": "PIPELINE",
         }
 
         return self.saagie_api.client.execute(
@@ -407,7 +406,7 @@ class EnvVars:
     def create_for_pipeline(
         self, pipeline_id: str, name: str, value: str, description: str = "", is_password: bool = False
     ) -> Dict:
-        """Create an environment variable in a given project
+        """Create an environment variable in a given pipeline
 
         Parameters
         ----------

@@ -101,7 +101,7 @@ def create_global_project():
         print("Test repositories are already cleaned")
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture
 @staticmethod
 def create_job(create_global_project):
     conf = create_global_project
@@ -126,7 +126,7 @@ def create_job(create_global_project):
     return job["data"]["createJob"]["id"]
 
 
-@pytest.fixture(scope="package")
+@pytest.fixture
 @staticmethod
 def create_graph_pipeline(create_job, create_global_project):
     conf = create_global_project
@@ -143,6 +143,7 @@ def create_graph_pipeline(create_job, create_global_project):
     description = "DESCRIPTION_TEST_VIA_API"
     cron_scheduling = "0 0 * * *"
     schedule_timezone = "Pacific/Fakaofo"
+    has_execution_variables_enabled = False
     result = conf.saagie_api.pipelines.create_graph(
         project_id=conf.project_id,
         graph_pipeline=graph_pipeline,
@@ -150,5 +151,6 @@ def create_graph_pipeline(create_job, create_global_project):
         description=description,
         cron_scheduling=cron_scheduling,
         schedule_timezone=schedule_timezone,
+        has_execution_variables_enabled=has_execution_variables_enabled,
     )
     return result["createGraphPipeline"]["id"], job_id

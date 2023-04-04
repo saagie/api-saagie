@@ -171,6 +171,7 @@ class Pipelines:
         status_list: List[str] = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
+        has_execution_variables_enabled: bool = None,
     ) -> Dict:
         """
         Create a pipeline in a given project
@@ -203,6 +204,8 @@ class Pipelines:
             Scheduling CRON format
         schedule_timezone : str, optional
             Timezone of the scheduling
+        has_execution_variables_enabled: bool, optional
+            Boolean to activate or desactivate the execution variables
 
         Returns
         -------
@@ -223,11 +226,14 @@ class Pipelines:
 
         if cron_scheduling:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         else:
             params["isScheduled"] = False
+
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
+
+        if has_execution_variables_enabled:
+            params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
 
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_GRAPH_PIPELINE), variable_values=params)
         logging.info("✅ Pipeline [%s] successfully created", name)
@@ -328,6 +334,7 @@ class Pipelines:
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
         has_execution_variables_enabled: bool, optional
+            Boolean to activate or desactivate the execution variables
 
         Returns
         -------
@@ -385,6 +392,7 @@ class Pipelines:
         is_scheduled: bool = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
+        has_execution_variables_enabled: bool = None,
     ) -> Dict:
         """Create or upgrade a pipeline in a given project
 
@@ -425,6 +433,8 @@ class Pipelines:
         schedule_timezone : str, optional
             Timezone of the scheduling
             Example: "UTC", "Pacific/Pago_Pago"
+        has_execution_variables_enabled: bool, optional
+            Boolean to activate or desactivate the execution variables
 
         Returns
         -------
@@ -447,6 +457,7 @@ class Pipelines:
                 is_scheduled,
                 cron_scheduling,
                 schedule_timezone,
+                has_execution_variables_enabled,
             )["editPipeline"]
 
             responses["addGraphPipelineVersion"] = self.upgrade(pipeline_id, graph_pipeline, release_note)[
@@ -465,6 +476,7 @@ class Pipelines:
             status_list,
             cron_scheduling,
             schedule_timezone,
+            has_execution_variables_enabled,
         )
 
     def rollback(self, pipeline_id: str, version_number: str) -> Dict:

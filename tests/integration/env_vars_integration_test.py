@@ -434,7 +434,7 @@ class TestIntegrationEnvVars:
     @staticmethod
     def create_pipeline_env_var(create_global_project, create_graph_pipeline):
         conf = create_global_project
-        pipeline_id, _ = create_graph_pipeline
+        pipeline_id, job_id = create_graph_pipeline
         name = "TEST_PIPELINE_VIA_API"
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
@@ -443,7 +443,10 @@ class TestIntegrationEnvVars:
             pipeline_id=pipeline_id, name=name, value=value, description=description, is_password=False
         )
 
-        return pipeline_id, name
+        yield pipeline_id, name
+
+        conf.saagie_api.pipelines.delete(pipeline_id=pipeline_id)
+        conf.saagie_api.jobs.delete(job_id=job_id)
 
     @pytest.fixture
     @staticmethod
@@ -523,7 +526,7 @@ class TestIntegrationEnvVars:
     @staticmethod
     def test_create_or_update_pipeline_env_var(create_global_project, create_graph_pipeline):
         conf = create_global_project
-        pipeline_id, _ = create_graph_pipeline
+        pipeline_id, job_id = create_graph_pipeline
         name = "TEST_VIA_API_CREATE_OR_UPDATE_PIPELINE"
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
@@ -574,13 +577,15 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name=name)
+        conf.saagie_api.pipelines.delete(pipeline_id)
+        conf.saagie_api.jobs.delete(job_id)
 
     @staticmethod
     def test_create_or_update_pipeline_env_var_with_existing_global_env_var(
         create_global_project, create_graph_pipeline
     ):
         conf = create_global_project
-        pipeline_id, _ = create_graph_pipeline
+        pipeline_id, job_id = create_graph_pipeline
         name = "TEST_VIA_API_CREATE_OR_UPDATE_PIPELINE"
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
@@ -654,3 +659,18 @@ class TestIntegrationEnvVars:
 
         conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name=name)
         conf.saagie_api.env_vars.delete_global(name=name)
+        conf.saagie_api.pipelines.delete(pipeline_id)
+        conf.saagie_api.jobs.delete(job_id)
+
+    @staticmethod
+    def test_bulk_create_pipeline_env_var(create_global_project, create_then_delete_pipeline_env_var):
+        conf = create_global_project
+        pipeline_id, name = create_then_delete_pipeline_env_var
+
+        env_vars = "TEST_PIPELINE_BULK1=TOTO\nTEST_PIPELINE_BULK2=TATA\n"
+
+        conf.saagie_api.env_vars.bulk_create_for_pipeline(pipeline_id=pipeline_id, env_vars=env_vars)
+
+        env_list = conf.saagie_api.env_vars.list_for_pipeline(pipeline_id=pipeline_id)
+
+        assert "TEST_PIPELINE_VIA_API" not in env_list
