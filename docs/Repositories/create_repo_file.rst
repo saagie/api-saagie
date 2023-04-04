@@ -15,5 +15,5 @@ Response payload example :
 .. code:: python
 
    {'addRepository': {'count': 1,
-     'objects': [{'id': 'd04e578f-546a-41bf-bb8c-790e99a4f6c8',
-       'name': 'hello world repo'}]}}
+                      'objects': [{'id': 'd04e578f-546a-41bf-bb8c-790e99a4f6c8',
+                                   'name': 'hello world repo'}]}}

@@ -17,6 +17,6 @@ Response payload example :
 .. code:: python
 
    {'editRepository': {'count': 1,
-     'objects': [{'name': 'new name repo',
-       'source': {'url': 'https://github.com/saagie/technologies-community/releases/download/0.62.0/technologies.zip'},
-       'id': '163360ba-3254-490e-9eec-ccd1dc096fd7'}]}}
+                       'objects': [{'name': 'new name repo',
+                                    'source': {'url': 'https://github.com/saagie/technologies-community/releases/download/0.62.0/technologies.zip'},
+                                    'id': '163360ba-3254-490e-9eec-ccd1dc096fd7'}]}}

@@ -40,15 +40,15 @@ Response payload example :
 .. code:: python
 
    {
-        "createJob": 
-        {
-       "id": "befeacff-8b3b-4269-bf6d-73b5f369313a",
-       "versions": [
-                {
-                    "number": 1, 
-                    "__typename": "JobVersion"
-                 }
-            ],
-       "__typename": "Job"
-        }
-    }
+       "createJob":
+           {
+               "id": "befeacff-8b3b-4269-bf6d-73b5f369313a",
+               "versions": [
+                   {
+                       "number": 1,
+                       "__typename": "JobVersion"
+                   }
+               ],
+               "__typename": "Job"
+           }
+   }

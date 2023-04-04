@@ -14,8 +14,8 @@ Response payload example :
 .. code:: python
 
    {
-      "runPipeline":{
-         "id":"975253ea-1b91-4633-acdf-dd9b09d53b18",
-         "status":"REQUESTED"
-      }
+       "runPipeline":{
+           "id":"975253ea-1b91-4633-acdf-dd9b09d53b18",
+           "status":"REQUESTED"
+       }
    }

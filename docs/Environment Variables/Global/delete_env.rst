@@ -7,9 +7,7 @@ Example :
 
 .. code:: python
 
-   saagieapi.env_vars.delete_global(
-       name="TEST_PASSWORD"
-   )
+   saagieapi.env_vars.delete_global(name="TEST_PASSWORD")
 
 Response payload example :
 

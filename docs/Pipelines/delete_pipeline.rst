@@ -13,6 +13,4 @@ Response payload example :
 
 .. code:: python
 
-   {
-      "deletePipeline":True
-   }
+   {"deletePipeline":True}

@@ -22,13 +22,13 @@ Response payload example :
 .. code:: python
 
    {
-      "editJob": 
-      {
-       "id": "befeacff-8b3b-4269-bf6d-73b5f369313a",
-       "name": "App_Example_Scratch_modify",
-       "description": "",
-       "creationDate": "2022-04-28T10:33:22.329Z",
-       "technology": {"id": "36912c68-d084-43b9-9fda-b5ded8eb7b13"},
-       "alerting": None
-       }
-    }
+       "editJob":
+           {
+               "id": "befeacff-8b3b-4269-bf6d-73b5f369313a",
+               "name": "App_Example_Scratch_modify",
+               "description": "",
+               "creationDate": "2022-04-28T10:33:22.329Z",
+               "technology": {"id": "36912c68-d084-43b9-9fda-b5ded8eb7b13"},
+               "alerting": None
+           }
+   }

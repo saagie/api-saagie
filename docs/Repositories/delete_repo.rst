@@ -14,4 +14,4 @@ Response payload example :
 .. code:: python
 
    {'removeRepository': {'id': '163360ba-3254-490e-9eec-ccd1dc096fd7',
-     'name': 'new name repo'}}
+                         'name': 'new name repo'}}

@@ -9,18 +9,18 @@ Example :
 
 .. code:: python
 
-   saagieapi.projects.get_info("8321e13c-892a-4481-8552-5be4d6cc5df4")
+   saagieapi.projects.get_info(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
 
 Response payload example :
 
 .. code:: python
 
    {
-      "project":{
-         "name":"Project A",
-         "creator":"john.doe",
-         "description":"My project A",
-         "jobsCount":49,
-         "status":"READY"
-      }
+       "project":{
+           "name":"Project A",
+           "creator":"john.doe",
+           "description":"My project A",
+           "jobsCount":49,
+           "status":"READY"
+       }
    }

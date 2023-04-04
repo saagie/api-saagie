@@ -15,6 +15,4 @@ Response payload example :
 
 .. code:: python
 
-   {
-      "deleteJob":True
-   }
+   {"deleteJob":True}

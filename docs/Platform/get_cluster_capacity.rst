@@ -16,21 +16,21 @@ Response payload example :
 .. code:: python
 
    {
-      "getClusterCapacity":[
-         {
-            "cpu":3.8,
-            "gpu":0.0,
-            "memory":16.083734528
-         },
-         {
-            "cpu":3.8,
-            "gpu":0.0,
-            "memory":16.083734528
-         },
-         {
-            "cpu":3.8,
-            "gpu":0.0,
-            "memory":16.08372224
-         }
-      ]
+       "getClusterCapacity":[
+           {
+               "cpu":3.8,
+               "gpu":0.0,
+               "memory":16.083734528
+           },
+           {
+               "cpu":3.8,
+               "gpu":0.0,
+               "memory":16.083734528
+           },
+           {
+               "cpu":3.8,
+               "gpu":0.0,
+               "memory":16.08372224
+           }
+       ]
    }

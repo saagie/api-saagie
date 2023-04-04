@@ -16,8 +16,8 @@ Response payload example :
 .. code:: python
 
    {
-      "runJob":{
-         "id":"5b9fc971-1c4e-4e45-a978-5851caef0162",
-         "status":"REQUESTED"
-      }
+       "runJob":{
+           "id":"5b9fc971-1c4e-4e45-a978-5851caef0162",
+           "status":"REQUESTED"
+       }
    }

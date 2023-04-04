@@ -33,7 +33,7 @@ Response payload example :
                                {
                                    "path":"/notebooks-dir",
                                    "volume":{
-                                   "id":"89bf5f86-3fc3-4bf6-879b-7ca8eafe6c4f"
+                                       "id":"89bf5f86-3fc3-4bf6-879b-7ca8eafe6c4f"
                                    }
                                }
                            ]
@@ -51,7 +51,7 @@ Response payload example :
                "size":"128 MB",
                "description":"test description",
                "creationDate":"2022-08-29T08:02:11.811Z",
-               "creator":"guillaume.prevost",
+               "creator":"user.name",
                "linkedApp":{
                    "id":"c7b2b5ea-834a-4e0e-bfa4-f3303477b9e5",
                    "name":"test_app",

@@ -34,7 +34,7 @@ Response payload example :
 .. code:: python
 
    {
-     "createGraphPipeline": {
-       "id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c"
-     }
+       "createGraphPipeline": {
+           "id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c"
+       }
    }

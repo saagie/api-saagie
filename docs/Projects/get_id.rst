@@ -9,7 +9,7 @@ Example :
 
 .. code:: python
 
-   saagieapi.projects.get_id("Project A")
+   saagieapi.projects.get_id(project_name="Project A")
 
 Response payload example :
 

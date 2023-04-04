@@ -14,13 +14,11 @@ Response payload example :
 .. code:: python
 
    {
-      "dockerCredentials":{
-         "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-         "registry":None,
-         "username":"myuser",
-         "lastUpdate":"2022-04-27T08:15:41.023Z",
-         "jobs":[
-            
-         ]
-      }
+       "dockerCredentials":{
+           "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+           "registry":None,
+           "username":"myuser",
+           "lastUpdate":"2022-04-27T08:15:41.023Z",
+           "jobs":[]
+       }
    }
