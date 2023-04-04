@@ -1,18 +1,17 @@
-**saagie.env_vars.update_global**
-
 Updating global environment variables
 -------------------------------------
+
+**saagie.env_vars.update_global**
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.update_global(
-       name="TEST_PASSWORD",
-       value="new value",
-       description="This is a new password",
-       is_password=True
-   )
+   saagieapi.env_vars.update_global(name="TEST_PASSWORD",
+                                    value="new value",
+                                    description="This is a new password",
+                                    is_password=True
+                                    )
 
 Response payload example :
 

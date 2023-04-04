@@ -1,7 +1,7 @@
-**saagieapi.pipelines.import_from_json**
-
 Importing a pipeline
 --------------------
+
+**saagieapi.pipelines.import_from_json**
 
 Example :
 

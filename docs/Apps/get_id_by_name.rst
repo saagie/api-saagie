@@ -7,7 +7,8 @@ Example :
 
 .. code:: python
 
-   saagieapi.apps.get_id(project_name="Test project", app_name="Grafana")
+   saagieapi.apps.get_id(project_name="Test project",
+                         app_name="Grafana")
 
 Response payload example :
 

@@ -1,7 +1,7 @@
-**saagie.env_vars.delete_global**
-
 Deleting global environment variables
 -------------------------------------
+
+**saagie.env_vars.delete_global**
 
 Example :
 
@@ -13,4 +13,6 @@ Response payload example :
 
 .. code:: python
 
-   {"deleteEnvironmentVariable": True}
+   {
+       "deleteEnvironmentVariable": True
+   }

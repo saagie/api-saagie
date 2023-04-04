@@ -1,7 +1,7 @@
-**saagieapi.pipelines.get_instance**
-
 Getting pipeline instance information
 -------------------------------------
+
+**saagieapi.pipelines.get_instance**
 
 Example :
 

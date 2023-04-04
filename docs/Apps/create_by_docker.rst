@@ -10,12 +10,17 @@ Example :
 
 .. code:: python
 
-   saagieapi.apps.create_from_scratch(project_id=project_id, app_name="App Example Scratch", image="saagie/ttyd-saagie:1.0", 
-                                      exposed_ports=[{"basePathVariableName":"SAAGIE_BASE_PATH",
-                                                      "isRewriteUrl":True,
-                                                      "scope":"PROJECT",
-                                                      "number":7681,
-                                                      "name":"ttyd"}])
+   saagieapi.apps.create_from_scratch(project_id="project_id",
+                                      app_name="App Example Scratch",
+                                      image="saagie/ttyd-saagie:1.0",
+                                      exposed_ports=[{
+                                              "basePathVariableName": "SAAGIE_BASE_PATH",
+                                              "isRewriteUrl": True,
+                                              "scope": "PROJECT",
+                                              "number": 7681,
+                                              "name": "ttyd"
+                                      }]
+                                      )
 
 Response payload example :
 

@@ -1,7 +1,7 @@
-**saagieapi.pipelines.delete**
-
 Deleting a pipeline
 -------------------
+
+**saagieapi.pipelines.delete**
 
 Example :
 
@@ -13,4 +13,6 @@ Response payload example :
 
 .. code:: python
 
-   {"deletePipeline":True}
+   {
+       "deletePipeline": True
+   }

@@ -1,5 +1,3 @@
-.. _Listing Projects
-
 Listing projects
 ----------------
 

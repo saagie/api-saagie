@@ -1,7 +1,7 @@
-**saagieapi.pipelines.export**
-
 Exporting a pipeline
 --------------------
+
+**saagieapi.pipelines.export**
 
 Example :
 

@@ -1,7 +1,7 @@
-**saagie.env_vars.list_globals**
-
 Listing global environment variables
 ------------------------------------
+
+**saagie.env_vars.list_globals**
 
 Example :
 

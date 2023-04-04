@@ -1,7 +1,7 @@
-**saagieapi.pipelines.stop**
-
 Stopping a pipeline
 -------------------
+
+**saagieapi.pipelines.stop**
 
 Example :
 

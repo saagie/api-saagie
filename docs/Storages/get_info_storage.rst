@@ -1,7 +1,7 @@
-**saagieapi.storages.get_info**
-
 Getting storage information
 ---------------------------
+
+**saagieapi.storages.get_info**
 
 Example :
 

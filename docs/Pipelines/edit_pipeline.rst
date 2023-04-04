@@ -1,13 +1,14 @@
-**saagieapi.pipelines.edit**
-
 Editing a pipeline
 ------------------
+
+**saagieapi.pipelines.edit**
 
 Example :
 
 .. code:: python
 
-   saagieapi.pipelines.edit(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c", name = "Amazing Pipeline 2")
+   saagieapi.pipelines.edit(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
+                            name="Amazing Pipeline 2")
 
 Response payload example :
 

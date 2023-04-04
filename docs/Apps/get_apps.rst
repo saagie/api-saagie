@@ -7,7 +7,7 @@ Example :
 
 .. code:: python
 
-   saagieapi.apps.get_info(app_id = your_app_id)
+   saagieapi.apps.get_info(app_id="your_app_id")
 
 **Since version 2.0.0**:
 

@@ -1,7 +1,7 @@
-**saagie.pipelines.create_graph**
-
 Creating a pipeline
 -------------------
+
+**saagie.pipelines.create_graph**
 
 Example :
 

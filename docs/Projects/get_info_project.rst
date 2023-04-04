@@ -1,5 +1,3 @@
-.. _Getting project information
-
 Getting project information
 ---------------------------
 
@@ -16,7 +14,7 @@ Response payload example :
 .. code:: python
 
    {
-       "project":{
+       "project": {
            "name":"Project A",
            "creator":"john.doe",
            "description":"My project A",

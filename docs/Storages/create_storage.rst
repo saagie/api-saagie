@@ -1,7 +1,7 @@
-**saagieapi.storages.create**
-
 Creating a storage
 ------------------
+
+**saagieapi.storages.create**
 
 Example :
 

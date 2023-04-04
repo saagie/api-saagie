@@ -1,8 +1,7 @@
-**saagieapi.env_vars.export**
-
 Exporting project environment variables
 ---------------------------------------
 
+**saagieapi.env_vars.export**
 
 Example :
 

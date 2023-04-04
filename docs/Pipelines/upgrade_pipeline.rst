@@ -1,7 +1,7 @@
-**saagieapi.pipelines.upgrade**
-
 Upgrading a pipeline
 --------------------
+
+**saagieapi.pipelines.upgrade**
 
 Example :
 
@@ -21,7 +21,8 @@ Example :
    graph_pipeline = GraphPipeline()
    graph_pipeline.add_root_node(job_node1)
 
-   saagie.pipelines.upgrade(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c", graph_pipeline=graph_pipeline)
+   saagie.pipelines.upgrade(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
+                            graph_pipeline=graph_pipeline)
 
 Response payload example :
 

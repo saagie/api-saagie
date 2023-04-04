@@ -1,7 +1,7 @@
-**saagieapi.storages.edit**
-
 Editing a storage
 -----------------
+
+**saagieapi.storages.edit**
 
 Example :
 

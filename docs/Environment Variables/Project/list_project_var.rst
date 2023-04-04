@@ -1,7 +1,7 @@
-**saagie.env_vars.list_for_project**
-
 Listing project environment variables
 -------------------------------------
+
+**saagie.env_vars.list_for_project**
 
 Example :
 

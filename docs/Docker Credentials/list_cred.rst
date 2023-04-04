@@ -1,8 +1,7 @@
-
-**saagieapi.docker_credentials.list_for_project**
-
 Listing credentials
 -------------------
+
+**saagieapi.docker_credentials.list_for_project**
 
 Example :
 

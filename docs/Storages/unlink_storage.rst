@@ -1,7 +1,7 @@
-**saagieapi.storages.unlink**
-
 Unlinking a storage
 -------------------
+
+**saagieapi.storages.unlink**
 
 Example :
 

@@ -7,7 +7,8 @@ Example :
 
 .. code:: python
 
-   saagieapi.jobs.list_for_project(project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771", instances_limit=2)
+   saagieapi.jobs.list_for_project(project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+                                   instances_limit=2)
 
 Response payload example :
 
@@ -29,8 +30,10 @@ Response payload example :
                        "releaseNote": "",
                        "runtimeVersion": "3.7",
                        "commandLine": "python {file} arg1 arg2",
-                       "packageInfo": {"name": "_tmp_test.py",
-                                       "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10/version/1/artifact/_tmp_test.py"},
+                       "packageInfo": {
+                           "name": "_tmp_test.py",
+                           "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10/version/1/artifact/_tmp_test.py"
+                       },
                        "dockerInfo": None,
                        "extraTechnology": None,
                        "isCurrent": True,
@@ -82,8 +85,10 @@ Response payload example :
                        "releaseNote": "",
                        "runtimeVersion": "3.7",
                        "commandLine": "python {file} arg1 arg2",
-                       "packageInfo": {"name": "test.py",
-                                       "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/e92ed170-50d6-4041-bba9-098a8e16f444/version/1/artifact/test.py"},
+                       "packageInfo": {
+                           "name": "test.py",
+                           "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/e92ed170-50d6-4041-bba9-098a8e16f444/version/1/artifact/test.py"
+                       },
                        "dockerInfo": None,
                        "extraTechnology": None,
                        "isCurrent": True,

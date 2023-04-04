@@ -9,7 +9,7 @@ Example :
 
 .. code:: python
 
-   saagie_api.apps.stop(app_id = "a6de6956-4038-493e-bbd3-f7b3616df39e")
+   saagie_api.apps.stop(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e")
 
 Response payload example :
 

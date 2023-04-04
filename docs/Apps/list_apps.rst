@@ -7,7 +7,7 @@ Example :
 
 .. code:: python
 
-   saagieapi.apps.list_for_project(project_id = your_project_id)
+   saagieapi.apps.list_for_project(project_id="your_project_id")
 
 **Since version 2.0.0**:
 

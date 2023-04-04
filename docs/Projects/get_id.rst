@@ -1,5 +1,3 @@
-.. _Getting project id from name:
-
 Getting project id from name
 ----------------------------
 
@@ -15,4 +13,4 @@ Response payload example :
 
 ::
 
-   8321e13c-892a-4481-8552-5be4d6cc5df4
+   "8321e13c-892a-4481-8552-5be4d6cc5df4"

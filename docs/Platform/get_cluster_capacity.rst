@@ -1,5 +1,3 @@
-.. _Getting cluster capacity
-
 Getting cluster capacity
 ------------------------
 

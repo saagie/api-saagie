@@ -1,14 +1,15 @@
-**saagieapi.docker_credentials.create**
-
 Creating docker credentials
 ---------------------------
+
+**saagieapi.docker_credentials.create**
 
 Example :
 
 .. code:: python
 
-   saagieapi.docker_credentials.create(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771", username="myuser", password="mypassword")
-
+   saagieapi.docker_credentials.create(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+                                       username="myuser",
+                                       password="mypassword")
 Response payload example :
 
 .. code:: python

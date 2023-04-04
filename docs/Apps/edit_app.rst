@@ -7,7 +7,10 @@ Example :
 
 .. code:: python
 
-   saagieapi.apps.edit(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e",app_name= "App_Example_Catalog_modify", emails=["hello.world@gmail.com"], status_list=["FAILED"])
+   saagieapi.apps.edit(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e",
+                       app_name="App_Example_Catalog_modify",
+                       emails=["hello.world@gmail.com"],
+                       status_list=["FAILED"])
 
 **Since version 2.0.0**:
 

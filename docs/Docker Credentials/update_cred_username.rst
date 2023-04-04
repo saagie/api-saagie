@@ -1,13 +1,15 @@
-**saagieapi.docker_credentials.upgrade_for_username**
-
 Upgrading credentials for username
 ----------------------------------
+
+**saagieapi.docker_credentials.upgrade_for_username**
 
 Example :
 
 .. code:: python
 
-   saagieapi.docker_credentials.upgrade_for_username(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771", username="myuser", password="mypassword")
+   saagieapi.docker_credentials.upgrade_for_username(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+                                                     username="myuser",
+                                                     password="mypassword")
 
 Response payload example :
 

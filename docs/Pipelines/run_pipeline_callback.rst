@@ -1,7 +1,7 @@
-**saagieapi.pipelines.run_with_callback**
-
 Running with callback a pipeline
 --------------------------------
+
+**saagieapi.pipelines.run_with_callback**
 
 Example :
 

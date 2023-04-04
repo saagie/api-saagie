@@ -1,18 +1,17 @@
-**saagie.env_vars.create_or_update_global**
-
 Creating or updating global environment variables
 -------------------------------------------------
+
+**saagie.env_vars.create_or_update_global**
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.create_or_update_global(
-       name="TEST_PASSWORD",
-       value="new value",
-       description="This is a new password",
-       is_password=True
-   )
+   saagieapi.env_vars.create_or_update_global(name="TEST_PASSWORD",
+                                              value="new value",
+                                              description="This is a new password",
+                                              is_password=True
+                                              )
 
 Response payload example :
 

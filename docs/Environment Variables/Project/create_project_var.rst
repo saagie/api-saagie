@@ -1,19 +1,18 @@
-**saagie.env_vars.create_for_project**
-
 Creating project environment variables
 --------------------------------------
+
+**saagie.env_vars.create_for_project**
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.create_for_project(
-       name="TEST_PASSWORD",
-       value="test",
-       description="This is a password",
-       is_password=True,
-       project_id="50033e21-83c2-4431-a723-d54c2693b964"
-   )
+   saagieapi.env_vars.create_for_project(name="TEST_PASSWORD",
+                                         value="test",
+                                         description="This is a password",
+                                         is_password=True,
+                                         project_id="50033e21-83c2-4431-a723-d54c2693b964"
+                                         )
 
 Response payload example :
 

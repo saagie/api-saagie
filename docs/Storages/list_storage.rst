@@ -1,7 +1,7 @@
-**saagieapi.storages.list_for_project**
-
 Listing storages for a project
 ------------------------------
+
+**saagieapi.storages.list_for_project**
 
 Example :
 

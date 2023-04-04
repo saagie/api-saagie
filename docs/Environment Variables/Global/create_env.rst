@@ -1,18 +1,17 @@
-**saagie.env_vars.create_global**
-
 Creating global environment variables
 -------------------------------------
+
+**saagie.env_vars.create_global**
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.create_global(
-       name="TEST_PASSWORD",
-       value="test",
-       description="This is a password",
-       is_password=True
-   )
+   saagieapi.env_vars.create_global(name="TEST_PASSWORD",
+                                    value="test",
+                                    description="This is a password",
+                                    is_password=True
+                                    )
 
 Response payload example :
 

@@ -9,7 +9,9 @@ Example :
 
 .. code:: python
 
-   saagieapi.apps.create_from_catalog(project_id=your_project_id, context="7.15.1", technology_name="kibana")
+   saagieapi.apps.create_from_catalog(project_id="your_project_id",
+                                      context="7.15.1",
+                                      technology_name="kibana")
 
 Response payload example :
 

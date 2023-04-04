@@ -1,7 +1,7 @@
-**saagieapi.storages.delete**
-
 Deleting a storage
 ------------------
+
+**saagieapi.storages.delete**
 
 Example :
 

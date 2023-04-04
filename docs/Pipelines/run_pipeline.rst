@@ -1,7 +1,7 @@
-**saagieapi.pipelines.run**
-
 Running a pipeline
 ------------------
+
+**saagieapi.pipelines.run**
 
 Example :
 
