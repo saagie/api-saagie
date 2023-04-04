@@ -65,8 +65,8 @@ There are 2 options to connect to your platform :
 .. code:: python
 
    saagie = SaagieApi.easy_connect(url_saagie_platform="<url>",
-                      user="<saagie-user-name>",
-                      password="<saagie-user-password>")
+                                   user="<saagie-user-name>",
+                                   password="<saagie-user-password>")
 
 Using the different endpoints
 -----------------------------
