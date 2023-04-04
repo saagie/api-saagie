@@ -1,6 +1,4 @@
-.. _get id
-
-Get ID
+Getting job id from name
 ------
 
 **saagieapi.jobs.get_id**

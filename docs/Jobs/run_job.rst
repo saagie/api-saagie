@@ -1,6 +1,4 @@
-.. _run job 
-
-Run Job
+Running a job
 -------
 
 **saagieapi.jobs.run**

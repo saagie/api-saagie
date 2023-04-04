@@ -1,6 +1,4 @@
-.. _stop job 
-
-Stop Job
+Stopping a job
 --------
 
 **saagieapi.jobs.stop**

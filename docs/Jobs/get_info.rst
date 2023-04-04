@@ -1,6 +1,4 @@
-.. _get info
-
-Get Info
+Getting job information
 --------
 
 

@@ -1,6 +1,4 @@
-.. _list Jobs
-
-List Projects
+Listing jobs for a project
 -------------
 
 **saagieapi.jobs.list_for_project**

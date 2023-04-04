@@ -1,6 +1,4 @@
-.. _edit job
-
-Edit Job
+Editing a job
 --------
 
 **saagieapi.jobs.edit**

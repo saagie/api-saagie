@@ -1,6 +1,4 @@
-.. _create job
-
-Create Job
+Creating a job
 ----------
 
 **saagieapi.jobs.create**

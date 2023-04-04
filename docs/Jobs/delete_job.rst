@@ -1,6 +1,4 @@
-.. _delete job 
-
-Delete Job
+Deleting a job
 ----------
 
 **saagieapi.jobs.delete**

@@ -1,6 +1,4 @@
-.. _import job
-
-Import Job
+Importing a job
 ----------
 
 **saagieapi.jobs.import_from_json**

@@ -1,6 +1,4 @@
-.. _run job with callback 
-
-Run Job with Callback
+Running a job with callback
 ---------------------
 
 **saagieapi.jobs.run_with_callback**

@@ -1,6 +1,4 @@
-.. _export job
-
-Export Job
+Exporting a job
 ----------
 
 **saagieapi.jobs.export**

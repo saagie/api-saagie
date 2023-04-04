@@ -1,6 +1,4 @@
-.. _upgrade job by id
-
-Upgrade Job (by id)
+Upgrading a job by job ID
 -------------------
 
 **saagieapi.jobs.upgrade**

@@ -1,6 +1,4 @@
-.. _upgrade job by name
-
-Upgrade Job (by name)
+Upgrading a job by its name
 ---------------------
 
 **saagieapi.jobs.upgrade_by_name**

@@ -1,6 +1,4 @@
-.. _get instance
-
-Get instance
+Getting job instance information
 ------------
 
 **saagieapi.jobs.get_instance**
