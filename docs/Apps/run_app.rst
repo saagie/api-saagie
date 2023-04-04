@@ -1,7 +1,7 @@
-**saagieapi.apps.run**
-
 Running an app
 --------------
+
+**saagieapi.apps.run**
 
 Example :
 
@@ -15,14 +15,25 @@ Response payload example :
 
 .. code:: python
 
-   {'runApp': {
-    'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
-    'versions': [{'number': 1}],
-    'history': {'id': 'ba494615-88b7-4c54-ad57-34a90461c407',
-                'currentDockerInfo': {'image': 'saagie/kibana:7.15.1-1.108.0',
-                                      'dockerCredentialsId': None},
-                'runningVersionNumber': 1,
-                'currentStatus': 'STOPPED'}}}
+   {
+       'runApp': {
+           'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
+           'versions': [
+               {
+                   'number': 1
+               }
+           ],
+           'history': {
+               'id': 'ba494615-88b7-4c54-ad57-34a90461c407',
+               'currentDockerInfo': {
+                   'image': 'saagie/kibana:7.15.1-1.108.0',
+                   'dockerCredentialsId': None
+               },
+               'runningVersionNumber': 1,
+               'currentStatus': 'STOPPED'
+           }
+       }
+   }
 
 
 **Until version 1.1.4**:

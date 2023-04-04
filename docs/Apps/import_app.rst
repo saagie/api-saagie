@@ -1,7 +1,8 @@
-**saagieapi.apps.import_from_json**
-
 Importing an app
 ----------------
+
+**saagieapi.apps.import_from_json**
+
 
 Example :
 

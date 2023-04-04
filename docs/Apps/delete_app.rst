@@ -1,7 +1,7 @@
-**saagieapi.apps.delete**
-
 Deleting an app
 ---------------
+
+**saagieapi.apps.delete**
 
 Example :
 
@@ -13,4 +13,8 @@ Response payload example :
 
 .. code:: python
 
-   {'deleteApp': {'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e'}}
+   {
+       'deleteApp': {
+           'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e'
+       }
+   }

@@ -1,7 +1,7 @@
-**saagieapi.apps.get_id**
-
 Getting app id from name
 ------------------------
+
+**saagieapi.apps.get_id**
 
 Example :
 
@@ -13,4 +13,4 @@ Response payload example :
 
 ::
 
-   f5fce22d-2152-4a01-8c6a-4c2eb4808b6d
+   "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"

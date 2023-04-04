@@ -1,7 +1,8 @@
-**saagieapi.apps.create_from_scratch**
-
 Creating app from Docker image
 ------------------------------
+
+**saagieapi.apps.create_from_scratch**
+
 
 **Since version 2.0.0**:
 
@@ -20,7 +21,11 @@ Response payload example :
 
 .. code:: python
 
-   {'createApp': {'id': '1221f83e-52de-4beb-89a0-1505de4e875f'}}
+   {
+       'createApp': {
+           'id': '1221f83e-52de-4beb-89a0-1505de4e875f'
+       }
+   }
 
 **Until version 1.1.4**:
 
@@ -40,15 +45,14 @@ Response payload example :
 .. code:: python
 
    {
-       "createJob":
-           {
-               "id": "befeacff-8b3b-4269-bf6d-73b5f369313a",
-               "versions": [
-                   {
-                       "number": 1,
-                       "__typename": "JobVersion"
-                   }
-               ],
-               "__typename": "Job"
-           }
+       "createJob": {
+           "id": "befeacff-8b3b-4269-bf6d-73b5f369313a",
+           "versions": [
+               {
+                   "number": 1,
+                   "__typename": "JobVersion"
+               }
+           ],
+           "__typename": "Job"
+       }
    }
