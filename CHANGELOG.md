@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.3.0 (2023-04-05)
+### :sparkles:
+* :sparkles: add doc with readthedoc ([`fbf69b8`](https://github.com/saagie/api-saagie/commit/fbf69b837c5bb15c00bb28b6e528eff0e2aedc29))
+
 ## v2.2.9 (2023-03-01)
 ### :bug:
 * :bug:  Fix/import from json ([#167](https://github.com/saagie/api-saagie/issues/167)) ([`fb7f99a`](https://github.com/saagie/api-saagie/commit/fb7f99a42bfa264844218e204c9ab213bebaddcf))
