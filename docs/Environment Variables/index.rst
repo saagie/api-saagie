@@ -9,3 +9,4 @@ Environment Variables
 
     Global/index
     Project/index
+    Pipeline/index
