@@ -667,7 +667,7 @@ class TestIntegrationEnvVars:
         conf = create_global_project
         pipeline_id, name = create_then_delete_pipeline_env_var
 
-        env_vars = "TEST_PIPELINE_BULK1=TOTO\nTEST_PIPELINE_BULK2=TATA\n"
+        env_vars = {"TEST_PIPELINE_BULK1": "TOTO", "TEST_PIPELINE_BULK2": "TATA"}
 
         conf.saagie_api.env_vars.bulk_create_for_pipeline(pipeline_id=pipeline_id, env_vars=env_vars)
 
