@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.0 (2023-04-12)
+### :sparkles:
+* :sparkles: Feat/product 2023 01 ([#176](https://github.com/saagie/api-saagie/issues/176)) ([`9f5a5e1`](https://github.com/saagie/api-saagie/commit/9f5a5e1186a000fcd90b0be76682ae6bfc6e06b3))
+
 ## v2.3.0 (2023-04-05)
 ### :sparkles:
 * :sparkles: add doc with readthedoc ([`fbf69b8`](https://github.com/saagie/api-saagie/commit/fbf69b837c5bb15c00bb28b6e528eff0e2aedc29))
