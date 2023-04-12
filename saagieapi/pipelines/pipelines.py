@@ -152,7 +152,7 @@ class Pipelines:
         Returns
         -------
         dict
-            Dict of job information
+            Dict of pipeline information
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE_INSTANCE),
@@ -171,6 +171,7 @@ class Pipelines:
         status_list: List[str] = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
+        has_execution_variables_enabled: bool = None,
     ) -> Dict:
         """
         Create a pipeline in a given project
@@ -203,6 +204,8 @@ class Pipelines:
             Scheduling CRON format
         schedule_timezone : str, optional
             Timezone of the scheduling
+        has_execution_variables_enabled: bool, optional
+            Boolean to activate or desactivate the execution variables
 
         Returns
         -------
@@ -223,11 +226,14 @@ class Pipelines:
 
         if cron_scheduling:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         else:
             params["isScheduled"] = False
+
         if emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
+
+        if has_execution_variables_enabled:
+            params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
 
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_GRAPH_PIPELINE), variable_values=params)
         logging.info("✅ Pipeline [%s] successfully created", name)
@@ -291,7 +297,8 @@ class Pipelines:
         is_scheduled: bool = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
-    ):
+        has_execution_variables_enabled: bool = None,
+    ) -> Dict:
         # pylint: disable=singleton-comparison
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
@@ -326,37 +333,33 @@ class Pipelines:
             Receive an email when the job status change to a specific status
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
+        has_execution_variables_enabled: bool, optional
+            Boolean to activate or desactivate the execution variables
 
         Returns
         -------
         dict
             Dict of pipeline information
         """
-        params = {"id": pipeline_id}
         previous_pipeline_info = self.get_info(pipeline_id, pprint_result=False)["graphPipeline"]
 
-        if name:
-            params["name"] = name
-        else:
-            params["name"] = previous_pipeline_info["name"]
+        params = {
+            "id": pipeline_id,
+            "name": name or previous_pipeline_info["name"],
+            "description": description or previous_pipeline_info["description"],
+        }
 
-        if description:
-            params["description"] = description
-        else:
-            params["description"] = previous_pipeline_info["description"]
-
+        # cases test : True, False and None
         if is_scheduled:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         elif is_scheduled == False:
             params["isScheduled"] = False
-
         else:
-            params["isScheduled"] = previous_pipeline_info["isScheduled"]
-            params["cronScheduling"] = previous_pipeline_info["cronScheduling"]
-            params["scheduleTimezone"] = previous_pipeline_info["scheduleTimezone"]
+            for k in ["isScheduled", "cronScheduling", "scheduleTimezone"]:
+                params[k] = previous_pipeline_info[k]
 
-        if emails:
+        # cases test : List non empty, List empty, None
+        if isinstance(emails, List) and emails:
             params = self.saagie_api.check_alerting(emails, params, status_list)
         elif isinstance(emails, List):
             params["alerting"] = None
@@ -367,6 +370,11 @@ class Pipelines:
                     "emails": previous_alerting["emails"],
                     "statusList": previous_alerting["statusList"],
                 }
+
+        if has_execution_variables_enabled in {True, False}:
+            params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
+        else:
+            params["hasExecutionVariablesEnabled"] = previous_pipeline_info["hasExecutionVariablesEnabled"]
 
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_PIPELINE), variable_values=params)
         logging.info("✅ Pipeline [%s] successfully edited", name)
@@ -384,6 +392,7 @@ class Pipelines:
         is_scheduled: bool = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
+        has_execution_variables_enabled: bool = None,
     ) -> Dict:
         """Create or upgrade a pipeline in a given project
 
@@ -424,6 +433,8 @@ class Pipelines:
         schedule_timezone : str, optional
             Timezone of the scheduling
             Example: "UTC", "Pacific/Pago_Pago"
+        has_execution_variables_enabled: bool, optional
+            Boolean to activate or desactivate the execution variables
 
         Returns
         -------
@@ -446,6 +457,7 @@ class Pipelines:
                 is_scheduled,
                 cron_scheduling,
                 schedule_timezone,
+                has_execution_variables_enabled,
             )["editPipeline"]
 
             responses["addGraphPipelineVersion"] = self.upgrade(pipeline_id, graph_pipeline, release_note)[
@@ -464,9 +476,10 @@ class Pipelines:
             status_list,
             cron_scheduling,
             schedule_timezone,
+            has_execution_variables_enabled,
         )
 
-    def rollback(self, pipeline_id: str, version_number: str):
+    def rollback(self, pipeline_id: str, version_number: str) -> Dict:
         """Rollback a given job to the given version
 
         Parameters

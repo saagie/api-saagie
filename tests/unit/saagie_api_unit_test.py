@@ -7,7 +7,7 @@ from graphql import build_ast_schema
 from graphql.language.parser import parse
 
 from saagieapi import SaagieApi
-from saagieapi.gql_queries import GQL_GET_CLUSTER_INFO
+from saagieapi.gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_PLATFORM_INFO
 
 
 def create_gql_client(file_name: str = "schema.graphqls"):
@@ -36,6 +36,10 @@ class TestGQLTemplate:
 
     def test_get_cluster_capacity(self):
         query = gql(GQL_GET_CLUSTER_INFO)
+        self.client.validate(query)
+
+    def test_get_platform_info(self):
+        query = gql(GQL_GET_PLATFORM_INFO)
         self.client.validate(query)
 
     @staticmethod

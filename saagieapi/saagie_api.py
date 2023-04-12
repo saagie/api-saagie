@@ -9,7 +9,7 @@ from gql import gql
 from .apps import Apps
 from .docker_credentials import DockerCredentials
 from .env_vars import EnvVars
-from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GET_RUNTIMES
+from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_PLATFORM_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GET_RUNTIMES
 from .jobs import Jobs
 from .pipelines import Pipelines
 from .projects import Projects
@@ -60,7 +60,7 @@ class SaagieApi:
         url_api = f"{self.url_saagie}projects/api/platform/{str(id_platform)}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
 
-        url_gateway = self.url_saagie + "gateway/api/graphql"
+        url_gateway = f"{self.url_saagie}gateway/api/graphql"
         self.client_gateway = GqlClient(auth=self.auth, api_endpoint=url_gateway, retries=retries)
 
         self.projects = Projects(self)
@@ -204,6 +204,21 @@ class SaagieApi:
             Dict of cluster resources
         """
         query = gql(GQL_GET_CLUSTER_INFO)
+        return self.client.execute(query)
+
+    # ##########################################################
+    # ###                    platform                       ####
+    # ##########################################################
+
+    def get_platform_info(self) -> Dict:
+        """
+        Get platform info (nb projects, jobs, apps, pipelines)
+        Returns
+        -------
+        dict
+            Dict of platform info
+        """
+        query = gql(GQL_GET_PLATFORM_INFO)
         return self.client.execute(query)
 
     # ##########################################################
@@ -402,8 +417,5 @@ class SaagieApi:
 
         """
         runtimes = self.get_runtimes(technology_id)
-        runtime_label = [
-            runtime["label"] for runtime in runtimes["technology"]["appContexts"] if runtime["id"] == runtime_id
-        ]
 
-        return runtime_label
+        return [runtime["label"] for runtime in runtimes["technology"]["appContexts"] if runtime["id"] == runtime_id]

@@ -4,6 +4,7 @@ query jobsQuery($projectId: UUID!){
     jobs(projectId: $projectId){
         id
         name
+        alias
     }
 }
 """
@@ -13,19 +14,27 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
     jobs(projectId: $projectId, category: $category, technologyId: $technologyId){
         id
         name
+        alias
         description
         alerting{
-        emails
-        loginEmails{
-          login
-          email
-        }
-        statusList
+            emails
+            loginEmails{
+                login
+                email
+            }
+            statusList
         }
         countJobInstance
         instances(limit: $instancesLimit){
             id
             status
+            history {
+                currentStatus {
+                    status
+                    details
+                    reason
+                }
+            }
             startTime
             endTime
         }
@@ -82,50 +91,102 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
         }
     }
 }
-  """
+"""
 
 GQL_GET_JOB_INSTANCE = """
 query jobInstanceQuery($jobInstanceId: UUID!){
     jobInstance(id: $jobInstanceId){
-      id
-      number
-      status
-      startTime
-      endTime
-      jobId
-      version {
+        id
         number
-        releaseNote
-        runtimeVersion
-        commandLine
-        isMajor
-        isCurrent
-      }
+        status
+        history {
+            currentStatus {
+                status
+                details
+                reason
+            }
+        }
+        startTime
+        endTime
+        jobId
+        jobAlias
+        version {
+            number
+            releaseNote
+            runtimeVersion
+            commandLine
+            isMajor
+            isCurrent
+        }
+        executionGlobalVariablesInput{
+            key
+            value
+            isPassword
+        }
+        executionVariablesInput {
+            parentJobInstanceId
+            parentJobId
+            parentJobAlias
+            isDirectParent
+            executionVariables {
+                key
+                value
+                isPassword
+            }
+            isGlobalVariables
+        }
+        executionVariablesOutput {
+            key
+            value
+            isPassword
+        }
+        executionVariablesByKey {
+            keyVariable
+            isPassword
+            valueVariablesInputByJobInstance{
+                jobInstanceId
+                jobId
+                jobAlias
+                jobName
+                isDirectParent
+                value
+                isPassword
+            }
+            valueGlobalVariableInput
+            valueVariableOutput
+        }
     }
-  }
-  """
+}
+"""
 
 GQL_RUN_JOB = """
-  mutation runJobMutation($jobId: UUID!){
+mutation runJobMutation($jobId: UUID!){
     runJob(jobId: $jobId){
-      id
-      status
+        id
+        status
     }
-  }
-  """
+}
+"""
 
 GQL_STOP_JOB_INSTANCE = """
-  mutation stopJobInstanceMutation($jobInstanceId: UUID!){
+mutation stopJobInstanceMutation($jobInstanceId: UUID!){
     stopJobInstance(jobInstanceId: $jobInstanceId){
-      id
-      number
-      status
-      startTime
-      endTime
-      jobId
+        id
+        number
+        status
+        history {
+            currentStatus {
+                status
+                details
+                reason
+            }
+        }
+        startTime
+        endTime
+        jobId
     }
-  }
-  """
+}
+"""
 
 GQL_EDIT_JOB = """
 mutation editJobMutation($jobId: UUID!, $name: String, $description: String, 
@@ -143,6 +204,7 @@ mutation editJobMutation($jobId: UUID!, $name: String, $description: String,
     }){
         id
         name
+        alias
         description
         isScheduled
         cronScheduling
@@ -193,7 +255,8 @@ mutation createJobMutation($projectId: UUID!, $name: String!, $description: Stri
             extraTechnology: $extraTechnology
             dockerInfo: $dockerInfo
         }
-        file: $file){
+        file: $file
+    ){
         id
         versions {
             number
@@ -218,9 +281,10 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
             dockerInfo: $dockerInfo
             usePreviousArtifact: $usePreviousArtifact
         }
-        file: $file){
-            number
-            __typename
+        file: $file
+    ){
+        number
+        __typename
     }
 }
 """
@@ -230,18 +294,26 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
     job(id: $jobId){
         id
         name
+        alias
         description
         alerting{
             emails
             loginEmails{
-              login
-              email
+                login
+                email
             }
             statusList
         }
         instances(limit: $instancesLimit){
             id
             status
+            history {
+                currentStatus {
+                    status
+                    details
+                    reason
+                }
+            }
             startTime
             endTime
             version {

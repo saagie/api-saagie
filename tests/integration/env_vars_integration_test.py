@@ -429,3 +429,248 @@ class TestIntegrationEnvVars:
         )
 
         assert not result
+
+    @pytest.fixture
+    @staticmethod
+    def create_pipeline_env_var(create_global_project, create_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, job_id = create_graph_pipeline
+        name = "TEST_PIPELINE_VIA_API"
+        value = "VALUE_TEST_VIA_API"
+        description = "DESCRIPTION_TEST_VIA_API"
+
+        conf.saagie_api.env_vars.create_for_pipeline(
+            pipeline_id=pipeline_id, name=name, value=value, description=description, is_password=False
+        )
+
+        yield pipeline_id, name
+
+        conf.saagie_api.pipelines.delete(pipeline_id=pipeline_id)
+        conf.saagie_api.jobs.delete(job_id=job_id)
+
+    @pytest.fixture
+    @staticmethod
+    def create_then_delete_pipeline_env_var(create_pipeline_env_var, create_global_project):
+        conf = create_global_project
+        pipeline_id, name = create_pipeline_env_var
+
+        yield pipeline_id, name
+
+        conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id=pipeline_id, name=name)
+
+    @staticmethod
+    def test_create_pipeline_env_var(create_then_delete_pipeline_env_var, create_global_project):
+        conf = create_global_project
+        pipeline_id, name = create_then_delete_pipeline_env_var
+
+        pipeline_envs = conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)
+        pipeline_env_names = [env["name"] for env in pipeline_envs["pipelineEnvironmentVariables"]]
+
+        assert name in pipeline_env_names
+
+    @staticmethod
+    def test_delete_pipeline_env_var(create_pipeline_env_var, create_global_project):
+        conf = create_global_project
+        pipeline_id, name = create_pipeline_env_var
+
+        result = conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name)
+
+        assert result == {"deleteEnvironmentVariable": True}
+
+    @staticmethod
+    def test_update_pipeline_env_var(create_then_delete_pipeline_env_var, create_global_project):
+        conf = create_global_project
+        pipeline_id, name = create_then_delete_pipeline_env_var
+        env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
+
+        conf.saagie_api.env_vars.update_for_pipeline(
+            pipeline_id,
+            name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            if env_var["name"] == name
+        ][0]
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+    @staticmethod
+    def test_update_pipeline_env_var_not_exist(
+        create_then_delete_pipeline_env_var, create_global_project, create_then_delete_global_env_var
+    ):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_pipeline_env_var
+        name = create_then_delete_global_env_var
+        env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
+
+        with pytest.raises(ValueError) as rte:
+            conf.saagie_api.env_vars.update_for_pipeline(
+                pipeline_id,
+                name,
+                value=env_var_input["value"],
+                description=env_var_input["description"],
+                is_password=env_var_input["isPassword"],
+            )
+        assert str(rte.value) == f"❌ Environment variable {name} does not exists"
+
+    @staticmethod
+    def test_create_or_update_pipeline_env_var(create_global_project, create_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, job_id = create_graph_pipeline
+        name = "TEST_VIA_API_CREATE_OR_UPDATE_PIPELINE"
+        env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
+
+        # First call to create the variable
+        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+            pipeline_id=pipeline_id,
+            name=name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            if env_var["name"] == name
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        # Second call to update the variable
+        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+            pipeline_id=pipeline_id,
+            name=name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            if env_var["name"] == name
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name=name)
+        conf.saagie_api.pipelines.delete(pipeline_id)
+        conf.saagie_api.jobs.delete(job_id)
+
+    @staticmethod
+    def test_create_or_update_pipeline_env_var_with_existing_global_env_var(
+        create_global_project, create_graph_pipeline
+    ):
+        conf = create_global_project
+        pipeline_id, job_id = create_graph_pipeline
+        name = "TEST_VIA_API_CREATE_OR_UPDATE_PIPELINE"
+        env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
+
+        # Create a global env with the same name
+        conf.saagie_api.env_vars.create_global(
+            name=name,
+            value=env_var_input["value"],
+            is_password=env_var_input["isPassword"],
+            description=env_var_input["description"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            if env_var["name"] == name
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        # call to overwrite the variable in the project
+        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+            pipeline_id=pipeline_id,
+            name=name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            if env_var["name"] == name and env_var["scope"] == "PIPELINE"
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        # Second call to update the variable
+        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+            pipeline_id=pipeline_id,
+            name=name,
+            value=env_var_input["value"],
+            description=env_var_input["description"],
+            is_password=env_var_input["isPassword"],
+        )
+
+        env_var = [
+            env_var
+            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            if env_var["name"] == name and env_var["scope"] == "PIPELINE"
+        ][0]
+
+        to_validate = {
+            "value": env_var["value"],
+            "description": env_var["description"],
+            "isPassword": env_var["isPassword"],
+        }
+
+        assert env_var_input == to_validate
+
+        conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name=name)
+        conf.saagie_api.env_vars.delete_global(name=name)
+        conf.saagie_api.pipelines.delete(pipeline_id)
+        conf.saagie_api.jobs.delete(job_id)
+
+    @staticmethod
+    def test_bulk_create_pipeline_env_var(create_global_project, create_pipeline_env_var):
+        conf = create_global_project
+        pipeline_id, name = create_pipeline_env_var
+
+        env_vars = {"TEST_PIPELINE_BULK1": "TOTO", "TEST_PIPELINE_BULK2": "TATA"}
+
+        conf.saagie_api.env_vars.bulk_create_for_pipeline(pipeline_id=pipeline_id, env_vars=env_vars)
+
+        env_list = conf.saagie_api.env_vars.list_for_pipeline(pipeline_id=pipeline_id)
+
+        assert name not in env_list

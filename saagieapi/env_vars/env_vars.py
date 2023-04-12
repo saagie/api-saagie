@@ -14,7 +14,7 @@ class EnvVars:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
-    def list_globals(self, pprint_result: Optional[bool] = None):
+    def list_globals(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get global environment variables
         NB: You can only list environment variables if you have at least the
         viewer role on the platform
@@ -50,11 +50,13 @@ class EnvVars:
             Dict of created environment variable
         """
         params = {
-            "name": name,
-            "value": value,
-            "description": description,
-            "isPassword": is_password,
-            "scope": "GLOBAL",
+            "envVar": {
+                "name": name,
+                "value": value,
+                "description": description,
+                "isPassword": is_password,
+                "scope": "GLOBAL",
+            }
         }
 
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_ENV_VAR), variable_values=params)
@@ -69,7 +71,7 @@ class EnvVars:
         Parameters
         ----------
         name : str
-            Name of the environment to upgrade
+            Name of the environment variable to upgrade
         new_name : str, optional
             New name of the environment variable. If none provided, keep the actual one
         value: str, optional
@@ -95,21 +97,21 @@ class EnvVars:
         if name not in [env_var["name"] for env_var in existing_env_var]:
             raise ValueError(f"❌ Environment variable {name} does not exists")
 
-        params = [d for d in existing_env_var if d["name"] == name][0]
-
-        if params["isPassword"] == True:
-            params.pop("value")
+        params = {
+            "envVar": [d for d in existing_env_var if d["name"] == name][0],
+        }
+        params["envVar"].pop("isValid")
+        params["envVar"].pop("invalidReasons")
+        if params["envVar"]["isPassword"] == True:
+            params["envVar"].pop("value")
         if new_name:
-            params["name"] = new_name
+            params["envVar"]["name"] = new_name
         if value:
-            params["value"] = value
+            params["envVar"]["value"] = value
         if description:
-            params["description"] = description
-        if is_password == True:
-            params["isPassword"] = is_password
-        elif is_password == False:
-            params["isPassword"] = is_password
-
+            params["envVar"]["description"] = description
+        if is_password in {True, False}:
+            params["envVar"]["isPassword"] = is_password
         result = self.saagie_api.client.execute(query=gql(GQL_UPDATE_ENV_VAR), variable_values=params)
         logging.info("✅ Environment variable [%s] successfully updated", name)
         return result
@@ -223,12 +225,14 @@ class EnvVars:
             Dict of created environment variable
         """
         params = {
-            "projectId": project_id,
-            "name": name,
-            "value": value,
-            "description": description,
-            "isPassword": is_password,
-            "scope": "PROJECT",
+            "entityId": project_id,
+            "envVar": {
+                "name": name,
+                "value": value,
+                "description": description,
+                "isPassword": is_password,
+                "scope": "PROJECT",
+            },
         }
 
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_ENV_VAR), variable_values=params)
@@ -252,7 +256,7 @@ class EnvVars:
         project_id : str
             ID of the project
         name : str
-            Name of the environment to upgrade
+            Name of the environment variable to upgrade
         new_name : str, optional
             New name of the environment variable. If none provided, keep the actual one
         value: str, optional
@@ -278,21 +282,23 @@ class EnvVars:
         if name not in [env_var["name"] for env_var in existing_env_var if env_var["scope"] == "PROJECT"]:
             raise ValueError(f"❌ Environment variable {name} does not exists")
 
-        params = [d for d in existing_env_var if d["name"] == name][0]
-        params["projectId"] = project_id
-        if params["isPassword"] == True:
-            params.pop("value")
+        params = {
+            "entityId": project_id,
+            "envVar": [d for d in existing_env_var if d["name"] == name][0],
+        }
+        params["envVar"].pop("isValid")
+        params["envVar"].pop("overriddenValues")
+        params["envVar"].pop("invalidReasons")
+        if params["envVar"]["isPassword"] == True:
+            params["envVar"].pop("value")
         if new_name:
-            params["name"] = new_name
+            params["envVar"]["name"] = new_name
         if value:
-            params["value"] = value
+            params["envVar"]["value"] = value
         if description:
-            params["description"] = description
-        if is_password == True:
-            params["isPassword"] = is_password
-        elif is_password == False:
-            params["isPassword"] = is_password
-
+            params["envVar"]["description"] = description
+        if is_password in {True, False}:
+            params["envVar"]["isPassword"] = is_password
         result = self.saagie_api.client.execute(query=gql(GQL_UPDATE_ENV_VAR), variable_values=params)
         logging.info("✅ Environment variable [%s] successfully updated", name)
         return result
@@ -372,7 +378,240 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully deleted", name)
         return result
 
-    def export(self, project_id, output_folder: str, error_folder: Optional[str] = "", project_only: bool = False):
+    def list_for_pipeline(self, pipeline_id: str, pprint_result: Optional[bool] = None) -> Dict:
+        """Get pipeline environment variables
+        NB: You can only list environment variables if you have at least the
+        viewer role on the project
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
+        Returns
+        -------
+        dict
+            Dict of pipeline environment variables
+        """
+        params = {
+            "pipelineId": pipeline_id,
+        }
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_LIST_PIPELINE_ENV_VARS), variable_values=params, pprint_result=pprint_result
+        )
+
+    def create_for_pipeline(
+        self, pipeline_id: str, name: str, value: str, description: str = "", is_password: bool = False
+    ) -> Dict:
+        """Create an environment variable in a given pipeline
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        name : str
+            Name of the environment variable to create
+        value : str
+            Value of the environment variable to create
+        description : str, optional
+            Description of the environment variable to create
+        is_password : bool, optional
+            Weather the environment variable to create is a password or not
+
+        Returns
+        -------
+        dict
+            Dict of created environment variable
+        """
+        params = {
+            "entityId": pipeline_id,
+            "envVar": {
+                "name": name,
+                "value": value,
+                "description": description,
+                "isPassword": is_password,
+                "scope": "PIPELINE",
+            },
+        }
+
+        result = self.saagie_api.client.execute(query=gql(GQL_CREATE_ENV_VAR), variable_values=params)
+        logging.info("✅ Environment variable [%s] successfully created", name)
+        return result
+
+    def bulk_create_for_pipeline(self, pipeline_id: str, env_vars: Dict) -> Dict:
+        """Delete all existing env vars and create new ones for the pipeline
+
+        Parameters
+        ----------
+        pipeline_id : str
+            Pipeline ID
+        env_vars : Dict
+            Dict that contains all the variables for the pipeline
+
+        Returns
+        -------
+        dict
+            Dict of created environment variables for pipeline
+        """
+
+        # need to transform the dict in parameter to a string with the following format"var1=val1\nvar2=val2"
+        var_str = "".join(f"{key}={env_vars[key]}\n" for key in env_vars)
+
+        params = {
+            "entityId": pipeline_id,
+            "scope": "PIPELINE",
+            "rawEnvironmentVariables": var_str,
+        }
+
+        result = self.saagie_api.client.execute(query=gql(GQL_CREATE_PIPELINE_ENV_VAR), variable_values=params)
+        logging.info("✅ Environment variables for pipeline [%s] successfully created", pipeline_id)
+        return result
+
+    def update_for_pipeline(
+        self,
+        pipeline_id: str,
+        name: str,
+        new_name: str = None,
+        value: str = None,
+        description: str = None,
+        is_password: bool = None,
+    ) -> Dict:
+        """
+        Update environment variable with provided function variables if it exists
+
+        Parameters
+        ----------
+        pipeline_id : str
+            ID of the project
+        name : str
+            Name of the environment variable to upgrade
+        new_name : str, optional
+            New name of the environment variable. If none provided, keep the actual one
+        value: str, optional
+            New value of the environment variable. If none provided, keep the actual one
+        description: str, optional
+            New description of the environment variable. If none provided, keep the actual one
+        is_password: boolean, optional
+            New password boolean status. If none provided, keep the actual one
+
+        Returns
+        -------
+        dict
+            Dict containing the id of the updated environment variable
+
+        Raises
+        ------
+        ValueError
+            When the variable doesn't already exist
+        """
+
+        existing_env_var = self.list_for_pipeline(pipeline_id, pprint_result=False)["pipelineEnvironmentVariables"]
+
+        if name not in [env_var["name"] for env_var in existing_env_var if env_var["scope"] == "PIPELINE"]:
+            raise ValueError(f"❌ Environment variable {name} does not exists")
+
+        params = {
+            "entityId": pipeline_id,
+            "envVar": [d for d in existing_env_var if d["name"] == name][0],
+        }
+        params["envVar"].pop("isValid")
+        params["envVar"].pop("overriddenValues")
+        params["envVar"].pop("invalidReasons")
+        if params["envVar"]["isPassword"] == True:
+            params["envVar"].pop("value")
+        if new_name:
+            params["envVar"]["name"] = new_name
+        if value:
+            params["envVar"]["value"] = value
+        if description:
+            params["envVar"]["description"] = description
+        if is_password in {True, False}:
+            params["envVar"]["isPassword"] = is_password
+        result = self.saagie_api.client.execute(query=gql(GQL_UPDATE_ENV_VAR), variable_values=params)
+        logging.info("✅ Environment variable [%s] successfully updated", name)
+        return result
+
+    def create_or_update_for_pipeline(
+        self, pipeline_id: str, name: str, value: str, description: str = "", is_password: bool = False
+    ) -> Dict:
+        """
+        Create a new pipeline environment variable or update it if it already exists
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        name: str
+            Unique name of the environment variable to create or modify
+        value: str
+            Value of the environment variable to create or modify
+        description: str, optional
+            Description of the variable
+        is_password: boolean, optional
+            Weather the variable is a password or not (default: False)
+
+        Returns
+        -------
+        dict
+            Dict of created or updated environment variable
+        """
+
+        existing_env_var = self.list_for_pipeline(pipeline_id, pprint_result=False)["pipelineEnvironmentVariables"]
+        present = name in [env["name"] for env in existing_env_var if env["scope"] == "PIPELINE"]
+
+        # If variable not present, create it
+        if not present:
+            return self.create_for_pipeline(
+                pipeline_id=pipeline_id, name=name, value=value, description=description, is_password=is_password
+            )
+        return self.update_for_pipeline(
+            pipeline_id=pipeline_id,
+            name=name,
+            new_name=None,
+            value=value,
+            description=description,
+            is_password=is_password,
+        )
+
+    def delete_for_pipeline(self, pipeline_id: str, name: str) -> Dict:
+        """Delete a given environment variable inside a given pipeline
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        name : str
+            Name of the environment variable to delete inside the given pipeline
+
+        Returns
+        -------
+        dict
+            Dict of deleted environment variable
+
+        Raises
+        ------
+        ValueError
+            When the given name doesn't correspond to an existing environment
+            variable inside the given pipeline
+        """
+        pipeline_envs = self.list_for_pipeline(pipeline_id, pprint_result=False)
+        pipeline_env = [env for env in pipeline_envs["pipelineEnvironmentVariables"] if env["name"] == name]
+
+        if len(pipeline_env) == 0:
+            raise ValueError("❌ 'name' must be the name of an existing " "environment variable in the given pipeline")
+
+        pipeline_env_id = pipeline_env[0]["id"]
+
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_ENV_VAR), variable_values={"id": pipeline_env_id})
+        logging.info("✅ Environment variable [%s] successfully deleted", name)
+        return result
+
+    def export(
+        self, project_id, output_folder: str, error_folder: Optional[str] = "", project_only: bool = False
+    ) -> bool:
         """Export the environment variables in a folder
 
         Parameters
@@ -391,7 +630,7 @@ class EnvVars:
         bool
             True if environment variables are exported False otherwise
         """
-        result = True
+
         output_folder = check_folder_path(output_folder)
         project_env_var = None
 
@@ -416,12 +655,11 @@ class EnvVars:
                 )
                 logging.error("Something went wrong %s", exception)
                 write_error(error_folder, "env_vars", project_id)
-                result = False
-                return result
+                return False
         else:
             logging.info("✅ The project [%s] doesn't have any environment variable", project_id)
 
-        return result
+        return True
 
     def import_from_json(self, json_file: str, project_id: str = None) -> bool:
         """Import environment variables from JSON format
