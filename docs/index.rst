@@ -19,6 +19,7 @@ Contents
     Docker Credentials/index
     Storages/index
     Repositories/index
+    Technologies/index
 
 Installing
 ==========

@@ -1,4 +1,4 @@
-Listing apps in project
+Listing apps for a project
 -----------------------
 
 **saagieapi.apps.list_for_project**
