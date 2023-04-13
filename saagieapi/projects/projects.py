@@ -532,7 +532,7 @@ class Projects:
         self,
         path_to_folder: str = None,
     ) -> bool:
-        """Import a project from JSON format
+        """Import a project from a folder
 
         Parameters
         ----------
