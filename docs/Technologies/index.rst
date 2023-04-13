@@ -1,4 +1,4 @@
-Technolgoies
+Technologies
 =====
 
 .. toctree::
