@@ -21,6 +21,10 @@
 
 The `saagieapi` python package implements python API wrappers to easily interact with the Saagie platform in python.
 
+## Documentation
+
+You can find the documentation of this package [here](https://saagieapi.readthedocs.io/en/latest/).
+
 ## Installing
 
 ```bash
@@ -33,6 +37,7 @@ pip install saagieapi==<version>
 |-----------------------------|------------------------|
 | < 2.2.0                     | < 0.6.0                |
 | >= 2.2.0                    | >= 0.6.0               |
+| >= 2023.01                  | >= 2.4.0               |
 
 ## Usage
 

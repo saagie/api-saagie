@@ -19,6 +19,7 @@ Contents
     Docker Credentials/index
     Storages/index
     Repositories/index
+    Technologies/index
 
 Installing
 ==========
@@ -36,6 +37,7 @@ Compatibility with your Saagie platform
 =========================== ======================
 < 2.2.0                     < 0.6.0
 >= 2.2.0                    >= 0.6.0
+>= 2023.01                  >= 2.4.0
 =========================== ======================
 
 Usage
