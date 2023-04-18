@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.4.1 (2023-04-18)
+### :penguin:
+* :penguin: Doc/update doc ([#177](https://github.com/saagie/api-saagie/issues/177)) ([`fc21aee`](https://github.com/saagie/api-saagie/commit/fc21aeebc2680501979e2d2af5639d444ad4324e))
+
 ## v2.4.0 (2023-04-12)
 ### :sparkles:
 * :sparkles: Feat/product 2023 01 ([#176](https://github.com/saagie/api-saagie/issues/176)) ([`9f5a5e1`](https://github.com/saagie/api-saagie/commit/9f5a5e1186a000fcd90b0be76682ae6bfc6e06b3))
