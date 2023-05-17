@@ -24,11 +24,11 @@ def my_fixture():
 @pytest.fixture(scope="package")
 def create_global_project():
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    url_saagie = os.environ["URL_TEST_SAAGIE"]
-    id_platform = os.environ["ID_PLATFORM_TEST_SAAGIE"]
-    user = os.environ["USER_TEST_SAAGIE"]
-    password = os.environ["PWD_TEST_SAAGIE"]
-    realm = os.environ["REALM_TEST_SAAGIE"]
+    Conf.url_saagie = os.environ["URL_TEST_SAAGIE"]
+    Conf.id_platform = os.environ["ID_PLATFORM_TEST_SAAGIE"]
+    Conf.user = os.environ["USER_TEST_SAAGIE"]
+    Conf.password = os.environ["PWD_TEST_SAAGIE"]
+    Conf.realm = os.environ["REALM_TEST_SAAGIE"]
 
     Conf.dir_path = os.path.dirname(os.path.abspath(__file__))
     Conf.import_dir = os.path.join(Conf.dir_path, "resources", "import")
@@ -36,7 +36,11 @@ def create_global_project():
     Conf.output_dir_present = os.path.isdir(Conf.output_dir)
 
     Conf.saagie_api = SaagieApi(
-        url_saagie=url_saagie, id_platform=id_platform, user=user, password=password, realm=realm
+        url_saagie=Conf.url_saagie,
+        id_platform=Conf.id_platform,
+        user=Conf.user,
+        password=Conf.password,
+        realm=Conf.realm,
     )
 
     # Create a test project
@@ -99,6 +103,13 @@ def create_global_project():
         Conf.saagie_api.repositories.delete(id_repository_from_url)
     except NameError:
         print("Test repositories are already cleaned")
+
+    # Delete created group, user
+    try:
+        Conf.saagie_api.groups.delete("test_api_group_to_delete")
+        Conf.saagie_api.users.delete("test_user_api_to_delete")
+    except Exception:
+        print("Test group and user are already cleaned")
 
 
 @pytest.fixture
