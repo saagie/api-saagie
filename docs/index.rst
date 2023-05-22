@@ -20,6 +20,9 @@ Contents
     Storages/index
     Repositories/index
     Technologies/index
+    Users/index
+    Profiles/index
+    Groups/index
 
 Installing
 ==========

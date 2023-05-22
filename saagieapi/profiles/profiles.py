@@ -99,7 +99,7 @@ class Profiles:
         else:
             return False
 
-    def edit(self, user_name, job_title: str = None, email: str = None, verify_ssl: bool = True) -> bool:
+    def edit(self, user_name: str, job_title: str = None, email: str = None, verify_ssl: bool = True) -> bool:
         """Edit a profile
         NB: You can edit a user's profile if you have the admin role on the platform
 
