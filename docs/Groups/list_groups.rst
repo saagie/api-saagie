@@ -1,9 +1,9 @@
 Listing groups
 -----------------------
 
-**saagieapi.groups.list**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.groups.list**
 
 Example :
 

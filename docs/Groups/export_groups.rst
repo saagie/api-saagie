@@ -1,9 +1,9 @@
 Exporting groups
 ----------
 
-**saagieapi.groups.export**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.groups.export**
 
 Example :
 

@@ -1,9 +1,9 @@
 Deleting a group
 ----------
 
-**saagieapi.groups.delete**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.groups.delete**
 
 Example :
 

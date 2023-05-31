@@ -1,9 +1,9 @@
 Getting group's permissions information
 --------
 
-**saagieapi.groups.get_permission**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.groups.get_permission**
 
 Example :
 

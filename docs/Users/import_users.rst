@@ -1,11 +1,11 @@
 Importing users
 ----------
 
-**saagieapi.users.import_from_json**
-
 *NB: You can only use this function if you have the admin role on the platform.*
 
-*All protected users will not be imported*
+*All protected (created at platform installation) users will not be imported.*
+
+**saagieapi.users.import_from_json**
 
 Example :
 

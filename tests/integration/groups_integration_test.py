@@ -38,9 +38,7 @@ class TestIntegrationGroups:
     def create_group(create_global_project):
         conf = create_global_project
         group_name = "test_api_group_to_delete"
-        res = conf.saagie_api.groups.create(group_name=group_name, users=[conf.user])
-        to_validate = True
-        assert res == to_validate
+        conf.saagie_api.groups.create(group_name=group_name, users=[conf.user])
         return group_name
 
     @pytest.fixture
@@ -49,7 +47,7 @@ class TestIntegrationGroups:
         conf = create_global_project
         group_name = create_group
 
-        yield create_group
+        yield group_name
 
         conf.saagie_api.groups.delete(group_name=group_name)
 

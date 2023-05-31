@@ -1,9 +1,9 @@
 Deleting an user
 ----------
 
-**saagieapi.users.delete**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.users.delete**
 
 Example :
 

@@ -53,7 +53,7 @@ class Users:
         Params
         ------
         user_name: str
-            User name
+            User's name
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
             By default, verification of SSL certification activated
@@ -119,6 +119,7 @@ class Users:
     ) -> bool:
         """Import users from JSON format file
         NB: You can only use this function if you have the admin role on the platform
+            All protected (created at platform installation) users will not be imported.
 
         Parameters
         ----------
@@ -138,53 +139,59 @@ class Users:
         -------
         bool
             True if users are all imported or already existed False otherwise
-            All protected users will not be imported
+
         """
 
-        with open(json_file, "r") as file:
-            list_users = json.loads(file.read())
+        bypassed_list = []
+        failed_list = []
+        already_exist_list = []
+        imported_list = []
 
-        list_already_exist = []
-        list_failed = []
-        list_imported = []
-        total_users = len(list_users)
-        list_bypassed = [user for user in list_users if user["protected"]]
-        other_users = [user for user in list_users if not user["protected"]]
+        try:
+            with open(json_file, "r", encoding="utf-8") as file:
+                users_list = json.load(file)
+        except Exception as exception:
+            logging.warning("Cannot open the JSON file %s", json_file)
+            logging.error("Something went wrong %s", exception)
+            return False
 
-        logging.info(f"{len(list_bypassed)}/{total_users} are not imported, because protected")
-        logging.info(f"Protected users: {list_bypassed}")
-        for user in other_users:
-            res = requests.get(
-                f"{self.saagie_api.url_saagie}auth/api/users/{user['login']}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            if res.status_code == 404:
-                try:
-                    self.create(
-                        user_name=user["login"],
-                        password=temp_pwd,
-                        platforms=user["platforms"],
-                        roles=user["roles"],
-                        verify_ssl=verify_ssl,
-                    )
-                    list_imported.append(user["login"])
-                except Exception as err:
-                    logging.error(err)
-                    list_failed.append(user["login"])
+        total_user = len(users_list)
 
+        for user in users_list:
+            if user["protected"]:
+                bypassed_list.append(user["login"])
             else:
-                list_already_exist.append(user["login"])
+                res = requests.get(
+                    f"{self.saagie_api.url_saagie}auth/api/users/{user['login']}",
+                    auth=self.saagie_api.auth,
+                    headers={"Saagie-Realm": self.saagie_api.realm},
+                    verify=verify_ssl,
+                )
+                if res.status_code == 404:
+                    try:
+                        self.create(
+                            user_name=user["login"],
+                            password=temp_pwd,
+                            platforms=user["platforms"],
+                            roles=user["roles"],
+                            verify_ssl=verify_ssl,
+                        )
+                        imported_list.append(user["login"])
+                    except Exception as err:
+                        logging.error(err)
+                        failed_list.append(user["login"])
 
-        if len(list_failed):
-            logging.info(f"{len(list_failed)}/{total_users} are failed to import")
-            logging.warning(f"❌ The following users are failed to import: {list_failed}")
-            write_error(error_folder, "users", str(list_failed))
+                else:
+                    already_exist_list.append(user["login"])
+
+        if failed_list:
+            logging.info(f"{len(failed_list)}/{total_user} are failed to import")
+            logging.warning(f"❌ The following users are failed to import: {failed_list}")
+            write_error(error_folder, "users", str(failed_list))
             return False
         else:
-            logging.info(f"{len(list_imported)}/{total_users} are successfully imported")
-            logging.info(f"{len(list_already_exist)}/{total_users} are already exist")
+            logging.info(f"{len(imported_list)}/{total_user} are successfully imported")
+            logging.info(f"{len(already_exist_list)}/{total_user} are already exist")
             logging.info("✅ Users have been successfully imported")
             return True
 
@@ -220,7 +227,7 @@ class Users:
         Returns
         -------
         bool
-           True if group is deleted Error otherwise
+           True if user is created Error otherwise
 
         """
         try:
@@ -259,7 +266,7 @@ class Users:
         Returns
         -------
         bool
-           True if group is deleted Error otherwise
+           True if user is deleted Error otherwise
 
         """
 

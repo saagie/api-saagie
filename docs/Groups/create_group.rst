@@ -1,9 +1,9 @@
 Creating a group
 ----------
 
-**saagieapi.groups.create**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.groups.create**
 
 Example :
 

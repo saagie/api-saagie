@@ -1,9 +1,9 @@
 Exporting users
 ----------
 
-**saagieapi.users.export**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.users.export**
 
 Example :
 

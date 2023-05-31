@@ -1,9 +1,9 @@
 Getting user's profile information
 --------
 
-**saagieapi.profiles.get_info**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.profiles.get_info**
 
 Example :
 

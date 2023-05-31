@@ -1,6 +1,8 @@
 Editing a group's permission
 --------
 
+*NB: You can only use this function if you have the admin role on the platform.*
+
 **saagieapi.groups.edit_permission**
 
 Example :

@@ -1,11 +1,11 @@
 Importing groups
 ----------
 
-**saagieapi.groups.import_from_json**
-
 *NB: You can only use this function if you have the admin role on the platform.*
 
-*All protected groups will not be imported*
+*All protected (created at platform installation) groups will not be imported.*
+
+**saagieapi.groups.import_from_json**
 
 Example :
 

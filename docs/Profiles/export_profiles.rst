@@ -1,9 +1,9 @@
 Exporting profiles
 ----------
 
-**saagieapi.profiles.export**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.profiles.export**
 
 Example :
 

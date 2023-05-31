@@ -35,7 +35,7 @@ class Groups:
                 verify=verify_ssl,
             )
             response.raise_for_status()
-            logging.info("✅ Successfully list users on the platform")
+            logging.info("✅ Successfully list groups on the platform")
             return response.json()
         except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
             logging.error(err)
@@ -96,7 +96,7 @@ class Groups:
                 verify=verify_ssl,
             )
             response.raise_for_status()
-            logging.info("✅ Successfully list users on the platform")
+            logging.info("✅ Successfully list group's users on the platform")
             return response.json()
         except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
             logging.error(err)
@@ -123,7 +123,6 @@ class Groups:
         """
         output_folder = check_folder_path(output_folder)
         groups = self.list(verify_ssl)
-        group_names = []
         list_failed = []
 
         if groups:
@@ -132,6 +131,9 @@ class Groups:
             group_names = [group["name"] for group in groups]
             output_folder = check_folder_path(output_folder + "groups/")
             create_folder(output_folder)
+        else:
+            logging.info("No group(s) to export")
+            return True
 
         for group_name in group_names:
             try:
@@ -144,7 +146,7 @@ class Groups:
                     write_to_json_file(output_folder + f"perm_{group_name}.json", permission_list)
 
             except Exception as exception:
-                logging.error("Something went wrong when getting group user or group permission: %s", exception)
+                logging.error("Something went wrong when getting group's users or group's permissions: %s", exception)
                 list_failed.append(group_name)
         if list_failed:
             logging.warning(f"❌ The following groups are failed to export: {list_failed}")
@@ -160,10 +162,9 @@ class Groups:
         Params
         ------
         group_name: str
-            Folder to store the exported groups
-        users: str
-            Path to store the not correctly exported group in case of error.
-            If not set, not correctly exported group is not write
+            Name of the group
+        users: List[str]
+            Group's users
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
             By default, verification of SSL certification activated
@@ -201,7 +202,7 @@ class Groups:
         Params
         ------
         group_name: str
-            Folder to store the exported groups
+            Name of the group
         authorizations: Optional[List[Dict]]
             Group's authorization on the platform
             if not filled, defaults to current value
@@ -248,18 +249,16 @@ class Groups:
         Returns
         -------
         bool
-            True if group is exported False otherwise
+            True if group's permission successfully edited False otherwise
         """
         previous_group_permission = self.get_permission(group_name, verify_ssl)
-        params = {"role": previous_group_permission["role"]}
-        if authorizations:
-            params["authorizations"] = authorizations
-        else:
-            params["authorizations"] = previous_group_permission["authorizations"]
-        if realm_authorization:
-            params["realmAuthorization"] = realm_authorization
-        else:
-            params["realmAuthorization"] = previous_group_permission["realmAuthorization"]
+        params = {
+            "role": previous_group_permission["role"],
+            "authorizations": authorizations if authorizations else previous_group_permission["authorizations"],
+            "realmAuthorization": realm_authorization
+            if realm_authorization
+            else previous_group_permission["realmAuthorization"],
+        }
 
         try:
             response_group_permission = requests.put(
@@ -310,14 +309,16 @@ class Groups:
             raise
 
     def import_from_json(self, path_to_folder: str, error_folder: str, verify_ssl: bool = True):
-        """Import a job from JSON format
+        """Import groups from JSON format
+        NB: You can only use this function if you have the admin role on the platform
+            All protected groups (created at platform installation) will not be imported.
 
         Parameters
         ----------
         path_to_folder : str
-            Path to the folder of the job to import
+            Path to the folder of the groups to import
         error_folder : str
-            Path to the folder of the job to import
+            Path to the folder of the groups to import
         verify_ssl: bool, optional
            Enable or disable verification of SSL certification
            By default, verification of SSL certification activated
@@ -325,7 +326,7 @@ class Groups:
         Returns
         -------
         bool
-            True if job is imported False otherwise
+            True if groups are imported False otherwise
         """
 
         path_to_folder = check_folder_path(path_to_folder)
@@ -341,6 +342,7 @@ class Groups:
             logging.warning("Cannot open the JSON file %s", groups_json_path)
             logging.error("Something went wrong %s", exception)
             return False
+        total_group = len(groups_list)
 
         for group in groups_list:
             if group["protected"]:
@@ -380,12 +382,12 @@ class Groups:
                 else:
                     already_exist_list.append(group["name"])
         if failed_list:
-            logging.info(f"{len(failed_list)}/{len(groups_list)} are failed to import")
-            logging.warning(f"❌ The following users are failed to import: {failed_list}")
-            write_error(error_folder, "users", str(failed_list))
+            logging.info(f"{len(failed_list)}/{total_group} are failed to import")
+            logging.warning(f"❌ The following groups are failed to import: {failed_list}")
+            write_error(error_folder, "groups", str(failed_list))
             return False
         else:
-            logging.info(f"{len(imported_list)}/{len(groups_list)} are successfully imported")
-            logging.info(f"{len(already_exist_list)}/{len(groups_list)} are already exist")
+            logging.info(f"{len(imported_list)}/{total_group} are successfully imported")
+            logging.info(f"{len(already_exist_list)}/{total_group} are already exist")
             logging.info("✅ Groups have been successfully imported")
             return True

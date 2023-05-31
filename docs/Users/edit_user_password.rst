@@ -1,6 +1,8 @@
 Editing an user's password
 --------
 
+*NB: You can only use this function if you have the admin role on the platform.*
+
 **saagieapi.users.edit_password**
 
 Example :

@@ -45,6 +45,8 @@ class Profiles:
         NB: You can only get user's profile information if you have the admin role on the platform
         Params
         ------
+        user_name: str
+            User's name
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
             By default, verification of SSL certification activated
@@ -122,17 +124,12 @@ class Profiles:
         bool
             True if profile is successfully edited error otherwise
         """
-        params = {"login": user_name}
         previous_profile = self.get_info(user_name)
-        if job_title:
-            params["job"] = job_title
-        else:
-            params["job"] = previous_profile["job"]
-
-        if email:
-            params["email"] = email
-        else:
-            params["email"] = previous_profile["email"]
+        params = {
+            "login": user_name,
+            "job": job_title if job_title else previous_profile["job"],
+            "email": email if email else previous_profile["email"],
+        }
 
         try:
             response = requests.put(

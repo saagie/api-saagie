@@ -32,9 +32,7 @@ class TestIntegrationUsers:
         conf = create_global_project
         user_name = "test_user_api_to_delete"
         pwd = "password1!"
-        res = conf.saagie_api.users.create(user_name=user_name, password=pwd)
-        to_validate = True
-        assert res == to_validate
+        conf.saagie_api.users.create(user_name=user_name, password=pwd)
         return user_name
 
     @pytest.fixture
@@ -43,7 +41,7 @@ class TestIntegrationUsers:
         conf = create_global_project
         user_name = create_user
 
-        yield create_user
+        yield user_name
 
         conf.saagie_api.users.delete(user_name=user_name)
 

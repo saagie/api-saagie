@@ -1,9 +1,9 @@
 Listing users
 -----------------------
 
-**saagieapi.users.list**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.users.list**
 
 Example :
 

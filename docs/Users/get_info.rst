@@ -1,9 +1,9 @@
 Getting user information
 --------
 
-**saagieapi.users.get_info**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.users.get_info**
 
 Example :
 

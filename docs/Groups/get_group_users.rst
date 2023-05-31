@@ -1,9 +1,9 @@
 Getting group's users information
 --------
 
-**saagieapi.groups.get_users**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.groups.get_users**
 
 Example :
 

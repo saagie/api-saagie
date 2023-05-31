@@ -1,9 +1,9 @@
 Creating an user
 ----------
 
-**saagieapi.users.create**
-
 *NB: You can only use this function if you have the admin role on the platform.*
+
+**saagieapi.users.create**
 
 Example :
 
