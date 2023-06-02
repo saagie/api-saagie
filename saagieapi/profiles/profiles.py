@@ -1,9 +1,5 @@
 import logging
-from typing import Dict
-
-import requests
-from requests import ConnectionError as requestsConnectionError
-from requests import HTTPError, RequestException, Timeout
+from typing import Dict, Optional
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
 
@@ -12,35 +8,28 @@ class Profiles:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list(self, verify_ssl: bool = True) -> Dict:
+    def list(self, verify_ssl: Optional[bool] = None) -> Dict:
         """Get profiles
         NB: You can only list profiles if you have the admin role on the platform
         Params
         ------
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
         dict
             Dict of profiles on the platform
         """
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}profiles/api/",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ Successfully list users on the platform")
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET", url=f"{self.saagie_api.url_saagie}profiles/api/", raise_for_status=True, verify_ssl=verify_ssl
+        )
+        logging.info("✅ Successfully list users on the platform")
+        return response.json()
 
-    def get_info(self, user_name: str, verify_ssl: bool = True) -> Dict:
+    def get_info(self, user_name: str, verify_ssl: Optional[bool] = None) -> Dict:
         """Get profile info of a specific user
         NB: You can only get user's profile information if you have the admin role on the platform
         Params
@@ -49,27 +38,23 @@ class Profiles:
             User's name
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
         Dict
             Dict of user's profile information on the platform
         """
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}profiles/api/{user_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET",
+            url=f"{self.saagie_api.url_saagie}profiles/api/{user_name}",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        return response.json()
 
-    def export(self, output_folder: str, verify_ssl: bool = True) -> bool:
+    def export(self, output_folder: str, verify_ssl: Optional[bool] = None) -> bool:
         """Export profiles in a file
         NB: You can only export profiles if you have the admin role on the platform
 
@@ -79,7 +64,7 @@ class Profiles:
             Path to store the exported profiles
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -87,6 +72,7 @@ class Profiles:
             True if profiles are exported False otherwise
         """
         profiles = None
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         try:
             profiles = self.list(verify_ssl=verify_ssl)
         except Exception as exception:
@@ -101,7 +87,7 @@ class Profiles:
         else:
             return False
 
-    def edit(self, user_name: str, job_title: str = None, email: str = None, verify_ssl: bool = True) -> bool:
+    def edit(self, user_name: str, job_title: str = None, email: str = None, verify_ssl: Optional[bool] = None) -> bool:
         """Edit a profile
         NB: You can edit a user's profile if you have the admin role on the platform
 
@@ -117,31 +103,27 @@ class Profiles:
             If not filled, defaults to current value, else it will change the user's email
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
         bool
             True if profile is successfully edited error otherwise
         """
-        previous_profile = self.get_info(user_name)
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        previous_profile = self.get_info(user_name, verify_ssl=verify_ssl)
         params = {
             "login": user_name,
             "job": job_title if job_title else previous_profile["job"],
             "email": email if email else previous_profile["email"],
         }
 
-        try:
-            response = requests.put(
-                f"{self.saagie_api.url_saagie}profiles/api/{user_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                json=params,
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ Profile [%s] successfully edited", user_name)
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        self.saagie_api.request_client.send(
+            method="PUT",
+            url=f"{self.saagie_api.url_saagie}profiles/api/{user_name}",
+            raise_for_status=True,
+            json_data=params,
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ Profile [%s] successfully edited", user_name)
+        return True

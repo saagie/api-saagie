@@ -4,6 +4,8 @@ Importing groups
 *NB: You can only use this function if you have the admin role on the platform.*
 
 *All protected (created at platform installation) groups will not be imported.*
+*For the moment, authorizations of groups are not imported, so if you want the same authorization,
+you have to set up manually.*
 
 **saagieapi.groups.import_from_json**
 

@@ -2,10 +2,6 @@ import json
 import logging
 from typing import Dict, List, Optional
 
-import requests
-from requests import ConnectionError as requestsConnectionError
-from requests import HTTPError, RequestException, Timeout
-
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
 
 
@@ -13,7 +9,7 @@ class Groups:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list(self, verify_ssl: bool = True) -> List[Dict]:
+    def list(self, verify_ssl: Optional[bool] = None) -> List[Dict]:
         """Get groups
         NB: You can only list users if you have the admin role on the platform
         Params
@@ -27,21 +23,17 @@ class Groups:
         dict
             Dict of groups on the platform
         """
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}auth/api/groups",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ Successfully list groups on the platform")
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET",
+            url=f"{self.saagie_api.url_saagie}auth/api/groups",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ Successfully list groups on the platform")
+        return response.json()
 
-    def get_permission(self, group_name: str, verify_ssl: bool = True) -> Dict:
+    def get_permission(self, group_name: str, verify_ssl: Optional[bool] = None) -> Dict:
         """Get group's permissions
         NB: You can only list group's permission if you have the admin role on the platform
         Params
@@ -57,21 +49,17 @@ class Groups:
         dict
             Dict of group's permissions
         """
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}security/api/groups/{group_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info(f"✅  Successfully list permissions of the group [{group_name}]")
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET",
+            url=f"{self.saagie_api.url_saagie}security/api/groups/{group_name}",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        logging.info(f"✅  Successfully list permissions of the group [{group_name}]")
+        return response.json()
 
-    def get_users(self, group_name, verify_ssl: bool = True) -> Dict:
+    def get_users(self, group_name, verify_ssl: Optional[bool] = None) -> Dict:
         """Get group's users
         NB: You can only list group's users if you have the admin role on the platform
         Params
@@ -87,22 +75,17 @@ class Groups:
         dict
             Dict of group's users
         """
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET",
+            url=f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ Successfully list group's users on the platform")
+        return response.json()
 
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ Successfully list group's users on the platform")
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
-
-    def export(self, output_folder: str, error_folder: Optional[str] = "", verify_ssl: bool = True) -> bool:
+    def export(self, output_folder: str, error_folder: Optional[str] = "", verify_ssl: Optional[bool] = None) -> bool:
         """Export groups
         NB: You can only export group's information if you have the admin role on the platform
         Params
@@ -121,6 +104,7 @@ class Groups:
         bool
             True if group is exported False otherwise
         """
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         output_folder = check_folder_path(output_folder)
         groups = self.list(verify_ssl)
         list_failed = []
@@ -137,11 +121,11 @@ class Groups:
 
         for group_name in group_names:
             try:
-                group_user_list = self.get_users(group_name)
+                group_user_list = self.get_users(group_name, verify_ssl=verify_ssl)
                 if group_user_list:
                     write_to_json_file(output_folder + f"user_{group_name}.json", group_user_list)
 
-                permission_list = self.get_permission(group_name)
+                permission_list = self.get_permission(group_name, verify_ssl=verify_ssl)
                 if permission_list:
                     write_to_json_file(output_folder + f"perm_{group_name}.json", permission_list)
 
@@ -156,7 +140,7 @@ class Groups:
             logging.info("✅ Groups have been successfully exported")
             return True
 
-    def create(self, group_name: str, users: List[str], verify_ssl: bool = True) -> bool:
+    def create(self, group_name: str, users: List[str], verify_ssl: Optional[bool] = None) -> bool:
         """Create a group
         NB: You can only create group if you have the admin role on the platform
         Params
@@ -174,28 +158,23 @@ class Groups:
         bool
             True if group is exported False otherwise
         """
-        try:
-            response_group_user = requests.post(
-                f"{self.saagie_api.url_saagie}auth/api/groups",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                json={"name": group_name, "users": users},
-                verify=verify_ssl,
-            )
-            response_group_user.raise_for_status()
-
-            logging.info(f"✅ Successfully create group [{group_name}] on the platform")
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        self.saagie_api.request_client.send(
+            method="POST",
+            url=f"{self.saagie_api.url_saagie}auth/api/groups",
+            raise_for_status=True,
+            json_data={"name": group_name, "users": users},
+            verify_ssl=verify_ssl,
+        )
+        logging.info(f"✅ Successfully create group [{group_name}] on the platform")
+        return True
 
     def edit_permission(
         self,
         group_name: str,
         authorizations: Optional[List[Dict]] = None,
         realm_authorization: Optional[Dict] = None,
-        verify_ssl: bool = True,
+        verify_ssl: Optional[bool] = None,
     ) -> bool:
         """Create a group
         NB: You can only create group if you have the admin role on the platform
@@ -251,6 +230,7 @@ class Groups:
         bool
             True if group's permission successfully edited False otherwise
         """
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         previous_group_permission = self.get_permission(group_name, verify_ssl)
         params = {
             "role": previous_group_permission["role"],
@@ -260,23 +240,17 @@ class Groups:
             else previous_group_permission["realmAuthorization"],
         }
 
-        try:
-            response_group_permission = requests.put(
-                f"{self.saagie_api.url_saagie}security/api/groups/{group_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                json=params,
-                verify=verify_ssl,
-            )
-            response_group_permission.raise_for_status()
+        self.saagie_api.request_client.send(
+            method="PUT",
+            url=f"{self.saagie_api.url_saagie}security/api/groups/{group_name}",
+            raise_for_status=True,
+            json_data=params,
+            verify_ssl=verify_ssl,
+        )
+        logging.info(f"✅ Successfully edit group permission [{group_name}] on the platform")
+        return True
 
-            logging.info(f"✅ Successfully edit group permission [{group_name}] on the platform")
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
-
-    def delete(self, group_name: str, verify_ssl: bool = True) -> bool:
+    def delete(self, group_name: str, verify_ssl: Optional[bool] = None) -> bool:
         """Delete a given group
 
         Parameters
@@ -293,25 +267,22 @@ class Groups:
            True if group is deleted Error otherwise
 
         """
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        self.saagie_api.request_client.send(
+            method="DELETE",
+            url=f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ Group [%s] successfully deleted", group_name)
+        return True
 
-        try:
-            response = requests.delete(
-                f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ Group [%s] successfully deleted", group_name)
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
-
-    def import_from_json(self, path_to_folder: str, error_folder: str, verify_ssl: bool = True):
+    def import_from_json(self, path_to_folder: str, error_folder: str, verify_ssl: Optional[bool] = None):
         """Import groups from JSON format
         NB: You can only use this function if you have the admin role on the platform
             All protected groups (created at platform installation) will not be imported.
+            For the moment, authorizations of groups are not imported, so if you want the same authorization,
+            you have to set up manually.
 
         Parameters
         ----------
@@ -328,7 +299,7 @@ class Groups:
         bool
             True if groups are imported False otherwise
         """
-
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         path_to_folder = check_folder_path(path_to_folder)
         groups_json_path = path_to_folder + "groups.json"
         bypassed_list = []
@@ -349,11 +320,11 @@ class Groups:
                 bypassed_list.append(group["name"])
             else:
                 group_name = group["name"]
-                res = requests.get(
-                    f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
-                    auth=self.saagie_api.auth,
-                    headers={"Saagie-Realm": self.saagie_api.realm},
-                    verify=verify_ssl,
+                res = self.saagie_api.request_client.send(
+                    method="GET",
+                    url=f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
+                    raise_for_status=False,
+                    verify_ssl=verify_ssl,
                 )
                 if res.status_code == 500:
                     groups_user_json_path = path_to_folder + f"groups/user_{group_name}.json"
@@ -362,12 +333,11 @@ class Groups:
                         with open(groups_user_json_path, "r", encoding="utf-8") as file:
                             group_user = json.load(file)
                         if group_user:
-                            self.create(group_name=group_name, users=group_user["users"])
+                            self.create(group_name=group_name, users=group_user["users"], verify_ssl=verify_ssl)
 
                         with open(group_permission_json_path, "r", encoding="utf-8") as file:
                             group_permission = json.load(file)
                         if group_permission:
-                            # TODO: for authorizations, ID needed, not import ?
                             self.edit_permission(
                                 group_name=group_name,
                                 authorizations=[],

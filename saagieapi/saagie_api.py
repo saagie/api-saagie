@@ -20,6 +20,7 @@ from .storages import Storages
 from .users import Users
 from .utils.bearer_auth import BearerAuth
 from .utils.gql_client import GqlClient
+from .utils.request_client import RequestClient
 
 
 class SaagieApi:
@@ -83,6 +84,8 @@ class SaagieApi:
         self.pprint_global = pprint_global
         self.client.pprint_global = pprint_global
         self.client_gateway.pprint_global = pprint_global
+        self.verify_ssl = True
+        self.request_client = RequestClient(auth=self.auth, realm=self.realm, verify_ssl=self.verify_ssl)
 
     @classmethod
     def easy_connect(cls, url_saagie_platform: str, user: str, password: str):

@@ -2,10 +2,6 @@ import json
 import logging
 from typing import Dict, List, Optional
 
-import requests
-from requests import ConnectionError as requestsConnectionError
-from requests import HTTPError, RequestException, Timeout
-
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
 
 
@@ -13,14 +9,14 @@ class Users:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
 
-    def list(self, verify_ssl: bool = True) -> List[Dict]:
+    def list(self, verify_ssl: Optional[bool] = None) -> List[Dict]:
         """Get users
         NB: You can only list users if you have the admin role on the platform
         Params
         ------
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -33,21 +29,16 @@ class Users:
               'protected': bool
             }
         """
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}auth/api/users",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ Successfully list users on the platform")
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET",
+            url=f"{self.saagie_api.url_saagie}auth/api/users",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        return response.json()
 
-    def get_info(self, user_name: str, verify_ssl: bool = True) -> Dict:
+    def get_info(self, user_name: str, verify_ssl: Optional[bool] = None) -> Dict:
         """Get info of a specific user
         NB: You can only get user's information if you have the admin role on the platform
         Params
@@ -56,7 +47,7 @@ class Users:
             User's name
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -69,20 +60,16 @@ class Users:
               'protected': bool
             }
         """
-        try:
-            response = requests.get(
-                f"{self.saagie_api.url_saagie}auth/api/users/{user_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            return response.json()
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        response = self.saagie_api.request_client.send(
+            method="GET",
+            url=f"{self.saagie_api.url_saagie}auth/api/users/{user_name}",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        return response.json()
 
-    def export(self, output_folder: str, verify_ssl: bool = True) -> bool:
+    def export(self, output_folder: str, verify_ssl: Optional[bool] = None) -> bool:
         """Export users in a file
         NB: You can only use this function if you have the admin role on the platform
 
@@ -92,7 +79,7 @@ class Users:
             Path to store the exported users
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -115,7 +102,7 @@ class Users:
             return False
 
     def import_from_json(
-        self, json_file: str, temp_pwd: str, error_folder: Optional[str] = "", verify_ssl: bool = True
+        self, json_file: str, temp_pwd: str, error_folder: Optional[str] = "", verify_ssl: Optional[bool] = None
     ) -> bool:
         """Import users from JSON format file
         NB: You can only use this function if you have the admin role on the platform
@@ -133,7 +120,7 @@ class Users:
             If not set, failed imported users not write
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -141,6 +128,7 @@ class Users:
             True if users are all imported or already existed False otherwise
 
         """
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
 
         bypassed_list = []
         failed_list = []
@@ -161,11 +149,10 @@ class Users:
             if user["protected"]:
                 bypassed_list.append(user["login"])
             else:
-                res = requests.get(
-                    f"{self.saagie_api.url_saagie}auth/api/users/{user['login']}",
-                    auth=self.saagie_api.auth,
-                    headers={"Saagie-Realm": self.saagie_api.realm},
-                    verify=verify_ssl,
+                res = self.saagie_api.request_client.send(
+                    method="GET",
+                    url=f"{self.saagie_api.url_saagie}auth/api/users/{user['login']}",
+                    verify_ssl=verify_ssl,
                 )
                 if res.status_code == 404:
                     try:
@@ -199,10 +186,10 @@ class Users:
         self,
         user_name: str,
         password: str,
-        platforms: Optional[List[str]] = [],
-        roles: Optional[List[str]] = ["ROLE_READER"],
-        groups: Optional[List[str]] = [],
-        verify_ssl: bool = True,
+        platforms: Optional[List[str]] = None,
+        roles: Optional[List[str]] = None,
+        groups: Optional[List[str]] = None,
+        verify_ssl: Optional[bool] = None,
     ) -> bool:
         """Create a given user
         NB: You can only use this function if you have the admin role on the platform
@@ -222,7 +209,7 @@ class Users:
             List of groups
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -230,28 +217,30 @@ class Users:
            True if user is created Error otherwise
 
         """
-        try:
-            response = requests.post(
-                f"{self.saagie_api.url_saagie}auth/api/users",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                json={
-                    "login": user_name,
-                    "password": password,
-                    "platforms": platforms,
-                    "roles": roles,
-                    "groups": groups,
-                },
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ User [%s] successfully created", user_name)
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        if platforms is None:
+            platforms = []
+        if roles is None:
+            roles = ["ROLE_READER"]
+        if groups is None:
+            groups = []
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        self.saagie_api.request_client.send(
+            method="POST",
+            url=f"{self.saagie_api.url_saagie}auth/api/users",
+            raise_for_status=True,
+            json_data={
+                "login": user_name,
+                "password": password,
+                "platforms": platforms,
+                "roles": roles,
+                "groups": groups,
+            },
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ User [%s] successfully created", user_name)
+        return True
 
-    def delete(self, user_name, verify_ssl: bool = True) -> bool:
+    def delete(self, user_name, verify_ssl: Optional[bool] = None) -> bool:
         """Delete a given user
         NB: You can only use this function if you have the admin role on the platform
 
@@ -261,7 +250,7 @@ class Users:
             User name
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -269,22 +258,17 @@ class Users:
            True if user is deleted Error otherwise
 
         """
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        self.saagie_api.request_client.send(
+            method="DELETE",
+            url=f"{self.saagie_api.url_saagie}auth/api/users/{user_name}",
+            raise_for_status=True,
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ User [%s] successfully deleted", user_name)
+        return True
 
-        try:
-            response = requests.delete(
-                f"{self.saagie_api.url_saagie}auth/api/users/{user_name}",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-            )
-            response.raise_for_status()
-            logging.info("✅ User [%s] successfully deleted", user_name)
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
-
-    def edit_password(self, user_name, previous_pwd, new_pwd, verify_ssl: bool = True):
+    def edit_password(self, user_name, previous_pwd, new_pwd, verify_ssl: Optional[bool] = None):
         """Edit a given user's password
         NB: You can only use this function if you have the admin role on the platform
 
@@ -298,24 +282,20 @@ class Users:
             New user password
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
         bool
             True if user's password is successfully edited Error otherwise
         """
-        try:
-            response = requests.put(
-                f"{self.saagie_api.url_saagie}authentication/api/open/password/change",
-                auth=self.saagie_api.auth,
-                headers={"Saagie-Realm": self.saagie_api.realm},
-                verify=verify_ssl,
-                json={"login": user_name, "oldPassword": previous_pwd, "newPassword": new_pwd},
-            )
-            response.raise_for_status()
-            logging.info("✅ Password of user [%s] successfully edited", user_name)
-            return True
-        except (HTTPError, requestsConnectionError, Timeout, RequestException) as err:
-            logging.error(err)
-            raise
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+        self.saagie_api.request_client.send(
+            method="PUT",
+            url=f"{self.saagie_api.url_saagie}authentication/api/open/password/change",
+            raise_for_status=True,
+            json_data={"login": user_name, "oldPassword": previous_pwd, "newPassword": new_pwd},
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ Password of user [%s] successfully edited", user_name)
+        return True
