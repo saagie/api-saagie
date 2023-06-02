@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.5.0 (2023-06-02)
+### :sparkles:
+* :sparkles: Add user, group, profile functions ([#180](https://github.com/saagie/api-saagie/issues/180)) ([`9132b16`](https://github.com/saagie/api-saagie/commit/9132b1699168962784c50b83a18440e2f0f49950))
+
 ## v2.4.1 (2023-04-18)
 ### :penguin:
 * :penguin: Doc/update doc ([#177](https://github.com/saagie/api-saagie/issues/177)) ([`fc21aee`](https://github.com/saagie/api-saagie/commit/fc21aeebc2680501979e2d2af5639d444ad4324e))
