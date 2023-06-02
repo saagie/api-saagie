@@ -22,7 +22,7 @@ class RequestClient:
         json_data: Optional[dict] = None,
         stream: Optional[bool] = None,
         verify_ssl: Optional[bool] = None,
-    ):
+    ) -> requests.Response:
         """
         Construct and send a Request
 
