@@ -10,13 +10,17 @@ from .apps import Apps
 from .docker_credentials import DockerCredentials
 from .env_vars import EnvVars
 from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_PLATFORM_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GET_RUNTIMES
+from .groups import Groups
 from .jobs import Jobs
 from .pipelines import Pipelines
+from .profiles import Profiles
 from .projects import Projects
 from .repositories import Repositories
 from .storages import Storages
+from .users import Users
 from .utils.bearer_auth import BearerAuth
 from .utils.gql_client import GqlClient
+from .utils.request_client import RequestClient
 
 
 class SaagieApi:
@@ -55,7 +59,10 @@ class SaagieApi:
             url_saagie += "/"
 
         self.url_saagie = url_saagie
-        self.auth = BearerAuth(realm=realm, url=self.url_saagie, platform=id_platform, login=user, password=password)
+        self.realm = realm
+        self.auth = BearerAuth(
+            realm=self.realm, url=self.url_saagie, platform=id_platform, login=user, password=password
+        )
         logging.info("✅ Successfully connected to your platform %s", self.url_saagie)
         url_api = f"{self.url_saagie}projects/api/platform/{str(id_platform)}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
@@ -71,9 +78,14 @@ class SaagieApi:
         self.docker_credentials = DockerCredentials(self)
         self.repositories = Repositories(self)
         self.storages = Storages(self)
+        self.users = Users(self)
+        self.groups = Groups(self)
+        self.profiles = Profiles(self)
         self.pprint_global = pprint_global
         self.client.pprint_global = pprint_global
         self.client_gateway.pprint_global = pprint_global
+        self.verify_ssl = True
+        self.request_client = RequestClient(auth=self.auth, realm=self.realm, verify_ssl=self.verify_ssl)
 
     @classmethod
     def easy_connect(cls, url_saagie_platform: str, user: str, password: str):
