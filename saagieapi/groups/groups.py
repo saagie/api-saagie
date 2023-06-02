@@ -16,7 +16,7 @@ class Groups:
         ------
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -42,7 +42,7 @@ class Groups:
             Name of the group
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -68,7 +68,7 @@ class Groups:
             Name of the group
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -97,7 +97,7 @@ class Groups:
             If not set, not correctly exported group is not write
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -151,7 +151,7 @@ class Groups:
             Group's users
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -223,7 +223,7 @@ class Groups:
              }
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
-            By default, verification of SSL certification activated
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -259,7 +259,7 @@ class Groups:
             Group name
         verify_ssl: bool, optional
            Enable or disable verification of SSL certification
-           By default, verification of SSL certification activated
+           By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
@@ -277,7 +277,9 @@ class Groups:
         logging.info("✅ Group [%s] successfully deleted", group_name)
         return True
 
-    def import_from_json(self, path_to_folder: str, error_folder: str, verify_ssl: Optional[bool] = None):
+    def import_from_json(
+        self, path_to_folder: str, error_folder: Optional[str] = "", verify_ssl: Optional[bool] = None
+    ) -> bool:
         """Import groups from JSON format
         NB: You can only use this function if you have the admin role on the platform
             All protected groups (created at platform installation) will not be imported.
@@ -289,10 +291,11 @@ class Groups:
         path_to_folder : str
             Path to the folder of the groups to import
         error_folder : str
-            Path to the folder of the groups to import
+            Path to store the failed imported groups in case of error.
+            If not set, failed imported users not write
         verify_ssl: bool, optional
            Enable or disable verification of SSL certification
-           By default, verification of SSL certification activated
+           By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
