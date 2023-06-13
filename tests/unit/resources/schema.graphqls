@@ -152,6 +152,21 @@ type Query {
   # You can only count logs if you have at least the viewer role in the project or in all projects.
   countAppLogs(appId: UUID!, appExecutionId: UUID!, stream: LogStream): Int
 
+  # List logs of a condition instance by providing its UUID and its project's UUID and expected streams.
+  #
+  # You can only list logs if you have at least the viewer role in the project or in all projects.
+  conditionPipelineFilteredLogs(conditionInstanceID: UUID!, projectID: UUID!, limit: Int, skip: Int, streams: [LogStream]!): Logs
+
+  # List logs of a condition instance by providing its node UUID, its pipeline instance UUID and its project's UUID and expected streams.
+  #
+  # You can only list logs if you have at least the viewer role in the project or in all projects.
+  conditionPipelineByNodeIdFilteredLogs(pipelineInstanceID: UUID!, conditionNodeID: UUID!, projectID: UUID!, limit: Int, skip: Int, streams: [LogStream]!): Logs
+
+  # Count logs of a condition instance by providing its UUID and its project's UUID and expected streams.
+  #
+  # You can only count logs if you have at least the viewer role in the project or in all projects.
+  conditionPipelineCountFilteredLogs(conditionInstanceID: UUID!, projectID: UUID!, streams: [LogStream]!): Int
+
   # Get job count by category in a project by providing its UUID.
   #
   # You can only get jobs count if you have at least the viewer role in the project or in all projects.
@@ -181,6 +196,16 @@ type Query {
   #
   # You can only get a job instance if you have at least the viewer role in the project associated to the job instance or in all projects.
   jobInstance(id: UUID!): JobInstance
+
+  # Get a condition instance's details by providing its UUID.
+  #
+  # You can only get a condition instance if you have at least the viewer role in the project associated to the condition instance or in all projects.
+  conditionInstance(id: UUID!): ConditionInstance
+
+  # Preview: Evaluate a condition expression with mocked variables
+  #
+  # This method maybe update or delete in future
+  evaluateConditionExpression(projectId: UUID!, expression: String!, variables: [ConditionExpressionVariableInput!]): Boolean
 
   # List rights associated to a given project by providing its UUID.
   #
@@ -806,16 +831,27 @@ input ConditionNodeInput {
 
 input ConditionInput {
   status: ConditionStatusInput
+  custom: ConditionExpressionInput
 }
 
 input ConditionStatusInput {
-  value: ConditionStatusPresetValueInput
+  value: ConditionStatusPresetValueInput!
 }
 
 enum ConditionStatusPresetValueInput {
   AllSuccess
   AllSuccessOrSkipped
   AtLeastOneSuccess
+}
+
+input ConditionExpressionInput {
+  expression: String!
+}
+
+# Input for mocked variable in evaluate condition expression
+input ConditionExpressionVariableInput {
+  key: String!
+  value: String!
 }
 
 # Input for a position of the node of a graph pipeline in the GUI
@@ -1159,7 +1195,7 @@ type JobInstance {
   number: Int!
   status: InstanceStatus! @deprecated(reason: "Use history.currentStatus.status instead")
   statusDetails: String @deprecated(reason: "Use history.currentStatus.details instead")
-  history: JobInstanceHistory
+  history: InstanceHistory
   version: JobVersion!
   startTime: DateTime!
   endTime: DateTime
@@ -1187,7 +1223,7 @@ type JobInstance {
   stopTrigger: AuthoredTrigger
 }
 
-type JobInstanceHistory {
+type InstanceHistory {
   currentStatus: InstanceStatusDetails!
 }
 
@@ -1461,6 +1497,11 @@ enum ConditionStatusPresetValue {
   AtLeastOneSuccess
 }
 
+type ConditionExpression implements Condition {
+  toString: String!
+  expression: String!
+}
+
 type PipelineInstance {
   id: UUID!
   number: Int!
@@ -1479,6 +1520,7 @@ type PipelineInstance {
   startTime: DateTime!
   endTime: DateTime
   pipelineId: UUID
+  pipelineName: String
   runTrigger: Trigger
   stopTrigger: AuthoredTrigger
 }
@@ -1501,9 +1543,15 @@ type NodeStatus {
 #
 # This type is currently in technical preview.
 type ConditionInstance {
+  id: UUID
   conditionNodeId: UUID!
   # Set with `true` if previous node is in SUCCEEDED status ; `false` if previous is in FAILED status ; and otherwise null
   isSuccess: Boolean
+  startTime: DateTime
+  endTime: DateTime
+  history: InstanceHistory!
+  # Execution variables input in the condition instance, by key. Note: value of password variables are not visible.
+  executionVariablesByKey: [ExecutionVariableByKeyVariable]
 }
 
 type DockerCredentials {
@@ -1665,18 +1713,21 @@ enum StatusReason {
   INVALID_IMAGE_NAME
   OUT_OF_MEMORY
   GENERIC_ERROR
+  WORKFLOW_DELETED
+  UNEXPECTED_DELETION
 }
 
 enum InstanceStatus {
+  AWAITING
   REQUESTED
+  UNKNOWN
   QUEUED
   RUNNING
-  FAILED
-  KILLED
   KILLING
+  KILLED
   SUCCEEDED
-  UNKNOWN
-  AWAITING
+  FAILED
+  ERROR
   SKIPPED
 }
 

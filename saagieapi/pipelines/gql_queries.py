@@ -40,6 +40,20 @@ query projectPipelinesQuery($projectId: UUID!,
                     value
                     isPassword
                 }
+                jobsInstance{
+                    id
+                    jobId
+                    number
+                    startTime
+                    endTime
+                }
+                conditionsInstance{
+                    id
+                    conditionNodeId
+                    isSuccess
+                    startTime
+                    endTime
+                }
             }
             versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
                 number
@@ -113,6 +127,20 @@ query graphPipelineQuery($id: UUID!,
                 value
                 isPassword
             }
+            jobsInstance{
+                id
+                jobId
+                number
+                startTime
+                endTime
+            }
+            conditionsInstance{
+                id
+                conditionNodeId
+                isSuccess
+                startTime
+                endTime
+            }
         }
         versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
             number
@@ -138,6 +166,9 @@ query graphPipelineQuery($id: UUID!,
                     }
                     nextNodesSuccess
                     nextNodesFailure
+                    condition {
+                        toString
+                    }
                 }
             }
             creationDate
@@ -227,6 +258,20 @@ query pipelineInstanceQuery($id: UUID!){
             key
             value
             isPassword
+        }
+        jobsInstance{
+            id
+            jobId
+            number
+            startTime
+            endTime
+        }
+        conditionsInstance{
+            id
+            conditionNodeId
+            isSuccess
+            startTime
+            endTime
         }
     }
 }

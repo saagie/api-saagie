@@ -7,7 +7,15 @@ from graphql import build_ast_schema
 from graphql.language.parser import parse
 
 from saagieapi import SaagieApi
-from saagieapi.gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_PLATFORM_INFO
+from saagieapi.gql_queries import (
+    GQL_CHECK_CUSTOM_EXPRESSION,
+    GQL_COUNT_CONDITION_LOGS,
+    GQL_GET_CLUSTER_INFO,
+    GQL_GET_CONDITION_LOGS_BY_CONDITION,
+    GQL_GET_CONDITION_LOGS_BY_INSTANCE,
+    GQL_GET_PLATFORM_INFO,
+    GQL_GET_REPOSITORIES_INFO,
+)
 
 
 def create_gql_client(file_name: str = "schema.graphqls"):
@@ -125,3 +133,19 @@ class TestGQLTemplate:
         assert "❌ Technology python does not exist in the target project and for the catalog specified" == str(
             rte.value
         )
+
+    def test_check_custom_expression(self):
+        query = gql(GQL_CHECK_CUSTOM_EXPRESSION)
+        self.client.validate(query)
+
+    def test_count_condition_logs(self):
+        query = gql(GQL_COUNT_CONDITION_LOGS)
+        self.client.validate(query)
+
+    def test_get_condition_logs_by_condition(self):
+        query = gql(GQL_GET_CONDITION_LOGS_BY_CONDITION)
+        self.client.validate(query)
+
+    def test_get_condition_logs_by_instance(self):
+        query = gql(GQL_GET_CONDITION_LOGS_BY_INSTANCE)
+        self.client.validate(query)

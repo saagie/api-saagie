@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from saagieapi.pipelines.graph_pipeline import ConditionNode, GraphPipeline, JobNode
+from saagieapi.pipelines.graph_pipeline import ConditionExpressionNode, ConditionStatusNode, GraphPipeline, JobNode
 
 
 class TestIntegrationPipelines:
@@ -26,8 +26,10 @@ class TestIntegrationPipelines:
         yield pipeline_name
 
         pipeline_id = conf.saagie_api.pipelines.get_id(pipeline_name, conf.project_name)
+        job_id = conf.saagie_api.jobs.get_id("python_test", conf.project_name)
 
         conf.saagie_api.pipelines.delete(pipeline_id)
+        conf.saagie_api.jobs.delete(job_id)
 
     @staticmethod
     def test_create_graph_pipeline(create_then_delete_graph_pipeline, create_global_project):
@@ -169,10 +171,19 @@ class TestIntegrationPipelines:
         job_node1 = JobNode(job_id)
         job_node2 = JobNode(job_id)
         job_node3 = JobNode(job_id)
-        condition_node_1 = ConditionNode()
+        job_node4 = JobNode(job_id)
+        condition_node_1 = ConditionStatusNode()
+        condition_node_1.put_at_least_one_success()
         job_node1.add_next_node(condition_node_1)
-        job_node2.add_next_node(job_node3)
         condition_node_1.add_success_node(job_node2)
+        condition_node_1.add_failure_node(job_node3)
+
+        condition_node_2 = ConditionExpressionNode()
+        condition_node_2.set_expression("1 + 1 == 2")
+        condition_node_2.add_success_node(job_node4)
+
+        job_node2.add_next_node(condition_node_2)
+
         graph_pipeline = GraphPipeline()
         graph_pipeline.add_root_node(job_node1)
 
@@ -197,19 +208,23 @@ class TestIntegrationPipelines:
 
         job_node1 = JobNode(job_id)
         job_node2 = JobNode(job_id)
-        condition_node_1 = ConditionNode()
+        job_node3 = JobNode(job_id)
+        job_node4 = JobNode(job_id)
+        condition_node_1 = ConditionStatusNode()
+        condition_node_1.put_at_least_one_success()
         job_node1.add_next_node(condition_node_1)
         condition_node_1.add_success_node(job_node2)
+        condition_node_1.add_failure_node(job_node3)
+
+        condition_node_2 = ConditionExpressionNode()
+        condition_node_2.set_expression("1 + 1 == 2")
+        condition_node_2.add_success_node(job_node4)
+
+        job_node2.add_next_node(condition_node_2)
+
         graph_pipeline = GraphPipeline()
         graph_pipeline.add_root_node(job_node1)
 
-        # pipeline_info = conf.saagie_api.pipelines.get_info(pipeline_id=pipeline_id)
-        # print(pipeline_info)
-
-        # pipeline_version = [version for version in pipeline_info["graphPipeline"]["versions"] if version["isCurrent"] == True]
-        # print(pipeline_version)
-        # graph_pipeline = pipeline_version[0]["graph"]
-        # print(graph_pipeline)
         conf.saagie_api.pipelines.upgrade(pipeline_id=pipeline_id, graph_pipeline=graph_pipeline, release_note="")
 
         pipeline_rollback = conf.saagie_api.pipelines.rollback(pipeline_id=pipeline_id, version_number="1")
@@ -229,9 +244,20 @@ class TestIntegrationPipelines:
         job_id = create_job
         job_node1 = JobNode(job_id)
         job_node2 = JobNode(job_id)
-        condition_node_1 = ConditionNode()
+        job_node3 = JobNode(job_id)
+        job_node4 = JobNode(job_id)
+        condition_node_1 = ConditionStatusNode()
+        condition_node_1.put_at_least_one_success()
         job_node1.add_next_node(condition_node_1)
         condition_node_1.add_success_node(job_node2)
+        condition_node_1.add_failure_node(job_node3)
+
+        condition_node_2 = ConditionExpressionNode()
+        condition_node_2.set_expression("1 + 1 == 2")
+        condition_node_2.add_success_node(job_node4)
+
+        job_node2.add_next_node(condition_node_2)
+
         graph_pipeline = GraphPipeline()
         graph_pipeline.add_root_node(job_node1)
 
@@ -264,6 +290,9 @@ class TestIntegrationPipelines:
             schedule_timezone="Europe/Paris",
             graph_pipeline=graph_pipeline,
         )
+
+        # conf.saagie_api.pipelines.delete(pipeline_id)
+        # conf.saagie_api.jobs.delete(job_id)
 
         assert "editPipeline" in pipeline_upgrade
         assert "addGraphPipelineVersion" in pipeline_upgrade

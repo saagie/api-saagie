@@ -9,7 +9,16 @@ from gql import gql
 from .apps import Apps
 from .docker_credentials import DockerCredentials
 from .env_vars import EnvVars
-from .gql_queries import GQL_GET_CLUSTER_INFO, GQL_GET_PLATFORM_INFO, GQL_GET_REPOSITORIES_INFO, GQL_GET_RUNTIMES
+from .gql_queries import (
+    GQL_CHECK_CUSTOM_EXPRESSION,
+    GQL_COUNT_CONDITION_LOGS,
+    GQL_GET_CLUSTER_INFO,
+    GQL_GET_CONDITION_LOGS_BY_CONDITION,
+    GQL_GET_CONDITION_LOGS_BY_INSTANCE,
+    GQL_GET_PLATFORM_INFO,
+    GQL_GET_REPOSITORIES_INFO,
+    GQL_GET_RUNTIMES,
+)
 from .groups import Groups
 from .jobs import Jobs
 from .pipelines import Pipelines
@@ -431,3 +440,140 @@ class SaagieApi:
         runtimes = self.get_runtimes(technology_id)
 
         return [runtime["label"] for runtime in runtimes["technology"]["appContexts"] if runtime["id"] == runtime_id]
+
+    # ##########################################################
+    # ###                    Conditions                     ####
+    # ##########################################################
+
+    def check_condition_expression(self, expression: str, project_id: str, variables: Dict = None) -> Dict:
+        """Test the condition expression
+
+        Parameters
+        ----------
+        expression : str
+            Expression to test
+        project_id : str
+            UUID of the project
+        variables : Dict
+            List of logs files name to see (example : STDERR, STDOUT)
+
+        Returns
+        -------
+        Dict
+            Dict of result of the condition expression
+        """
+
+        params = {
+            "projectId": project_id,
+            "expression": expression,
+            "variables": variables if variables else {"key": "", "value": ""},
+        }
+        return self.client.execute(query=gql(GQL_CHECK_CUSTOM_EXPRESSION), variable_values=params)
+
+    def count_condition_logs(self, condition_instance_id: str, project_id: str, streams: List[str]) -> Dict:
+        """Get number of logs line for an instance of a condition on Environment Variable
+
+        Parameters
+        ----------
+        condition_instance_id : str
+            UUID of the condition instance
+        project_id : str
+            UUID of the project
+        streams : List[str]
+            List of logs files name to see (example : STDERR, STDOUT)
+
+        Returns
+        -------
+        Dic
+            Dict of number of logs lines
+        """
+
+        params = {"conditionInstanceId": condition_instance_id, "projectID": project_id, "streams": streams}
+
+        return self.client.execute(query=gql(GQL_COUNT_CONDITION_LOGS), variable_values=params)
+
+    def get_condition_instance_logs_by_condition(
+        self,
+        condition_id: str,
+        project_id: str,
+        pipeline_instance_id: str,
+        streams: List[str],
+        limit: int = None,
+        skip: int = None,
+    ) -> Dict:
+        """Get logs for a condition on Environment Variable of a pipeline instance
+
+        Parameters
+        ----------
+        condition_id : str
+            UUID of the condition
+        project_id : str
+            UUID of the project
+        pipeline_instance_id ! str
+            UUID of the pipeline instance
+        streams : List[str]
+            List of logs files name to see (example : STDERR, STDOUT)
+        limit : int
+            Number of logs lines to return from the beginning
+        skip : int
+            Number of logs lines to doesn't display from the beginning
+
+        Returns
+        -------
+        dict
+            Dict of logs lines
+        """
+        params = {
+            "conditionNodeID": condition_id,
+            "projectID": project_id,
+            "pipelineInstanceID": pipeline_instance_id,
+            "streams": streams,
+        }
+        if limit:
+            params["limit"] = limit
+
+        if skip:
+            params["skip"] = skip
+
+        return self.client.execute(query=gql(GQL_GET_CONDITION_LOGS_BY_CONDITION), variable_values=params)
+
+    def get_condition_instance_logs_by_instance(
+        self,
+        condition_instance_id: str,
+        project_id: str,
+        streams: List[str],
+        limit: int = None,
+        skip: int = None,
+    ) -> Dict:
+        """Get instance's logs of a condition on Environment Variable
+
+        Parameters
+        ----------
+        condition_instance_id : str
+            UUID of the condition instance
+        project_id : str
+            UUID of the project
+        streams : List[str]
+            List of logs files name to see (example : STDERR, STDOUT)
+        limit : int
+            Number of logs lines to return from the beginning
+        skip : int
+            Number of logs lines to doesn't display from the beginning
+
+        Returns
+        -------
+        dict
+            Dict of logs lines
+        """
+        params = {
+            "conditionInstanceId": condition_instance_id,
+            "projectId": project_id,
+            "streams": streams,
+        }
+        if limit:
+            params["limit"] = limit
+
+        if skip:
+            params["skip"] = skip
+
+        return self.client.execute(query=gql(GQL_GET_CONDITION_LOGS_BY_INSTANCE), variable_values=params)

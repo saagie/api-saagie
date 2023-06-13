@@ -113,3 +113,77 @@ query technologyQuery($id: UUID!){
         }
     }
 }"""
+
+#                      _ _ _   _
+#   ___ ___  _ __   __| (_) |_(_) ___  _ __  ___
+#  / __/ _ \| '_ \ / _` | | __| |/ _ \| '_ \/ __|
+# | (_| (_) | | | | (_| | | |_| | (_) | | | \__ \
+#  \___\___/|_| |_|\__,_|_|\__|_|\___/|_| |_|___/
+#
+GQL_CHECK_CUSTOM_EXPRESSION = """
+query evaluateConditionExpression(  $projectId: UUID!, 
+                                    $expression: String!, 
+                                    $variables: [ConditionExpressionVariableInput!]) {
+    evaluateConditionExpression (
+        projectId: $projectId, 
+        expression: $expression,
+        variables: $variables
+    )
+}
+"""
+
+GQL_COUNT_CONDITION_LOGS = """
+query conditionPipelineCountFilteredLogs($conditionInstanceId: UUID!,
+                                        $projectID: UUID!,
+                                        $streams: [LogStream]!) {
+    conditionPipelineCountFilteredLogs (
+        conditionInstanceID: $conditionInstanceId, 
+        projectID: $projectID, 
+        streams: $streams
+    )
+}
+"""
+
+GQL_GET_CONDITION_LOGS_BY_CONDITION = """
+query conditionPipelineByNodeIdFilteredLogs($pipelineInstanceID: UUID!, 
+                                            $conditionNodeID: UUID!, 
+                                            $projectID: UUID!, 
+                                            $streams: [LogStream]!) {
+    conditionPipelineByNodeIdFilteredLogs(
+        pipelineInstanceID: $pipelineInstanceID,
+        conditionNodeID: $conditionNodeID,
+        projectID: $projectID,
+        streams: $streams
+    ) {
+        count
+        content {
+            index
+            value
+            stream
+        }
+    }
+}
+"""
+
+GQL_GET_CONDITION_LOGS_BY_INSTANCE = """
+query conditionPipelineFilteredLogs($conditionInstanceId: UUID!, 
+                                    $projectId: UUID!, 
+                                    $limit: Int, 
+                                    $skip: Int, 
+                                    $streams: [LogStream]!) {
+    conditionPipelineFilteredLogs(
+        conditionInstanceID: $conditionInstanceId, 
+        projectID:$projectId, 
+        limit: $limit, 
+        skip: $skip, 
+        streams: $streams
+    ) {
+        count
+        content {
+            index
+            value
+            stream
+        }
+    }
+}
+"""
