@@ -4,26 +4,6 @@ Presentation
 The ``saagieapi`` python package implements python API wrappers to
 easily interact with the Saagie platform in python.
 
-Contents
---------
-
-.. toctree::
-    :titlesonly:
-
-    Platform/index
-    Projects/index
-    Jobs/index
-    Apps/index
-    Pipelines/index
-    Environment Variables/index
-    Docker Credentials/index
-    Storages/index
-    Repositories/index
-    Technologies/index
-    Users/index
-    Profiles/index
-    Groups/index
-
 Installing
 ==========
 
@@ -88,13 +68,23 @@ Once connected with one of the 2 methods explained above, you can now use the di
 
 - pipelines : ``saagie.pipelines.xxx``, see :ref:`Pipelines` for the details
 
-- environment variables : ``saagie.env_vars.xxx``, see :ref:`Environement Variables` for the details
+- environment variables : ``saagie.env_vars.xxx``, see :ref:`Environment Variables` for the details
 
 - docker credentials : ``saagie.docker_credentials.xxx``, see :ref:`Docker Credentials` for the details
 
 - storages : ``saagie.storages.xxx``, see :ref:`Storages` for the details
 
 - repositories : ``saagie.repositories.xxx``, see :ref:`Repositories` for the details
+
+- Technologies: ``saagie.xxx``, see :ref:`Technologies` for the details
+
+- users: ``saagie.users.xxx``, see :ref:`Users` for the details
+
+- profiles: ``saagie.profiles.xxx``, see :ref:`Profiles` for the details
+
+- Groups: ``saagie.groups.xxx``, see :ref:`Groups` for the details
+
+- Conditions: ``saagie.xxx``, see :ref:`Conditions` for the details
 
 
 Finding your platform, project, job and instances ids
@@ -155,3 +145,35 @@ Your Saagie projects homepage has the following structure
     https://mysaagie-workspace.me.saagie.com/projects/platform/1/project/8321e13c-892a-4481-8552-5be4b6cc5df4/job/a85ac3db-bca1-4f15-b8f7-44731fba874b/instances/6ff448ae-3770-4639-b0f8-079e5c614ab6
     would give :
         - job_instance_id = 6ff448ae-3770-4639-b0f8-079e5c614ab6
+
+**Condition id and condition instance id** can be found when you use
+
+
+.. code:: python
+
+    res = saagieapi.pipelines.get_instance(pipeline_instance_id="pipeline_instance_id")`
+    condition_id = res["pipelineInstance"]["conditionsInstance"]["conditionNodeId"]
+    condition_instance_id = res["pipelineInstance"]["conditionsInstance"]["id"]
+
+
+
+Contents
+--------
+
+.. toctree::
+    :titlesonly:
+
+    Platform/index
+    Projects/index
+    Jobs/index
+    Apps/index
+    Pipelines/index
+    Conditions/index
+    Environment Variables/index
+    Docker Credentials/index
+    Storages/index
+    Repositories/index
+    Technologies/index
+    Users/index
+    Profiles/index
+    Groups/index

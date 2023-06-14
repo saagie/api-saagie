@@ -14,7 +14,8 @@ Example :
    # Create a GraphPipeline instance
    job_node1 = JobNode(job1_id)
    job_node2 = JobNode(job2_id)
-   condition_node_1 = ConditionNode()
+   condition_node_1 = ConditionStatusNode()
+   condition_node_1.put_at_least_one_success()
    job_node1.add_next_node(condition_node_1)
    condition_node_1.add_success_node(job_node2)
    graph_pipeline = GraphPipeline()

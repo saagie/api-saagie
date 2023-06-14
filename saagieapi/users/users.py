@@ -87,6 +87,7 @@ class Users:
             True if users are exported False otherwise
         """
         users = None
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         try:
             users = self.list(verify_ssl=verify_ssl)
         except Exception as exception:
