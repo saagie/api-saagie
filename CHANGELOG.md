@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.6.0 (2023-06-23)
+### :sparkles:
+* :sparkles: Feat/product 2023 02 ([`e5bc2e7`](https://github.com/saagie/api-saagie/commit/e5bc2e7a3f31e8702f10dca0730c2b0214cabfdd))
+
 ## v2.5.0 (2023-06-02)
 ### :sparkles:
 * :sparkles: Add user, group, profile functions ([#180](https://github.com/saagie/api-saagie/issues/180)) ([`9132b16`](https://github.com/saagie/api-saagie/commit/9132b1699168962784c50b83a18440e2f0f49950))
