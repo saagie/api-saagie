@@ -13,6 +13,7 @@ Example :
 Response payload example :
 
 .. code:: python
+
     {
         "project": {
             "pipelines": [
