@@ -1,6 +1,8 @@
 import uuid
 from typing import List
 
+import gql
+
 
 class Node:
     def __init__(self) -> None:
@@ -30,6 +32,30 @@ class ConditionNode(Node):
         self.next_nodes_failure.append(node)
 
 
+class ConditionStatusNode(ConditionNode):
+    def __init__(self) -> None:
+        super().__init__()
+        self.conditionValue: str = ""
+
+    def put_all_success(self):
+        self.conditionValue = "AllSuccess"
+
+    def put_all_success_or_skipped(self):
+        self.conditionValue = "AllSuccessOrSkipped"
+
+    def put_at_least_one_success(self):
+        self.conditionValue = "AtLeastOneSuccess"
+
+
+class ConditionExpressionNode(ConditionNode):
+    def __init__(self) -> None:
+        super().__init__()
+        self.expression: str = ""
+
+    def set_expression(self, value):
+        self.expression = value
+
+
 class GraphPipeline:
     def __init__(self) -> None:
         self.root_nodes = []
@@ -51,12 +77,21 @@ class GraphPipeline:
                 if node.next_nodes:
                     for nex in node.next_nodes:
                         self.fill_nodes_lists(nex)
-            elif isinstance(node, ConditionNode):
+            # elif isinstance(node, ConditionNode):
+            elif isinstance(node, ConditionStatusNode) or isinstance(node, ConditionExpressionNode):
                 dict_condition = {
                     "id": str(node.uid),
                     "nextNodesSuccess": [str(nn.uid) for nn in node.next_nodes_success],
                     "nextNodesFailure": [str(nn.uid) for nn in node.next_nodes_failure],
                 }
+                if isinstance(node, ConditionStatusNode):
+                    # "condition": {"status": {"value" : "AtLeastOneSuccess"}}
+                    dict_condition["condition"] = {"status": {"value": node.conditionValue}}
+
+                if isinstance(node, ConditionExpressionNode):
+                    # "condition": {"custom": {"value" : "1 + 1 == 2"}}
+                    dict_condition["condition"] = {"custom": {"expression": node.expression}}
+
                 self.list_conditions_nodes.append(dict_condition)
                 if node.next_nodes_success:
                     for nex in node.next_nodes_success:

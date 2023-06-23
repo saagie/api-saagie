@@ -9,7 +9,7 @@ import pytest
 import urllib3
 
 from saagieapi import SaagieApi
-from saagieapi.pipelines.graph_pipeline import ConditionNode, GraphPipeline, JobNode
+from saagieapi.pipelines.graph_pipeline import ConditionExpressionNode, ConditionStatusNode, GraphPipeline, JobNode
 
 
 class Conf:
@@ -142,11 +142,25 @@ def create_job(create_global_project):
 def create_graph_pipeline(create_job, create_global_project):
     conf = create_global_project
     job_id = create_job
+
     job_node1 = JobNode(job_id)
     job_node2 = JobNode(job_id)
-    condition_node_1 = ConditionNode()
-    job_node1.add_next_node(condition_node_1)
+    job_node3 = JobNode(job_id)
+    job_node4 = JobNode(job_id)
+
+    condition_node_1 = ConditionStatusNode()
+    condition_node_1.put_at_least_one_success()
     condition_node_1.add_success_node(job_node2)
+    condition_node_1.add_failure_node(job_node3)
+
+    job_node1.add_next_node(condition_node_1)
+
+    condition_node_2 = ConditionExpressionNode()
+    condition_node_2.set_expression("1 + 1 == 2")
+    condition_node_2.add_success_node(job_node4)
+
+    job_node2.add_next_node(condition_node_2)
+
     graph_pipeline = GraphPipeline()
     graph_pipeline.add_root_node(job_node1)
 

@@ -89,7 +89,25 @@ Response payload example :
                                     "value": "TEST_PROJECT", 
                                     "isPassword": False
                                 }
-                            ]
+                            ],
+                            "jobsInstance": [
+                                {
+                                    "id": "f8e77fc3-9c4d-450b-8efd-9d3080b38edb",
+                                    "jobId": "9a71afa4-aed4-4061-87d2-b279a3adf8c3",
+                                    "number": 80,
+                                    "startTime": "2022-03-15T11:42:07.559Z",
+                                    "endTime": "2022-03-15T11:43:17.716Z"
+                                }
+                            ],
+                            "conditionsInstance": [
+                                {
+                                    "id": "2292a535-affb-4b1c-973d-690c185d949e",
+                                    "conditionNodeId": "c2f23720-e361-11ed-894d-6b696861cc8f",
+                                    "isSuccess": true,
+                                    "startTime": "2022-03-15T11:42:30.559Z",
+                                    "endTime": "2022-03-15T11:42:45.559Z"
+                                }
+                            ],
                         },
                         {
                             "id": "d7aba110-3bd9-4505-b70c-84c4d212345",
@@ -97,7 +115,9 @@ Response payload example :
                             "startTime": "2022-02-04T00:00:00.062Z",
                             "endTime": "2022-02-04T00:00:27.249Z",
                             "runWithExecutionVariables": False,
-                            "initialExecutionVariables": []
+                            "initialExecutionVariables": [],
+                            "jobsInstance": [],
+                            "conditionsInstance": [],
                         }
                     ],
                     "versions": [
@@ -125,7 +145,22 @@ Response payload example :
                                         "nextNodes": []
                                     }
                                 ],
-                                "conditionNodes": []
+                                "conditionNodes": [
+                                    {
+                                        "id": "00000000-0000-0000-0000-000000000001",
+                                        "position": {
+                                            "x": 310.00092,
+                                            "y": 75
+                                        },
+                                        "nextNodesSuccess": [
+                                            "00000000-0000-0000-0000-000000000003"
+                                        ],
+                                        "nextNodesFailure": [],
+                                        "condition": {
+                                            "toString": "ConditionExpression(expression=\"tube_name.contains(\"Tube\") || double(diameter) > 1.0\")"
+                                        }
+                                    }
+                                ],
                             },
                             "creationDate": "2022-02-03T14:41:39.422Z",
                             "creator": "john.doe",

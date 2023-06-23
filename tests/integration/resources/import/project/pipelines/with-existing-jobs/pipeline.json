@@ -80,7 +80,10 @@
                         ],
                         "nextNodesFailure": [
                             "5623219b-5b36-4986-8082-6b4874823236"
-                        ]
+                        ],
+                        "condition": {
+                            "toString": "ConditionStatus(value=AtLeastOneSuccess)"
+                        }
                     }
                 ]
             },

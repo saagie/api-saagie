@@ -715,6 +715,20 @@ class Pipelines:
                             "nextNodesSuccess": condition_node["nextNodesSuccess"],
                             "nextNodesFailure": condition_node["nextNodesFailure"],
                         }
+                        if "ConditionStatus" in condition_node["condition"]["toString"]:
+                            # example : ConditionStatus(value=AtLeastOneSuccess)
+                            condition_dict["condition"] = {
+                                "status": {"value": condition_node["condition"]["toString"].split("=")[1].split(")")[0]}
+                            }
+
+                        if "ConditionExpression" in condition_node["condition"]["toString"]:
+                            # example : ConditionExpression(expression=\"1 + 1 == 2\")
+                            condition_dict["condition"] = {
+                                "custom": {
+                                    "expression": condition_node["condition"]["toString"].split('="')[1].split('")')[0]
+                                }
+                            }
+
                         conditions_found.append(condition_dict)
 
                     if len(jobs_not_found) > 0:
