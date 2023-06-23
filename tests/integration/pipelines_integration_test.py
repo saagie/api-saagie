@@ -291,8 +291,5 @@ class TestIntegrationPipelines:
             graph_pipeline=graph_pipeline,
         )
 
-        # conf.saagie_api.pipelines.delete(pipeline_id)
-        # conf.saagie_api.jobs.delete(job_id)
-
         assert "editPipeline" in pipeline_upgrade
         assert "addGraphPipelineVersion" in pipeline_upgrade

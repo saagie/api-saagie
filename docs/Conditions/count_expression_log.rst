@@ -3,7 +3,7 @@ Count number of logs line for an instance of a condition
 NB: Only available for environment variable condition
 
 Streams is a list of logs files name to see, available values are: `ENVVARS_STDOUT`,
-`ENVVARS_STDERR`, `ORCHESTRATION_STDOUT`, `ORCHESTRATION_STDERR`, `STDERR` et `STDOUT`
+`ENVVARS_STDERR`, `ORCHESTRATION_STDOUT`, `ORCHESTRATION_STDERR`, `STDERR` & `STDOUT`
 
 **saagieapi.count_condition_logs**
 
