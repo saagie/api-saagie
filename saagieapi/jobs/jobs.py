@@ -620,18 +620,19 @@ class Jobs:
         if job_name in job_names:
             job_id = [job["id"] for job in job_list if job["name"] == job_name][0]
 
-            responses = {}
-
-            responses["addJobVersion"] = self.upgrade(
-                job_id=job_id,
-                file=file,
-                use_previous_artifact=True,
-                runtime_version=runtime_version,
-                command_line=command_line,
-                release_note=release_note,
-                extra_technology=extra_technology,
-                extra_technology_version=extra_technology_version,
-            )["data"]["addJobVersion"]
+            use_previous_artifact = not file
+            responses = {
+                "addJobVersion": self.upgrade(
+                    job_id=job_id,
+                    file=file,
+                    use_previous_artifact=use_previous_artifact,
+                    runtime_version=runtime_version,
+                    command_line=command_line,
+                    release_note=release_note,
+                    extra_technology=extra_technology,
+                    extra_technology_version=extra_technology_version,
+                )["data"]["addJobVersion"]
+            }
 
             responses["editJob"] = self.edit(
                 job_id=job_id,
@@ -809,7 +810,9 @@ class Jobs:
             Dict of the request response
         """
         if file:
-            file = Path(file)
+            file_info = os.path.split(os.path.abspath(file))
+            os.chdir(file_info[0])
+            file = Path(file_info[-1])
             with file.open(mode="rb") as file_content:
                 params["file"] = file_content
                 try:
