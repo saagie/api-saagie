@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.6.1 (2023-06-28)
+### :bug:
+* :bug: Fix jobs.create_or_update and fix file_path ([#185](https://github.com/saagie/api-saagie/issues/185)) ([`27fee26`](https://github.com/saagie/api-saagie/commit/27fee26c230b7633e07ffb1917de3702ff3a6e8b))
+
 ## v2.6.0 (2023-06-23)
 ### :sparkles:
 * :sparkles: Feat/product 2023 02 ([`e5bc2e7`](https://github.com/saagie/api-saagie/commit/e5bc2e7a3f31e8702f10dca0730c2b0214cabfdd))
