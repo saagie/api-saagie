@@ -45,7 +45,7 @@ def create_global_project():
 
     # Create a test project
     Conf.group = os.environ["USER_GROUP_TEST_SAAGIE"]
-    Conf.project_name = "Integration_test_Saagie_API " + str(datetime.timestamp(datetime.now()))
+    Conf.project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
 
     result = Conf.saagie_api.projects.create(
         name=Conf.project_name,
