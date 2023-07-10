@@ -1,5 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
 import os
+from datetime import datetime
 from typing import List
 
 
@@ -70,3 +71,13 @@ class TestIntegrationProject:
 
         conf.saagie_api.projects.delete(conf.saagie_api.projects.get_id("test import"))
         assert result is True
+
+    @staticmethod
+    def test_create_project_without_group_and_role(create_global_project):
+        conf = create_global_project
+        project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
+        description = "For integration test"
+        result = conf.saagie_api.projects.create(name=project_name, description=description)
+
+        conf.saagie_api.projects.delete(conf.saagie_api.projects.get_id(project_name))
+        assert project_name == result["createProject"]["name"]
