@@ -50,6 +50,11 @@ class TestGQLTemplate:
         query = gql(GQL_GET_PLATFORM_INFO)
         self.client.validate(query)
 
+    def test_get_repositories_info(self):
+        client = create_gql_client(file_name="technology_schema.graphqls")
+        query = gql(GQL_GET_REPOSITORIES_INFO)
+        client.validate(query)
+
     @staticmethod
     def test_check_scheduling():
         result = SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="Pacific/Fakaofo")

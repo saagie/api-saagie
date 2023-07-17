@@ -254,7 +254,7 @@ class TestIntegrationJobs:
 
         job_rollback = conf.saagie_api.jobs.rollback(job_id=job_id, version_number="1")
         job_rollback_current_version = [
-            version for version in job_rollback["rollbackJobVersion"]["versions"] if version["isCurrent"] == True
+            version for version in job_rollback["rollbackJobVersion"]["versions"] if version["isCurrent"] is True
         ]
 
         assert job_rollback_current_version[0]["number"] == 1

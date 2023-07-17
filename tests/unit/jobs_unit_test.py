@@ -56,3 +56,7 @@ class TestJobs:
     def test_delete_job(self):
         query = gql(GQL_DELETE_JOB)
         self.client.validate(query)
+
+    def test_rollback_job(self):
+        query = gql(GQL_ROLLBACK_JOB_VERSION)
+        self.client.validate(query)

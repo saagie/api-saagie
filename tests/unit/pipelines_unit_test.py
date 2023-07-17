@@ -49,3 +49,7 @@ class TestPipelines:
     def test_upgrade_pipeline(self):
         query = gql(GQL_UPGRADE_PIPELINE)
         self.client.validate(query)
+
+    def test_rollback_pipeline(self):
+        query = gql(GQL_ROLLBACK_PIPELINE_VERSION)
+        self.client.validate(query)

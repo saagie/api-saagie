@@ -48,6 +48,10 @@ class TestApps:
         query = gql(GQL_DELETE_APP)
         self.client.validate(query)
 
+    def test_rollback_app(self):
+        query = gql(GQL_ROLLBACK_APP_VERSION)
+        self.client.validate(query)
+
     @staticmethod
     def test_check_exposed_ports():
         valid_exposed_ports = [

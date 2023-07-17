@@ -16,7 +16,7 @@ class TestIntegrationGroups:
     def test_list_users_in_group(create_global_project):
         conf = create_global_project
         list_group_users = conf.saagie_api.groups.get_users(conf.group)
-        users = [user for user in list_group_users["users"]]
+        users = list(list_group_users["users"])
         assert conf.user in users
 
     @staticmethod
@@ -74,9 +74,7 @@ class TestIntegrationGroups:
         group_name = create_then_delete_group
         new_realm_authorization = {"permissions": [{"artifact": {"type": "TECHNOLOGY_CATALOG"}, "role": "ROLE_ACCESS"}]}
 
-        result = conf.saagie_api.groups.edit_permission(
-            group_name=group_name, realm_authorization=new_realm_authorization
-        )
+        conf.saagie_api.groups.edit_permission(group_name=group_name, realm_authorization=new_realm_authorization)
         group_permission = conf.saagie_api.groups.get_permission(group_name=group_name)
 
         assert group_permission["realmAuthorization"] == new_realm_authorization

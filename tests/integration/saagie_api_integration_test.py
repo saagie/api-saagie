@@ -1,17 +1,10 @@
-import os
-
-import pytest
-
-# from saagieapi.pipelines.graph_pipeline import ConditionStatusNode, ConditionExpressionNode, GraphPipeline, JobNode
-
-
 class TestIntegrationSaagieAPI:
     @staticmethod
     def test_check_condition_expression(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.check_condition_expression(expression="1 + 1 == 2", project_id=conf.project_id)
 
-        assert result["evaluateConditionExpression"] == True
+        assert result["evaluateConditionExpression"] is True
 
     @staticmethod
     def test_count_condition_logs(create_global_project, create_graph_pipeline):

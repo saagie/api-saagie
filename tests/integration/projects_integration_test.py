@@ -1,6 +1,9 @@
 # pylint: disable=attribute-defined-outside-init
 import os
+from datetime import datetime
 from typing import List
+
+import pytest
 
 
 class TestIntegrationProject:
@@ -70,3 +73,26 @@ class TestIntegrationProject:
 
         conf.saagie_api.projects.delete(conf.saagie_api.projects.get_id("test import"))
         assert result is True
+
+    @staticmethod
+    def test_create_project_without_group_and_role(create_global_project):
+        conf = create_global_project
+        project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
+        description = "For integration test"
+        result = conf.saagie_api.projects.create(name=project_name, description=description)
+
+        conf.saagie_api.projects.delete(conf.saagie_api.projects.get_id(project_name))
+        assert project_name == result["createProject"]["name"]
+
+    @staticmethod
+    def test_create_project_with_group_and_no_role(create_global_project):
+        conf = create_global_project
+        project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
+        description = "For integration test"
+
+        with pytest.raises(RuntimeError) as rte:
+            conf.saagie_api.projects.create(name=project_name, description=description, group=conf.group)
+        assert (
+            str(rte.value) == "❌ Too few arguments, specify either a group and role, "
+            "or multiple groups and roles with groups_and_roles"
+        )

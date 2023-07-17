@@ -10,7 +10,7 @@ class TestIntegrationApps:
     @staticmethod
     def create_app_from_scratch(create_global_project):
         conf = create_global_project
-        app_name = "hello_world" + str(datetime.now())
+        app_name = f"hello_world{str(datetime.now())}"
         app = conf.saagie_api.apps.create_from_scratch(
             project_id=conf.project_id,
             app_name=app_name,
