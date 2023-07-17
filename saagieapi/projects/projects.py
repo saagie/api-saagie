@@ -59,6 +59,12 @@ class Projects:
             params["authorizedGroups"] = group_block
             return params
 
+        if (group and role is None) or (group is None and role):
+            raise RuntimeError(
+                "❌ Too few arguments, specify either a group and role, "
+                "or multiple groups and roles with groups_and_roles"
+            )
+
         return params
 
     def list(self, pprint_result: Optional[bool] = None) -> Dict:

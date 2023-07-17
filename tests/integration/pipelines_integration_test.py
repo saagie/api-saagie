@@ -231,7 +231,7 @@ class TestIntegrationPipelines:
         pipeline_rollback_current_version = [
             version
             for version in pipeline_rollback["rollbackPipelineVersion"]["versions"]
-            if version["isCurrent"] == True
+            if version["isCurrent"] is True
         ]
 
         assert pipeline_rollback_current_version[0]["number"] == 1
