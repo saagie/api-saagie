@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.6.2 (2023-07-17)
+### :bug:
+* :bug:  Fix/project rights ([#186](https://github.com/saagie/api-saagie/issues/186)) ([`a63be9e`](https://github.com/saagie/api-saagie/commit/a63be9e62f723d6e91f60adacf8f198226859b28))
+
 ## v2.6.1 (2023-06-28)
 ### :bug:
 * :bug: Fix jobs.create_or_update and fix file_path ([#185](https://github.com/saagie/api-saagie/issues/185)) ([`27fee26`](https://github.com/saagie/api-saagie/commit/27fee26c230b7633e07ffb1917de3702ff3a6e8b))
