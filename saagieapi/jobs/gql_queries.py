@@ -58,6 +58,10 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
             }
             isCurrent
             isMajor
+            deletableState {
+                deletable
+                reasons
+            }
         }
         category
         technology {
@@ -89,6 +93,7 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
                 limit
             }
         }
+        originalJobId
     }
 }
 """
@@ -346,6 +351,10 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
             }
             isCurrent
             isMajor
+            deletableState {
+                deletable
+                reasons
+            }
         }
         category
         technology {
@@ -374,7 +383,7 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
                 limit
             }
         }
-        
+        originalJobId
     }
 }
 """
@@ -393,6 +402,47 @@ mutation rollbackJobVersionMutation($jobId: UUID!, $versionNumber: Int!) {
             number      
             isCurrent      
         }    
+    }
+}
+"""
+
+GQL_DELETE_JOB_INSTANCE = """
+mutation deleteJobInstances($jobId: UUID!, $jobInstancesId: Int!) {
+    deleteJobInstances(jobId: $jobId, jobInstanceIds: $jobInstancesId){
+        id
+        success
+    }
+}
+"""
+
+GQL_DELETE_JOB_INSTANCES_BY_SELECTOR = """
+mutation deleteJobInstancesBySelector($jobId: UUID!, 
+                                    $selector: JobInstanceSelector!, 
+                                    $minusInstancesId: [UUID!], 
+                                    $moreInstancesId: [UUID!]) {
+    deleteJobInstancesBySelector(
+        jobId: $jobId, 
+        selector: $selector,
+        minusJobInstanceIds: $minusInstancesId,
+        moreJobInstanceIds: $moreInstancesId
+    )
+}
+"""
+
+GQL_DELETE_JOB_VERSION = """
+mutation deleteJobVersion($jobId: UUID!, $jobVersionsNumber: [Int!]!) {
+    deleteJobVersions(jobId: $jobId, jobVersionNumbers: $jobVersionsNumber) {
+        number
+        success
+    }
+}
+"""
+
+GQL_DUPLICATE_JOB = """
+mutation duplicateJob($jobId: UUID!) {
+    duplicateJob(originalJobId: $jobId) {
+        id
+        name
     }
 }
 """

@@ -1011,3 +1011,96 @@ class Jobs:
             logging.error("Something went wrong %s", exception)
 
         return result
+
+    def delete_instances(self, job_id, job_instances_id):
+        """Delete given job's instances
+        NB: You can only delete an instance not associated to a pipeline instance
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        job_instances_id : [str]
+            List of UUID of instances to delete (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of deleted instances
+
+        """
+        params = {"jobId": job_id, "jobInstancesId": job_instances_id}
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_INSTANCE), variable_values=params)
+        logging.info("✅ Instances of job [%s] successfully deleted", job_id)
+        return result
+
+    def delete_instances_by_selector(self, job_id, selector, excludeInstancesId, includeInstancesId):
+        """Delete given job's instances by selector
+        NB: You can only delete an instance not associated to a pipeline instance
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        selector : str
+            Name of status to select in this list : ALL, SUCCEEDED, FAILED, STOPPED, UNKNOWN
+        excludeInstancesId : [str]
+            List of UUID of instances of your job to exclude from the deletion
+        includeInstancesId: [str]
+            List of UUID of instances of your job not selected by the selector to include from the deletion
+
+        Returns
+        -------
+        int
+            Return the number of instances deleted
+
+        """
+        params = {
+            "jobId": job_id,
+            "selector": selector,
+            "minusInstancesId": excludeInstancesId,
+            "moreInstancesId": includeInstancesId,
+        }
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR), variable_values=params)
+        logging.info("✅ Instances of job [%s] successfully deleted", job_id)
+        return result
+
+    def delete_versions(self, job_id, versions):
+        """Delete given job's versions
+        NB: You can only delete a version not associated to a pipeline instance
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        version : [str]
+            List of version numbers to delete
+
+        Returns
+        -------
+        dict
+            Dict of deleted versions
+
+        """
+        params = {"jobId": job_id, "jobVersionsNumber": versions}
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_VERSION), variable_values=params)
+        logging.info("✅ Versions of job [%s] successfully deleted", job_id)
+        return result
+
+    def duplicate(self, job_id):
+        """Duplicate a given job
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of duplicate job
+
+        """
+        result = self.saagie_api.client.execute(query=gql(GQL_DUPLICATE_JOB), variable_values={"jobId": job_id})
+        logging.info("✅ Job [%s] successfully duplicated", job_id)
+        return result
