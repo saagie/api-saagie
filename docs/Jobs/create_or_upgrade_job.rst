@@ -10,6 +10,7 @@ Example :
    saagieapi.jobs.create_or_upgrade(job_name="my job",
                                     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
                                     file="/tmp/test.py",
+                                    use_previous_artifact=False,
                                     description='My description',
                                     category='Extraction',
                                     technology='python',# technology id corresponding to your context.id in your technology catalog definition
