@@ -1050,9 +1050,9 @@ class Jobs:
             UUID of your job (see README on how to find it)
         selector : str
             Name of status to select in this list : ALL, SUCCEEDED, FAILED, STOPPED, UNKNOWN
-        excludeInstancesId : [str]
+        exclude_instances_id : [str]
             List of UUID of instances of your job to exclude from the deletion
-        includeInstancesId: [str]
+        include_instances_id: [str]
             List of UUID of instances of your job to include from the deletion
 
         Returns
@@ -1079,7 +1079,7 @@ class Jobs:
         ----------
         job_id : str
             UUID of your job (see README on how to find it)
-        version : [str]
+        versions : [str]
             List of version numbers to delete
 
         Returns

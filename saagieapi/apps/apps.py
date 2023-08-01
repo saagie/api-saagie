@@ -904,8 +904,8 @@ class Apps:
             UUID of your app history
         version_number : str
             Number of the version to get the stats
-        start_time : datetime
-            Date since to get the stats
+        start_time : str
+            Date since to get the stats (format : "%Y-%m-%dT%H:%M:%S.%fZ")
 
         Returns
         -------
@@ -929,8 +929,8 @@ class Apps:
             UUID of your app history
         version_number : str
             Number of the version to get the statuses history
-        start_time : datetime
-            Date since to get the statuses history
+        start_time : str
+            Date since to get the statuses history (format : "%Y-%m-%dT%H:%M:%S.%fZ")
 
         Returns
         -------
@@ -954,8 +954,8 @@ class Apps:
             UUID of your app history
         version_number : str
             Number of the version to get the count of statuses history
-        start_time : datetime
-            Date since to get the count of statuses history
+        start_time : str
+            Date since to get the count of statuses history (format : "%Y-%m-%dT%H:%M:%S.%fZ")
 
         Returns
         -------
