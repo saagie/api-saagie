@@ -1,628 +1,674 @@
 schema {
-    query: Query
-    mutation: Mutation
-}
-
-interface Context {
-    available: Boolean!
-    deprecationDate: Instant
-    description: String
-    facets: [String!]!
-    id: String!
-    label: String!
-    missingFacets: [String!]!
-    recommended: Boolean!
-    trustLevel: TrustLevel!
-}
-
-interface SynchronizationReport {
-    "Date of synchronization end"
-    endedAt: Instant!
-    "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    id: UUID!
-    "[Interface] URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    source: Source
-    "Date of synchronization start"
-    startedAt: Instant!
-    "What triggered the synchronization"
-    trigger: SynchronizationTrigger!
-}
-
-interface Technology {
-    available: Boolean!
-    customFlags: [Flag!]!
-    description: String
-    facets: [String!]!
-    icon: String
-    id: UUID!
-    label: String!
-    lastUpdate: Instant!
-    missingFacets: [String!]!
-    repositoryId: UUID!
-    technologyId: String!
-}
-
-union Source = FileSource | UrlSource
-
-union SynchroMode = Automatic | Manual
-
-type AppCatalogContext {
-    available: Boolean!
-    deprecationDate: Instant
-    description: String
-    dockerInfo: DockerInfo!
-    facets: [String!]!
-    id: String!
-    label: String!
-    lastUpdate: Instant
-    missingFacets: [String!]!
-    ports: [PortInfo!]!
-    recommended: Boolean!
-    releaseNotes: String
-    trustLevel: TrustLevel!
-    volumes: [VolumeInfo!]!
-}
-
-type AppTechnology implements Technology {
-    appContexts: [AppCatalogContext!]!
-    available: Boolean!
-    backgroundColor: String
-    baseline: String!
-    customFlags: [Flag!]!
-    description: String
-    facets: [String!]!
-    icon: String
-    id: UUID!
-    label: String!
-    lastUpdate: Instant!
-    missingFacets: [String!]!
-    repositoryId: UUID!
-    technologyId: String!
-}
-
-type Automatic {
-    cron: Cron!
-}
-
-"Represent a connection Type that could be used with an external technology"
-type ConnectionType {
-    "The actions associated with the connection"
-    actions: ConnectionTypeActions
-    "The connection Type id"
-    connectionTypeId: String!
-    "The connection Type database unique id"
-    id: UUID!
-    "The connection Type label"
-    label: String!
-    "The last time the connection was updated"
-    lastUpdate: Instant
-    "The connection Type list of parameters"
-    parameters: [ConnectionTypeParameter!]!
-    "The connection Type repository id"
-    repositoryId: UUID!
-}
-
-"The actions of a connection type"
-type ConnectionTypeActions {
-    checkConnection: ScriptCall
-}
-
-"Represent an item describing available parameter for a connection"
-type ConnectionTypeParameter {
-    "Comment of the parameter"
-    comment: String
-    "Default value of the parameter"
-    defaultValue: String
-    "Link to another depending parameters, via names"
-    dependsOn: [String!]
-    "Id of the parameter"
-    id: String!
-    "Label of the parameter"
-    label: String!
-    "Mandatory true/false of this parameter"
-    mandatory: Boolean!
-    "Possible values of the parameter"
-    staticValues: [ConnectionTypeParameterStaticValue!]
-    "Type of the parameter: TEXT, PASSWORD, STATIC_SELECT or TOGGLE"
-    type: ConnectionTypeParameterEnum!
-}
-
-"A value for a static select"
-type ConnectionTypeParameterStaticValue {
-    "The id used in the scripts"
-    id: String!
-    "The human readable description of the value"
-    label: String!
-}
-
-type ConnectionTypeSynchronizationReport {
-    "Connection type ID"
-    connectionTypeId: String!
-    "Connection type label"
-    connectionTypeLabel: String!
-    "Details on the Connection type synchronization status, including the details of the failure if applicable"
-    message: String
-    "Connection type synchronization status: Created, Updated, Deleted or Failed"
-    status: SynchronizationStatus!
-}
-
-type ContextSynchronizationReport {
-    "Context ID"
-    contextId: String!
-    "Context label"
-    contextLabel: String!
-    "Details on the synchronization status, including the details of the failure if applicable"
-    message: String
-    "Context synchronization status: Created, Updated, Deleted or Failed"
-    status: SynchronizationStatus!
-}
-
-"Represents a repository that have just been deleted"
-type DeletedRepository {
-    "List of connection type of the repository"
-    connectionTypes: [ConnectionType!]!
-    "Date of creation of the repository"
-    creationDate: Instant!
-    "Creator of the repository"
-    creator: String!
-    "Last editor of the repository"
-    editor: String!
-    "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    id: UUID!
-    "Date of the latest modification of the repository"
-    modificationDate: Instant!
-    "Name of the repository. Must be **unique** and shorter than **255** characters"
-    name: String!
-    "List of scripts of the repository"
-    scripts: [Script!]!
-    "[Interface] URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    source: Source!
-    "[Interface] Synchronization mode. Should be Manual or Automatic (and specify a [cron format](https://en.wikipedia.org/wiki/Cron))"
-    synchroMode: SynchroMode!
-    "List of technologies of the repository"
-    technologies: [Technology!]!
-}
-
-type DockerInfo {
-    image: String!
-    version: String!
-}
-
-"Represents a repository that have just been edited"
-type EditedRepository {
-    "Date of creation of the repository"
-    creationDate: Instant!
-    "Creator of the repository"
-    creator: String!
-    "Last editor of the repository"
-    editor: String!
-    "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    id: UUID!
-    "Date of the latest modification of the repository"
-    modificationDate: Instant!
-    "Name of the repository. Must be **unique** and shorter than **255** characters"
-    name: String!
-    "[Interface] URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    source: Source!
-    "[Interface] Synchronization mode. Should be Manual or Automatic (and specify a [cron format](https://en.wikipedia.org/wiki/Cron))"
-    synchroMode: SynchroMode!
-}
-
-type ExtJobActions {
-    getLogs: ScriptCall
-    getStatus: ScriptCall!
-    start: ScriptCall!
-    stop: ScriptCall
-}
-
-type ExtJobContextType implements Context {
-    actions: ExtJobActions!
-    available: Boolean!
-    connectionTypeId: String!
-    connectionTypeUUID: UUID!
-    deprecationDate: Instant
-    description: String
-    facets: [String!]!
-    id: String!
-    label: String!
-    lastUpdate: Instant
-    missingFacets: [String!]!
-    parameters: [ExtJobParameter!]!
-    recommended: Boolean!
-    trustLevel: TrustLevel!
-}
-
-type ExtJobParameter {
-    comment: String
-    defaultValue: String
-    dependsOn: [String!]
-    dynamicValues: ScriptCall
-    id: String!
-    label: String!
-    mandatory: Boolean!
-    staticValues: [ExtJobParameterStaticValue!]
-    type: ExtFeatureType!
-}
-
-type ExtJobParameterStaticValue {
-    id: String!
-    label: String!
-}
-
-type ExtJobTechnology implements Technology {
-    available: Boolean!
-    contexts: [ExtJobContextType!]!
-    customFlags: [Flag!]!
-    description: String
-    facets: [String!]!
-    icon: String
-    iconUrl: String
-    id: UUID!
-    label: String!
-    lastUpdate: Instant!
-    missingFacets: [String!]!
-    repositoryId: UUID!
-    technologyId: String!
-}
-
-type FailedSynchronization implements SynchronizationReport {
-    "Date of synchronization end"
-    endedAt: Instant!
-    "Description of the failure"
-    failure: String!
-    "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    id: UUID!
-    "[Interface] URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    source: Source
-    "Date of synchronization start"
-    startedAt: Instant!
-    "What triggered the synchronization"
-    trigger: SynchronizationTrigger!
-}
-
-type Feature {
-    comment: String
-    defaultValue: String
-    label: String!
-    mandatory: Boolean!
-    type: String!
-}
-
-type FileSource {
-    name: String!
-}
-
-type JobContext implements Context {
-    available: Boolean!
-    deprecationDate: Instant
-    description: String
-    dockerInfo: DockerInfo
-    facets: [String!]!
-    id: String!
-    job: JobFeatures!
-    label: String!
-    lastUpdate: Instant
-    missingFacets: [String!]!
-    recommended: Boolean!
-    trustLevel: TrustLevel!
-}
-
-type JobFeatures {
-    features: [Feature!]!
-}
-
-type JobTechnology implements Technology {
-    available: Boolean!
-    contexts: [JobContext!]!
-    customFlags: [Flag!]!
-    description: String
-    facets: [String!]!
-    icon: String
-    id: UUID!
-    label: String!
-    lastUpdate: Instant!
-    mainClass: String
-    missingFacets: [String!]!
-    repositoryId: UUID!
-    technologyId: String!
-}
-
-type Manual {
-    uselessField: Boolean
-}
-
-type Mutation {
-    "Create a new repository"
-    addRepository(repositoryInput: RepositoryInput!, upload: Upload): RepositoryMutationResult!
-    "Edit a repository"
-    editRepository(repositoryInput: RepositoryEditionInput!): RepositoryMutationResult!
-    "Remove a repository"
-    removeRepository(id: UUID!): DeletedRepository
-    "Revert the last synchronization"
-    revertLastSynchronization(repositoryId: UUID!, synchronizationReportId: UUID!): RepositorySynchro!
-    "Synchronize manually a repository"
-    synchronizeRepository(id: UUID!, upload: Upload): RepositorySynchro!
-}
-
-type PortInfo {
-    basePath: String
-    name: String
-    port: Int!
-    rewriteUrl: Boolean!
-    scope: ExpositionScope!
+  query: Query
+  mutation: Mutation
 }
 
 type Query {
-    _service: _Service
-    "Get a connection type details by repository UUID and connectionTypeId"
-    connectionType(connectionTypeId: String!, repositoryId: UUID!): ConnectionType!
-    "Get the list of connection Types"
-    connectionTypes: [ConnectionType!]!
-    "Get multiple connection Types details by providing their UUID"
-    connectionTypesByIds(ids: [UUID!]!): [ConnectionType!]!
-    "List all repositories"
-    repositories: [Repository!]!
-    "Get one repository's details"
-    repository(id: UUID!): Repository
-    "Get multiple technologies's details by providing their UUID"
-    technologiesByIds(ids: [UUID!]!): [Technology!]!
-    "Get a given technology's details by providing its UUID"
-    technology(id: UUID!): Technology
-    "Get the technologies with a version greater than provided"
-    updatedTechnologies(from: String!): [Technology!]!
+  "Get a connection type details by repository UUID and connectionTypeId"
+  connectionType(connectionTypeId: String!, repositoryId: UUID!): ConnectionType!
+  "Get the list of connection Types"
+  connectionTypes: [ConnectionType!]!
+  "Get multiple connection Types details by providing their UUID"
+  connectionTypesByIds(ids: [UUID!]!): [ConnectionType!]!
+  "Get all enabled facets"
+  facets: [Facet!]!
+  "List all repositories"
+  repositories: [Repository!]!
+  "Get one repository's details"
+  repository(id: UUID!): Repository
+  "Get multiple technologies details by providing their UUID"
+  technologiesByIds(ids: [UUID!]!): [Technology!]!
+  "Get a given technology's details by providing its UUID"
+  technology(id: UUID!): Technology
+  "Get the technologies with a version greater than provided"
+  updatedTechnologies(from: String!): [Technology!]!
+}
+
+type Mutation {
+  "Create a new repository"
+  addRepository(repositoryInput: RepositoryInput!, upload: Upload): RepositoryMutationResult!
+  "Edit a repository"
+  editRepository(repositoryInput: RepositoryEditionInput!): RepositoryMutationResult!
+  "Remove a repository"
+  removeRepository(id: UUID!): DeletedRepository
+  "Revert the last synchronization"
+  revertLastSynchronization(repositoryId: UUID!, synchronizationReportId: UUID!): RepositorySynchro!
+  "Synchronize manually a repository"
+  synchronizeRepository(id: UUID!, upload: Upload): RepositorySynchro!
 }
 
 "Represents a repository with at least one technology to synchronize"
 type Repository {
-    "List of connection types of the repository"
-    connectionTypes: [ConnectionType!]!
-    "Date of creation of the repository"
-    creationDate: Instant!
-    "Creator of the repository"
-    creator: String!
-    "Last editor of the repository"
-    editor: String!
-    "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    id: UUID!
-    "Date of the latest modification of the repository"
-    modificationDate: Instant!
-    "Name of the repository. Must be **unique** and shorter than **255** characters"
-    name: String!
-    readOnly: Boolean!
-    "[Interface] URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    source: Source!
-    "[Interface] Synchronization mode. Should be Manual or Automatic (and specify a [cron format](https://en.wikipedia.org/wiki/Cron))"
-    synchroMode: SynchroMode!
-    "Synchronization reports"
-    synchronizationReports(lastSynchronization: Boolean, limit: Int, skip: Int, withReverted: Boolean): SynchronizationReports!
-    "List of technologies of the repository"
-    technologies: [Technology!]!
+  "List of connection types of the repository"
+  connectionTypes: [ConnectionType!]!
+  "Date of creation of the repository"
+  creationDate: Instant!
+  "Creator of the repository"
+  creator: String!
+  "Last editor of the repository"
+  editor: String!
+  "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  id: UUID!
+  "Date of the latest modification of the repository"
+  modificationDate: Instant!
+  "Name of the repository. Must be **unique** and shorter than **255** characters"
+  name: String!
+  readOnly: Boolean!
+  "URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  source: Source!
+  "Synchronization mode. Should be Manual or Automatic (and specify a [cron format](https://en.wikipedia.org/wiki/Cron))"
+  synchroMode: SynchroMode!
+  "Synchronization reports"
+  synchronizationReports(lastSynchronization: Boolean, limit: Int, skip: Int, withReverted: Boolean): SynchronizationReports!
+  "List of technologies of the repository"
+  technologies: [Technology!]!
 }
 
-"Result of a repository mutation"
-type RepositoryMutationResult {
-    "Count of modified objects"
-    count: Int!
-    "List of modified objects. The list can be empty if no elements have been modified"
-    objects: [EditedRepository!]!
+interface Technology {
+  available: Boolean!
+  customFlags: [Flag!]!
+  description: String
+  facets: [String!]!
+  icon: String
+  id: UUID!
+  label: String!
+  lastUpdate: Instant!
+  missingFacets: [String!]!
+  repositoryId: UUID!
+  technologyId: String!
+}
+
+type JobTechnology implements Technology {
+  available: Boolean!
+  contexts: [JobContext!]!
+  customFlags: [Flag!]!
+  description: String
+  facets: [String!]!
+  icon: String
+  id: UUID!
+  label: String!
+  lastUpdate: Instant!
+  mainClass: String
+  missingFacets: [String!]!
+  repositoryId: UUID!
+  technologyId: String!
+  defaultResources: ResourceSettings!
+}
+
+type AppTechnology implements Technology {
+  appContexts: [AppCatalogContext!]!
+  available: Boolean!
+  backgroundColor: String
+  baseline: String!
+  customFlags: [Flag!]!
+  description: String
+  facets: [String!]!
+  icon: String
+  readme: String
+  id: UUID!
+  label: String!
+  lastUpdate: Instant!
+  missingFacets: [String!]!
+  repositoryId: UUID!
+  technologyId: String!
+  defaultResources: ResourceSettings!
+}
+
+type SparkTechnology implements Technology {
+  available: Boolean!
+  contexts: [SparkContext!]!
+  customFlags: [Flag!]!
+  description: String
+  facets: [String!]!
+  icon: String
+  id: UUID!
+  label: String!
+  lastUpdate: Instant!
+  missingFacets: [String!]!
+  repositoryId: UUID!
+  technologyId: String!
+  defaultResources: ResourceSettings!
+}
+
+type ExtJobTechnology implements Technology {
+  available: Boolean!
+  contexts: [ExtJobContext!]!
+  customFlags: [Flag!]!
+  description: String
+  facets: [String!]!
+  icon: String
+  iconUrl: String
+  id: UUID!
+  label: String!
+  lastUpdate: Instant!
+  missingFacets: [String!]!
+  repositoryId: UUID!
+  technologyId: String!
+}
+
+interface Context {
+  available: Boolean!
+  deprecationDate: Instant
+  description: String
+  facets: [String!]!
+  id: String!
+  label: String!
+  missingFacets: [String!]!
+  recommended: Boolean!
+  trustLevel: TrustLevel!
+}
+
+
+type JobContext implements Context {
+  available: Boolean!
+  deprecationDate: Instant
+  description: String
+  dockerInfo: DockerInfo
+  facets: [String!]!
+  id: String!
+  job: JobFeatures!
+  label: String!
+  lastUpdate: Instant
+  missingFacets: [String!]!
+  recommended: Boolean!
+  trustLevel: TrustLevel!
+  defaultResources: ResourceSettings!
+}
+
+type SparkContext implements Context {
+  available: Boolean!
+  deprecationDate: Instant
+  description: String
+  dockerInfo: DockerInfo
+  facets: [String!]!
+  id: String!
+  job: JobFeatures!
+  label: String!
+  missingFacets: [String!]!
+  recommended: Boolean!
+  technologyContexts: [SparkTechnologyContext!]!
+  trustLevel: TrustLevel!
+  defaultResources: ResourceSettings!
+}
+
+type SparkTechnologyContext implements Context {
+  available: Boolean!
+  deprecationDate: Instant
+  description: String
+  facets: [String!]!
+  id: String!
+  job: JobFeatures!
+  jobContexts: [SparkJobContext!]!
+  label: String!
+  missingFacets: [String!]!
+  recommended: Boolean!
+  trustLevel: TrustLevel!
+  defaultResources: ResourceSettings!
+}
+
+type SparkJobContext implements Context {
+  available: Boolean!
+  deprecationDate: Instant
+  description: String
+  dockerInfo: DockerInfo
+  facets: [String!]!
+  id: String!
+  job: JobFeatures!
+  label: String!
+  lastUpdate: Instant
+  missingFacets: [String!]!
+  recommended: Boolean!
+  trustLevel: TrustLevel!
+  defaultResources: ResourceSettings!
+}
+
+type ExtJobContext implements Context {
+  actions: ExtJobActions!
+  available: Boolean!
+  connectionTypeId: String!
+  connectionTypeUUID: UUID!
+  deprecationDate: Instant
+  description: String
+  facets: [String!]!
+  id: String!
+  label: String!
+  lastUpdate: Instant
+  missingFacets: [String!]!
+  parameters: [ExtJobParameter!]!
+  recommended: Boolean!
+  trustLevel: TrustLevel!
+}
+
+
+type ResourceSettings {
+  cpu: CpuResourceSettings!
+  memory: MemoryResourceSettings!
+}
+
+type CpuResourceSettings {
+  limit: Float!
+}
+
+type MemoryResourceSettings {
+  limit: DataSize!
+}
+
+enum Flag {
+  GenericApp
+  Spark
+  Unknown
+}
+
+type DockerInfo {
+  image: String!
+  version: String!
+}
+
+enum TrustLevel {
+  Deprecated
+  Experimental
+  Stable
+}
+
+type JobFeatures {
+  features: [Feature!]!
+}
+
+type Feature {
+  comment: String
+  defaultValue: String
+  label: String!
+  mandatory: Boolean!
+  type: String!
+}
+
+type AppCatalogContext {
+  available: Boolean!
+  deprecationDate: Instant
+  description: String
+  dockerInfo: DockerInfo!
+  facets: [String!]!
+  id: String!
+  label: String!
+  lastUpdate: Instant
+  missingFacets: [String!]!
+  ports: [PortInfo!]!
+  recommended: Boolean!
+  releaseNotes: String
+  trustLevel: TrustLevel!
+  volumes: [VolumeInfo!]!
+  defaultResources: ResourceSettings!
+}
+
+type PortInfo {
+  basePath: String
+  name: String
+  port: Int!
+  rewriteUrl: Boolean!
+  scope: ExpositionScope!
+}
+
+enum ExpositionScope {
+  PROJECT
+  PUBLIC
+}
+
+type VolumeInfo {
+  path: String!
+  size: DataSize!
+}
+
+type ExtJobActions {
+  getLogs: ScriptCall
+  getStatus: ScriptCall!
+  start: ScriptCall!
+  stop: ScriptCall
+}
+
+type ExtJobParameter {
+  comment: String
+  defaultValue: String
+  dependsOn: [String!]
+  dynamicValues: ScriptCall
+  id: String!
+  label: String!
+  mandatory: Boolean!
+  staticValues: [ExtJobParameterStaticValue!]
+  type: ExtFeatureType!
+}
+
+type ScriptCall {
+  function: String!
+  scriptId: UUID!
+}
+
+type ExtJobParameterStaticValue {
+  id: String!
+  label: String!
+}
+
+enum ExtFeatureType {
+  DYNAMIC_SELECT
+  PASSWORD
+  STATIC_SELECT
+  TEXT
+  TOGGLE
+}
+
+type Script {
+  id: UUID!
+  lastUpdate: Instant!
+  path: String!
 }
 
 "Represents a repository with at least one technology to synchronize"
 type RepositorySynchro {
-    "Count of modified objects"
-    count: Int!
-    "Report of synchronized technologies"
-    report: SynchronizationReport!
-    "Unique identifier of the repository (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    repositoryId: UUID!
-    "Name of the repository. Needs to be **unique** and shorter than **255** characters"
-    repositoryName: String!
+  "Count of modified objects"
+  count: Int!
+  "Report of synchronized technologies"
+  report: SynchronizationReport!
+  "Unique identifier of the repository (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  repositoryId: UUID!
+  "Name of the repository. Needs to be **unique** and shorter than **255** characters"
+  repositoryName: String!
 }
 
-type Script {
-    id: UUID!
-    lastUpdate: Instant!
-    path: String!
+interface SynchronizationReport {
+  "Date of synchronization end"
+  endedAt: Instant!
+  "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  id: UUID!
+  "URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  source: Source
+  "Date of synchronization start"
+  startedAt: Instant!
+  "What triggered the synchronization"
+  trigger: SynchronizationTrigger!
 }
 
-type ScriptCall {
-    function: String!
-    scriptId: UUID!
+union Source = FileSource | UrlSource
+type FileSource {
+  name: String!
 }
-
-type SparkContext implements Context {
-    available: Boolean!
-    deprecationDate: Instant
-    description: String
-    dockerInfo: DockerInfo
-    facets: [String!]!
-    id: String!
-    job: JobFeatures!
-    label: String!
-    missingFacets: [String!]!
-    recommended: Boolean!
-    technologyContexts: [SparkTechnologyContext!]!
-    trustLevel: TrustLevel!
-}
-
-type SparkJobContext implements Context {
-    available: Boolean!
-    deprecationDate: Instant
-    description: String
-    dockerInfo: DockerInfo
-    facets: [String!]!
-    id: String!
-    job: JobFeatures!
-    label: String!
-    lastUpdate: Instant
-    missingFacets: [String!]!
-    recommended: Boolean!
-    trustLevel: TrustLevel!
-}
-
-type SparkTechnology implements Technology {
-    available: Boolean!
-    contexts: [SparkContext!]!
-    customFlags: [Flag!]!
-    description: String
-    facets: [String!]!
-    icon: String
-    id: UUID!
-    label: String!
-    lastUpdate: Instant!
-    missingFacets: [String!]!
-    repositoryId: UUID!
-    technologyId: String!
-}
-
-type SparkTechnologyContext implements Context {
-    available: Boolean!
-    deprecationDate: Instant
-    description: String
-    facets: [String!]!
-    id: String!
-    job: JobFeatures!
-    jobContexts: [SparkJobContext!]!
-    label: String!
-    missingFacets: [String!]!
-    recommended: Boolean!
-    trustLevel: TrustLevel!
-}
-
-type SuccessfulSynchronization implements SynchronizationReport {
-    "List of connection types synchronization report"
-    connectionTypeReports: [ConnectionTypeSynchronizationReport!]!
-    "Date of synchronization end"
-    endedAt: Instant!
-    "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
-    id: UUID!
-    "List of issues which occurred during the synchronization"
-    issues: [SynchronizationIssue!]!
-    "Number of changes of this report"
-    numberOfChanges: Int!
-    "Revert information if reverted"
-    revert: SynchronizationRevert
-    "[Interface] URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    source: Source
-    "Date of synchronization start"
-    startedAt: Instant!
-    "List of technologies synchronization report"
-    technologyReports: [TechnologySynchronizationReport!]!
-    "What triggered the synchronization"
-    trigger: SynchronizationTrigger!
-}
-
-type SynchronizationIssue {
-    "Cause of the synchronization issue"
-    message: String!
-    "Path of the metadata file which had a synchronization issue"
-    path: String!
-}
-
-type SynchronizationReports {
-    "Count of all synchronization reports"
-    count: Int!
-    "Last reversible Synchronization report ID"
-    lastReversibleId: UUID
-    "List of all synchronization reports, sorted by descending start date"
-    list: [SynchronizationReport!]!
-}
-
-type SynchronizationRevert {
-    "Author of the revert"
-    author: String!
-    "Date of the revert"
-    date: Instant!
+type UrlSource {
+  url: URL!
 }
 
 type SynchronizationTrigger {
-    "Author, null for an AUTOMATIC trigger"
-    author: String
-    "Type of trigger: AUTOMATIC, INITIAL or MANUAL"
-    type: SynchronizationTriggerType!
+  "Author, null for an AUTOMATIC trigger"
+  author: String
+  "Type of trigger: AUTOMATIC, INITIAL or MANUAL"
+  type: SynchronizationTriggerType!
+}
+
+enum SynchronizationTriggerType {
+  "Automatic, launched by a Cron"
+  AUTOMATIC
+  "Initial, just after the repository creation"
+  INITIAL
+  "Manual, triggered by a user"
+  MANUAL
+  "When a repository URL is changed, triggered by a user"
+  URL_UPDATE
+}
+
+type SuccessfulSynchronization implements SynchronizationReport {
+  "List of connection types synchronization report"
+  connectionTypeReports: [ConnectionTypeSynchronizationReport!]!
+  "Date of synchronization end"
+  endedAt: Instant!
+  "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  id: UUID!
+  "List of issues which occurred during the synchronization"
+  issues: [SynchronizationIssue!]!
+  "Number of changes of this report"
+  numberOfChanges: Int!
+  "Revert information if reverted"
+  revert: SynchronizationRevert
+  "URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  source: Source
+  "Date of synchronization start"
+  startedAt: Instant!
+  "List of technologies synchronization report"
+  technologyReports: [TechnologySynchronizationReport!]!
+  "What triggered the synchronization"
+  trigger: SynchronizationTrigger!
+}
+
+type SynchronizationIssue {
+  "Cause of the synchronization issue"
+  message: String!
+  "Path of the metadata file which had a synchronization issue"
+  path: String!
+}
+
+type FailedSynchronization implements SynchronizationReport {
+  "Date of synchronization end"
+  endedAt: Instant!
+  "Description of the failure"
+  failure: String!
+  "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  id: UUID!
+  "URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  source: Source
+  "Date of synchronization start"
+  startedAt: Instant!
+  "What triggered the synchronization"
+  trigger: SynchronizationTrigger!
+}
+
+type SynchronizationReports {
+  "Count of all synchronization reports"
+  count: Int!
+  "Last reversible Synchronization report ID"
+  lastReversibleId: UUID
+  "List of all synchronization reports, sorted by descending start date"
+  list: [SynchronizationReport!]!
 }
 
 type TechnologySynchronizationReport {
-    "Synchronization detail of technology contexts"
-    contextsReports: [ContextSynchronizationReport!]!
-    "Details on the technology synchronization status, including the details of the failure if applicable"
-    message: String
-    "Technology synchronization status: Created, Updated, Deleted or Failed"
-    status: SynchronizationStatus!
-    "Technology ID"
-    technologyId: String!
-    "Technology label"
-    technologyLabel: String!
+  "Synchronization detail of technology contexts"
+  contextsReports: [ContextSynchronizationReport!]!
+  "Details on the technology synchronization status, including the details of the failure if applicable"
+  message: String
+  "Technology synchronization status: Created, Updated, Deleted or Failed"
+  status: SynchronizationStatus!
+  "Technology ID"
+  technologyId: String!
+  "Technology label"
+  technologyLabel: String!
 }
 
-type UrlSource {
-    url: URL!
+type ContextSynchronizationReport {
+  "Context ID"
+  contextId: String!
+  "Context label"
+  contextLabel: String!
+  "Details on the synchronization status, including the details of the failure if applicable"
+  message: String
+  "Context synchronization status: Created, Updated, Deleted or Failed"
+  status: SynchronizationStatus!
 }
 
-type VolumeInfo {
-    path: String!
-    size: DataSize!
+type ConnectionTypeSynchronizationReport {
+  "Connection type ID"
+  connectionTypeId: String!
+  "Connection type label"
+  connectionTypeLabel: String!
+  "Details on the Connection type synchronization status, including the details of the failure if applicable"
+  message: String
+  "Connection type synchronization status: Created, Updated, Deleted or Failed"
+  status: SynchronizationStatus!
 }
 
-type _Service {
-    sdl: String!
+enum SynchronizationStatus {
+  "Created"
+  CREATED
+  "Deleted"
+  DELETED
+  "Failed"
+  FAILED
+  "Unchanged"
+  UNCHANGED
+  "Updated"
+  UPDATED
+}
+
+union SynchroMode = Automatic | Manual
+type Automatic {
+  cron: Cron!
+}
+type Manual {
+  uselessField: Boolean
+}
+
+"Represent a connection Type that could be used with an external technology"
+type ConnectionType {
+  "The actions associated with the connection"
+  actions: ConnectionTypeActions
+  "The connection Type id"
+  connectionTypeId: String!
+  "The connection Type database unique id"
+  id: UUID!
+  "The connection Type label"
+  label: String!
+  "The last time the connection was updated"
+  lastUpdate: Instant
+  "The connection Type list of parameters"
+  parameters: [ConnectionTypeParameter!]!
+  "The connection Type repository id"
+  repositoryId: UUID!
+}
+
+"The actions of a connection type"
+type ConnectionTypeActions {
+  checkConnection: ScriptCall
+}
+
+"Represent an item describing available parameter for a connection"
+type ConnectionTypeParameter {
+  "Comment of the parameter"
+  comment: String
+  "Default value of the parameter"
+  defaultValue: String
+  "Link to another depending parameters, via names"
+  dependsOn: [String!]
+  "Id of the parameter"
+  id: String!
+  "Label of the parameter"
+  label: String!
+  "Mandatory true/false of this parameter"
+  mandatory: Boolean!
+  "Possible values of the parameter"
+  staticValues: [ConnectionTypeParameterStaticValue!]
+  "Type of the parameter: TEXT, PASSWORD, STATIC_SELECT or TOGGLE"
+  type: ConnectionTypeParameterEnum!
 }
 
 "Type of the parameter : TEXT, PASSWORD, STATIC_SELECT or TOGGLE"
 enum ConnectionTypeParameterEnum {
-    PASSWORD
-    STATIC_SELECT
-    TEXT
-    TOGGLE
+  PASSWORD
+  STATIC_SELECT
+  TEXT
+  TOGGLE
 }
 
-enum ExpositionScope {
-    PROJECT
-    PUBLIC
+"A value for a static select"
+type ConnectionTypeParameterStaticValue {
+  "The id used in the scripts"
+  id: String!
+  "The human readable description of the value"
+  label: String!
 }
 
-enum ExtFeatureType {
-    DYNAMIC_SELECT
-    PASSWORD
-    STATIC_SELECT
-    TEXT
-    TOGGLE
+"Represents a repository that have just been deleted"
+type DeletedRepository {
+  "List of connection type of the repository"
+  connectionTypes: [ConnectionType!]!
+  "Date of creation of the repository"
+  creationDate: Instant!
+  "Creator of the repository"
+  creator: String!
+  "Last editor of the repository"
+  editor: String!
+  "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  id: UUID!
+  "Date of the latest modification of the repository"
+  modificationDate: Instant!
+  "Name of the repository. Must be **unique** and shorter than **255** characters"
+  name: String!
+  "List of scripts of the repository"
+  scripts: [Script!]!
+  "URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  source: Source!
+  "Synchronization mode. Should be Manual or Automatic (and specify a [cron format](https://en.wikipedia.org/wiki/Cron))"
+  synchroMode: SynchroMode!
+  "List of technologies of the repository"
+  technologies: [Technology!]!
 }
 
-enum Flag {
-    GenericApp
-    Spark
-    Unknown
+"Represents a repository that have just been edited"
+type EditedRepository {
+  "Date of creation of the repository"
+  creationDate: Instant!
+  "Creator of the repository"
+  creator: String!
+  "Last editor of the repository"
+  editor: String!
+  "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
+  id: UUID!
+  "Date of the latest modification of the repository"
+  modificationDate: Instant!
+  "Name of the repository. Must be **unique** and shorter than **255** characters"
+  name: String!
+  "URL or file of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  source: Source!
+  "Synchronization mode. Should be Manual or Automatic (and specify a [cron format](https://en.wikipedia.org/wiki/Cron))"
+  synchroMode: SynchroMode!
 }
 
-enum SynchronizationStatus {
-    "Created"
-    CREATED
-    "Deleted"
-    DELETED
-    "Failed"
-    FAILED
-    "Unchanged"
-    UNCHANGED
-    "Updated"
-    UPDATED
+"Result of a repository mutation"
+type RepositoryMutationResult {
+  "Count of modified objects"
+  count: Int!
+  "List of modified objects. The list can be empty if no elements have been modified"
+  objects: [EditedRepository!]!
 }
 
-enum SynchronizationTriggerType {
-    "Automatic, launched by a Cron"
-    AUTOMATIC
-    "Initial, just after the repository creation"
-    INITIAL
-    "Manual, triggered by a user"
-    MANUAL
-    "When a repository URL is changed, triggered by a user"
-    URL_UPDATE
+type SynchronizationRevert {
+  "Author of the revert"
+  author: String!
+  "Date of the revert"
+  date: Instant!
 }
 
-enum TrustLevel {
-    Deprecated
-    Experimental
-    Stable
+"Represent a repository edition"
+input RepositoryEditionInput {
+  id: UUID!
+  "Name of the repository. Must be **unique** and shorter than **255** characters. If the name is null, it will not be modified"
+  name: String
+  "If URL is modified and this flag is set to true, the update triggers the synchronization"
+  triggerSynchronization: Boolean!
+  "URL of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt). If the url is null, it will not be modified"
+  url: URL
+}
+
+"Represent a repository creation"
+input RepositoryInput {
+  "Name of the repository. Must be **unique** and shorter than **255** characters"
+  name: String!
+  "URL of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
+  url: URL
+}
+
+"Represent a feature that could be activated on a technology or a context"
+type Facet {
+  "The date when the facet is activated"
+  activationDate: Instant!
+  "The description of the facet"
+  description: String!
+  "The name of the facet"
+  name: String!
 }
 
 "A Cron expression with a valid [cron format](https://en.wikipedia.org/wiki/Cron)"
@@ -642,25 +688,3 @@ scalar UUID
 
 "A type representing a file part in a multipart request"
 scalar Upload
-
-"Federation type representing set of fields"
-scalar _FieldSet
-
-"Represent a repository edition"
-input RepositoryEditionInput {
-    id: UUID!
-    "Name of the repository. Must be **unique** and shorter than **255** characters. If the name is null, it will not be modified"
-    name: String
-    "If URL is modified and this flag is set to true, the update triggers the synchronization"
-    triggerSynchronization: Boolean!
-    "URL of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt). If the url is null, it will not be modified"
-    url: URL
-}
-
-"Represent a repository creation"
-input RepositoryInput {
-    "Name of the repository. Must be **unique** and shorter than **255** characters"
-    name: String!
-    "URL of the repository. Should be a **metadata.yml** file or a **zip archive** containing one or more metadata.yml files inside. The HTTP URL format should respect the [RFC 2396](https://www.ietf.org/rfc/rfc2396.txt)"
-    url: URL
-}

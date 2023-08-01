@@ -407,7 +407,7 @@ mutation rollbackJobVersionMutation($jobId: UUID!, $versionNumber: Int!) {
 """
 
 GQL_DELETE_JOB_INSTANCE = """
-mutation deleteJobInstances($jobId: UUID!, $jobInstancesId: Int!) {
+mutation deleteJobInstances($jobId: UUID!, $jobInstancesId: [UUID!]) {
     deleteJobInstances(jobId: $jobId, jobInstanceIds: $jobInstancesId){
         id
         success
@@ -443,6 +443,15 @@ mutation duplicateJob($jobId: UUID!) {
     duplicateJob(originalJobId: $jobId) {
         id
         name
+    }
+}
+"""
+
+GQL_COUNT_INSTANCES_BY_SELECTOR = """
+query countJobInstancesBySelector($jobId: UUID!) {
+    countJobInstancesBySelector(jobId: $jobId) {
+        selector
+        count
     }
 }
 """

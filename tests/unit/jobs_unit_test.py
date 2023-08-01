@@ -60,3 +60,23 @@ class TestJobs:
     def test_rollback_job(self):
         query = gql(GQL_ROLLBACK_JOB_VERSION)
         self.client.validate(query)
+
+    def test_delete_instances(self):
+        query = gql(GQL_DELETE_JOB_INSTANCE)
+        self.client.validate(query)
+
+    def test_delete_instances_by_selector(self):
+        query = gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR)
+        self.client.validate(query)
+
+    def test_delete_versions(self):
+        query = gql(GQL_DELETE_JOB_VERSION)
+        self.client.validate(query)
+
+    def test_duplicate(self):
+        query = gql(GQL_DUPLICATE_JOB)
+        self.client.validate(query)
+
+    def test_count_instances_by_status(self):
+        query = gql(GQL_COUNT_INSTANCES_BY_SELECTOR)
+        self.client.validate(query)

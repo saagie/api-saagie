@@ -116,3 +116,15 @@ class TestApps:
         assert str(rte.value) == (
             "❌ You must provide a status list and either an email or a login to enable the alerting"
         )
+
+    def test_stats_app(self):
+        query = gql(GQL_STATS_APP)
+        self.client.validate(query)
+
+    def test_history_app_statuses(self):
+        query = gql(GQL_HISTORY_APP_STATUS)
+        self.client.validate(query)
+
+    def test_count_history_app_statuses(self):
+        query = gql(GQL_COUNT_HISTORY_APP_STATUS)
+        self.client.validate(query)

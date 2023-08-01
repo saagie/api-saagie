@@ -56,6 +56,15 @@ type Query {
   # You can only get an app's details if you have at least the viewer role in the project associated to the app or in all projects.
   app(id: UUID!): App
 
+  # Get app history statuses and their record dates.
+  appHistoryStatuses(appHistoryId: UUID!, versionNumber: Int!, startTime: DateTime!, limit: Int): [StatusWithRecordAt]
+
+  # Get statuses count of given app version.
+  countAppHistoryStatuses(appHistoryId: UUID!, versionNumber: Int!, startTime: DateTime!): Int
+
+  # Get app stats (uptime and downtime percentages and recovered count).
+  appStats(appHistoryId: UUID!, versionNumber: Int!, startTime: DateTime!): AppStats
+
   # List environment variables in a given project.
   #
   # You can only list environment variables if you have at least the viewer role in this project or in all projects.
@@ -197,6 +206,9 @@ type Query {
   # You can only get a job instance if you have at least the viewer role in the project associated to the job instance or in all projects.
   jobInstance(id: UUID!): JobInstance
 
+  # Count a job instance by Selector with jobId parent.
+  countJobInstancesBySelector(jobId: UUID!): [JobInstanceSelectorCount!]
+
   # Get a condition instance's details by providing its UUID.
   #
   # You can only get a condition instance if you have at least the viewer role in the project associated to the condition instance or in all projects.
@@ -295,6 +307,22 @@ type Mutation {
   # You can only stop a job instance if you have at least the editor role in the project associated to the job instance or in all projects.
   stopJobInstance(jobInstanceId: UUID!): JobInstance!
 
+  # Delete a job instances.
+  #
+  # You can remove only job instances that are children of jobId,
+  # and only a job instance if is terminated and not associated to a pipeline instance
+  # and you can only run the delete if you have at least the editor role in the project associated.
+  deleteJobInstances(jobId: UUID!, jobInstanceIds: [UUID!]): [DeletionResultItem!]!
+
+  # Delete job instances by selector.
+  #
+  # You can remove only job instances that are children of jobId,
+  # and only a job instance not associated to a pipeline instance
+  # and you can only run the delete if you have at least the editor role in the project associated.
+  #
+  # return the number of deleted job instances
+  deleteJobInstancesBySelector(jobId: UUID!, selector: JobInstanceSelector!, minusJobInstanceIds: [UUID!], moreJobInstanceIds: [UUID!]): Int!
+
   # Create a project.
   #
   # You can only create a project if you have the project creator role.
@@ -365,6 +393,7 @@ type Mutation {
 
   # Set/unset an app version as major.
   #
+  #
   # You can set/unset an app version as major if you have at least the editor role in the project associated to the app or in all projects.
   setMajorAppVersion(appId: UUID!, versionNumber: Int!, isMajor: Boolean!): AppVersion
 
@@ -395,6 +424,13 @@ type Mutation {
   # - features: must be filled if the technology version allows them, otherwise it must not be populated. Use 'technologiesVersions(technologyId: UUID!)' to check if it is allowed for this technology version.
   # - resources: must be greater than or equal to 0.
   addJobVersion(jobId: UUID!, jobVersion: JobVersionInput!, file: Upload): JobVersion!
+
+  # Delete job versions.
+  #
+  # You can remove only a job version that are children of jobId,
+  # and only a job version if is not associated to a pipeline (in any pipeline version)
+  # and you can only run the delete if you have at least the editor role in the project associated.
+  deleteJobVersions(jobId: UUID!, jobVersionNumbers: [Int!]!): [DeletionVersionResultItem!]!
 
   # Archive a job.
   #
@@ -451,6 +487,11 @@ type Mutation {
   #
   # You can set/unset a job version as major if you have at least the editor role in the project associated to the job or in all projects.
   setMajorJobVersion(jobId: UUID!, versionNumber: Int!, isMajor: Boolean!): JobVersion
+
+  # Duplicate a job in the same project.
+  #
+  # You can only duplicate a job if you have at least role editor on the project associated to the job or on all projects.
+  duplicateJob(originalJobId: UUID!): Job!
 
   # Move jobs from a project to another.
   #
@@ -1018,6 +1059,7 @@ type Job {
   graphPipelines(isCurrent: Boolean): [Pipeline!]
   doesUseGPU: Boolean
   resources: JobResourceRequestLimit
+  originalJobId: UUID
 }
 
 type App {
@@ -1039,7 +1081,8 @@ type App {
 
 type AppHistory {
   id: UUID!
-  events: [StatusHistory!]!
+  countEvents: Int
+  events(limit: Int, skip: Int): [StatusHistoryByAction!]
   runningVersionNumber: Int!
   currentDockerInfo: AppDocker
   currentStatus: AppStatus!
@@ -1047,9 +1090,18 @@ type AppHistory {
   currentExecutionId: UUID
   startTime: DateTime
   stopTime: DateTime
+  author: String
+}
+
+type StatusHistoryByAction {
+  id: UUID!
+  appHistoryId: UUID!
+  action: StatusHistory!
+  statuses: [StatusHistory]!
 }
 
 type StatusHistory {
+  appHistoryId: UUID!
   event: AppEvent!
   transitionTime: DateTime!
 }
@@ -1057,47 +1109,50 @@ type StatusHistory {
 interface AppEvent {
   recordAt: DateTime!
   executionId: UUID!
+  versionNumber: Int!
 }
 
 type StatusRetrieve implements AppEvent {
   recordAt: DateTime!
-  status: AppStatus!
   executionId: UUID!
+  versionNumber: Int!
+  status: AppStatus!
   reason: String
 }
 
 type RunAction implements AppEvent {
   recordAt: DateTime!
+  executionId: UUID!
   versionNumber: Int!
   author: String!
-  executionId: UUID!
 }
 
 type RollbackAction implements AppEvent {
   recordAt: DateTime!
+  executionId: UUID!
   versionNumber: Int!
   author: String!
-  executionId: UUID!
 }
 
 type UpgradeAction implements AppEvent {
   recordAt: DateTime!
+  executionId: UUID!
   versionNumber: Int!
   author: String!
-  executionId: UUID!
 }
 
 type StopAction implements AppEvent {
   recordAt: DateTime!
-  author: String!
   executionId: UUID!
+  versionNumber: Int!
+  author: String!
 }
 
 type RestartAction implements AppEvent {
   recordAt: DateTime!
+  executionId: UUID!
   versionNumber: Int!
   author: String!
-  executionId: UUID!
 }
 
 enum AppStatus {
@@ -1111,6 +1166,17 @@ enum AppStatus {
   STOPPED
   FAILED
   UNKNOWN
+}
+
+type StatusWithRecordAt {
+  status: AppStatus!
+  recordAt: DateTime!
+}
+
+type AppStats {
+  uptimePercentage: Float!
+  downtimePercentage: Float!
+  recoveredCount: Int!
 }
 
 type AppLogs {
@@ -1285,10 +1351,16 @@ type JobVersion {
   extraTechnology: ExtraTechnology
   isCurrent: Boolean!
   isMajor: Boolean
+  deletableState: JobVersionDeletableState
   creator: String!
   doesUseGPU: Boolean @deprecated(reason: "Use Job.doesUseGPU instead")
   connectionId: UUID
   externalJobParams: [ExternalJobParam!]
+}
+
+type JobVersionDeletableState {
+  deletable: Boolean!
+  reasons: [JobVersionDeletableStateReason!]
 }
 
 type ExternalJobParam {
@@ -1679,6 +1751,21 @@ type Entry {
   value: String
 }
 
+type JobInstanceSelectorCount {
+  selector: JobInstanceSelector!
+  count: Int!
+}
+
+type DeletionResultItem {
+  id: UUID
+  success: Boolean
+}
+
+type DeletionVersionResultItem {
+  number: Int!
+  success: Boolean!
+}
+
 scalar Long
 
 scalar Upload
@@ -1773,4 +1860,19 @@ enum TriggerType {
   CRON_JOB,
   CRON_PIPELINE,
   MANUAL_PIPELINE
+}
+
+enum JobInstanceSelector {
+  ALL,
+  SUCCEEDED,
+  FAILED,
+  STOPPED,
+  UNKNOWN
+}
+
+enum JobVersionDeletableStateReason {
+  CURRENT_VERSION
+  VERSION_HAS_UNFINISHED_INSTANCES
+  VERSION_LINKED_TO_PIPELINE_INSTANCE
+  VERSION_INSTANCES_NOT_YET_CLEANED
 }

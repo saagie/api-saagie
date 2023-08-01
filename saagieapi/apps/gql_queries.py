@@ -62,60 +62,60 @@ fragment appInformations on App {
     history {
         id
         events(limit: $limit, skip: $skip) {
-                appHistoryId
-                action {
-                    # appHistoryId # TODO Question : Pourquoi ça fonctionne pas ? 
-                    event {
-                        recordAt
-                        executionId
-                        ... on RunAction {
-                            versionNumber
-                            author
-                            __typename
-                        }
-                        ... on StopAction {
-                            author
-                            __typename
-                        }
-                        ... on RollbackAction {
-                            versionNumber
-                            author
-                            __typename
-                        }
-                        ... on UpgradeAction {
-                            versionNumber
-                            author
-                            __typename
-                        }
-                        ... on RestartAction {
-                            versionNumber
-                            author
-                            __typename
-                        }
-                        ... on StatusRetrieve {
-                            status
-                            reason
-                            __typename
-                        }
+            appHistoryId
+            action {
+                # appHistoryId # TODO Question : Pourquoi ça fonctionne pas ? 
+                event {
+                    recordAt
+                    executionId
+                    ... on RunAction {
+                        versionNumber
+                        author
                         __typename
                     }
-                    __typename
-                }
-                statuses {
-                    event {
-                        recordAt
-                        executionId
-                        ... on StatusRetrieve {
-                            status
-                            reason
-                            __typename
-                        }
+                    ... on StopAction {
+                        author
+                        __typename
+                    }
+                    ... on RollbackAction {
+                        versionNumber
+                        author
+                        __typename
+                    }
+                    ... on UpgradeAction {
+                        versionNumber
+                        author
+                        __typename
+                    }
+                    ... on RestartAction {
+                        versionNumber
+                        author
+                        __typename
+                    }
+                    ... on StatusRetrieve {
+                        status
+                        reason
                         __typename
                     }
                     __typename
                 }
                 __typename
             }
+            statuses {
+                event {
+                    recordAt
+                    executionId
+                    ... on StatusRetrieve {
+                        status
+                        reason
+                        __typename
+                    }
+                    __typename
+                }
+                __typename
+            }
+            __typename
+        }
         runningVersionNumber
         currentDockerInfo {
             image
@@ -147,7 +147,7 @@ fragment appInformations on App {
     }
 }
 
-query projectQuery($id: UUID!, $minimal: Boolean!, $versionsOnlyCurrent: Boolean!) {
+query projectQuery($id: UUID!, $minimal: Boolean!, $versionsOnlyCurrent: Boolean!, $limit: Int, $skip: Int) {
     project(id: $id) {
         apps {
             id
@@ -196,7 +196,7 @@ fragment appVersionFieldFullInformation on AppVersion {
     isMajor
 }
 
-query app($id: UUID!, $versionsOnlyCurrent: Boolean!) {
+query app($id: UUID!, $versionsOnlyCurrent: Boolean!, $limit: Int, $skip: Int) {
     app(id: $id) {
         id
         name
@@ -423,5 +423,32 @@ mutation rollbackAppVersionMutation($appId: UUID!, $versionNumber: Int!) {
             number
         }
     }
+}
+"""
+
+GQL_STATS_APP = """
+query appStats($appHistoryId: UUID!, $versionNumber: Int!, $startTime: DateTime!) {
+    appStats(appHistoryId: $appHistoryId, versionNumber: $versionNumber, startTime: $startTime) 
+    {
+        uptimePercentage
+        downtimePercentage
+        recoveredCount
+    }
+}
+"""
+
+GQL_HISTORY_APP_STATUS = """
+query appHistoryStatuses($appHistoryId: UUID!, $versionNumber: Int!, $startTime: DateTime!, $limit: Int) {
+    appHistoryStatuses(appHistoryId: $appHistoryId, versionNumber: $versionNumber, startTime: $startTime, limit: $limit) 
+    {
+        status
+        recordAt
+    }
+}
+"""
+
+GQL_COUNT_HISTORY_APP_STATUS = """
+query countAppHistoryStatuses($appHistoryId: UUID!, $versionNumber: Int!, $startTime: DateTime!) {
+    countAppHistoryStatuses(appHistoryId: $appHistoryId, versionNumber: $versionNumber, startTime: $startTime) 
 }
 """

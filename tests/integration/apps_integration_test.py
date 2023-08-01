@@ -251,3 +251,54 @@ class TestIntegrationApps:
         app_rollback = conf.saagie_api.apps.rollback(app_id=app_id, version_number="1")
 
         assert app_rollback["rollbackAppVersion"]["currentVersion"]["number"] == 1
+
+    @staticmethod
+    def test_get_stats(create_global_project, create_app_from_catalog):
+        conf = create_global_project
+        app_id = create_app_from_catalog
+
+        app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+
+        app_history_id = app_info["app"]["history"]["id"]
+        version = app_info["app"]["currentVersion"]["number"]
+        start_time = app_info["app"]["currentVersion"]["creationDate"]
+
+        result = conf.saagie_api.apps.get_stats(
+            history_id=app_history_id, version_number=version, start_time=start_time
+        )
+
+        assert "appStats" in result
+
+    @staticmethod
+    def test_get_history_statuses(create_global_project, create_app_from_scratch):
+        conf = create_global_project
+        app_id = create_app_from_scratch
+
+        app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+
+        app_history_id = app_info["app"]["history"]["id"]
+        version = app_info["app"]["currentVersion"]["number"]
+        start_time = app_info["app"]["currentVersion"]["creationDate"]
+
+        result = conf.saagie_api.apps.get_history_statuses(
+            history_id=app_history_id, version_number=version, start_time=start_time
+        )
+
+        assert "appHistoryStatuses" in result
+
+    @staticmethod
+    def test_count_history_statuses(create_global_project, create_app_from_scratch):
+        conf = create_global_project
+        app_id = create_app_from_scratch
+
+        app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+
+        app_history_id = app_info["app"]["history"]["id"]
+        version = app_info["app"]["currentVersion"]["number"]
+        start_time = app_info["app"]["currentVersion"]["creationDate"]
+
+        result = conf.saagie_api.apps.count_history_statuses(
+            history_id=app_history_id, version_number=version, start_time=start_time
+        )
+
+        assert "countAppHistoryStatuses" in result

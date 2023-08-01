@@ -1,5 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
 import os
+import time
 
 import pytest
 
@@ -258,3 +259,75 @@ class TestIntegrationJobs:
         ]
 
         assert job_rollback_current_version[0]["number"] == 1
+
+    @staticmethod
+    def test_delete_instances(create_global_project, create_then_delete_job):
+        conf = create_global_project
+        job_id = create_then_delete_job
+        result = conf.saagie_api.jobs.run(job_id)
+
+        instance_id = result["runJob"]["id"]
+
+        res = conf.saagie_api.jobs.delete_instances(job_id=job_id, job_instances_id=[instance_id])
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deleteJobInstances" in res
+
+    @staticmethod
+    def test_delete_instances_by_selector(create_global_project, create_then_delete_job):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        result = conf.saagie_api.jobs.run(job_id=job_id)
+        instance_id = result["runJob"]["id"]
+        result2 = conf.saagie_api.jobs.run(job_id=job_id)
+        instance_id2 = result2["runJob"]["id"]
+
+        res = conf.saagie_api.jobs.delete_instances_by_selector(
+            job_id=job_id, selector="ALL", exclude_instances_id=[instance_id], include_instances_id=[instance_id2]
+        )
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deleteJobInstancesBySelector" in res
+
+    @staticmethod
+    def test_delete_job_versions(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+        conf.saagie_api.jobs.upgrade(
+            job_id=job_id,
+            file=None,
+            use_previous_artifact=True,
+            runtime_version="3.9",
+            command_line="python {file} arg1 arg2",
+            release_note=None,
+            extra_technology="",
+            extra_technology_version="",
+        )
+
+        res = conf.saagie_api.jobs.delete_versions(job_id=job_id, versions=["1"])
+
+        assert res["deleteJobVersions"][0]["success"] is True
+
+    @staticmethod
+    def test_duplicate_job(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        result = conf.saagie_api.jobs.duplicate(job_id=job_id)
+
+        jobs_list = conf.saagie_api.jobs.list_for_project_minimal(project_id=conf.project_id)
+
+        assert result["duplicateJob"]["id"] in [job["id"] for job in jobs_list["jobs"]]
+
+    @staticmethod
+    def test_count_instances_by_status(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        result = conf.saagie_api.jobs.count_instances_by_status(job_id=job_id)
+
+        assert len(result["countJobInstancesBySelector"]) == 5
+        assert "ALL" in [select["selector"] for select in result["countJobInstancesBySelector"]]
