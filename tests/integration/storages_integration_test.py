@@ -70,7 +70,7 @@ class TestIntegrationStorages:
         storage_input = {
             "id": storage["id"],
             "name": "storage new name",
-            "size": "128 MB",
+            "size": "128.0 MB",
             "description": "storage new description",
         }
 
