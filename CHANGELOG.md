@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.6.3 (2023-07-19)
+### :bug:
+* :bug: change create_or_upgrade_job ([`41a6e7d`](https://github.com/saagie/api-saagie/commit/41a6e7dbfe95f7966ee95ad573c72aebe80f60cc))
+
 ## v2.6.2 (2023-07-17)
 ### :bug:
 * :bug:  Fix/project rights ([#186](https://github.com/saagie/api-saagie/issues/186)) ([`a63be9e`](https://github.com/saagie/api-saagie/commit/a63be9e62f723d6e91f60adacf8f198226859b28))

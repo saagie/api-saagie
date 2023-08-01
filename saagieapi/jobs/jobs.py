@@ -316,7 +316,7 @@ class Jobs:
         job_id: str,
         job_name: str = None,
         description: str = None,
-        is_scheduled: str = None,
+        is_scheduled: bool = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         resources: Dict = None,
@@ -548,6 +548,7 @@ class Jobs:
         job_name: str,
         project_id: str,
         file: str = None,
+        use_previous_artifact: bool = None,
         description: str = "",
         category: str = "Processing",
         technology: str = "python",
@@ -574,6 +575,8 @@ class Jobs:
             UUID of your project
         file: str (optional)
             Path to your file
+        use_previous_artifact: bool (optional)
+            Use previous artifact
         description: str (optional)
             Description of your job
         category: str (optional)
@@ -620,7 +623,6 @@ class Jobs:
         if job_name in job_names:
             job_id = [job["id"] for job in job_list if job["name"] == job_name][0]
 
-            use_previous_artifact = not file
             responses = {
                 "addJobVersion": self.upgrade(
                     job_id=job_id,

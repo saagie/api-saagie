@@ -261,6 +261,51 @@ class TestIntegrationJobs:
         assert job_rollback_current_version[0]["number"] == 1
 
     @staticmethod
+    def test_create_or_upgrade_bash_job(create_global_project):
+        conf = create_global_project
+        job_name = "bash job"
+
+        job_create = conf.saagie_api.jobs.create_or_upgrade(
+            job_name=job_name,
+            project_id=conf.project_id,
+            file=None,
+            use_previous_artifact=None,
+            description="",
+            category="Processing",
+            technology="bash",
+            technology_catalog="Saagie",
+            runtime_version="debian11-bullseye",
+            command_line="echo Hello",
+            release_note="",
+            extra_technology="",
+            extra_technology_version="",
+        )
+
+        job_id = job_create["data"]["createJob"]["id"]
+
+        assert job_id is not None
+
+        job_upgrade = conf.saagie_api.jobs.create_or_upgrade(
+            job_name=job_name,
+            project_id=conf.project_id,
+            file=None,
+            use_previous_artifact=None,
+            description="",
+            category="Processing",
+            technology="bash",
+            technology_catalog="Saagie",
+            runtime_version="debian11-bullseye",
+            command_line="echo World",
+            release_note="",
+            extra_technology="",
+            extra_technology_version="",
+        )
+
+        assert "addJobVersion" in job_upgrade
+        assert "editJob" in job_upgrade
+        conf.saagie_api.jobs.delete(job_id)
+
+    @staticmethod
     def test_delete_instances(create_global_project, create_then_delete_job):
         conf = create_global_project
         job_id = create_then_delete_job

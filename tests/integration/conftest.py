@@ -52,7 +52,7 @@ def create_global_project():
         group=Conf.group,
         role="Manager",
         description="For integration test",
-        jobs_technologies_allowed={"saagie": ["python", "spark"]},
+        jobs_technologies_allowed={"saagie": ["python", "spark", "bash"]},
     )
     Conf.project_id = result["createProject"]["id"]
 
