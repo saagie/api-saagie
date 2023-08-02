@@ -186,7 +186,7 @@ class Jobs:
         category: str = "Processing",
         technology: str = "python",
         technology_catalog: str = "Saagie",
-        runtime_version: str = "3.7",
+        runtime_version: str = "3.10",
         command_line: str = "python {file} arg1 arg2",
         release_note: str = "",
         extra_technology: str = "",
@@ -365,25 +365,16 @@ class Jobs:
         dict
             Dict of job information
         """
-        params = {"jobId": job_id}
         previous_job_version = self.get_info(job_id, pprint_result=False)["job"]
         if not previous_job_version:
             raise RuntimeError(f"❌ The job {job_id} you're trying to edit does not exist")
 
-        if job_name:
-            params["name"] = job_name
-        else:
-            params["name"] = previous_job_version["name"]
-
-        if description:
-            params["description"] = description
-        else:
-            params["description"] = previous_job_version["description"]
-
-        if resources:
-            params["resources"] = resources
-        else:
-            params["resources"] = previous_job_version["resources"]
+        params = {
+            "jobId": job_id,
+            "name": job_name if job_name else previous_job_version["name"],
+            "description": description if description else previous_job_version["description"],
+            "resources": resources if resources else previous_job_version["resources"],
+        }
 
         if is_scheduled:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
@@ -416,12 +407,12 @@ class Jobs:
         self,
         job_id: str,
         file: str = None,
-        use_previous_artifact: bool = False,
-        runtime_version: str = "3.7",
-        command_line: str = "python {file} arg1 arg2",
-        release_note: str = None,
-        extra_technology: str = "",
-        extra_technology_version: str = "",
+        use_previous_artifact: bool = True,
+        runtime_version: str = None,
+        command_line: str = None,
+        release_note: str = "",
+        extra_technology: str = None,
+        extra_technology_version: str = None,
     ) -> Dict:
         """Upgrade a job
 
@@ -435,16 +426,17 @@ class Jobs:
             Use previous artifact
         runtime_version: str (optional)
             Runtime version, the ID of the context
+            Example: "3.10"
         command_line: str (optional)
-            Command line
+            Command line used to run the job
+            Example: "python3 {file} arg1 arg2"
         release_note: str (optional)
             Release note
         extra_technology: str (optional)
             Extra technology when needed (spark jobs). If not needed, leave to
-            empty string or the request will not work
+            None or the request will not work
         extra_technology_version: str (optional)
-            Version of the extra technology. Leave to empty string when not
-            needed
+            Version of the extra technology. Leave to None when not needed
 
         Returns
         -------
@@ -454,14 +446,17 @@ class Jobs:
 
         """
 
+        # Get the job's current informations
+        job_info = self.get_info(job_id, instances_limit=1, versions_only_current=True, pprint_result=False)["job"]
+
         # Verify if specified runtime exists
-        technology_id = self.get_info(job_id, pprint_result=False)["job"]["technology"]["id"]
+        technology_id = job_info["technology"]["id"]
         available_runtimes = [
             tech["id"]
             for tech in self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]
             if tech["available"] is True
         ]
-        if runtime_version not in available_runtimes:
+        if runtime_version is not None and runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"❌ Specified runtime does not exist ({runtime_version}). "
                 f"Available runtimes : {','.join(available_runtimes)}."
@@ -473,15 +468,19 @@ class Jobs:
                 "By default, the specified file will be used."
             )
 
+        # Create the params dict with new values when specified or old values otherwise
         params = {
             "jobId": job_id,
             "releaseNote": release_note,
-            "runtimeVersion": runtime_version,
-            "commandLine": command_line,
-            "usePreviousArtifact": use_previous_artifact,
+            "runtimeVersion": runtime_version
+            if runtime_version is not None
+            else job_info["versions"][0]["runtimeVersion"],
+            "commandLine": command_line if command_line is not None else job_info["versions"][0]["commandLine"],
+            "usePreviousArtifact": bool(use_previous_artifact and job_info["versions"][0]["packageInfo"]),
         }
 
-        if extra_technology != "":
+        # Add extra technology parameter if needed
+        if extra_technology is not None:
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
         result = self.__launch_request(file, GQL_UPGRADE_JOB, params)
         logging.info("✅ Job [%s] successfully upgraded", job_id)
@@ -492,12 +491,12 @@ class Jobs:
         job_name: str,
         project_name: str,
         file=None,
-        use_previous_artifact: bool = False,
-        runtime_version: str = "3.6",
-        command_line: str = "python {file} arg1 arg2",
+        use_previous_artifact: bool = True,
+        runtime_version: str = None,
+        command_line: str = None,
         release_note: str = None,
-        extra_technology: str = "",
-        extra_technology_version: str = "",
+        extra_technology: str = None,
+        extra_technology_version: str = None,
     ) -> Dict:
         """Upgrade a job
 
@@ -518,11 +517,9 @@ class Jobs:
         release_note: str (optional)
             Release note
         extra_technology: str (optional)
-            Extra technology when needed (spark jobs). If not needed, leave to
-            empty string or the request will not work
+            Extra technology when needed (spark jobs). If not needed, leave to None or the request will not work
         extra_technology_version: str (optional)
-            Version of the extra technology. Leave to empty string when not
-            needed
+            Version of the extra technology. Leave to None when not needed
 
         Returns
         -------
@@ -553,7 +550,7 @@ class Jobs:
         category: str = "Processing",
         technology: str = "python",
         technology_catalog: str = "Saagie",
-        runtime_version: str = "3.8",
+        runtime_version: str = "3.10",
         command_line: str = "python {file} arg1 arg2",
         release_note: str = "",
         extra_technology: str = "",
@@ -864,7 +861,6 @@ class Jobs:
         bool
             True if job is exported False otherwise
         """
-        result = True
         job_info = None
         output_folder = check_folder_path(output_folder)
         url_saagie = remove_slash_folder_path(self.saagie_api.url_saagie)
@@ -877,52 +873,52 @@ class Jobs:
                 versions_only_current=versions_only_current,
             )["job"]
         except Exception as exception:
-            result = False
             logging.warning("Cannot get the information of the job [%s]", job_id)
             logging.error("Something went wrong %s", exception)
-
-        if job_info:
-            create_folder(output_folder + job_id)
-            job_techno_id = job_info["technology"]["id"]
-            repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
-            if not repo_name:
-                result = False
-                logging.warning(
-                    "Cannot export the job: [%s] because the technology used for this job was deleted", job_id
-                )
-            else:
-                job_info["technology"]["name"] = techno_name
-                job_info["technology"]["technology_catalog"] = repo_name
-                write_to_json_file(output_folder + job_id + "/job.json", job_info)
-
-                if job_info["versions"]:
-                    for version in job_info["versions"]:
-                        if version["packageInfo"]:
-                            download_url = url_saagie + version["packageInfo"]["downloadUrl"]
-                            local_folder = output_folder + job_id + f"/version/{version['number']}/"
-                            local_file_name = version["packageInfo"]["name"]
-                            create_folder(local_folder)
-                            req = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
-                            if req.status_code == 200:
-                                logging.info("Downloading the version %s of the job", version["number"])
-                                write_request_response_to_file(local_folder + local_file_name, req)
-
-                            else:
-                                logging.warning(
-                                    "❌ Cannot download the version [%s] of the job [%s], \
-                                    please verify if everything is ok",
-                                    {version["number"]},
-                                    job_id,
-                                )
-                                result = False
-        else:
-            result = False
-        if result:
-            logging.info("✅ Job [%s] successfully exported", job_id)
-        else:
-            logging.warning("❌ Job [%s] has not been successfully exported", job_id)
             write_error(error_folder, "jobs", job_id)
-        return result
+            return False
+
+        if not job_info:
+            logging.warning("Cannot get the information of the job [%s]", job_id)
+            write_error(error_folder, "jobs", job_id)
+            return False
+
+        create_folder(output_folder + job_id)
+        job_techno_id = job_info["technology"]["id"]
+        repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
+        if not repo_name:
+            logging.warning("Cannot export the job: [%s] because the technology used for this job was deleted", job_id)
+            write_error(error_folder, "jobs", job_id)
+            return False
+
+        job_info["technology"]["name"] = techno_name
+        job_info["technology"]["technology_catalog"] = repo_name
+        write_to_json_file(output_folder + job_id + "/job.json", job_info)
+
+        for version in job_info.get("versions", []):
+            if version["packageInfo"]:
+                download_url = url_saagie + version["packageInfo"]["downloadUrl"]
+                local_folder = output_folder + job_id + f"/version/{version['number']}/"
+                local_file_name = version["packageInfo"]["name"]
+                create_folder(local_folder)
+                req = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
+                if req.status_code == 200:
+                    logging.info("Downloading the version %s of the job", version["number"])
+                    write_request_response_to_file(local_folder + local_file_name, req)
+
+                else:
+                    logging.warning(
+                        "❌ Cannot download the version [%s] of the job [%s], \
+                        please verify if everything is ok",
+                        {version["number"]},
+                        job_id,
+                    )
+                    write_error(error_folder, "jobs", job_id)
+                    return False
+
+        logging.info("✅ Job [%s] successfully exported", job_id)
+
+        return True
 
     def import_from_json(
         self,
