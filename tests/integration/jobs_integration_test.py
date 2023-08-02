@@ -1,6 +1,5 @@
 # pylint: disable=attribute-defined-outside-init
 import os
-import time
 
 import pytest
 

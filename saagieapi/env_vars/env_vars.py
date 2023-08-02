@@ -30,7 +30,9 @@ class EnvVars:
         """
         return self.saagie_api.client.execute(query=gql(GQL_LIST_GLOBAL_ENV_VARS), pprint_result=pprint_result)
 
-    def create_global(self, name: str, value: str, description: str = "", is_password: bool = False) -> Dict:
+    def create_global(
+        self, name: str, value: str = "DEFAULT_VALUE", description: str = "", is_password: bool = False
+    ) -> Dict:
         """Create a global environment variable
 
         Parameters
@@ -104,11 +106,11 @@ class EnvVars:
         params["envVar"].pop("invalidReasons")
         if params["envVar"]["isPassword"] == True:
             params["envVar"].pop("value")
-        if new_name:
+        if new_name is not None:
             params["envVar"]["name"] = new_name
-        if value:
+        if value is not None:
             params["envVar"]["value"] = value
-        if description:
+        if description is not None:
             params["envVar"]["description"] = description
         if is_password in {True, False}:
             params["envVar"]["isPassword"] = is_password
@@ -116,7 +118,9 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully updated", name)
         return result
 
-    def create_or_update_global(self, name: str, value: str, description: str = "", is_password: bool = False) -> Dict:
+    def create_or_update_global(
+        self, name: str, value: str = None, description: str = None, is_password: bool = None
+    ) -> Dict:
         """
         Create a new global environnement variable or update it if it already exists
 
@@ -129,7 +133,7 @@ class EnvVars:
         description: str, optional
             Description of the variable
         is_password: boolean, optional
-            Weather the variable is a password or not (default: False)
+            Weather the variable is a password or not (default: None)
 
         Returns
         -------
@@ -142,7 +146,14 @@ class EnvVars:
 
         # If variable not present, create it
         if not present:
-            return self.create_global(name=name, value=value, description=description, is_password=is_password)
+            args = {
+                "name": name,
+                "value": value,
+                "description": description,
+                "is_password": is_password,
+            }
+            args2 = {k: v for k, v in args.items() if v is not None}
+            return self.create_global(**args2)
 
         return self.update_global(
             name=name, new_name=None, value=value, description=description, is_password=is_password
@@ -171,7 +182,7 @@ class EnvVars:
         global_env = [env for env in global_envs if env["name"] == name]
 
         if len(global_env) == 0:
-            raise ValueError("❌ 'name' must be the name of an existing global " "environment variable")
+            raise ValueError("❌ 'name' must be the name of an existing global environment variable")
 
         global_env_id = global_env[0]["id"]
 
@@ -202,7 +213,7 @@ class EnvVars:
         )
 
     def create_for_project(
-        self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
+        self, project_id: str, name: str, value: str = "DEFAULT_VALUE", description: str = "", is_password: bool = False
     ) -> Dict:
         """Create an environment variable in a given project
 
@@ -291,11 +302,11 @@ class EnvVars:
         params["envVar"].pop("invalidReasons")
         if params["envVar"]["isPassword"] == True:
             params["envVar"].pop("value")
-        if new_name:
+        if new_name is not None:
             params["envVar"]["name"] = new_name
-        if value:
+        if value is not None:
             params["envVar"]["value"] = value
-        if description:
+        if description is not None:
             params["envVar"]["description"] = description
         if is_password in {True, False}:
             params["envVar"]["isPassword"] = is_password
@@ -304,7 +315,7 @@ class EnvVars:
         return result
 
     def create_or_update_for_project(
-        self, project_id: str, name: str, value: str, description: str = "", is_password: bool = False
+        self, project_id: str, name: str, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
         """
         Create a new project environment variable or update it if it already exists
@@ -333,9 +344,15 @@ class EnvVars:
 
         # If variable not present, create it
         if not present:
-            return self.create_for_project(
-                project_id=project_id, name=name, value=value, description=description, is_password=is_password
-            )
+            args = {
+                "project_id": project_id,
+                "name": name,
+                "value": value,
+                "description": description,
+                "is_password": is_password,
+            }
+            args2 = {k: v for k, v in args.items() if v is not None}
+            return self.create_for_project(**args2)
         return self.update_for_project(
             project_id=project_id,
             name=name,
@@ -370,7 +387,7 @@ class EnvVars:
         project_env = [env for env in project_envs["projectEnvironmentVariables"] if env["name"] == name]
 
         if len(project_env) == 0:
-            raise ValueError("❌ 'name' must be the name of an existing " "environment variable in the given project")
+            raise ValueError("❌ 'name' must be the name of an existing environment variable in the given project")
 
         project_env_id = project_env[0]["id"]
 
@@ -404,7 +421,12 @@ class EnvVars:
         )
 
     def create_for_pipeline(
-        self, pipeline_id: str, name: str, value: str, description: str = "", is_password: bool = False
+        self,
+        pipeline_id: str,
+        name: str,
+        value: str = "DEFAULT_VALUE",
+        description: str = "",
+        is_password: bool = False,
     ) -> Dict:
         """Create an environment variable in a given pipeline
 
@@ -522,11 +544,11 @@ class EnvVars:
         params["envVar"].pop("invalidReasons")
         if params["envVar"]["isPassword"] == True:
             params["envVar"].pop("value")
-        if new_name:
+        if new_name is not None:
             params["envVar"]["name"] = new_name
-        if value:
+        if value is not None:
             params["envVar"]["value"] = value
-        if description:
+        if description is not None:
             params["envVar"]["description"] = description
         if is_password in {True, False}:
             params["envVar"]["isPassword"] = is_password
@@ -535,7 +557,7 @@ class EnvVars:
         return result
 
     def create_or_update_for_pipeline(
-        self, pipeline_id: str, name: str, value: str, description: str = "", is_password: bool = False
+        self, pipeline_id: str, name: str, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
         """
         Create a new pipeline environment variable or update it if it already exists
@@ -564,9 +586,15 @@ class EnvVars:
 
         # If variable not present, create it
         if not present:
-            return self.create_for_pipeline(
-                pipeline_id=pipeline_id, name=name, value=value, description=description, is_password=is_password
-            )
+            args = {
+                "pipeline_id": pipeline_id,
+                "name": name,
+                "value": value,
+                "description": description,
+                "is_password": is_password,
+            }
+            args2 = {k: v for k, v in args.items() if v is not None}
+            return self.create_for_pipeline(**args2)
         return self.update_for_pipeline(
             pipeline_id=pipeline_id,
             name=name,
@@ -601,7 +629,7 @@ class EnvVars:
         pipeline_env = [env for env in pipeline_envs["pipelineEnvironmentVariables"] if env["name"] == name]
 
         if len(pipeline_env) == 0:
-            raise ValueError("❌ 'name' must be the name of an existing " "environment variable in the given pipeline")
+            raise ValueError("❌ 'name' must be the name of an existing environment variable in the given pipeline")
 
         pipeline_env_id = pipeline_env[0]["id"]
 
