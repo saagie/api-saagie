@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.7.0 (2023-08-02)
+### :sparkles:
+* :sparkles:  Feat/product 2023 03 ([#190](https://github.com/saagie/api-saagie/issues/190)) ([`b56d204`](https://github.com/saagie/api-saagie/commit/b56d204d2373a6d897d56b4aa10bdb887d37a4df))
+
 ## v2.6.3 (2023-07-19)
 ### :bug:
 * :bug: change create_or_upgrade_job ([`41a6e7d`](https://github.com/saagie/api-saagie/commit/41a6e7dbfe95f7966ee95ad573c72aebe80f60cc))
