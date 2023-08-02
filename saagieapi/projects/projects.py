@@ -38,7 +38,6 @@ class Projects:
         role: Optional[str],
         groups_and_roles: Optional[List[Dict]],
     ) -> Dict:
-
         if groups_and_roles and (group or role):
             raise RuntimeError(
                 "❌ Too many arguments, specify either a group and role, "
@@ -601,7 +600,7 @@ class Projects:
                 status = False
 
         # Import pipelines
-        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "pipelines")):
+        for dirpath, _, filenames in os.walk(os.path.join(path_to_folder, "pipelines")):
             for filename in filenames:
                 json_file = os.path.join(dirpath, filename)
                 pipeline_status = self.saagie_api.pipelines.import_from_json(
@@ -612,7 +611,7 @@ class Projects:
                     status = False
 
         # Import apps
-        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "apps")):
+        for dirpath, _, filenames in os.walk(os.path.join(path_to_folder, "apps")):
             for filename in filenames:
                 json_file = os.path.join(dirpath, filename)
                 app_status = self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
@@ -621,7 +620,7 @@ class Projects:
                     status = False
 
         # Import env vars
-        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "env_vars")):
+        for dirpath, _, filenames in os.walk(os.path.join(path_to_folder, "env_vars")):
             for filename in filenames:
                 json_file = os.path.join(dirpath, filename)
                 env_var_status = self.saagie_api.env_vars.import_from_json(

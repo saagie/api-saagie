@@ -945,7 +945,7 @@ class Jobs:
         result = True
 
         list_files = []
-        for (dirpath, _, filenames) in os.walk(path_to_folder):
+        for dirpath, _, filenames in os.walk(path_to_folder):
             list_files.extend(os.path.join(dirpath, filename) for filename in filenames)
         json_files = [f for f in list_files if "job.json" in f]
         json_file = json_files[0]

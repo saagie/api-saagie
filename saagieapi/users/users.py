@@ -96,7 +96,7 @@ class Users:
         if users:
             output_folder = check_folder_path(output_folder)
             create_folder(output_folder)
-            write_to_json_file(output_folder + "users.json", users)
+            write_to_json_file(f"{output_folder}users.json", users)
             logging.info("✅ Users of the platform have been successfully exported")
             return True
         else:
