@@ -1,8 +1,6 @@
 import uuid
 from typing import List
 
-import gql
-
 
 class Node:
     def __init__(self) -> None:
@@ -35,16 +33,16 @@ class ConditionNode(Node):
 class ConditionStatusNode(ConditionNode):
     def __init__(self) -> None:
         super().__init__()
-        self.conditionValue: str = ""
+        self.condition_value: str = ""
 
     def put_all_success(self):
-        self.conditionValue = "AllSuccess"
+        self.condition_value = "AllSuccess"
 
     def put_all_success_or_skipped(self):
-        self.conditionValue = "AllSuccessOrSkipped"
+        self.condition_value = "AllSuccessOrSkipped"
 
     def put_at_least_one_success(self):
-        self.conditionValue = "AtLeastOneSuccess"
+        self.condition_value = "AtLeastOneSuccess"
 
 
 class ConditionExpressionNode(ConditionNode):
@@ -77,8 +75,7 @@ class GraphPipeline:
                 if node.next_nodes:
                     for nex in node.next_nodes:
                         self.fill_nodes_lists(nex)
-            # elif isinstance(node, ConditionNode):
-            elif isinstance(node, ConditionStatusNode) or isinstance(node, ConditionExpressionNode):
+            elif isinstance(node, (ConditionStatusNode, ConditionExpressionNode)):
                 dict_condition = {
                     "id": str(node.uid),
                     "nextNodesSuccess": [str(nn.uid) for nn in node.next_nodes_success],
@@ -86,7 +83,7 @@ class GraphPipeline:
                 }
                 if isinstance(node, ConditionStatusNode):
                     # "condition": {"status": {"value" : "AtLeastOneSuccess"}}
-                    dict_condition["condition"] = {"status": {"value": node.conditionValue}}
+                    dict_condition["condition"] = {"status": {"value": node.condition_value}}
 
                 if isinstance(node, ConditionExpressionNode):
                     # "condition": {"custom": {"value" : "1 + 1 == 2"}}

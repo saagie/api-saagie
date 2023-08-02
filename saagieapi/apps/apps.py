@@ -894,3 +894,78 @@ class Apps:
         if app:
             return app[0]["id"]
         raise NameError(f"❌ App {app_name} does not exist.")
+
+    def get_stats(self, history_id, version_number, start_time):
+        """Get stats of the app
+
+        Parameters
+        ----------
+        history_id : str
+            UUID of your app history
+        version_number : str
+            Number of the version to get the stats
+        start_time : str
+            Date since to get the stats (format : "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        Returns
+        -------
+        dict
+            Dict of app's stats
+        """
+        params = {
+            "appHistoryId": history_id,
+            "versionNumber": version_number,
+            "startTime": start_time,
+        }
+
+        return self.saagie_api.client.execute(query=gql(GQL_STATS_APP), variable_values=params)
+
+    def get_history_statuses(self, history_id, version_number, start_time):
+        """Get statuses history of the app
+
+        Parameters
+        ----------
+        history_id : str
+            UUID of your app history
+        version_number : str
+            Number of the version to get the statuses history
+        start_time : str
+            Date since to get the statuses history (format : "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        Returns
+        -------
+        dict
+            Dict of app's statuses history
+        """
+        params = {
+            "appHistoryId": history_id,
+            "versionNumber": version_number,
+            "startTime": start_time,
+        }
+
+        return self.saagie_api.client.execute(query=gql(GQL_HISTORY_APP_STATUS), variable_values=params)
+
+    def count_history_statuses(self, history_id, version_number, start_time):
+        """Get count of statues history of the app
+
+        Parameters
+        ----------
+        history_id : str
+            UUID of your app history
+        version_number : str
+            Number of the version to get the count of statuses history
+        start_time : str
+            Date since to get the count of statuses history (format : "%Y-%m-%dT%H:%M:%S.%fZ")
+
+        Returns
+        -------
+        dict
+            count of statuses history
+        """
+        params = {
+            "appHistoryId": history_id,
+            "versionNumber": version_number,
+            "startTime": start_time,
+        }
+
+        return self.saagie_api.client.execute(query=gql(GQL_COUNT_HISTORY_APP_STATUS), variable_values=params)
