@@ -385,8 +385,8 @@ class Pipelines:
         name: str,
         project_id: str,
         graph_pipeline: GraphPipeline,
-        description: str = "",
-        release_note: str = "",
+        description: str = None,
+        release_note: str = None,
         emails: List[str] = None,
         status_list: List[str] = None,
         is_scheduled: bool = None,
@@ -447,37 +447,39 @@ class Pipelines:
         if name in pipeline_names:
             pipeline_id = [pipeline["id"] for pipeline in pipeline_list if pipeline["name"] == name][0]
 
-            responses = {}
-            responses["editPipeline"] = self.edit(
-                pipeline_id,
-                name,
-                description,
-                emails,
-                status_list,
-                is_scheduled,
-                cron_scheduling,
-                schedule_timezone,
-                has_execution_variables_enabled,
-            )["editPipeline"]
-
+            responses = {
+                "editPipeline": self.edit(
+                    pipeline_id,
+                    name,
+                    description,
+                    emails,
+                    status_list,
+                    is_scheduled,
+                    cron_scheduling,
+                    schedule_timezone,
+                    has_execution_variables_enabled,
+                )["editPipeline"]
+            }
             responses["addGraphPipelineVersion"] = self.upgrade(pipeline_id, graph_pipeline, release_note)[
                 "addGraphPipelineVersion"
             ]
 
             return responses
 
-        return self.create_graph(
-            name,
-            project_id,
-            graph_pipeline,
-            description,
-            release_note,
-            emails,
-            status_list,
-            cron_scheduling,
-            schedule_timezone,
-            has_execution_variables_enabled,
-        )
+        args_list = {
+            "name": name,
+            "project_id": project_id,
+            "graph_pipeline": graph_pipeline,
+            "description": description,
+            "release_note": release_note,
+            "emails": emails,
+            "status_list": status_list,
+            "cron_scheduling": cron_scheduling,
+            "schedule_timezone": schedule_timezone,
+            "has_execution_variables_enabled": has_execution_variables_enabled,
+        }
+        args = {k: v for k, v in args_list.items() if v is not None}
+        return self.create_graph(**args)
 
     def rollback(self, pipeline_id: str, version_number: str) -> Dict:
         """Rollback a given job to the given version
