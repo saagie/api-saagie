@@ -27,9 +27,9 @@ class Projects:
         str
             Valid Saagie role
         """
-        if role.lower() in ("manager", "editor", "viewer"):
+        if role.lower() in {"manager", "editor", "viewer"}:
             return f"ROLE_PROJECT_{role.upper()}"
-        raise ValueError("❌ 'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+        raise ValueError("❌ 'role' takes value in ('Manager', 'Editor', 'Viewer')")
 
     @staticmethod
     def _create_groupe_role(
@@ -96,10 +96,8 @@ class Projects:
             Project UUID
         """
         projects = self.list()["projects"]
-        project = list(filter(lambda p: p["name"] == project_name, projects))
-        if project:
-            project_id = project[0]["id"]
-            return project_id
+        if project := list(filter(lambda p: p["name"] == project_name, projects)):
+            return project[0]["id"]
         raise NameError(f"❌ Project {project_name} does not exist or you don't have permission to see it.")
 
     def get_info(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
@@ -270,7 +268,7 @@ class Projects:
             return [
                 {"id": techno["id"]}
                 for techno in self.saagie_api.get_available_technologies("saagie")
-                if techno["__typename"] == "JobTechnology" or (techno["__typename"] == "SparkTechnology")
+                if techno["__typename"] in ("JobTechnology", "SparkTechnology")
             ]
         tech_ids = []
         for catalog, technos in jobs_technologies_allowed.items():
@@ -280,7 +278,7 @@ class Projects:
                     [
                         techno
                         for techno in self.saagie_api.get_available_technologies(catalog)
-                        if techno["__typename"] == "JobTechnology" or techno["__typename"] == "SparkTechnology"
+                        if techno["__typename"] in ("JobTechnology", "SparkTechnology")
                     ],
                     catalog,
                 )
@@ -434,12 +432,12 @@ class Projects:
 
         result = True
         output_folder = check_folder_path(output_folder)
-        output_folder += project_id + "/"
+        output_folder += f"{project_id}/"
         create_folder(output_folder)
-        output_folder_job = output_folder + "jobs/"
-        output_folder_pipeline = output_folder + "pipelines/"
-        output_folder_app = output_folder + "apps/"
-        output_folder_env_vars = output_folder + "env_vars/"
+        output_folder_job = f"{output_folder}jobs/"
+        output_folder_pipeline = f"{output_folder}pipelines/"
+        output_folder_app = f"{output_folder}apps/"
+        output_folder_env_vars = f"{output_folder}env_vars/"
 
         project_info = self.saagie_api.projects.get_info(project_id)["project"]
 
@@ -448,29 +446,28 @@ class Projects:
         for category in self.saagie_api.projects.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
             for tech in category["technologies"]:
                 catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
-                if catalog != "" and techno != "":
-                    if techno not in job_tech_dict[catalog]:
-                        job_tech_dict[catalog].append(techno)
+                if catalog != "" and techno != "" and techno not in job_tech_dict[catalog]:
+                    job_tech_dict[catalog].append(techno)
 
-        project_info["jobs_technologies"] = job_tech_dict if job_tech_dict else None
+        project_info["jobs_technologies"] = job_tech_dict or None
 
         app_tech_dict = {}
         app_tech_dict = defaultdict(list)
         for tech in self.saagie_api.projects.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
-            if catalog != "" and techno != "":
-                if techno not in app_tech_dict[catalog]:
-                    app_tech_dict[catalog].append(techno)
+            if catalog != "" and techno != "" and techno not in app_tech_dict[catalog]:
+                app_tech_dict[catalog].append(techno)
 
-        project_info["apps_technologies"] = app_tech_dict if app_tech_dict else None
+        project_info["apps_technologies"] = app_tech_dict or None
 
-        rights = []
-        for right in self.saagie_api.projects.get_rights(project_id)["rights"]:
-            rights.append({right["name"]: right["role"].split("_")[-1]})
+        rights = [
+            {right["name"]: right["role"].split("_")[-1]}
+            for right in self.saagie_api.projects.get_rights(project_id)["rights"]
+        ]
 
         project_info["rights"] = rights
 
-        write_to_json_file(output_folder + "project.json", project_info)
+        write_to_json_file(f"{output_folder}project.json", project_info)
 
         list_jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)
         id_jobs = [job["id"] for job in list_jobs["jobs"]]
@@ -548,7 +545,7 @@ class Projects:
         try:
             path_to_folder = os.path.abspath(path_to_folder)
             json_file = os.path.join(path_to_folder, "project.json")
-            with open(json_file, "r") as file:
+            with open(json_file, "r", encoding="utf-8") as file:
                 config_dict = json.load(file)
         except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
@@ -590,8 +587,6 @@ class Projects:
 
         jobs_list = list(os.listdir(os.path.join(path_to_folder, "jobs")))
         for job in jobs_list:
-            # TODO if conversion of path_to_folder to absolute path is not efficient
-            # os.chdir(os.path.abspath(path_to_folder))
             job_status = self.saagie_api.jobs.import_from_json(
                 project_id=new_project_id, path_to_folder=os.path.join(path_to_folder, "jobs", job)
             )

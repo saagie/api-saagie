@@ -181,7 +181,7 @@ class EnvVars:
         global_envs = self.list_globals(pprint_result=False)["globalEnvironmentVariables"]
         global_env = [env for env in global_envs if env["name"] == name]
 
-        if len(global_env) == 0:
+        if not global_env:
             raise ValueError("❌ 'name' must be the name of an existing global environment variable")
 
         global_env_id = global_env[0]["id"]
@@ -386,7 +386,7 @@ class EnvVars:
         project_envs = self.list_for_project(project_id, pprint_result=False)
         project_env = [env for env in project_envs["projectEnvironmentVariables"] if env["name"] == name]
 
-        if len(project_env) == 0:
+        if not project_env:
             raise ValueError("❌ 'name' must be the name of an existing environment variable in the given project")
 
         project_env_id = project_env[0]["id"]
@@ -628,7 +628,7 @@ class EnvVars:
         pipeline_envs = self.list_for_pipeline(pipeline_id, pprint_result=False)
         pipeline_env = [env for env in pipeline_envs["pipelineEnvironmentVariables"] if env["name"] == name]
 
-        if len(pipeline_env) == 0:
+        if not pipeline_env:
             raise ValueError("❌ 'name' must be the name of an existing environment variable in the given pipeline")
 
         pipeline_env_id = pipeline_env[0]["id"]
@@ -719,7 +719,19 @@ class EnvVars:
             env_var_description = env_var_info["description"]
             env_var_is_password = env_var_info["isPassword"]
 
-            if env_var_scope == "PROJECT":
+            if env_var_scope == "GLOBAL":
+                res = self.create_global(
+                    name=env_var_name,
+                    value=env_var_value,
+                    description=env_var_description,
+                    is_password=env_var_is_password,
+                )
+                if res["saveEnvironmentVariable"] is None:
+                    result = False
+                    logging.error("❌ Something went wrong %s", res)
+                else:
+                    result = True
+            elif env_var_scope == "PROJECT":
                 res = self.create_for_project(
                     project_id=project_id,
                     name=env_var_name,
@@ -727,23 +739,11 @@ class EnvVars:
                     description=env_var_description,
                     is_password=env_var_is_password,
                 )
-                if res["saveEnvironmentVariable"] is not None:
-                    result = True
-                else:
+                if res["saveEnvironmentVariable"] is None:
                     result = False
                     logging.error("❌ Something went wrong %s", res)
-            elif env_var_scope == "GLOBAL":
-                res = self.create_global(
-                    name=env_var_name,
-                    value=env_var_value,
-                    description=env_var_description,
-                    is_password=env_var_is_password,
-                )
-                if res["saveEnvironmentVariable"] is not None:
-                    result = True
                 else:
-                    result = False
-                    logging.error("❌ Something went wrong %s", res)
+                    result = True
             else:
                 result = False
         except Exception as exception:

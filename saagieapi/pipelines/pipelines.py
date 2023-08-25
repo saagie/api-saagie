@@ -91,8 +91,7 @@ class Pipelines:
         """
         project_id = self.saagie_api.projects.get_id(project_name)
         pipelines = self.list_for_project(project_id, instances_limit=1)["project"]["pipelines"]
-        pipeline = list(filter(lambda j: j["name"] == pipeline_name, pipelines))
-        if pipeline:
+        if pipeline := list(filter(lambda j: j["name"] == pipeline_name, pipelines)):
             return pipeline[0]["id"]
         raise NameError(f"❌ pipeline {pipeline_name} does not exist.")
 
@@ -298,7 +297,7 @@ class Pipelines:
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         has_execution_variables_enabled: bool = None,
-    ) -> Dict:
+    ) -> Dict:  # sourcery skip: remove-redundant-if, simplify-boolean-comparison
         # pylint: disable=singleton-comparison
         """Edit a pipeline
         NB : You can only edit pipeline if you have at least the editor role on
@@ -355,7 +354,7 @@ class Pipelines:
         elif is_scheduled == False:
             params["isScheduled"] = False
         else:
-            for k in ["isScheduled", "cronScheduling", "scheduleTimezone"]:
+            for k in ("isScheduled", "cronScheduling", "scheduleTimezone"):
                 params[k] = previous_pipeline_info[k]
 
         # cases test : List non empty, List empty, None
@@ -363,13 +362,11 @@ class Pipelines:
             params = self.saagie_api.check_alerting(emails, params, status_list)
         elif isinstance(emails, List):
             params["alerting"] = None
-        else:
-            previous_alerting = previous_pipeline_info["alerting"]
-            if previous_alerting:
-                params["alerting"] = {
-                    "emails": previous_alerting["emails"],
-                    "statusList": previous_alerting["statusList"],
-                }
+        elif previous_alerting := previous_pipeline_info["alerting"]:
+            params["alerting"] = {
+                "emails": previous_alerting["emails"],
+                "statusList": previous_alerting["statusList"],
+            }
 
         if has_execution_variables_enabled in {True, False}:
             params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
@@ -575,7 +572,7 @@ class Pipelines:
             logging.info(
                 "✅ Pipeline id %s with instance %s has the status %s", pipeline_id, pipeline_instance_id, state
             )
-        elif state in ["FAILED", "KILLED"]:
+        elif state in ("FAILED", "KILLED"):
             logging.error(
                 "❌ Pipeline id %s with instance %s has the status %s", pipeline_id, pipeline_instance_id, state
             )
@@ -692,7 +689,6 @@ class Pipelines:
 
             for version in pipeline_info["versions"]:
                 if version["isCurrent"]:
-                    release_note = version["releaseNote"]
                     jobs_not_found = []
                     jobs_found = []
                     for job_node in version["graph"]["jobNodes"]:
@@ -733,11 +729,9 @@ class Pipelines:
 
                         conditions_found.append(condition_dict)
 
-                    if len(jobs_not_found) > 0:
+                    if jobs_not_found:
                         result = False
-                        not_found = ""
-                        for job in jobs_not_found:
-                            not_found += job + ", "
+                        not_found = "".join(f"{job}, " for job in jobs_not_found)
                         logging.error(
                             "❌ Import aborted, in target project (id : %s), the following jobs were not found: %s",
                             project_id,
@@ -747,6 +741,7 @@ class Pipelines:
                         graph_pipeline = GraphPipeline()
                         graph_pipeline.list_job_nodes = jobs_found
                         graph_pipeline.list_conditions_nodes = conditions_found
+                        release_note = version["releaseNote"]
                         res = self.saagie_api.pipelines.create_graph(
                             pipeline_name,
                             project_id,

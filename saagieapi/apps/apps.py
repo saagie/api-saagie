@@ -458,18 +458,16 @@ class Apps:
             True if all exposed port are in a valid format
             False otherwise
         """
-        if (
-            not isinstance(exposed_ports, List)  # exposed_ports is not a list
-            or len(exposed_ports) == 0  # exposed_ports is empty
-            or not all(isinstance(ep, Dict) for ep in exposed_ports)  # exposed_ports is not a list of dict
-            # mandatory keys are not present in each dict
-            or not all((LIST_EXPOSED_PORT_MANDATORY - ep.keys()) == set() for ep in exposed_ports)
-            # some keys are not valid
-            or not all(set(ep.keys()).issubset(LIST_EXPOSED_PORT_FIELD) for ep in exposed_ports)
-        ):
-            return False
 
-        return True
+        return bool(
+            isinstance(exposed_ports, List)  # Exposed_ports is a list
+            and exposed_ports  # Exposed_ports is not empty
+            and all(isinstance(ep, Dict) for ep in exposed_ports)  # Exposed_ports is a list of dict
+            # Mandatory keys are present in each dict
+            and all((LIST_EXPOSED_PORT_MANDATORY - ep.keys()) == set() for ep in exposed_ports)
+            # ALl keys are valid
+            and all(set(ep.keys()).issubset(LIST_EXPOSED_PORT_FIELD) for ep in exposed_ports)
+        )
 
     @staticmethod
     def check_alerting(
@@ -644,7 +642,7 @@ class Apps:
             },
         }
 
-        if technology_context is None and image is None:
+        if technology_context is image is None:
             technology_context = app_info["currentVersion"]["runtimeContextId"]
             if (
                 app_info["currentVersion"]["dockerInfo"] is not None
@@ -890,8 +888,7 @@ class Apps:
         """
         project_id = self.saagie_api.projects.get_id(project_name)
         apps = self.saagie_api.apps.list_for_project_minimal(project_id)["project"]["apps"]
-        app = list(filter(lambda j: j["name"] == app_name, apps))
-        if app:
+        if app := list(filter(lambda j: j["name"] == app_name, apps)):
             return app[0]["id"]
         raise NameError(f"❌ App {app_name} does not exist.")
 

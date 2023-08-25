@@ -99,8 +99,7 @@ class Users:
             write_to_json_file(f"{output_folder}users.json", users)
             logging.info("✅ Users of the platform have been successfully exported")
             return True
-        else:
-            return False
+        return False
 
     def import_from_json(
         self, json_file: str, temp_pwd: str, error_folder: Optional[str] = "", verify_ssl: Optional[bool] = None
@@ -173,15 +172,15 @@ class Users:
                     already_exist_list.append(user["login"])
 
         if failed_list:
-            logging.info(f"{len(failed_list)}/{total_user} are failed to import")
-            logging.warning(f"❌ The following users are failed to import: {failed_list}")
+            logging.info("%s/%s are failed to import", len(failed_list), total_user)
+            logging.warning("❌ The following users are failed to import: %s", failed_list)
             write_error(error_folder, "users", str(failed_list))
             return False
-        else:
-            logging.info(f"{len(imported_list)}/{total_user} are successfully imported")
-            logging.info(f"{len(already_exist_list)}/{total_user} are already exist")
-            logging.info("✅ Users have been successfully imported")
-            return True
+
+        logging.info("%s/%s are successfully imported", len(imported_list), total_user)
+        logging.info("%s/%s are already exist", len(already_exist_list), total_user)
+        logging.info("✅ Users have been successfully imported")
+        return True
 
     def create(
         self,

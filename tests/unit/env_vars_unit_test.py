@@ -10,7 +10,7 @@ from .saagie_api_unit_test import create_gql_client
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("../..")
-sys.path.append(dir_path + "/..")
+sys.path.append(f"{dir_path}/..")
 
 
 class TestEnvVars:

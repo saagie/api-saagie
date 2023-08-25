@@ -63,6 +63,7 @@ class RequestClient:
                 verify=verify_ssl,
                 json=json_data,
                 stream=stream,
+                timeout=60,
             )
             if raise_for_status:
                 response.raise_for_status()

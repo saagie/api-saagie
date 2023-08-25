@@ -81,11 +81,10 @@ class Profiles:
         if profiles:
             output_folder = check_folder_path(output_folder)
             create_folder(output_folder)
-            write_to_json_file(output_folder + "profiles.json", profiles)
+            write_to_json_file(f"{output_folder}profiles.json", profiles)
             logging.info("✅ Profiles of the platform have been successfully exported")
             return True
-        else:
-            return False
+        return False
 
     def edit(self, user_name: str, job_title: str = None, email: str = None, verify_ssl: Optional[bool] = None) -> bool:
         """Edit a profile
@@ -114,8 +113,8 @@ class Profiles:
         previous_profile = self.get_info(user_name, verify_ssl=verify_ssl)
         params = {
             "login": user_name,
-            "job": job_title if job_title else previous_profile["job"],
-            "email": email if email else previous_profile["email"],
+            "job": job_title or previous_profile["job"],
+            "email": email or previous_profile["email"],
         }
 
         self.saagie_api.request_client.send(

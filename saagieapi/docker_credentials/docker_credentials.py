@@ -75,14 +75,12 @@ class DockerCredentials:
         dict
             Dict of the info of the docker credentials
         """
-        all_docker_credentials = self.list_for_project(project_id, pprint_result=False)["allDockerCredentials"]
-        if len(all_docker_credentials):
-            res = [
+        if all_docker_credentials := self.list_for_project(project_id, pprint_result=False)["allDockerCredentials"]:
+            if res := [
                 credentials
                 for credentials in all_docker_credentials
                 if credentials["username"] == username and credentials["registry"] == registry
-            ]
-            if len(res):
+            ]:
                 return res[0]
             raise RuntimeError(
                 f"❌ There are no docker credentials in the project: '{project_id}' with the username: '{username}' "

@@ -20,6 +20,18 @@ from ..utils.rich_console import console
 from .gql_queries import *
 
 
+def handle_write_error(msg, job_id, error_folder):
+    logging.warning(msg, job_id)
+    write_error(error_folder, "jobs", job_id)
+    return False
+
+
+def handle_log_error(msg, exception):
+    logging.warning(msg)
+    logging.error("Something went wrong %s", exception)
+    return False
+
+
 class Jobs:
     def __init__(self, saagie_api):
         self.saagie_api = saagie_api
@@ -127,11 +139,9 @@ class Jobs:
             Job UUID
 
         """
-        project_id = self.saagie_api.projects.get_id(project_name)
-        jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
-        job = list(filter(lambda j: j["name"] == job_name, jobs))
-        if job:
-            return job[0]["id"]
+        jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
+        if job := next((j for j in jobs if j["name"] == job_name), None):
+            return job["id"]
         raise NameError(f"❌ Job {job_name} does not exist.")
 
     def get_info(
@@ -189,8 +199,8 @@ class Jobs:
         runtime_version: str = "3.10",
         command_line: str = "python {file} arg1 arg2",
         release_note: str = "",
-        extra_technology: str = "",
-        extra_technology_version: str = "",
+        extra_technology: str = None,
+        extra_technology_version: str = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         resources: Dict = None,
@@ -264,24 +274,21 @@ class Jobs:
             "commandLine": command_line,
         }
 
-        if category not in ["Extraction", "Processing", "Smart App"]:
+        if category not in ("Extraction", "Processing", "Smart App"):
             raise RuntimeError(
                 f"❌ Category {category} does not exist in Saagie. "
                 f"Please specify either Extraction, Processing or Smart App"
             )
 
-        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id, pprint_result=False)[
+        technos_project = self.saagie_api.projects.get_jobs_technologies(project_id, pprint_result=False)[
             "technologiesByCategory"
         ]
-        technologies_for_project_and_category = [
+
+        technos_project_category = [
             tech["id"]
-            for tech in [tech["technologies"] for tech in technologies_for_project if tech["jobCategory"] == category][
-                0
-            ]
+            for tech in next(tech["technologies"] for tech in technos_project if tech["jobCategory"] == category)
         ]
-        params = self.saagie_api.check_technology(
-            params, technology, technology_catalog, technologies_for_project_and_category
-        )
+        params = self.saagie_api.check_technology(params, technology, technology_catalog, technos_project_category)
         available_runtimes = [
             tech["id"]
             for tech in self.saagie_api.get_runtimes(params["technologyId"])["technology"]["contexts"]
@@ -292,7 +299,7 @@ class Jobs:
                 f"❌ Runtime {runtime_version} for technology {technology} does not exist "
                 f"in the catalog {technology_catalog} or is deprecated"
             )
-        if extra_technology != "":
+        if extra_technology is not None or extra_technology != "":
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
@@ -300,7 +307,6 @@ class Jobs:
 
         if cron_scheduling:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         else:
             params["isScheduled"] = False
 
@@ -322,7 +328,7 @@ class Jobs:
         resources: Dict = None,
         emails: List = None,
         status_list: List = None,
-    ) -> Dict:
+    ) -> Dict:  # sourcery skip: remove-redundant-if, simplify-boolean-comparison
         # pylint: disable=singleton-comparison
         """Edit a job
 
@@ -371,17 +377,15 @@ class Jobs:
 
         params = {
             "jobId": job_id,
-            "name": job_name if job_name else previous_job_version["name"],
-            "description": description if description else previous_job_version["description"],
-            "resources": resources if resources else previous_job_version["resources"],
+            "name": job_name or previous_job_version["name"],
+            "description": description or previous_job_version["description"],
+            "resources": resources or previous_job_version["resources"],
         }
 
         if is_scheduled:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         elif is_scheduled == False:
             params["isScheduled"] = False
-
         else:
             params["isScheduled"] = previous_job_version["isScheduled"]
             params["cronScheduling"] = previous_job_version["cronScheduling"]
@@ -391,13 +395,11 @@ class Jobs:
             params = self.saagie_api.check_alerting(emails, params, status_list)
         elif isinstance(emails, List):
             params["alerting"] = None
-        else:
-            previous_alerting = previous_job_version["alerting"]
-            if previous_alerting:
-                params["alerting"] = {
-                    "emails": previous_alerting["emails"],
-                    "statusList": previous_alerting["statusList"],
-                }
+        elif previous_alerting := previous_job_version["alerting"]:
+            params["alerting"] = {
+                "emails": previous_alerting["emails"],
+                "statusList": previous_alerting["statusList"],
+            }
 
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_JOB), variable_values=params)
         logging.info("✅ Job [%s] successfully edited", job_id)
@@ -472,10 +474,8 @@ class Jobs:
         params = {
             "jobId": job_id,
             "releaseNote": release_note,
-            "runtimeVersion": runtime_version
-            if runtime_version is not None
-            else job_info["versions"][0]["runtimeVersion"],
-            "commandLine": command_line if command_line is not None else job_info["versions"][0]["commandLine"],
+            "runtimeVersion": runtime_version or job_info["versions"][0]["runtimeVersion"],
+            "commandLine": command_line or job_info["versions"][0]["commandLine"],
             "usePreviousArtifact": bool(use_previous_artifact and job_info["versions"][0]["packageInfo"]),
         }
 
@@ -528,9 +528,8 @@ class Jobs:
             Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
         """
-        job_id = self.get_id(job_name, project_name)
         return self.upgrade(
-            job_id,
+            self.get_id(job_name, project_name),
             file,
             use_previous_artifact,
             runtime_version,
@@ -545,17 +544,17 @@ class Jobs:
         job_name: str,
         project_id: str,
         file: str = None,
-        use_previous_artifact: bool = None,
-        description: str = "",
-        category: str = "Processing",
-        technology: str = "python",
-        technology_catalog: str = "Saagie",
-        runtime_version: str = "3.10",
-        command_line: str = "python {file} arg1 arg2",
-        release_note: str = "",
-        extra_technology: str = "",
-        extra_technology_version: str = "",
-        is_scheduled: bool = False,
+        use_previous_artifact: bool = True,
+        description: str = None,
+        category: str = None,
+        technology: str = None,
+        technology_catalog: str = None,
+        runtime_version: str = None,
+        command_line: str = None,
+        release_note: str = None,
+        extra_technology: str = None,
+        extra_technology_version: str = None,
+        is_scheduled: bool = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         resources: Dict = None,
@@ -590,10 +589,9 @@ class Jobs:
             Release note
         extra_technology: str (optional)
             Extra technology when needed (spark jobs). If not needed, leave to
-            empty string or the request will not work
+            None or the request will not work
         extra_technology_version: str (optional)
-            Version of the extra technology. Leave to empty string when not
-            needed
+            Version of the extra technology. Leave to None when not needed
         is_scheduled: bool (optional)
             True if the job is scheduled, False to deactivate scheduling
         cron_scheduling: str (optional)
@@ -615,10 +613,10 @@ class Jobs:
         """
 
         job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
-        job_names = [job["name"] for job in job_list]
 
-        if job_name in job_names:
-            job_id = [job["id"] for job in job_list if job["name"] == job_name][0]
+        # If the job already exists, upgrade it
+        if job_name in [job["name"] for job in job_list]:
+            job_id = next(job["id"] for job in job_list if job["name"] == job_name)
 
             responses = {
                 "addJobVersion": self.upgrade(
@@ -647,25 +645,32 @@ class Jobs:
 
             return responses
 
-        return self.create(
-            job_name=job_name,
-            project_id=project_id,
-            file=file,
-            description=description,
-            category=category,
-            technology=technology,
-            technology_catalog=technology_catalog,
-            runtime_version=runtime_version,
-            command_line=command_line,
-            release_note=release_note,
-            extra_technology=extra_technology,
-            extra_technology_version=extra_technology_version,
-            cron_scheduling=cron_scheduling,
-            schedule_timezone=schedule_timezone,
-            resources=resources,
-            emails=emails,
-            status_list=status_list,
-        )
+        # If the job does not exist, create it
+        args = {
+            k: v
+            for k, v in {
+                "job_name": job_name,
+                "project_id": project_id,
+                "file": file,
+                "description": description,
+                "category": category,
+                "technology": technology,
+                "technology_catalog": technology_catalog,
+                "runtime_version": runtime_version,
+                "command_line": command_line,
+                "release_note": release_note,
+                "extra_technology": extra_technology,
+                "extra_technology_version": extra_technology_version,
+                "cron_scheduling": cron_scheduling,
+                "schedule_timezone": schedule_timezone,
+                "resources": resources,
+                "emails": emails,
+                "status_list": status_list,
+            }.items()
+            if v is not None  # Remove None values from the dict
+        }
+
+        return self.create(**args)
 
     def rollback(self, job_id: str, version_number: str):
         """Rollback a given job to the given version
@@ -755,12 +760,13 @@ class Jobs:
         job_instance_info = self.get_instance(job_instance_id, pprint_result=False)
         state = job_instance_info.get("jobInstance").get("status")
         sec = 0
+        if timeout == -1:
+            timeout = float("inf")
 
         logging.info("⏳ Job id %s with instance %s has just been requested", job_id, job_instance_id)
         while state not in final_status_list:
             with console.status(f"Job is currently {state}", refresh_per_second=100):
-                t_out = False if timeout == -1 else sec >= timeout
-                if t_out:
+                if sec >= timeout:
                     raise TimeoutError(f"❌ Last state known : {state}")
                 time.sleep(freq)
                 sec += freq
@@ -768,7 +774,7 @@ class Jobs:
                 state = job_instance_info.get("jobInstance").get("status")
         if state == "SUCCEEDED":
             logging.info("✅ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
-        elif state in ["FAILED", "KILLED"]:
+        elif state in ("FAILED", "KILLED"):
             logging.error("❌ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
         return state
 
@@ -809,9 +815,9 @@ class Jobs:
             Dict of the request response
         """
         if file:
-            file_info = os.path.split(os.path.abspath(file))
-            os.chdir(file_info[0])
-            file = Path(file_info[-1])
+            file_info = Path(file)
+            os.chdir(file_info.parent)
+            file = Path(file_info.name)
             with file.open(mode="rb") as file_content:
                 params["file"] = file_content
                 try:
@@ -823,15 +829,12 @@ class Jobs:
                     logging.error("Something went wrong %s", exception)
                     raise exception
                 return res
-
         else:
             try:
-                req = self.saagie_api.client.execute(query=gql(payload_str), variable_values=params)
-                res = {"data": req}
+                return {"data": self.saagie_api.client.execute(query=gql(payload_str), variable_values=params)}
             except Exception as exception:
                 logging.error("Something went wrong %s", exception)
                 raise exception
-            return res
 
     def export(
         self,
@@ -862,8 +865,7 @@ class Jobs:
             True if job is exported False otherwise
         """
         job_info = None
-        output_folder = check_folder_path(output_folder)
-        url_saagie = remove_slash_folder_path(self.saagie_api.url_saagie)
+        output_folder = Path(check_folder_path(output_folder))
 
         try:
             job_info = self.get_info(
@@ -873,51 +875,46 @@ class Jobs:
                 versions_only_current=versions_only_current,
             )["job"]
         except Exception as exception:
-            logging.warning("Cannot get the information of the job [%s]", job_id)
             logging.error("Something went wrong %s", exception)
-            write_error(error_folder, "jobs", job_id)
-            return False
+            return handle_write_error("Cannot get the information of the job [%s]", job_id, error_folder)
 
         if not job_info:
-            logging.warning("Cannot get the information of the job [%s]", job_id)
-            write_error(error_folder, "jobs", job_id)
-            return False
+            return handle_write_error("Cannot get the information of the job [%s]", job_id, error_folder)
 
-        create_folder(output_folder + job_id)
-        job_techno_id = job_info["technology"]["id"]
-        repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
+        create_folder(output_folder / job_id)
+        repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_info["technology"]["id"])
+
         if not repo_name:
-            logging.warning("Cannot export the job: [%s] because the technology used for this job was deleted", job_id)
-            write_error(error_folder, "jobs", job_id)
-            return False
-
+            return handle_write_error(
+                "Cannot export the job: [%s] because the technology used for this job was deleted",
+                job_id,
+                error_folder,
+            )
         job_info["technology"]["name"] = techno_name
         job_info["technology"]["technology_catalog"] = repo_name
-        write_to_json_file(output_folder + job_id + "/job.json", job_info)
+        write_to_json_file(output_folder / job_id / "job.json", job_info)
 
-        for version in job_info.get("versions", []):
-            if version["packageInfo"]:
-                download_url = url_saagie + version["packageInfo"]["downloadUrl"]
-                local_folder = output_folder + job_id + f"/version/{version['number']}/"
-                local_file_name = version["packageInfo"]["name"]
-                create_folder(local_folder)
-                req = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
-                if req.status_code == 200:
-                    logging.info("Downloading the version %s of the job", version["number"])
-                    write_request_response_to_file(local_folder + local_file_name, req)
-
-                else:
-                    logging.warning(
-                        "❌ Cannot download the version [%s] of the job [%s], \
+        for version in [version for version in job_info.get("versions", []) if version["packageInfo"]]:
+            local_folder = output_folder / job_id / "version" / str(version["number"])
+            create_folder(local_folder)
+            req = requests.get(
+                remove_slash_folder_path(self.saagie_api.url_saagie) + version["packageInfo"]["downloadUrl"],
+                auth=self.saagie_api.auth,
+                stream=True,
+                timeout=60,
+            )
+            if req.status_code == 200:
+                logging.info("Downloading the version %s of the job", version["number"])
+                write_request_response_to_file(local_folder / version["packageInfo"]["name"], req)
+            else:
+                handle_write_error(
+                    f"❌ Cannot download the version [{version['number']}] of the job [%s], \
                         please verify if everything is ok",
-                        {version["number"]},
-                        job_id,
-                    )
-                    write_error(error_folder, "jobs", job_id)
-                    return False
+                    job_id,
+                    error_folder,
+                )
 
         logging.info("✅ Job [%s] successfully exported", job_id)
-
         return True
 
     def import_from_json(
@@ -938,77 +935,51 @@ class Jobs:
         bool
             True if job is imported False otherwise
         """
-        result = True
-
-        list_files = []
-        for dirpath, _, filenames in os.walk(path_to_folder):
-            list_files.extend(os.path.join(dirpath, filename) for filename in filenames)
-        json_files = [f for f in list_files if "job.json" in f]
-        json_file = json_files[0]
+        json_file = next(Path(path_to_folder).rglob("job.json"))
 
         try:
-            with open(json_file, "r", encoding="utf-8") as file:
+            with json_file.open("r", encoding="utf-8") as file:
                 job_info = json.load(file)
         except Exception as exception:
-            logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", exception)
-            return False
-
+            return handle_log_error(f"Cannot open the JSON file {json_file}", exception)
         try:
             job_name = job_info["name"]
-            job_description = job_info["description"]
-            job_category = job_info["category"]
-            job_technology_name = job_info["technology"]["name"]
-            job_technology_catalog = job_info["technology"]["technology_catalog"]
 
-            job_cron_scheduling = job_info["cronScheduling"]
-            job_schedule_timezone = job_info["scheduleTimezone"]
-            job_resources = job_info["resources"]
+            version = next(version for version in job_info["versions"] if version["isCurrent"])
 
-            job_emails = job_info["alerting"]["emails"] if job_info["alerting"] else ""
-            job_status_list = job_info["alerting"]["statusList"] if job_info["alerting"] else ""
-
-            version = [version for version in job_info["versions"] if version["isCurrent"]][0]
-            job_runtime_version = version["runtimeVersion"]
-            job_command_line = version["commandLine"]
-            job_release_note = version["releaseNote"]
-            job_extra_technology_name = version["extraTechnology"]["language"] if version["extraTechnology"] else ""
-            job_extra_technology_version = version["extraTechnology"]["version"] if version["extraTechnology"] else ""
-
-            if package := [f for f in list_files if os.path.join("version", str(version["number"])) in f]:
-                path_to_package = package[0]
-                file_info = os.path.split(os.path.abspath(path_to_package))
-                os.chdir(file_info[0])
-                file_name = file_info[-1]
+            if path_to_package := next((json_file.parent / "version" / str(version["number"])).iterdir(), None):
+                os.chdir(path_to_package.parent)
+                file_name = path_to_package.name
             else:
                 file_name = ""
 
             self.create(
-                job_name,
-                project_id,
-                file_name,
-                job_description,
-                job_category,
-                job_technology_name,
-                job_technology_catalog,
-                job_runtime_version,
-                job_command_line,
-                job_release_note,
-                job_extra_technology_name,
-                job_extra_technology_version,
-                job_cron_scheduling,
-                job_schedule_timezone,
-                job_resources,
-                job_emails,
-                job_status_list,
+                job_name=job_name,
+                project_id=project_id,
+                file=file_name,
+                description=job_info["description"],
+                category=job_info["category"],
+                technology=job_info["technology"]["name"],
+                technology_catalog=job_info["technology"]["technology_catalog"],
+                runtime_version=version["runtimeVersion"],
+                command_line=version["commandLine"],
+                release_note=version["releaseNote"],
+                extra_technology=(version.get("extraTechnology") or {}).get("language", ""),
+                extra_technology_version=(version.get("extraTechnology") or {}).get("version", ""),
+                cron_scheduling=job_info["cronScheduling"],
+                schedule_timezone=job_info["scheduleTimezone"],
+                resources=job_info["resources"],
+                emails=(job_info.get("alerting") or {}).get("emails", ""),
+                status_list=(job_info.get("alerting") or {}).get("statusList", ""),
             )
+
             logging.info("✅ Job [%s] successfully imported", job_name)
         except Exception as exception:
-            result = False
-            logging.warning("❌ Job [%s] has not been successfully imported", job_name)
-            logging.error("Something went wrong %s", exception)
-
-        return result
+            return handle_log_error(
+                f"❌ Job [{job_name}] has not been successfully imported",
+                exception,
+            )
+        return True
 
     def delete_instances(self, job_id, job_instances_id):
         """Delete given job's instances

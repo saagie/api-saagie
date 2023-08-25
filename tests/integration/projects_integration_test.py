@@ -77,7 +77,7 @@ class TestIntegrationProject:
     @staticmethod
     def test_create_project_without_group_and_role(create_global_project):
         conf = create_global_project
-        project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
+        project_name = f"Integration_test_Saagie_API {datetime.timestamp(datetime.now())}"
         description = "For integration test"
         result = conf.saagie_api.projects.create(name=project_name, description=description)
 
@@ -87,7 +87,7 @@ class TestIntegrationProject:
     @staticmethod
     def test_create_project_with_group_and_no_role(create_global_project):
         conf = create_global_project
-        project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
+        project_name = f"Integration_test_Saagie_API {datetime.timestamp(datetime.now())}"
         description = "For integration test"
 
         with pytest.raises(RuntimeError) as rte:

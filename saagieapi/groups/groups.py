@@ -56,7 +56,7 @@ class Groups:
             raise_for_status=True,
             verify_ssl=verify_ssl,
         )
-        logging.info(f"✅  Successfully list permissions of the group [{group_name}]")
+        logging.info("✅  Successfully list permissions of the group [{%s}]", group_name)
         return response.json()
 
     def get_users(self, group_name, verify_ssl: Optional[bool] = None) -> Dict:
@@ -106,39 +106,35 @@ class Groups:
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         output_folder = check_folder_path(output_folder)
-        groups = self.list(verify_ssl)
-        list_failed = []
-
-        if groups:
+        if groups := self.list(verify_ssl):
             create_folder(output_folder)
-            write_to_json_file(output_folder + "groups.json", groups)
+            write_to_json_file(f"{output_folder}groups.json", groups)
             group_names = [group["name"] for group in groups]
-            output_folder = check_folder_path(output_folder + "groups/")
+            output_folder = check_folder_path(f"{output_folder}groups/")
             create_folder(output_folder)
         else:
             logging.info("No group(s) to export")
             return True
 
+        list_failed = []
         for group_name in group_names:
             try:
-                group_user_list = self.get_users(group_name, verify_ssl=verify_ssl)
-                if group_user_list:
-                    write_to_json_file(output_folder + f"user_{group_name}.json", group_user_list)
+                if group_user_list := self.get_users(group_name, verify_ssl=verify_ssl):
+                    write_to_json_file(f"{output_folder}user_{group_name}.json", group_user_list)
 
-                permission_list = self.get_permission(group_name, verify_ssl=verify_ssl)
-                if permission_list:
-                    write_to_json_file(output_folder + f"perm_{group_name}.json", permission_list)
+                if permission_list := self.get_permission(group_name, verify_ssl=verify_ssl):
+                    write_to_json_file(f"{output_folder}perm_{group_name}.json", permission_list)
 
             except Exception as exception:
                 logging.error("Something went wrong when getting group's users or group's permissions: %s", exception)
                 list_failed.append(group_name)
         if list_failed:
-            logging.warning(f"❌ The following groups are failed to export: {list_failed}")
+            logging.warning("❌ The following groups are failed to export: %s", list_failed)
             write_error(error_folder, "groups", str(list_failed))
             return False
-        else:
-            logging.info("✅ Groups have been successfully exported")
-            return True
+
+        logging.info("✅ Groups have been successfully exported")
+        return True
 
     def create(self, group_name: str, users: List[str], verify_ssl: Optional[bool] = None) -> bool:
         """Create a group
@@ -166,7 +162,7 @@ class Groups:
             json_data={"name": group_name, "users": users},
             verify_ssl=verify_ssl,
         )
-        logging.info(f"✅ Successfully create group [{group_name}] on the platform")
+        logging.info("✅ Successfully create group [%s] on the platform", group_name)
         return True
 
     def edit_permission(
@@ -234,10 +230,8 @@ class Groups:
         previous_group_permission = self.get_permission(group_name, verify_ssl)
         params = {
             "role": previous_group_permission["role"],
-            "authorizations": authorizations if authorizations else previous_group_permission["authorizations"],
-            "realmAuthorization": realm_authorization
-            if realm_authorization
-            else previous_group_permission["realmAuthorization"],
+            "authorizations": authorizations or previous_group_permission["authorizations"],
+            "realmAuthorization": realm_authorization or previous_group_permission["realmAuthorization"],
         }
 
         self.saagie_api.request_client.send(
@@ -247,7 +241,7 @@ class Groups:
             json_data=params,
             verify_ssl=verify_ssl,
         )
-        logging.info(f"✅ Successfully edit group permission [{group_name}] on the platform")
+        logging.info("✅ Successfully edit group permission [%s] on the platform", group_name)
         return True
 
     def delete(self, group_name: str, verify_ssl: Optional[bool] = None) -> bool:
@@ -304,7 +298,7 @@ class Groups:
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         path_to_folder = check_folder_path(path_to_folder)
-        groups_json_path = path_to_folder + "groups.json"
+        groups_json_path = f"{path_to_folder}groups.json"
         bypassed_list = []
         failed_list = []
         already_exist_list = []
@@ -330,8 +324,8 @@ class Groups:
                     verify_ssl=verify_ssl,
                 )
                 if res.status_code == 500:
-                    groups_user_json_path = path_to_folder + f"groups/user_{group_name}.json"
-                    group_permission_json_path = path_to_folder + f"groups/perm_{group_name}.json"
+                    groups_user_json_path = f"{path_to_folder}groups/user_{group_name}.json"
+                    group_permission_json_path = f"{path_to_folder}groups/perm_{group_name}.json"
                     try:
                         with open(groups_user_json_path, "r", encoding="utf-8") as file:
                             group_user = json.load(file)
@@ -349,18 +343,18 @@ class Groups:
                             )
                         imported_list.append(group_name)
                     except Exception as err:
-                        logging.error(f"Something went wrong when importing group [{group_name}]: %s", err)
+                        logging.error("Something went wrong when importing group [%s]: %s", group_name, err)
                         failed_list.append(group_name)
 
                 else:
                     already_exist_list.append(group["name"])
         if failed_list:
-            logging.info(f"{len(failed_list)}/{total_group} are failed to import")
-            logging.warning(f"❌ The following groups are failed to import: {failed_list}")
+            logging.info("%s/%s are failed to import", len(failed_list), total_group)
+            logging.warning("❌ The following groups are failed to import: %s", failed_list)
             write_error(error_folder, "groups", str(failed_list))
             return False
-        else:
-            logging.info(f"{len(imported_list)}/{total_group} are successfully imported")
-            logging.info(f"{len(already_exist_list)}/{total_group} are already exist")
-            logging.info("✅ Groups have been successfully imported")
-            return True
+
+        logging.info("%s/%s are successfully imported", len(imported_list), total_group)
+        logging.info("%s/%s are already exist", len(already_exist_list), total_group)
+        logging.info("✅ Groups have been successfully imported")
+        return True

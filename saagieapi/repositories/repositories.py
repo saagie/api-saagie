@@ -261,10 +261,8 @@ class Repositories:
             If the repository does not exist or the user don't have the permission to see it or can not be revert
         """
         repositories = self.list(minimal=True, last_synchronization=True)["repositories"]
-        repository = list(filter(lambda p: p["id"] == repository_id, repositories))
-        if repository:
-            synchronization_report_id = repository[0]["synchronizationReports"]["lastReversibleId"]
-            if synchronization_report_id:
+        if repository := list(filter(lambda p: p["id"] == repository_id, repositories)):
+            if synchronization_report_id := repository[0]["synchronizationReports"]["lastReversibleId"]:
                 params = {"repositoryId": repository_id, "synchronizationReportId": synchronization_report_id}
                 return self.saagie_api.client_gateway.execute(
                     query=gql(GQL_REVERT_LAST_SYNCHRONISATION), variable_values=params
@@ -291,8 +289,6 @@ class Repositories:
             If repository does not exist or the user don't have permission to see it
         """
         repositories = self.list(minimal=True, last_synchronization=True)["repositories"]
-        repository = list(filter(lambda p: p["name"] == repository_name, repositories))
-        if repository:
-            repository_id = repository[0]["id"]
-            return repository_id
+        if repository := list(filter(lambda p: p["name"] == repository_name, repositories)):
+            return repository[0]["id"]
         raise NameError(f"❌ Repository {repository_name} does not exist or you don't have permission to see it.")

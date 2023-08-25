@@ -31,11 +31,10 @@ def create_gql_client(file_name: str = "schema.graphqls"):
     dict
         GQL Client
     """
-    with open(file=os.path.dirname(os.path.abspath(__file__)) + f"/resources/{file_name}", encoding="utf-8") as source:
+    with open(file=f"{os.path.dirname(os.path.abspath(__file__))}/resources/{file_name}", encoding="utf-8") as source:
         document = parse(source.read())
     schema = build_ast_schema(document)
-    client = Client(schema=schema)
-    return client
+    return Client(schema=schema)
 
 
 class TestGQLTemplate:

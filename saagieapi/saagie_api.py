@@ -73,7 +73,7 @@ class SaagieApi:
             realm=self.realm, url=self.url_saagie, platform=id_platform, login=user, password=password
         )
         logging.info("✅ Successfully connected to your platform %s", self.url_saagie)
-        url_api = f"{self.url_saagie}projects/api/platform/{str(id_platform)}/graphql"
+        url_api = f"{self.url_saagie}projects/api/platform/{id_platform}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
 
         url_gateway = f"{self.url_saagie}gateway/api/graphql"
@@ -115,14 +115,13 @@ class SaagieApi:
         """
         url_regex = re.compile(r"(https://(\w+)-(?:\w|\.)+)/projects/platform/(\d+)")
         matches_url = url_regex.match(url_saagie_platform)
-        if bool(matches_url):
-            url_saagie = matches_url.group(1)
-            realm = matches_url.group(2)
-            id_platform = matches_url.group(3)
-        else:
+        if not bool(matches_url):
             raise ValueError(
                 "❌ Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)"
             )
+        url_saagie = matches_url[1]
+        realm = matches_url[2]
+        id_platform = matches_url[3]
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
@@ -163,11 +162,8 @@ class SaagieApi:
 
         if not status_list:
             status_list = ["FAILED"]
-        wrong_status_list = []
-        for item in status_list:
-            if item not in valid_status_list:
-                wrong_status_list.append(item)
-        if wrong_status_list:
+
+        if wrong_status_list := [item for item in status_list if item not in valid_status_list]:
             raise RuntimeError(
                 f"❌ The following status are not valid: {wrong_status_list}. "
                 f"Please make sure that each item of the parameter status_list should be "
@@ -466,7 +462,7 @@ class SaagieApi:
         params = {
             "projectId": project_id,
             "expression": expression,
-            "variables": variables if variables else {"key": "", "value": ""},
+            "variables": variables or {"key": "", "value": ""},
         }
         return self.client.execute(query=gql(GQL_CHECK_CUSTOM_EXPRESSION), variable_values=params)
 
