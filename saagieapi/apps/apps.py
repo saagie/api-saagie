@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
+from ..utils.folder_functions import create_folder, write_error, write_to_json_file
 from .gql_queries import *
 
 LIST_EXPOSED_PORT_FIELD = ["basePathVariableName", "isRewriteUrl", "scope", "number", "name"]
@@ -202,16 +202,15 @@ class Apps:
         if exposed_ports is None:
             exposed_ports = []
 
-        for storage in storage_paths:
-            if "volume" in storage:
-                result = self.saagie_api.storages.create(
-                    project_id,
-                    storage["volume"]["name"],
-                    storage["volume"]["size"],
-                    storage["volume"]["description"],
-                )["createVolume"]
-                storage["volumeId"] = result["id"]
-                del storage["volume"]
+        for storage in (s for s in storage_paths if "volume" in storage):
+            result = self.saagie_api.storages.create(
+                project_id,
+                storage["volume"]["name"],
+                storage["volume"]["size"],
+                storage["volume"]["description"],
+            )["createVolume"]
+            storage["volumeId"] = result["id"]
+            del storage["volume"]
 
         params = {
             "projectId": project_id,
@@ -229,15 +228,14 @@ class Apps:
         # in case of catalog app imported
         if technology_id:
             techno_id = technology_id
-
             del params["version"]["dockerInfo"]
             params["version"]["runtimeContextId"] = technology_context
         else:
             repos = self.saagie_api.get_repositories_info()["repositories"]
             # Find Saagie repository
-            repos = [repo for repo in repos if repo["name"] == "Saagie"][0]["technologies"]
+            repos = next(repo for repo in repos if repo["name"] == "Saagie")["technologies"]
             # Find docker technology id
-            techno_id = [techno["id"] for techno in repos if techno["label"] == "Docker image"][0]
+            techno_id = next(techno["id"] for techno in repos if techno["label"] == "Docker image")
         params["technologyId"] = techno_id
 
         check_format_exposed_port = self.check_exposed_ports(exposed_ports)
@@ -292,23 +290,21 @@ class Apps:
             Dict of app information
         """
         # Initialize parameters to request GQL Graph
-        params = {
-            "projectId": project_id,
-        }
+        params = {"projectId": project_id}
 
         # If the user has set a technology_id, we don't look at the name
         if technology_id:
             params["technologyId"] = technology_id
         else:
             # Get all id technologies in our project
-            technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
-            technologies_for_project = [tech["id"] for tech in technologies_for_project]
+            techs_project = [
+                tech["id"] for tech in self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
+            ]
 
             # Check if the technology exist
-            params = self.saagie_api.check_technology(
-                params, technology_name, technology_catalog, technologies_for_project
-            )
-            technology_id = params["technologyId"]
+            technology_id = self.saagie_api.check_technology(
+                params, technology_name, technology_catalog, techs_project
+            )["technologyId"]
 
             # Check if technology is is available in our project
             techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
@@ -331,9 +327,8 @@ class Apps:
                 f"❌ Runtime '{context}' of the app '{technology_id}' doesn't exist or is not available in the project: "
                 f"'{project_id}'. Available runtimes are: '{available_contexts}'"
             )
-        context_app_info = context_app[0]
 
-        params["contextId"] = context_app_info["id"]
+        params["contextId"] = context_app[0]["id"]
 
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_APP_CATALOG), variable_values=params)
         label = technology_name or technology_id
@@ -472,7 +467,7 @@ class Apps:
             and all(isinstance(ep, Dict) for ep in exposed_ports)  # Exposed_ports is a list of dict
             # Mandatory keys are present in each dict
             and all((LIST_EXPOSED_PORT_MANDATORY - ep.keys()) == set() for ep in exposed_ports)
-            # ALl keys are valid
+            # All keys are valid
             and all(set(ep.keys()).issubset(LIST_EXPOSED_PORT_FIELD) for ep in exposed_ports)
         )
 
@@ -566,11 +561,21 @@ class Apps:
             String of runtime label
 
         """
-        runtimes = self.saagie_api.get_runtimes(technology_id)
-        runtime_label = ""
-        for runtime in runtimes["technology"]["appContexts"]:
-            if runtime["id"] == runtime_id:
-                runtime_label = runtime["label"]
+        # Get all runtimes of the technology
+        runtimes = self.saagie_api.get_runtimes(technology_id)["technology"]
+        if not runtimes:  # If the technology doesn't exist, return an empty string
+            logging.warning("❌ Technology [%s] not found", technology_id)
+            return ""
+
+        # Get the label of the runtime
+        runtime_label = next(
+            (runtime["label"] for runtime in runtimes.get("appContexts", {}) if runtime.get("id") == runtime_id), ""
+        )
+
+        # If the runtime was not found, return an empty string
+        if not runtime_label:
+            logging.warning("❌ Runtime [%s] not found in technology [%s]", runtime_id, technology_id)
+            return ""
 
         return runtime_label
 
@@ -631,13 +636,11 @@ class Apps:
                 "'technology_context' can't be associated to 'image' and/or 'docker_credentials_id'"
             )
 
-        app_info = self.get_info(app_id)["app"]
+        app_info = self.get_info(app_id)["app"]["currentVersion"]
+        exposed_ports = None
 
         if exposed_ports is None:
-            exposed_ports = app_info["currentVersion"]["ports"]
-            for port in exposed_ports:
-                if "internalUrl" in port:
-                    del port["internalUrl"]
+            exposed_ports = [port for port in app_info["ports"] if "internalUrl" not in port]
 
         params = {
             "appId": app_id,
@@ -650,12 +653,9 @@ class Apps:
         }
 
         if technology_context is image is None:
-            technology_context = app_info["currentVersion"]["runtimeContextId"]
-            if (
-                app_info["currentVersion"]["dockerInfo"] is not None
-                and "image" in app_info["currentVersion"]["dockerInfo"]
-            ):
-                image = app_info["currentVersion"]["dockerInfo"]["image"]
+            technology_context = app_info["runtimeContextId"]
+            if app_info["dockerInfo"] is not None and "image" in app_info["dockerInfo"]:
+                image = app_info["dockerInfo"]["image"]
 
         if image:
             params["appVersion"]["dockerInfo"]["image"] = image
@@ -664,10 +664,9 @@ class Apps:
             params["appVersion"]["dockerInfo"]["dockerCredentialsId"] = docker_credentials_id
 
         # in case of catalog app updated
-        if technology_context:
-            if "dockerInfo" in params["appVersion"]:
-                del params["appVersion"]["dockerInfo"]
+        if technology_context and "dockerInfo" in params["appVersion"]:
             params["appVersion"]["runtimeContextId"] = technology_context
+            params["appVersion"].pop("dockerInfo", None)
 
         result = self.saagie_api.client.execute(query=gql(GQL_UPDATE_APP), variable_values=params)
         logging.info("✅ App [%s] successfully updated", app_id)
@@ -729,8 +728,8 @@ class Apps:
             app_info = self.get_info(app_id=app_id, versions_only_current=versions_only_current)["app"]
             app_techno_id = app_info["technology"]["id"]
             repo_name, techno_name = self.saagie_api.get_technology_name_by_id(app_techno_id)
-            app_info["technology"]["name"] = techno_name
-            app_info["technology"]["technology_catalog"] = repo_name
+            app_info["technology"].update({"name": techno_name, "technology_catalog": repo_name})
+
             if not versions_only_current:
                 for version in app_info["versions"]:
                     version["runtimeContextLabel"] = self.get_runtime_label_by_id(
@@ -740,6 +739,7 @@ class Apps:
                 app_techno_id, app_info["currentVersion"]["runtimeContextId"]
             )
             create_folder(output_folder / app_id)
+
         except Exception as exception:
             logging.warning("Cannot get the information of the app [%s]", app_id)
             logging.error("Something went wrong %s", exception)
@@ -776,49 +776,37 @@ class Apps:
                 app_info = json.load(file)
         except Exception as exception:
             return handle_error(f"Cannot open the JSON file {json_file}", exception)
+
         try:
-            # used for create_from_catalog (one click deploy app)
             app_technology_name = app_info["technology"]["name"]
             app_technology_catalog = app_info["technology"]["technology_catalog"]
-            app_runtime_context = (
-                app_info["currentVersion"]["runtimeContextLabel"]
-                if "runtimeContextLabel" in app_info["currentVersion"]
-                else None
-            )
+            app_runtime_context = app_info["currentVersion"].get("runtimeContextLabel")
 
-            app_name = app_info["name"]
-            app_ports = app_info["currentVersion"]["ports"]
-            for elem in app_ports:
-                del elem["internalUrl"]
+            # Remove internalUrl from ports
+            app_ports = [
+                {k: v for k, v in elem.items() if k != "internalUrl"} for elem in app_info["currentVersion"]["ports"]
+            ]
 
-            params = {
-                "projectId": project_id,
-            }
+            params = {"projectId": project_id}
+            technology_id = context_app_info = None
 
-            if app_info["currentVersion"]["runtimeContextId"]:
-                # Get all id technologies in our project
-                techs_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
-
-                # Check if the technology exist
+            if app_runtime_context and app_info["currentVersion"]["runtimeContextId"]:
+                techs_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
                 params = self.saagie_api.check_technology(
-                    params, app_technology_name, app_technology_catalog, [tech["id"] for tech in techs_for_project]
+                    params, app_technology_name, app_technology_catalog, [tech["id"] for tech in techs_project]
                 )
                 technology_id = params["technologyId"]
 
-                # Check if technology is is available in our project
                 techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
-                app_is_available = [app["id"] for app in techno_app["appTechnologies"] if app["id"] == technology_id]
-                if not app_is_available:
+                if all(app["id"] != technology_id for app in techno_app["appTechnologies"]):
                     raise ValueError(
                         f"❌ App '{app_technology_name}' is not available in the project: '{project_id}'. "
                         "Check your project settings"
                     )
 
-                # Get different runtimes of app
                 runtimes = self.saagie_api.get_runtimes(technology_id)["technology"]["appContexts"]
-                # Check if runtime is available
-                available_runtimes = [app for app in runtimes if app["available"] is True]
-                context_app = [app for app in available_runtimes if app["label"] == app_runtime_context]
+                available_runtimes = [app for app in runtimes if app["available"]]
+                context_app = next((app for app in available_runtimes if app["label"] == app_runtime_context), None)
 
                 if not context_app:
                     available_contexts = [app["label"] for app in available_runtimes]
@@ -827,15 +815,14 @@ class Apps:
                         f"or is not available in the project: '{project_id}'."
                         f"Available runtimes are: '{available_contexts}'"
                     )
-                context_app_info = context_app[0]["id"]
-            else:
-                technology_id = None
-                context_app_info = None
+                context_app_info = context_app["id"]
+
+            app_name = app_info["name"]
 
             self.create_from_scratch(
                 project_id=project_id,
                 app_name=app_name,
-                image=app_info["currentVersion"]["dockerInfo"]["image"] or "",
+                image=app_info["currentVersion"]["dockerInfo"].get("image", ""),
                 description=app_info["description"],
                 exposed_ports=app_ports,
                 storage_paths=app_info["currentVersion"]["volumesWithPath"],
@@ -849,10 +836,8 @@ class Apps:
             )
             logging.info("✅ App [%s] successfully imported", app_name)
         except Exception as exception:
-            return handle_error(
-                f"❌ App [{app_name}] has not been successfully imported",
-                exception,
-            )
+            return handle_error(f"❌ App [{app_name}] has not been successfully imported", exception)
+
         return True
 
     def get_id(self, app_name: str, project_name: str) -> str:
@@ -870,8 +855,8 @@ class Apps:
         """
         project_id = self.saagie_api.projects.get_id(project_name)
         apps = self.saagie_api.apps.list_for_project_minimal(project_id)["project"]["apps"]
-        if app := list(filter(lambda j: j["name"] == app_name, apps)):
-            return app[0]["id"]
+        if app := next((app for app in apps if app["name"] == app_name), None):
+            return app["id"]
         raise NameError(f"❌ App {app_name} does not exist.")
 
     def get_stats(self, history_id, version_number, start_time):
