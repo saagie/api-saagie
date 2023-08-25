@@ -439,11 +439,11 @@ class Projects:
         output_folder_app = f"{output_folder}apps/"
         output_folder_env_vars = f"{output_folder}env_vars/"
 
-        project_info = self.saagie_api.projects.get_info(project_id)["project"]
+        project_info = self.get_info(project_id)["project"]
 
         job_tech_dict = {}
         job_tech_dict = defaultdict(list)
-        for category in self.saagie_api.projects.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
+        for category in self.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
             for tech in category["technologies"]:
                 catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
                 if catalog != "" and techno != "" and techno not in job_tech_dict[catalog]:
@@ -453,17 +453,14 @@ class Projects:
 
         app_tech_dict = {}
         app_tech_dict = defaultdict(list)
-        for tech in self.saagie_api.projects.get_apps_technologies(project_id=project_id)["appTechnologies"]:
+        for tech in self.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
             if catalog != "" and techno != "" and techno not in app_tech_dict[catalog]:
                 app_tech_dict[catalog].append(techno)
 
         project_info["apps_technologies"] = app_tech_dict or None
 
-        rights = [
-            {right["name"]: right["role"].split("_")[-1]}
-            for right in self.saagie_api.projects.get_rights(project_id)["rights"]
-        ]
+        rights = [{right["name"]: right["role"].split("_")[-1]} for right in self.get_rights(project_id)["rights"]]
 
         project_info["rights"] = rights
 
@@ -563,14 +560,14 @@ class Projects:
             )["createProject"]["id"]
 
             # Waiting for the project to be ready
-            project_status = self.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
+            project_status = self.get_info(project_id=new_project_id)["project"]["status"]
             waiting_time = 0
 
             # Safety: wait for 5min max for project initialisation
             project_creation_timeout = 400
             while project_status != "READY" and waiting_time <= project_creation_timeout:
                 time.sleep(10)
-                project_status = self.saagie_api.projects.get_info(new_project_id)["project"]["status"]
+                project_status = self.get_info(new_project_id)["project"]["status"]
                 waiting_time += 10
             if project_status != "READY":
                 raise TimeoutError(

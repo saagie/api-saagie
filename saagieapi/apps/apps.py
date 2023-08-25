@@ -1,5 +1,6 @@
 import json
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from gql import gql
@@ -9,6 +10,12 @@ from .gql_queries import *
 
 LIST_EXPOSED_PORT_FIELD = ["basePathVariableName", "isRewriteUrl", "scope", "number", "name"]
 LIST_EXPOSED_PORT_MANDATORY = ["isRewriteUrl", "scope", "number"]
+
+
+def handle_error(msg, exception):
+    logging.warning(msg)
+    logging.error("Something went wrong %s", exception)
+    return False
 
 
 class Apps:
@@ -715,12 +722,11 @@ class Apps:
         bool
             True if app is exported False otherwise
         """
-        result = True
         app_info = None
-        output_folder = check_folder_path(output_folder)
+        output_folder = Path(output_folder)
 
         try:
-            app_info = self.get_info(app_id, versions_only_current=versions_only_current)["app"]
+            app_info = self.get_info(app_id=app_id, versions_only_current=versions_only_current)["app"]
             app_techno_id = app_info["technology"]["id"]
             repo_name, techno_name = self.saagie_api.get_technology_name_by_id(app_techno_id)
             app_info["technology"]["name"] = techno_name
@@ -733,19 +739,18 @@ class Apps:
             app_info["currentVersion"]["runtimeContextLabel"] = self.get_runtime_label_by_id(
                 app_techno_id, app_info["currentVersion"]["runtimeContextId"]
             )
-            create_folder(output_folder + app_id)
+            create_folder(output_folder / app_id)
         except Exception as exception:
             logging.warning("Cannot get the information of the app [%s]", app_id)
             logging.error("Something went wrong %s", exception)
-
-        if app_info:
-            write_to_json_file(output_folder + app_id + "/app.json", app_info)
-            logging.info("✅ App [%s] successfully exported", app_id)
-        else:
             logging.warning("❌ App [%s] has not been successfully exported", app_id)
             write_error(error_folder, "apps", app_id)
-            result = False
-        return result
+            return False
+
+        write_to_json_file(output_folder / app_id / "app.json", app_info)
+        logging.info("✅ App [%s] successfully exported", app_id)
+
+        return True
 
     def import_from_json(
         self,
@@ -765,15 +770,12 @@ class Apps:
         bool
             True if app is imported False otherwise
         """
+        json_file = Path(json_file)
         try:
-            with open(json_file, "r", encoding="utf-8") as file:
+            with json_file.open("r", encoding="utf-8") as file:
                 app_info = json.load(file)
         except Exception as exception:
-            logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", exception)
-            return False
-
-        result = True
+            return handle_error(f"Cannot open the JSON file {json_file}", exception)
         try:
             # used for create_from_catalog (one click deploy app)
             app_technology_name = app_info["technology"]["name"]
@@ -783,43 +785,23 @@ class Apps:
                 if "runtimeContextLabel" in app_info["currentVersion"]
                 else None
             )
-            app_runtime_id = app_info["currentVersion"]["runtimeContextId"]
 
-            # used for create_from_scratch (custom app)
             app_name = app_info["name"]
-            app_description = app_info["description"]
-            app_release_note = app_info["currentVersion"]["releaseNote"]
-            app_docker_image_name = ""
-            app_docker_credentials = None
-            if app_info["currentVersion"]["dockerInfo"] is not None:
-                app_docker_image_name = app_info["currentVersion"]["dockerInfo"]["image"]
-                app_docker_credentials = app_info["currentVersion"]["dockerInfo"]["dockerCredentialsId"]
             app_ports = app_info["currentVersion"]["ports"]
             for elem in app_ports:
                 del elem["internalUrl"]
-            app_volumes = app_info["currentVersion"]["volumesWithPath"]
-
-            app_emails = ""
-            app_status_list = ""
-
-            if app_info["alerting"] is not None:
-                app_emails = app_info["alerting"]["emails"]
-                app_status_list = app_info["alerting"]["statusList"]
-
-            app_resources_list = app_info["resources"]
 
             params = {
                 "projectId": project_id,
             }
 
-            if app_runtime_id:
+            if app_info["currentVersion"]["runtimeContextId"]:
                 # Get all id technologies in our project
-                technologies_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
-                technologies_for_project = [tech["id"] for tech in technologies_for_project]
+                techs_for_project = self.saagie_api.projects.get_apps_technologies(project_id)["appTechnologies"]
 
                 # Check if the technology exist
                 params = self.saagie_api.check_technology(
-                    params, app_technology_name, app_technology_catalog, technologies_for_project
+                    params, app_technology_name, app_technology_catalog, [tech["id"] for tech in techs_for_project]
                 )
                 technology_id = params["technologyId"]
 
@@ -853,25 +835,25 @@ class Apps:
             self.create_from_scratch(
                 project_id=project_id,
                 app_name=app_name,
-                image=app_docker_image_name,
-                description=app_description,
+                image=app_info["currentVersion"]["dockerInfo"]["image"] or "",
+                description=app_info["description"],
                 exposed_ports=app_ports,
-                storage_paths=app_volumes,
-                release_note=app_release_note,
-                docker_credentials_id=app_docker_credentials,
-                emails=app_emails,
-                status_list=app_status_list,
-                resources=app_resources_list,
+                storage_paths=app_info["currentVersion"]["volumesWithPath"],
+                release_note=app_info["currentVersion"]["releaseNote"],
+                docker_credentials_id=app_info["currentVersion"]["dockerInfo"]["dockerCredentialsId"] or None,
+                emails=app_info["alerting"]["emails"] or "",
+                status_list=app_info["alerting"]["statusList"] or "",
+                resources=app_info["resources"],
                 technology_id=technology_id,
                 technology_context=context_app_info,
             )
             logging.info("✅ App [%s] successfully imported", app_name)
         except Exception as exception:
-            result = False
-            logging.warning("❌ App [%s] has not been successfully imported", app_name)
-            logging.error("Something went wrong %s", exception)
-
-        return result
+            return handle_error(
+                f"❌ App [{app_name}] has not been successfully imported",
+                exception,
+            )
+        return True
 
     def get_id(self, app_name: str, project_name: str) -> str:
         """Get the app id with the app name and project name

@@ -865,7 +865,7 @@ class Jobs:
             True if job is exported False otherwise
         """
         job_info = None
-        output_folder = Path(check_folder_path(output_folder))
+        output_folder = Path(output_folder)
 
         try:
             job_info = self.get_info(

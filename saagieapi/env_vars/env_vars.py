@@ -1,11 +1,18 @@
 import json
 import logging
+from pathlib import Path
 from typing import Dict, Optional
 
 from gql import gql
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
 from .gql_queries import *
+
+
+def handle_error(msg, project_id):
+    logging.error("❌ Something went wrong %s", msg)
+    logging.warning("❌ Environment variables of the project [%s] have not been successfully imported", project_id)
+    return False
 
 
 class EnvVars:
@@ -345,14 +352,17 @@ class EnvVars:
         # If variable not present, create it
         if not present:
             args = {
-                "project_id": project_id,
-                "name": name,
-                "value": value,
-                "description": description,
-                "is_password": is_password,
+                k: v
+                for k, v in {
+                    "project_id": project_id,
+                    "name": name,
+                    "value": value,
+                    "description": description,
+                    "is_password": is_password,
+                }.items()
+                if v is not None
             }
-            args2 = {k: v for k, v in args.items() if v is not None}
-            return self.create_for_project(**args2)
+            return self.create_for_project(**args)
         return self.update_for_project(
             project_id=project_id,
             name=name,
@@ -659,8 +669,7 @@ class EnvVars:
             True if environment variables are exported False otherwise
         """
 
-        output_folder = check_folder_path(output_folder)
-        project_env_var = None
+        output_folder = Path(output_folder)
 
         try:
             project_env_var = self.list_for_project(project_id)["projectEnvironmentVariables"]
@@ -669,23 +678,25 @@ class EnvVars:
         except Exception as exception:
             logging.warning("Cannot get the information of environment variable of the project [%s]", project_id)
             logging.error("Something went wrong %s", exception)
-        if project_env_var:
-            try:
-                for env in project_env_var:
-                    env_var_name = env["name"]
-                    create_folder(output_folder + env_var_name)
-                    write_to_json_file(output_folder + env_var_name + "/variable.json", env)
+            return False
 
-                logging.info("✅ Environment variables of the project [%s] have been successfully exported", project_id)
-            except Exception as exception:
-                logging.warning(
-                    "❌ Environment variables of the project [%s] have not been successfully exported", project_id
-                )
-                logging.error("Something went wrong %s", exception)
-                write_error(error_folder, "env_vars", project_id)
-                return False
-        else:
+        if not project_env_var:
             logging.info("✅ The project [%s] doesn't have any environment variable", project_id)
+            return True
+
+        try:
+            for env in project_env_var:
+                create_folder(output_folder / env["name"])
+                write_to_json_file(output_folder / env["name"] / "variable.json", env)
+
+            logging.info("✅ Environment variables of the project [%s] have been successfully exported", project_id)
+        except Exception as exception:
+            logging.warning(
+                "❌ Environment variables of the project [%s] have not been successfully exported", project_id
+            )
+            logging.error("Something went wrong %s", exception)
+            write_error(error_folder, "env_vars", project_id)
+            return False
 
         return True
 
@@ -702,20 +713,17 @@ class EnvVars:
         bool
             True if environment variables are imported False otherwise
         """
-        result = True
-
+        json_file = Path(json_file)
         try:
-            with open(json_file, "r", encoding="utf-8") as file:
+            with json_file.open("r", encoding="utf-8") as file:
                 env_var_info = json.load(file)
         except Exception as exception:
-            logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", exception)
-            return False
+            return handle_error(f"{exception}\n Cannot open the JSON file {json_file}", project_id)
 
         try:
             env_var_name = env_var_info["name"]
             env_var_scope = env_var_info["scope"]
-            env_var_value = env_var_info["value"] if env_var_info["value"] is not None else ""
+            env_var_value = env_var_info["value"] or ""
             env_var_description = env_var_info["description"]
             env_var_is_password = env_var_info["isPassword"]
 
@@ -727,10 +735,7 @@ class EnvVars:
                     is_password=env_var_is_password,
                 )
                 if res["saveEnvironmentVariable"] is None:
-                    result = False
-                    logging.error("❌ Something went wrong %s", res)
-                else:
-                    result = True
+                    return handle_error(res, project_id)
             elif env_var_scope == "PROJECT":
                 res = self.create_for_project(
                     project_id=project_id,
@@ -740,21 +745,12 @@ class EnvVars:
                     is_password=env_var_is_password,
                 )
                 if res["saveEnvironmentVariable"] is None:
-                    result = False
-                    logging.error("❌ Something went wrong %s", res)
-                else:
-                    result = True
+                    return handle_error(res, project_id)
             else:
-                result = False
+                return handle_error(exception, project_id)
         except Exception as exception:
-            result = False
-            logging.error("Something went wrong %s", exception)
+            return handle_error(exception, project_id)
 
-        if result:
-            logging.info("✅ Environment variables of the project [%s] have been successfully imported", project_id)
-        else:
-            logging.warning(
-                "❌ Environment variables of the project [%s] have not been successfully imported", project_id
-            )
+        logging.info("✅ Environment variables of the project [%s] have been successfully imported", project_id)
 
-        return result
+        return True
