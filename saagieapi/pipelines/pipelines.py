@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
+from ..utils.folder_functions import create_folder, write_error, write_to_json_file
 from ..utils.rich_console import console
 from .gql_queries import *
 from .graph_pipeline import GraphPipeline
@@ -656,6 +656,7 @@ class Pipelines:
         error_folder: Optional[str] = "",
         versions_limit: Optional[int] = None,
         versions_only_current: bool = False,
+        env_var_scope: str = "PIPELINE",
     ) -> bool:
         """Export the pipeline in a folder
 
@@ -672,6 +673,8 @@ class Pipelines:
             to the oldest
         versions_only_current : bool, optional
             Whether to only fetch the current version of each pipeline
+        env_var_scope : str, optional
+            Scope of the environment variables to export. Can be "GLOBAL", "PROJECT" or "PIPELINE"
         Returns
         -------
         bool
@@ -686,10 +689,27 @@ class Pipelines:
                 versions_only_current=versions_only_current,
             )["graphPipeline"]
 
-            create_folder(output_folder / pipeline_id)
-            write_to_json_file(output_folder / pipeline_id / "pipeline.json", pipeline_info)
+            pipeline_folder = output_folder / pipeline_id
+            create_folder(pipeline_folder)
+            write_to_json_file(pipeline_folder / "pipeline.json", pipeline_info)
 
-            # TODO : Export pipeline env vars
+            scope_mapping = {
+                "GLOBAL": ["PIPELINE", "PROJECT", "GLOBAL"],
+                "PROJECT": ["PIPELINE", "PROJECT"],
+                "PIPELINE": ["PIPELINE"],
+            }
+
+            if env_var_scope in scope_mapping:
+                scopes = scope_mapping[env_var_scope]
+            else:
+                raise NameError("Invalid scope")
+
+            env_vars = self.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
+            env_vars = [env for env in env_vars if env["scope"] in scopes]
+
+            for env in env_vars:
+                create_folder(pipeline_folder / "env_vars" / env["name"])
+                write_to_json_file(pipeline_folder / "env_vars" / env["name"] / "variable.json", env)
 
             logging.info("✅ Pipeline [%s] successfully exported", pipeline_id)
         except Exception as exception:
@@ -715,6 +735,7 @@ class Pipelines:
             True if pipelines are imported False otherwise
         """
         json_file = Path(json_file)
+        env_vars_folder = json_file.parent / "env_vars"
         try:
             with json_file.open("r", encoding="utf-8") as file:
                 pipeline_info = json.load(file)
@@ -758,17 +779,22 @@ class Pipelines:
             if res["createGraphPipeline"] is None:
                 return handle_error(res, pipeline_name)
 
-            # TODO : Import pipeline env vars
-            # elif env_var_scope == "PIPELINE":
-            #     res = self.create_for_pipeline(
-            #         pipeline_id=,
-            #         name=env_var_name,
-            #         value=env_var_value,
-            #         description=env_var_description,
-            #         is_password=env_var_is_password,
-            #     )
-            #     if res["saveEnvironmentVariable"] is None:
-            #         return handle_error(res, project_id)
+            # check if env_var_folder exists
+            if env_vars_folder.exists():
+                for env_var_folder in env_vars_folder.iterdir():
+                    with (env_var_folder / "variable.json").open("r", encoding="utf-8") as file:
+                        env_var_info = json.load(file)
+                    res_env = self.saagie_api.env_vars.create(
+                        scope=env_var_info["scope"],
+                        name=env_var_info["name"],
+                        value=env_var_info["value"] or "",
+                        description=env_var_info["description"],
+                        is_password=env_var_info["isPassword"],
+                        project_id=project_id,
+                        pipeline_id=res["createGraphPipeline"]["id"],
+                    )
+                    if res_env["saveEnvironmentVariable"] is None:
+                        return handle_error(res_env, pipeline_name)
         except Exception as exception:
             return handle_error(exception, pipeline_name)
 

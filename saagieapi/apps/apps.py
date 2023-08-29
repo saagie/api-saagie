@@ -202,7 +202,7 @@ class Apps:
         if exposed_ports is None:
             exposed_ports = []
 
-        for storage in (s for s in storage_paths if "volume" in storage):
+        for storage in (s for s in storage_paths if "volume" in s):
             result = self.saagie_api.storages.create(
                 project_id,
                 storage["volume"]["name"],
@@ -637,10 +637,10 @@ class Apps:
             )
 
         app_info = self.get_info(app_id)["app"]["currentVersion"]
-        exposed_ports = None
 
         if exposed_ports is None:
-            exposed_ports = [port for port in app_info["ports"] if "internalUrl" not in port]
+            exposed_ports = app_info["ports"]
+            [port.pop("internalUrl", None) for port in exposed_ports if True]
 
         params = {
             "appId": app_id,
@@ -664,7 +664,7 @@ class Apps:
             params["appVersion"]["dockerInfo"]["dockerCredentialsId"] = docker_credentials_id
 
         # in case of catalog app updated
-        if technology_context and "dockerInfo" in params["appVersion"]:
+        if technology_context:
             params["appVersion"]["runtimeContextId"] = technology_context
             params["appVersion"].pop("dockerInfo", None)
 
@@ -818,18 +818,19 @@ class Apps:
                 context_app_info = context_app["id"]
 
             app_name = app_info["name"]
+            curr_version = app_info["currentVersion"]
 
             self.create_from_scratch(
                 project_id=project_id,
                 app_name=app_name,
-                image=app_info["currentVersion"]["dockerInfo"].get("image", ""),
+                image=(curr_version.get("dockerInfo") or {}).get("image", ""),
                 description=app_info["description"],
                 exposed_ports=app_ports,
-                storage_paths=app_info["currentVersion"]["volumesWithPath"],
-                release_note=app_info["currentVersion"]["releaseNote"],
-                docker_credentials_id=app_info["currentVersion"]["dockerInfo"]["dockerCredentialsId"] or None,
-                emails=app_info["alerting"]["emails"] or "",
-                status_list=app_info["alerting"]["statusList"] or "",
+                storage_paths=curr_version["volumesWithPath"],
+                release_note=curr_version["releaseNote"],
+                docker_credentials_id=(curr_version.get("dockerInfo") or {}).get("dockerCredentialsId"),
+                emails=(app_info.get("alerting") or {}).get("emails", ""),
+                status_list=(app_info.get("alerting") or {}).get("statusList", ""),
                 resources=app_info["resources"],
                 technology_id=technology_id,
                 technology_context=context_app_info,

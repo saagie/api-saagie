@@ -9,7 +9,6 @@ import requests
 from gql import gql
 
 from ..utils.folder_functions import (
-    check_folder_path,
     create_folder,
     remove_slash_folder_path,
     write_error,

@@ -83,9 +83,9 @@ def create_global_project():
         # Delete variable if it already exist
         with open(path, encoding="utf-8") as json_file:
             var_name = json.load(json_file)["name"]
-        var_list = [var["name"] for var in conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]]
+        var_list = [var["name"] for var in conf.saagie_api.env_vars.list(scope="GLOBAL")]
         if var_name in var_list:
-            conf.saagie_api.env_vars.delete_global(var_name)
+            conf.saagie_api.env_vars.delete(scope="GLOBAL", name=var_name)
 
     Conf.delete_test_global_env_var = delete_test_global_env_var
 

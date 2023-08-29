@@ -1,5 +1,6 @@
 import json
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
@@ -297,14 +298,14 @@ class Groups:
             True if groups are imported False otherwise
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
-        path_to_folder = check_folder_path(path_to_folder)
-        groups_json_path = f"{path_to_folder}groups.json"
+        path_to_folder = Path(path_to_folder)
+        groups_json_path = path_to_folder / "groups.json"
         bypassed_list = []
         failed_list = []
         already_exist_list = []
         imported_list = []
         try:
-            with open(groups_json_path, "r", encoding="utf-8") as file:
+            with groups_json_path.open("r", encoding="utf-8") as file:
                 groups_list = json.load(file)
         except Exception as exception:
             logging.warning("Cannot open the JSON file %s", groups_json_path)
@@ -315,39 +316,40 @@ class Groups:
         for group in groups_list:
             if group["protected"]:
                 bypassed_list.append(group["name"])
-            else:
-                group_name = group["name"]
-                res = self.saagie_api.request_client.send(
-                    method="GET",
-                    url=f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
-                    raise_for_status=False,
-                    verify_ssl=verify_ssl,
-                )
-                if res.status_code == 500:
-                    groups_user_json_path = f"{path_to_folder}groups/user_{group_name}.json"
-                    group_permission_json_path = f"{path_to_folder}groups/perm_{group_name}.json"
-                    try:
-                        with open(groups_user_json_path, "r", encoding="utf-8") as file:
-                            group_user = json.load(file)
-                        if group_user:
-                            self.create(group_name=group_name, users=group_user["users"], verify_ssl=verify_ssl)
+                continue
 
-                        with open(group_permission_json_path, "r", encoding="utf-8") as file:
-                            group_permission = json.load(file)
-                        if group_permission:
-                            self.edit_permission(
-                                group_name=group_name,
-                                authorizations=[],
-                                realm_authorization=group_permission["realmAuthorization"],
-                                verify_ssl=verify_ssl,
-                            )
-                        imported_list.append(group_name)
-                    except Exception as err:
-                        logging.error("Something went wrong when importing group [%s]: %s", group_name, err)
-                        failed_list.append(group_name)
+            group_name = group["name"]
+            res = self.saagie_api.request_client.send(
+                method="GET",
+                url=f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
+                raise_for_status=False,
+                verify_ssl=verify_ssl,
+            )
+            if res.status_code != 500:
+                already_exist_list.append(group["name"])
+                continue
 
-                else:
-                    already_exist_list.append(group["name"])
+            groups_user_json_path = path_to_folder / "groups" / f"user_{group_name}.json"
+            group_permission_json_path = path_to_folder / "groups" / f"perm_{group_name}.json"
+            try:
+                with groups_user_json_path.open("r", encoding="utf-8") as file:
+                    group_user = json.load(file)
+                if group_user:
+                    self.create(group_name=group_name, users=group_user["users"], verify_ssl=verify_ssl)
+
+                with group_permission_json_path.open("r", encoding="utf-8") as file:
+                    group_permission = json.load(file)
+                if group_permission:
+                    self.edit_permission(
+                        group_name=group_name,
+                        authorizations=[],
+                        realm_authorization=group_permission["realmAuthorization"],
+                        verify_ssl=verify_ssl,
+                    )
+                imported_list.append(group_name)
+            except Exception as err:
+                logging.error("Something went wrong when importing group [%s]: %s", group_name, err)
+                failed_list.append(group_name)
         if failed_list:
             logging.info("%s/%s are failed to import", len(failed_list), total_group)
             logging.warning("❌ The following groups are failed to import: %s", failed_list)

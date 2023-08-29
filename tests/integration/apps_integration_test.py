@@ -127,6 +127,15 @@ class TestIntegrationApps:
         conf = create_global_project
         app_id = create_then_delete_app_from_scratch
 
+        app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+        tries = 60
+        while app_info["app"]["history"]["currentStatus"] != "STARTED" and tries > 0:
+            app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+            time.sleep(1)
+            tries -= 1
+        if tries == 0:
+            raise Exception("App is not started")
+
         conf.saagie_api.apps.stop(app_id=app_id)
 
         app_after_run = conf.saagie_api.apps.get_info(app_id=app_id)

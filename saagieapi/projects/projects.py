@@ -3,6 +3,7 @@ import logging
 import os
 import time
 from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from gql import gql
@@ -430,14 +431,8 @@ class Projects:
             True if project is successfully exported False otherwise
         """
 
-        result = True
-        output_folder = check_folder_path(output_folder)
-        output_folder += f"{project_id}/"
+        output_folder = Path(output_folder) / project_id
         create_folder(output_folder)
-        output_folder_job = f"{output_folder}jobs/"
-        output_folder_pipeline = f"{output_folder}pipelines/"
-        output_folder_app = f"{output_folder}apps/"
-        output_folder_env_vars = f"{output_folder}env_vars/"
 
         project_info = self.get_info(project_id)["project"]
 
@@ -464,7 +459,7 @@ class Projects:
 
         project_info["rights"] = rights
 
-        write_to_json_file(f"{output_folder}project.json", project_info)
+        write_to_json_file(output_folder / "project.json", project_info)
 
         list_jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)
         id_jobs = [job["id"] for job in list_jobs["jobs"]]
@@ -481,15 +476,18 @@ class Projects:
         env_var_failed = []
 
         env_vars_export = self.saagie_api.env_vars.export(
-            project_id, output_folder_env_vars, error_folder=error_folder, project_only=project_only_env_vars
+            project_id=project_id,
+            output_folder=output_folder / "env_vars",
+            error_folder=error_folder,
+            project_only=project_only_env_vars,
         )
         if not env_vars_export:
             env_var_failed.append(project_id)
 
         for id_job in id_jobs:
             job_export = self.saagie_api.jobs.export(
-                id_job,
-                output_folder_job,
+                job_id=id_job,
+                output_folder=output_folder / "jobs",
                 error_folder=error_folder,
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
@@ -499,8 +497,8 @@ class Projects:
 
         for id_pipeline in id_pipelines:
             pipeline_export = self.saagie_api.pipelines.export(
-                id_pipeline,
-                output_folder_pipeline,
+                pipeline_id=id_pipeline,
+                output_folder=output_folder / "pipelines",
                 error_folder=error_folder,
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
@@ -510,19 +508,20 @@ class Projects:
 
         for id_app in id_apps:
             app_export = self.saagie_api.apps.export(
-                id_app,
-                output_folder_app,
+                app_id=id_app,
+                output_folder=output_folder / "apps",
                 error_folder=error_folder,
                 versions_only_current=versions_only_current,
             )
             if not app_export:
                 app_failed.append(id_app)
+
         if job_failed or pipeline_failed or app_failed or env_var_failed:
-            result = False
             logging.warning("❌ Project [%s] has not been successfully exported", project_id)
-        else:
-            logging.info("✅ Project [%s] successfully exported", project_id)
-        return result
+            return False
+
+        logging.info("✅ Project [%s] successfully exported", project_id)
+        return True
 
     def import_from_json(
         self,
@@ -540,9 +539,9 @@ class Projects:
             True if project is imported False otherwise
         """
         try:
-            path_to_folder = os.path.abspath(path_to_folder)
-            json_file = os.path.join(path_to_folder, "project.json")
-            with open(json_file, "r", encoding="utf-8") as file:
+            path_to_folder = Path(path_to_folder)
+            json_file = path_to_folder / "project.json"
+            with json_file.open("r", encoding="utf-8") as file:
                 config_dict = json.load(file)
         except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
@@ -582,45 +581,34 @@ class Projects:
         status = True
         list_failed = {"jobs": [], "pipelines": [], "apps": [], "env_vars": []}
 
-        jobs_list = list(os.listdir(os.path.join(path_to_folder, "jobs")))
-        for job in jobs_list:
+        for filename in (path_to_folder / "jobs").rglob("job.json"):
             job_status = self.saagie_api.jobs.import_from_json(
-                project_id=new_project_id, path_to_folder=os.path.join(path_to_folder, "jobs", job)
+                project_id=new_project_id, path_to_folder=filename.parent
             )
             if not job_status:
-                list_failed["jobs"].append(job)
+                list_failed["jobs"].append(filename.parent.name)
                 status = False
 
         # Import pipelines
-        for dirpath, _, filenames in os.walk(os.path.join(path_to_folder, "pipelines")):
-            for filename in filenames:
-                json_file = os.path.join(dirpath, filename)
-                pipeline_status = self.saagie_api.pipelines.import_from_json(
-                    json_file=json_file, project_id=new_project_id
-                )
-                if not pipeline_status:
-                    list_failed["pipelines"].append(dirpath.split(os.sep)[-1])
-                    status = False
+        for filename in (path_to_folder / "pipelines").rglob("pipeline.json"):
+            pipeline_status = self.saagie_api.pipelines.import_from_json(json_file=filename, project_id=new_project_id)
+            if not pipeline_status:
+                list_failed["pipelines"].append(filename.parent.name)
+                status = False
 
         # Import apps
-        for dirpath, _, filenames in os.walk(os.path.join(path_to_folder, "apps")):
-            for filename in filenames:
-                json_file = os.path.join(dirpath, filename)
-                app_status = self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
-                if not app_status:
-                    list_failed["apps"].append(dirpath.split(os.sep)[-1])
-                    status = False
+        for filename in (path_to_folder / "apps").rglob("app.json"):
+            app_status = self.saagie_api.apps.import_from_json(json_file=filename, project_id=new_project_id)
+            if not app_status:
+                list_failed["apps"].append(filename.parent.name)
+                status = False
 
         # Import env vars
-        for dirpath, _, filenames in os.walk(os.path.join(path_to_folder, "env_vars")):
-            for filename in filenames:
-                json_file = os.path.join(dirpath, filename)
-                env_var_status = self.saagie_api.env_vars.import_from_json(
-                    json_file=json_file, project_id=new_project_id
-                )
-                if not env_var_status:
-                    list_failed["env_vars"].append(dirpath.split(os.sep)[-1])
-                    status = False
+        for filename in (path_to_folder / "env_vars").rglob("env_var.json"):
+            env_var_status = self.saagie_api.env_vars.import_from_json(json_file=filename, project_id=new_project_id)
+            if not env_var_status:
+                list_failed["env_vars"].append(filename.parent.name)
+                status = False
 
         if not status:
             logging.error("Something went wrong during project import %s", list_failed)

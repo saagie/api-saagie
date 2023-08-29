@@ -99,5 +99,6 @@
     "cronScheduling": "5 12 5 * *",
     "scheduleStatus": "READY",
     "scheduleTimezone": "Europe/Paris",
-    "isLegacyPipeline": false
+    "isLegacyPipeline": false,
+    "hasExecutionVariablesEnabled": false
 }
