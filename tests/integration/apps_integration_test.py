@@ -114,7 +114,7 @@ class TestIntegrationApps:
                 time.sleep(1)
                 tries -= 1
             if tries == 0:
-                raise Exception("App is not stopped")
+                raise TimeoutError("App is not stopped")
 
         conf.saagie_api.apps.run(app_id=app_id)
 
@@ -134,7 +134,7 @@ class TestIntegrationApps:
             time.sleep(1)
             tries -= 1
         if tries == 0:
-            raise Exception("App is not started")
+            raise TimeoutError("App is not started")
 
         conf.saagie_api.apps.stop(app_id=app_id)
 

@@ -640,7 +640,7 @@ class Apps:
 
         if exposed_ports is None:
             exposed_ports = app_info["ports"]
-            [port.pop("internalUrl", None) for port in exposed_ports if True]
+            [port.pop("internalUrl", None) for port in exposed_ports]
 
         params = {
             "appId": app_id,

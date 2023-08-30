@@ -740,7 +740,7 @@ class Pipelines:
             with json_file.open("r", encoding="utf-8") as file:
                 pipeline_info = json.load(file)
         except Exception as exception:
-            return handle_error(f"Cannot open the JSON file {json_file}", "<name not found>")
+            return handle_error(f"Cannot open the JSON file {json_file}", exception)
 
         try:
             pipeline_name = pipeline_info["name"]
