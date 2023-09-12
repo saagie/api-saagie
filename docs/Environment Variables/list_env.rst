@@ -17,7 +17,7 @@ Parameters :
     * pipeline_id :
 
         * Type : str
-        * * Default value : None
+        * Default value : None
 
     * scope_only : bool = False
 
