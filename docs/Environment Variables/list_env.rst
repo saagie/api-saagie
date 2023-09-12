@@ -19,12 +19,12 @@ Parameters :
         * Type : str
         * Default value : None
 
-    * scope_only : bool = False
+    * scope_only :
 
         * Type : bool
         * Default value : False
 
-    * pprint_result : Optional[bool] = None
+    * pprint_result :
 
         * Type : Optional[bool]
         * Default value : None
