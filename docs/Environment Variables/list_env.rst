@@ -6,33 +6,25 @@ Listing environment variables
 
 Parameters :
 ~~~~~~~~~~~~
-
     **scope** :
-        Type : str
-        Expected values : GLOBAL, PROJECT, PIPELINE
+        | Type : str
+        | Expected values : GLOBAL, PROJECT, PIPELINE
 
     **project_id** :
-
-        Type : str
-        Default value : None
+        | Type : str
+        | Default value : None
 
     **pipeline_id** :
-
-        Type : str
-
-        Default value : None
+        | Type : str
+        | Default value : None
 
     **scope_only** :
-
-        Type : bool
-        
-        Default value : False
+        | Type : bool
+        | Default value : False
 
     **pprint_result** :
-
-        Type : Optional[bool]
-
-        Default value : None
+        | Type : Optional[bool]
+        | Default value : None
 
 
 
