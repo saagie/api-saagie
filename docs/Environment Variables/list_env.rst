@@ -8,15 +8,12 @@ Parameters :
 ~~~~~~~~~~~~
 
     **scope** :
-
         Type : str
-
         Expected values : GLOBAL, PROJECT, PIPELINE
 
     **project_id** :
 
         Type : str
-
         Default value : None
 
     **pipeline_id** :
