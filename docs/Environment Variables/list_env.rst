@@ -4,9 +4,9 @@ Listing environment variables
 **saagie.env_vars.list**
 ------------------------ 
 
-Get environment variables
-NB: You can only list environment variables if you have at least the
-viewer role on the project
+| Get environment variables
+| NB: You can only list environment variables if you have at least the
+| viewer role on the project
 
 Parameters :
 ~~~~~~~~~~~~
