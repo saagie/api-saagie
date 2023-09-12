@@ -1,7 +1,7 @@
 Updating global environment variables
 -------------------------------------
 
-**saagie.env_vars.update_global**
+**saagie.env_vars.update_global** *(deprecated)*
 
 Example :
 

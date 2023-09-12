@@ -1,7 +1,7 @@
 Deleting project environment variables
 --------------------------------------
 
-**saagie.env_vars.delete_for_project**
+**saagie.env_vars.delete_for_project** *(deprecated)*
 
 Example :
 

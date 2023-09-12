@@ -1,7 +1,7 @@
 Deleting pipeline environment variables
 --------------------------------------
 
-**saagie.env_vars.delete_for_pipeline**
+**saagie.env_vars.delete_for_pipeline** *(deprecated)*
 
 Example :
 

@@ -1,7 +1,7 @@
 Updating pipeline environment variables
 --------------------------------------
 
-**saagie.env_vars.update_for_pipeline**
+**saagie.env_vars.update_for_pipeline** *(deprecated)*
 
 Example :
 

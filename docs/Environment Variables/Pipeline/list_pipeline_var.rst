@@ -1,7 +1,7 @@
 Listing pipeline environment variables
 -------------------------------------
 
-**saagie.env_vars.list_for_pipeline**
+**saagie.env_vars.list_for_pipeline** *(deprecated)*
 
 Example :
 

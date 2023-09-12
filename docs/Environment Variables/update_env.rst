@@ -1,15 +1,15 @@
-Creating project environment variables
+Updating environment variables
 --------------------------------------
 
-**saagie.env_vars.create_for_project** *(deprecated)*
+**saagie.env_vars.update** 
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.create_for_project(name="TEST_PASSWORD",
-                                         value="test",
-                                         description="This is a password",
+   saagieapi.env_vars.update(name="TEST_PASSWORD",
+                                         value="new value",
+                                         description="This is a new password",
                                          is_password=True,
                                          project_id="50033e21-83c2-4431-a723-d54c2693b964"
                                          )

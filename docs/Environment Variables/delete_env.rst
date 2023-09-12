@@ -1,13 +1,13 @@
-Deleting global environment variables
+Deleting environment variables
 -------------------------------------
 
-**saagie.env_vars.delete_global** *(deprecated)*
+**saagie.env_vars.delete**
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.delete_global(name="TEST_PASSWORD")
+   saagieapi.env_vars.delete(name="TEST_PASSWORD")
 
 Response payload example :
 

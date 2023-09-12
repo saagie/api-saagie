@@ -1,7 +1,7 @@
 Updating project environment variables
 --------------------------------------
 
-**saagie.env_vars.update_for_project**
+**saagie.env_vars.update_for_project** *(deprecated)*
 
 Example :
 

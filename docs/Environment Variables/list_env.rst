@@ -1,13 +1,41 @@
-Listing global environment variables
+Listing environment variables
 ------------------------------------
 
-**saagie.env_vars.list_globals** *(deprecated)*
+**saagie.env_vars.list** 
+
+Parameters :
+    * scope :
+
+        * Type : str
+        * Expected values : GLOBAL, PROJECT, PIPELINE
+
+    * project_id :
+
+        * Type : str
+        * Default value : None
+
+    * pipeline_id :
+
+        * Type : str
+        * * Default value : None
+
+    * scope_only : bool = False
+
+        * Type : bool
+        * Default value : False
+
+    * pprint_result : Optional[bool] = None
+
+        * Type : Optional[bool]
+        * Default value : None
+
+
 
 Example :
 
 .. code:: python
 
-   saagieapi.env_vars.list_globals()
+   saagieapi.env_vars.list(scope='GLOBAL')
 
 Response payload example :
 

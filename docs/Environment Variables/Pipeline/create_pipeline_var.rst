@@ -1,7 +1,7 @@
 Creating pipeline environment variables
 --------------------------------------
 
-**saagie.env_vars.create_for_pipeline**
+**saagie.env_vars.create_for_pipeline** *(deprecated)*
 
 Example :
 

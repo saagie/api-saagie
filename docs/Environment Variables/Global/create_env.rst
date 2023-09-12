@@ -1,7 +1,7 @@
 Creating global environment variables
 -------------------------------------
 
-**saagie.env_vars.create_global**
+**saagie.env_vars.create_global** *(deprecated)*
 
 Example :
 
