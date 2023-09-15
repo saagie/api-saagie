@@ -35,7 +35,8 @@ class EnvVars:
 
     @deprecation.deprecated(
         details="This function is deprecated and will be removed in a future version. "
-        "Please use 'saagieapi.jobs.list_for_project' instead."
+        "Please use :func:`list()` instead.",
+        deprecated_in="2.8.0",
     )
     def list_globals(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get global environment variables
@@ -86,6 +87,11 @@ class EnvVars:
         """
         return self.saagie_api.client.execute(query=gql(GQL_LIST_GLOBAL_ENV_VARS), pprint_result=pprint_result)
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`create()` instead.",
+        deprecated_in="2.8.0",
+    )
     def create_global(
         self, name: str, value: str = "DEFAULT_VALUE", description: str = "", is_password: bool = False
     ) -> Dict:
@@ -134,6 +140,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully created", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`update()` instead.",
+        deprecated_in="2.8.0",
+    )
     def update_global(
         self, name: str, new_name: str = None, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
@@ -201,6 +212,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully updated", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`create_or_update()` instead.",
+        deprecated_in="2.8.0",
+    )
     def create_or_update_global(
         self, name: str, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
@@ -255,6 +271,11 @@ class EnvVars:
             name=name, new_name=None, value=value, description=description, is_password=is_password
         )
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`delete()` instead.",
+        deprecated_in="2.8.0",
+    )
     def delete_global(self, name: str) -> Dict:
         """Delete the given global environment variable
 
@@ -293,6 +314,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully deleted", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`list()` instead.",
+        deprecated_in="2.8.0",
+    )
     def list_for_project(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """Get project environment variables
         NB: You can only list environment variables if you have at least the
@@ -346,6 +372,11 @@ class EnvVars:
             query=gql(GQL_LIST_PROJECT_ENV_VARS), variable_values={"projectId": project_id}, pprint_result=pprint_result
         )
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`create()` instead.",
+        deprecated_in="2.8.0",
+    )
     def create_for_project(
         self, project_id: str, name: str, value: str = "DEFAULT_VALUE", description: str = "", is_password: bool = False
     ) -> Dict:
@@ -398,6 +429,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully created", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`update()` instead.",
+        deprecated_in="2.8.0",
+    )
     def update_for_project(
         self,
         project_id: str,
@@ -476,6 +512,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully updated", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`create_or_update()` instead.",
+        deprecated_in="2.8.0",
+    )
     def create_or_update_for_project(
         self, project_id: str, name: str, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
@@ -541,6 +582,11 @@ class EnvVars:
             is_password=is_password,
         )
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`delete()` instead.",
+        deprecated_in="2.8.0",
+    )
     def delete_for_project(self, project_id: str, name: str) -> Dict:
         """Delete a given environment variable inside a given project
 
@@ -583,6 +629,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully deleted", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`list()` instead.",
+        deprecated_in="2.8.0",
+    )
     def list_for_pipeline(self, pipeline_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """Get pipeline environment variables
         NB: You can only list environment variables if you have at least the
@@ -650,6 +701,11 @@ class EnvVars:
             query=gql(GQL_LIST_PIPELINE_ENV_VARS), variable_values=params, pprint_result=pprint_result
         )
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`create()` instead.",
+        deprecated_in="2.8.0",
+    )
     def create_for_pipeline(
         self,
         pipeline_id: str,
@@ -707,6 +763,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully created", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`update()` instead.",
+        deprecated_in="2.8.0",
+    )
     def update_for_pipeline(
         self,
         pipeline_id: str,
@@ -787,6 +848,11 @@ class EnvVars:
         logging.info("✅ Environment variable [%s] successfully updated", name)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`create_or_update()` instead.",
+        deprecated_in="2.8.0",
+    )
     def create_or_update_for_pipeline(
         self, pipeline_id: str, name: str, value: str = None, description: str = None, is_password: bool = None
     ) -> Dict:
@@ -849,6 +915,11 @@ class EnvVars:
             is_password=is_password,
         )
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`delete()` instead.",
+        deprecated_in="2.8.0",
+    )
     def delete_for_pipeline(self, pipeline_id: str, name: str) -> Dict:
         """Delete a given environment variable inside a given pipeline
 
