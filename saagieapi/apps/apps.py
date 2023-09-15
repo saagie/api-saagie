@@ -507,9 +507,9 @@ class Apps:
         ...                                     }]
         ...                                     )
         {
-           'createApp': {
-               'id': '1221f83e-52de-4beb-89a0-1505de4e875f'
-           }
+            'createApp': {
+                'id': '1221f83e-52de-4beb-89a0-1505de4e875f'
+            }
         }
         """
         if storage_paths is None:
@@ -987,57 +987,57 @@ class Apps:
     ) -> Dict:
         """Update the app
 
-         Parameters
-         ----------
-         app_id : str
-             App ID
-         release_note : str, optional
-             Release note for the app version
-         exposed_ports: List[dict], optional
-             List of dict of exposed ports
-             If not filled, it takes exposed_ports of previous version
-             Each dict should contains 'port' as key
-             Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
-                 "isRewriteUrl":True,
-                 "scope":"PROJECT",
-                 "number":5000,
-                 "name":"Test Port"}]
-         storage_paths: List[Dict], optional
-             List of dict indicating the volume path to the persistent storage
-             and :
-             - the id of the volume to be associated with the app.
-                 Ex: [{"path": "/home",
-                     "volumeId": "cb70ad1d-7883-48ac-8740-2c8e5c5166ee"}]
-         technology_context: str, optional
-             Context version of the app
-             Incompatible with parameters image & docker_credentials_id
-             If not filled, it takes technology_context of previous version
-         image: str, optional
-             tag of the Docker Image
-             Incompatible with parameter technology_context
-             If not filled, it takes image of previous version
-             ex: hello-world:nanoserver-ltc2022
-         docker_credentials_id: str, optional
-             Credentials's ID for the image if the image is not public
-             Incompatible with parameter technology_context
+        Parameters
+        ----------
+        app_id : str
+            App ID
+        release_note : str, optional
+            Release note for the app version
+        exposed_ports: List[dict], optional
+            List of dict of exposed ports
+            If not filled, it takes exposed_ports of previous version 
+            Each dict should contains 'port' as key
+            Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
+                "isRewriteUrl":True,
+                "scope":"PROJECT",
+                "number":5000,
+                "name":"Test Port"}]
+        storage_paths: List[Dict], optional
+            List of dict indicating the volume path to the persistent storage
+            and :
+            - the id of the volume to be associated with the app.
+                Ex: [{"path": "/home",
+                    "volumeId": "cb70ad1d-7883-48ac-8740-2c8e5c5166ee"}]
+        technology_context: str, optional
+            Context version of the app
+            Incompatible with parameters image & docker_credentials_id
+            If not filled, it takes technology_context of previous version
+        image: str, optional
+            tag of the Docker Image
+            Incompatible with parameter technology_context
+            If not filled, it takes image of previous version
+            ex: hello-world:nanoserver-ltc2022
+        docker_credentials_id: str, optional
+            Credentials's ID for the image if the image is not public
+            Incompatible with parameter technology_context
 
-         Returns
-         -------
-         dict
-             Dict of app version information
+        Returns
+        -------
+        dict
+            Dict of app version information
 
-         Examples
-         --------
-         >>> saagie_client.apps.upgrade(app_id="97ec670f-8b11-479f-9cd2-c8904ef45b7f",
-         ...                            exposed_ports=[{"basePathVariableName": "SAAGIE_BASE_PATH",
-         ...                                            "isRewriteUrl": True,
-         ...                                            "scope": "PROJECT",
-         ...                                            "number": 80,
-         ...                                            "name": "Test Port"}],
-         ...                            storage_paths=[{"path": "/home",
-         ...                                            "volumeId": "00f5d5d4-1975-478b-81f3-2003b7cff4c2"}]
-         ...                           )
-         {
+        Examples
+        --------
+        >>> saagie_client.apps.upgrade(app_id="97ec670f-8b11-479f-9cd2-c8904ef45b7f",
+        ...                            exposed_ports=[{"basePathVariableName": "SAAGIE_BASE_PATH",
+        ...                                            "isRewriteUrl": True,
+        ...                                            "scope": "PROJECT",
+        ...                                            "number": 80,
+        ...                                            "name": "Test Port"}],
+        ...                            storage_paths=[{"path": "/home",
+        ...                                            "volumeId": "00f5d5d4-1975-478b-81f3-2003b7cff4c2"}]
+        ...                           )
+        {
             'addAppVersion': {
                 'number': 2,
                 'releaseNote': '',

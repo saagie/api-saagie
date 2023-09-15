@@ -67,6 +67,59 @@ class Jobs:
         -------
         dict
             Dict of jobs information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.list_for_project(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     instances_limit=2
+        ... )
+        {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "description": "Amazing python job",
+                    "alerting": None,
+                    "countJobInstance": 0,
+                    "instances": [],
+                    "versions": [
+                        {
+                            "number": 1,
+                            "creationDate": "2022-04-26T12:08:15.286Z",
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "packageInfo": {
+                                "name": "_tmp_test.py",
+                                "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10/version/1/artifact/_tmp_test.py"
+                            },
+                            "dockerInfo": None,
+                            "extraTechnology": None,
+                            "isCurrent": True,
+                            "isMajor": False
+                        }
+                    ],
+                    "category": "Extraction",
+                    "technology": {
+                        "id": "0db6d0a7-ad4b-45cd-8082-913a192daa25"
+                    },
+                    "isScheduled": False,
+                    "cronScheduling": None,
+                    "scheduleTimezone": "UTC",
+                    "scheduleStatus": None,
+                    "isStreaming": False,
+                    "creationDate": "2022-04-26T12:08:15.286Z",
+                    "migrationStatus": None,
+                    "migrationProjectId": None,
+                    "isDeletable": True,
+                    "pipelines": [],
+                    "graphPipelines": [],
+                    "doesUseGPU": False,
+                    "resources": None
+                }
+            ]
+        }
         """
         params = {
             "projectId": project_id,
@@ -93,6 +146,26 @@ class Jobs:
         -------
         dict
             Dict of jobs ids and names
+
+        Examples
+        --------
+        >>> saagieapi.jobs.list_for_project_minimal(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        ... )
+        {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "alias": "Python_test_job_1"
+                },
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2"
+                }
+            ]
+        }
         """
 
         return self.saagie_api.client.execute(
@@ -114,6 +187,70 @@ class Jobs:
         -------
         dict
             Dict of instance information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.get_instance(job_instance_id="befe73b2-81ab-418f-bc2f-9d012102a895")
+        {
+            "jobInstance": {
+                "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
+                "number": 1,
+                "status": "SUCCEEDED",
+                "history": {
+                    "currentStatus": {
+                        "status": "SUCCEEDED",
+                        "details": None,
+                        "reason": None
+                    }
+                },
+                "startTime": "2022-04-19T13:45:49.783Z",
+                "endTime": "2022-04-19T13:45:57.388Z",
+                "jobId": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+                "version":{
+                    "number": 1,
+                    "releaseNote": "",
+                    "runtimeVersion": "3.7",
+                    "commandLine": "python {file} arg1 arg2",
+                    "isMajor": False,
+                    "isCurrent": True
+                }
+                "executionGlobalVariablesInput": [
+                    {
+                        "key": "TEST_PASSWORD",
+                        "value": None,
+                        "isPassword": True
+                    },
+                    {
+                        "key": "TEST_PROJECT", 
+                        "value": "TEST_PROJECT", 
+                        "isPassword": False
+                    }
+                ],
+                "executionVariablesInput": [
+                    {
+                        "parentJobInstanceId": None,
+                        "parentJobId": None,
+                        "parentJobAlias": None,
+                        "isDirectParent": None,
+                        "executionVariables": [
+                            {
+                                "key": "TEST_PASSWORD",
+                                "value": None,
+                                "isPassword": True
+                            },
+                            {
+                                "key": "TEST_PROJECT", 
+                                "value": "TEST_PROJECT", 
+                                "isPassword": False
+                            }
+                        ],
+                        "isGlobalVariables": True
+                    }
+                ],
+                "executionVariablesOutput": None,
+                "executionVariablesByKey": []
+            }
+        }
         """
 
         return self.saagie_api.client.execute(
@@ -136,6 +273,14 @@ class Jobs:
         -------
         str
             Job UUID
+
+        Examples
+        --------
+        >>> saagieapi.jobs.get_id(
+        ...     project_name="Test project",
+        ...     job_name="Python test job"
+        ... )
+        "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"
 
         """
         jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
@@ -174,6 +319,98 @@ class Jobs:
         dict
             Dict of job's info
 
+        Examples
+        --------
+        >>> saagieapi.jobs.get_info(
+        ...     job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+        ...     instances_limit=2
+        ... )
+        {
+            "job": {
+                "id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+                "name": "Python test job",
+                "description": "Amazing python job",
+                "alerting": None,
+                "countJobInstance": 5,
+                "instances": [
+                    {
+                        "id": "61f6175a-fd38-4fac-9fa9-a7b63554f14e",
+                        "status": "SUCCEEDED",
+                        "history": {
+                            "currentStatus": {
+                                "status": "SUCCEEDED",
+                                "details": None,
+                                "reason": None
+                            }
+                        },
+                        "startTime": "2022-04-19T13:46:40.045Z",
+                        "endTime": "2022-04-19T13:46:47.708Z",
+                        "version": {
+                            "number": 1,
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "isMajor": False,
+                            "doesUseGPU": False
+                        }
+                    },
+                    {
+                        "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
+                        "status": "SUCCEEDED",
+                        "history": {
+                            "currentStatus": {
+                                "status": "SUCCEEDED",
+                                "details": None,
+                                "reason": None
+                            }
+                        },
+                        "startTime": "2022-04-19T13:45:49.783Z",
+                        "endTime": "2022-04-19T13:45:57.388Z",
+                        "version":{
+                            "number": 1,
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "isMajor": False,
+                            "doesUseGPU": False
+                        }
+                    }
+                ],
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py"
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False
+                    }
+                ],
+                "category": "Extraction",
+                "technology": {
+                    "id": "0db6d0a7-ad4b-45cd-8082-913a192daa25"
+                },
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isStreaming": False,
+                "creationDate": "2022-04-26T08:16:20.681Z",
+                "migrationStatus": None,
+                "migrationProjectId": None,
+                "isDeletable": True,
+                "graphPipelines": [],
+                "doesUseGPU": False,
+                "resources": None
+            }
+        }
         """
         params = {
             "jobId": job_id,
@@ -262,6 +499,41 @@ class Jobs:
         dict
             Dict of job information
 
+        Examples
+        --------
+        >>> saagieapi.jobs.create(
+        ...     job_name="my job",
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     file="/tmp/test.py",
+        ...     description='My description',
+        ...     category='Extraction',
+        ...     technology='python',# technology id corresponding to your context.id in your technology catalog definition
+        ...     technology_catalog='Saagie',
+        ...     runtime_version='3.9',
+        ...     command_line='python {file}',
+        ...     release_note='First release',
+        ...     extra_technology='',
+        ...     extra_technology_version='',
+        ...     cron_scheduling='0 0 * * *',
+        ...     schedule_timezone='Europe/Paris',
+        ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
+        ...     emails=['email1@saagie.io', 'email2@saagie.io'],
+        ...     status_list=["FAILED", "KILLED"]
+        ... )
+        {
+            "data":{
+                "createJob":{
+                    "id":"60f46dce-c869-40c3-a2e5-1d7765a806db",
+                    "versions":[
+                        {
+                            "number":1,
+                            "__typename":"JobVersion"
+                        }
+                    ],
+                    "__typename":"Job"
+                }
+            }
+        }
         """
         params = {
             "projectId": project_id,
@@ -369,6 +641,50 @@ class Jobs:
         -------
         dict
             Dict of job information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.edit(
+        ...     job_id="60f46dce-c869-40c3-a2e5-1d7765a806db",
+        ...     job_name="newname",
+        ...     description="new desc",
+        ...     is_scheduled=True,
+        ...     cron_scheduling='0 * * * *',
+        ...     schedule_timezone='Europe/Paris',
+        ...     resources={"cpu": {"request": 1.5, "limit": 2.2}, "memory": {"request": 2.0}},
+        ...     emails=['email1@saagie.io'],
+        ...     status_list=["FAILED", "QUEUED"]
+        ... )
+        {
+            "editJob": {
+                "id": "60f46dce-c869-40c3-a2e5-1d7765a806db",
+                "name": "newname",
+                "alias": "newname",
+                "description": "new desc",
+                "isScheduled": True,
+                "cronScheduling": "0 * * * *",
+                "scheduleTimezone": "Europe/Paris",
+                "resources": {
+                    "cpu": {
+                        "request": 1.5,
+                        "limit": 2.2
+                    },
+                    "memory": {
+                        "request": 2.0,
+                        "limit": None
+                    }
+                },
+                "alerting": {
+                    "emails": [
+                        "email1@saagie.io"
+                    ],
+                    "statusList": [
+                        "FAILED",
+                        "QUEUED"
+                    ]
+                }
+            }
+        }        
         """
         previous_job_version = self.get_info(job_id, pprint_result=False)["job"]
         if not previous_job_version:
@@ -445,6 +761,23 @@ class Jobs:
             Dict with version number
             Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
+        Examples
+        --------
+        >>> saagieapi.jobs.upgrade(
+        ...     job_id="60f46dce-c869-40c3-a2e5-1d7765a806db",
+        ...     use_previous_artifact=True,
+        ...     runtime_version='3.8',
+        ...     command_line='python {file} new_arg',
+        ...     release_note="Second version"
+        ... )
+        {
+            "data":{
+                "addJobVersion":{
+                    "number":2,
+                    "__typename":"JobVersion"
+                }
+            }
+        }
         """
 
         # Get the job's current informations
@@ -1088,6 +1421,19 @@ class Jobs:
         -------
         dict
             Dict of job instances number by status
+
+        Examples
+        --------
+        >>> saagie_api.jobs.count_instances_by_status(job_id=job_id)
+        {
+            'countJobInstancesBySelector': [
+                {'selector': 'ALL', 'count': 0},
+                {'selector': 'SUCCEEDED', 'count': 0},
+                {'selector': 'FAILED', 'count': 0},
+                {'selector': 'STOPPED', 'count': 0},
+                {'selector': 'UNKNOWN', 'count': 0}
+            ]
+        }
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_COUNT_INSTANCES_BY_SELECTOR), variable_values={"jobId": job_id}

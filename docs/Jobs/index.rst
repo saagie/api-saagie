@@ -1,10 +1,7 @@
 Jobs
 =========
 
-
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.jobs
+    :members:
+    :undoc-members:
+    :show-inheritance:
