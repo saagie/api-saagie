@@ -24,6 +24,7 @@ pylint = "^2.17.5"
 isort = "^5.12.0"
 black = "^23.7.0"
 pre-commit = "^3.3.3"
+sphinx-rtd-theme = "^1.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -50,6 +51,7 @@ disable = [
     "too-few-public-methods",
     "too-many-public-methods",
     "wildcard-import",
+    "too-many-lines",
 ]
 
 [tool.pylint.format]

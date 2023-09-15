@@ -1,6 +1,8 @@
 import uuid
 from typing import List
 
+# pylint: disable=missing-function-docstring
+
 
 class Node:
     def __init__(self) -> None:

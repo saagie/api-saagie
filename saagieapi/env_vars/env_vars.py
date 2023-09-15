@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Optional
 
+import deprecation
 from gql import gql
 
 from ..utils.folder_functions import create_folder, write_error, write_to_json_file
@@ -32,19 +33,56 @@ class EnvVars:
         self.saagie_api = saagie_api
         self.client = saagie_api.client
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use 'saagieapi.jobs.list_for_project' instead."
+    )
     def list_globals(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get global environment variables
+
         NB: You can only list environment variables if you have at least the
         viewer role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
+
         Returns
         -------
         dict
             Dict of global environment variable on the platform
+
+        Examples
+        --------
+        >>> saagie_api.env_vars.list_globals()
+        {
+            "globalEnvironmentVariables": [
+                {
+                    "id": "334c2e0e-e8ea-4639-911e-757bf36bc91b",
+                    "name": "TEST_PASSWORD",
+                    "scope": "GLOBAL",
+                    "value": None,
+                    "description": "This is a password",
+                    "isPassword": True,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                },
+                {
+                    "id": "eb430066-551a-47f3-97c6-e56a9272fbd0",
+                    "name": "PORT_WEBHDFS",
+                    "scope": "GLOBAL",
+                    "value": "50070",
+                    "description": "",
+                    "isPassword": False,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                }
+            ]
+        }
         """
         return self.saagie_api.client.execute(query=gql(GQL_LIST_GLOBAL_ENV_VARS), pprint_result=pprint_result)
 
@@ -68,6 +106,19 @@ class EnvVars:
         -------
         dict
             Dict of created environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_global(name="TEST_PASSWORD",
+        ...                                  value="test",
+        ...                                  description="This is a password",
+        ...                                  is_password=True
+        ...                                 )
+        {
+            "saveEnvironmentVariable": {
+                "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
+            }
+        }
         """
         params = {
             "envVar": {
@@ -88,6 +139,7 @@ class EnvVars:
     ) -> Dict:
         """
         Update environment variable with provided function variables if it exists
+
         Parameters
         ----------
         name : str
@@ -110,6 +162,19 @@ class EnvVars:
         ------
         ValueError
             When the variable doesn't already exist
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.update_global(name="TEST_PASSWORD",
+        ...                                  value="new value",
+        ...                                  description="This is a new password",
+        ...                                  is_password=True
+        ...                                 )
+        {
+           "saveEnvironmentVariable": {
+               "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
+           }
+        }
         """
 
         existing_env_var = self.list_globals(pprint_result=False)["globalEnvironmentVariables"]
@@ -157,6 +222,19 @@ class EnvVars:
         -------
         dict
             Dict of created or updated environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_or_update_global(name="TEST_PASSWORD",
+        ...                                            value="new value",
+        ...                                            description="This is a new password",
+        ...                                            is_password=True
+        ...                                           )
+        {
+           "saveEnvironmentVariable": {
+               "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
+           }
+        }
         """
 
         existing_env_var = self.list_globals(pprint_result=False)["globalEnvironmentVariables"]
@@ -195,6 +273,13 @@ class EnvVars:
         ValueError
             When the given name doesn't correspond to an existing environment
             variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.delete_global(name="TEST_PASSWORD")
+        {
+            "deleteEnvironmentVariable": True
+        }
         """
         global_envs = self.list_globals(pprint_result=False)["globalEnvironmentVariables"]
         global_env = [env for env in global_envs if env["name"] == name]
@@ -220,10 +305,41 @@ class EnvVars:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
+
         Returns
         -------
         dict
             Dict of project environment variables
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.list_for_project(project_id="50033e21-83c2-4431-a723-d54c2693b964")
+        {
+            "projectEnvironmentVariables": [
+                {
+                    "id": "334c2e0e-e8ea-4639-911e-757bf36bc91b",
+                    "name": "TEST_PASSWORD",
+                    "scope": "GLOBAL",
+                    "value": None,
+                    "description": "This is a password",
+                    "isPassword": True,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                },
+                {
+                    "id": "eb430066-551a-47f3-97c6-e56a9272fbd0",
+                    "name": "RSTUDIO_ADMIN_USER",
+                    "scope": "PROJECT",
+                    "value": "rstudio",
+                    "description": "",
+                    "isPassword": False
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                }
+            ]
+        }
         """
 
         return self.saagie_api.client.execute(
@@ -252,6 +368,20 @@ class EnvVars:
         -------
         dict
             Dict of created environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_for_project(name="TEST_PASSWORD",
+        ...                                       value="test",
+        ...                                       description="This is a password",
+        ...                                       is_password=True,
+        ...                                       project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                                      )
+        {
+           "saveEnvironmentVariable": {
+               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+           }
+        }
         """
         params = {
             "entityId": project_id,
@@ -304,6 +434,20 @@ class EnvVars:
         ------
         ValueError
             When the variable doesn't already exist
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.update_for_project(name="TEST_PASSWORD",
+        ...                                       value="new value",
+        ...                                       description="This is a new password",
+        ...                                       is_password=True,
+        ...                                       project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                                      )
+        {
+           "saveEnvironmentVariable": {
+               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+           }
+        }
         """
 
         existing_env_var = self.list_for_project(project_id, pprint_result=False)["projectEnvironmentVariables"]
@@ -355,6 +499,20 @@ class EnvVars:
         -------
         dict
             Dict of created or updated environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_or_update_for_project(name="TEST_PASSWORD",
+        ...                                                 value="new value",
+        ...                                                 description="This is a new password",
+        ...                                                 is_password=True,
+        ...                                                 project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                                                )
+        {
+           "saveEnvironmentVariable": {
+               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+           }
+        }
         """
 
         existing_env_var = self.list_for_project(project_id, pprint_result=False)["projectEnvironmentVariables"]
@@ -403,6 +561,15 @@ class EnvVars:
         ValueError
             When the given name doesn't correspond to an existing environment
             variable inside the given project
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.delete_for_project(name="TEST_PASSWORD",
+        ...                                       project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                                      )
+        {
+            "deleteEnvironmentVariable": True
+        }
         """
         project_envs = self.list_for_project(project_id, pprint_result=False)
         project_env = [env for env in project_envs["projectEnvironmentVariables"] if env["name"] == name]
@@ -428,10 +595,52 @@ class EnvVars:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
+
         Returns
         -------
         dict
             Dict of pipeline environment variables
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.list_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1")
+        {
+            "pipelineEnvironmentVariables": [
+                {
+                    "id": "40a7dd59-538f-4c55-a983-8a554525b060",
+                    "scope": "GLOBAL",
+                    "name": "TEST_GLOBAL",
+                    "value": "TEST_GLOBAL",
+                    "description": "",
+                    "isPassword": False,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                },
+                {
+                    "id": "3f4a8d8f-6f45-480f-8907-2f66ddf26e01",
+                    "scope": "PROJECT",
+                    "name": "TEST_PROJECT",
+                    "value": "TEST_PROJECT",
+                    "description": "",
+                    "isPassword": False,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                },
+                {
+                    "id": "750c5366-caea-4d1f-ad38-fa6089ea2015",
+                    "scope": "PIPELINE",
+                    "name": "BLK1",
+                    "value": None,
+                    "description": "This is a new password",
+                    "isPassword": True,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                }
+            ]
+        }
         """
         params = {
             "pipelineId": pipeline_id,
@@ -468,6 +677,20 @@ class EnvVars:
         -------
         dict
             Dict of created environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...                                        name="TEST_PASSWORD",
+        ...                                        value="test",
+        ...                                        description="This is a password",
+        ...                                        is_password=True,
+        ...                                        )
+        {
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
+        }
         """
         params = {
             "entityId": pipeline_id,
@@ -520,6 +743,22 @@ class EnvVars:
         ------
         ValueError
             When the variable doesn't already exist
+
+        Examples
+        --------
+        >>> saagie_api.env_vars.update_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...                                         name="TEST_PASSWORD",
+        ...                                         new_name="TEST_PWD",
+        ...                                         value="new value",
+        ...                                         description="This is a new password",
+        ...                                         is_password=True,
+        ...                                        )
+        {
+            "saveEnvironmentVariable": {
+                "id": "750c5366-caea-4d1f-ad38-fa6089ea2015"
+            }
+        }
+
         """
 
         existing_env_var = self.list_for_pipeline(pipeline_id, pprint_result=False)["pipelineEnvironmentVariables"]
@@ -571,6 +810,20 @@ class EnvVars:
         -------
         dict
             Dict of created or updated environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_or_update_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...                                                  name="TEST_PASSWORD",
+        ...                                                  value="test",
+        ...                                                  description="This is a password",
+        ...                                                  is_password=True,
+        ...                                                 )
+        {
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
+        }
         """
 
         existing_env_var = self.list_for_pipeline(pipeline_id, pprint_result=False)["pipelineEnvironmentVariables"]
@@ -616,6 +869,15 @@ class EnvVars:
         ValueError
             When the given name doesn't correspond to an existing environment
             variable inside the given pipeline
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.delete_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...                                        name="TEST_PASSWORD",
+        ...                                       )
+        {
+           "deleteEnvironmentVariable": True
+        }
         """
         pipeline_envs = self.list_for_pipeline(pipeline_id, pprint_result=False)
         pipeline_env = [env for env in pipeline_envs["pipelineEnvironmentVariables"] if env["name"] == name]
@@ -652,10 +914,41 @@ class EnvVars:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
+
         Returns
         -------
         dict
             Dict of environment variables
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.list(scope="GLOBAL")
+        {
+            "globalEnvironmentVariables": [
+                {
+                    "id": "334c2e0e-e8ea-4639-911e-757bf36bc91b",
+                    "name": "TEST_PASSWORD",
+                    "scope": "GLOBAL",
+                    "value": None,
+                    "description": "This is a password",
+                    "isPassword": True,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                },
+                {
+                    "id": "eb430066-551a-47f3-97c6-e56a9272fbd0",
+                    "name": "PORT_WEBHDFS",
+                    "scope": "GLOBAL",
+                    "value": "50070",
+                    "description": "",
+                    "isPassword": False,
+                    "isValid": True,
+                    "overriddenValues": [],
+                    "invalidReasons": None
+                }
+            ]
+        }
         """
         check_scope(scope, project_id, pipeline_id)
 
@@ -711,6 +1004,20 @@ class EnvVars:
         -------
         dict
             Dict of created environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create(name="TEST_PASSWORD",
+        ...                           value="test",
+        ...                           description="This is a password",
+        ...                           is_password=True,
+        ...                           project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                          )
+        {
+           "saveEnvironmentVariable": {
+               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+           }
+        }
         """
 
         check_scope(scope, project_id, pipeline_id)
@@ -776,6 +1083,20 @@ class EnvVars:
         ------
         ValueError
             When the variable doesn't already exist
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.update(name="TEST_PASSWORD",
+        ...                           value="new value",
+        ...                           description="This is a new password",
+        ...                           is_password=True,
+        ...                           project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                          )
+        {
+           "saveEnvironmentVariable": {
+               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+           }
+        }
         """
 
         check_scope(scope, project_id, pipeline_id)
@@ -846,6 +1167,20 @@ class EnvVars:
         -------
         dict
             Dict of created or updated environment variable
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.create_or_update(name="TEST_PASSWORD",
+        ...                                     value="new value",
+        ...                                     description="This is a new password",
+        ...                                     is_password=True,
+        ...                                     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ...                                    )
+        {
+           "saveEnvironmentVariable": {
+               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+           }
+        }
         """
 
         check_scope(scope, project_id, pipeline_id)
@@ -908,6 +1243,13 @@ class EnvVars:
         ValueError
             When the given name doesn't correspond to an existing environment
             variable inside the given scope
+
+        Examples
+        --------
+        >>>   saagieapi.env_vars.delete(name="TEST_PASSWORD")
+        {
+           "deleteEnvironmentVariable": True
+        }
         """
         check_scope(scope, project_id, pipeline_id)
 
@@ -939,6 +1281,28 @@ class EnvVars:
         -------
         dict
             Dict of created environment variables for pipeline
+
+        Examples
+        --------
+        >>> saagie_api.env_vars.bulk_create_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...                                              env_vars={"BULK1": "HELLO", "BULK2": "WORLD"}
+        ...                                             )
+        {
+            "replaceEnvironmentVariablesByRawForScope": [
+                {
+                    "id": "750c5366-caea-4d1f-ad38-fa6089ea2015",
+                    "scope": "PIPELINE",
+                    "name": "BULK1",
+                    "value": "HELLO"
+                },
+                {
+                    "id": "ce5f098e-4750-40b1-8c10-11b118ebc23a",
+                    "scope": "PIPELINE",
+                    "name": "BULK2",
+                    "value": "WORLD"
+                }
+            ]
+        }
         """
 
         # need to transform the dict in parameter to a string with the following format"var1=val1\nvar2=val2"
@@ -975,6 +1339,14 @@ class EnvVars:
         -------
         bool
             True if environment variables are exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.export(project_id="50033e21-83c2-4431-a723-d54c2693b964",
+        ...                           output_folder="./output/env_vars/",
+        ...                           error_folder="./output/error/",
+        ...                           project_only=True)
+        True
         """
 
         output_folder = Path(output_folder)
@@ -1009,16 +1381,24 @@ class EnvVars:
     def import_from_json(self, json_file: str, project_id: str = None) -> bool:
         """Import environment variables from JSON format of scope GLOBAL or PROJECT
         To import PIPELINE variables, use the pipelines.import_from_json function
+
         Parameters
         ----------
         json_file : str
             Path to the JSON file that contains env var information
         project_id : str, optional
             Project ID
+
         Returns
         -------
         bool
             True if environment variables are imported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.env_vars.import_from_json(json_file="/path/to/the/json/file.json",
+        ...                                     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
+        True
         """
         json_file = Path(json_file)
         try:
