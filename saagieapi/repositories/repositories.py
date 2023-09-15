@@ -33,7 +33,56 @@ class Repositories:
         -------
         dict
             Dict of repositories
+
+        Examples
+        --------
+        >>> saagieapi.repositories.list()
+        {
+            'repositories': [
+                {
+                    'id': '9fcbddfe-a7b7-4d25-807c-ad030782c923',
+                    'name': 'Saagie',
+                    'synchronizationReports': {
+                        'lastReversibleId': 'a17c73ed-fca1-4f25-a343-914c7ac23bae',
+                        'count': 1,
+                        'list': [
+                            {
+                                'endedAt': '2022-09-12T10:27:44.549Z',
+                                'issues': [],
+                                'revert': None
+                            }
+                        ]
+                    },
+                    'technologies': [
+                        {
+                            'available': True,
+                            'id': '9f188511-d49f-4129-9d6d-f4d451f42acd',
+                            'label': 'Java/Scala'
+                        },
+                        {
+                            'available': True,
+                            'id': '46cede50-c22a-4b95-9088-3251d0466458',
+                            'label': 'SQOOP'
+                        },
+                        {
+                            'available': True,
+                            'id': '0db6d0a7-ad4b-45cd-8082-913a192daa25',
+                            'label': 'Python'
+                        },
+                        {
+                            'available': True,
+                            'id': 'db34c9b9-47c7-4dc6-8c3c-2d8ccf5afa11',
+                            'label': 'AWS Lambda'
+                        }
+                    ],
+                    'source': {
+                        'url': 'https://github.com/saagie/technologies/releases/latest/download/technologies.zip'
+                    }
+                }
+            ]
+        }
         """
+
         params = {
             "minimal": minimal,
             "lastSynchronization": last_synchronization,
@@ -72,6 +121,129 @@ class Repositories:
         -------
         dict
             Dict of repository information
+
+        Examples
+        --------
+        >>> saagieapi.repositories.get_info(repository_id="9fcbddfe-a7b7-4d25-807c-ad030782c923")
+        {
+            'repository': {
+                'creationDate': '2020-07-28T08:14:03.134Z',
+                'creator': 'Saagie',
+                'editor': 'Saagie',
+                'id': '9fcbddfe-a7b7-4d25-807c-ad030782c923',
+                'modificationDate': '2020-07-28T08:14:03.134Z',
+                'name': 'Saagie',
+                'readOnly': True,
+                'source': {
+                    'url': 'https://github.com/saagie/technologies/releases/latest/download/technologies.zip'
+                },
+                'synchronizationReports': {
+                    'count': 6,
+                    'list': [
+                        {
+                            'source': {
+                                'url': 'https://github.com/saagie/technologies/releases/latest/download/technologies.zip'
+                            },
+                            'endedAt': '2022-09-12T10:27:44.549Z',
+                            'startedAt': '2022-09-12T10:27:44.549Z',
+                            'trigger': {
+                                'author': 'hello.world',
+                                'type': 'MANUAL'
+                            },
+                            'technologyReports': [
+                                {
+                                    'status': 'UNCHANGED',
+                                    'technologyId': 'sqoop',
+                                    'message': None
+                                },
+                                {
+                                    'status': 'UNCHANGED',
+                                    'technologyId': 'talend',
+                                    'message': None
+                                }
+                            ],
+                            'issues': [],
+                            'revert': None
+                        }
+                    ],
+                    'lastReversibleId': 'a17c73ed-fca1-4f25-a343-914c7ac23bae'
+                },
+                'connectionTypes': [
+                    {
+                        'id': '5b4b8ffb-9228-4f7a-9d39-67fd3c2862d3',
+                        'label': 'AWS Connection',
+                        'actions': {
+                            'checkConnection': {
+                                'scriptId': '9359e392-58a0-42db-9ce9-b68679aa9131'
+                            }
+                        }
+                    }
+                ],
+                'technologies': [
+                    {
+                        'id': '1bf79f1d-7e2d-4daf-976d-8702114ab507',
+                        'technologyId': 'generic',
+                        'label': 'Generic',
+                        'icon': 'docker',
+                        'repositoryId': '9fcbddfe-a7b7-4d25-807c-ad030782c923',
+                        'available': True,
+                        'missingFacets': [],
+                        'description': 'A generic Docker image that can be used to execute code in a Docker container.',
+                        'contexts': [
+                            {
+                                'id': 'docker',
+                                'label': 'Docker',
+                                'available': True,
+                                'missingFacets': [],
+                                'description': None,
+                                'recommended': False,
+                                'dockerInfo': None,
+                                'trustLevel': 'Stable',
+                                'deprecationDate': None,
+                                'lastUpdate': '2022-02-21T14:35:41.692Z'
+                            }
+                        ]
+                    },
+                    {
+                        'id': 'db34c9b9-47c7-4dc6-8c3c-2d8ccf5afa11',
+                        'technologyId': 'aws-lambda',
+                        'label': 'AWS Lambda',
+                        'icon': 'aws-lambda',
+                        'repositoryId': '9fcbddfe-a7b7-4d25-807c-ad030782c923',
+                        'available': True,
+                        'missingFacets': [],
+                        'description': 'Run code without thinking about servers. Pay only for the compute time you consume',
+                        'iconUrl': None,
+                        'contexts': [
+                            {
+                                'id': 'functions',
+                                'label': 'Functions',
+                                'available': True,
+                                'missingFacets': [],
+                                'description': 'AWS Lambda Functions',
+                                'recommended': False,
+                                'trustLevel': 'Experimental',
+                                'deprecationDate': None,
+                                'lastUpdate': '2022-08-31T13:05:32.031Z',
+                                'connectionTypeUUID': '5b4b8ffb-9228-4f7a-9d39-67fd3c2862d3',
+                                'actions': {
+                                    'getStatus': {
+                                        'scriptId': '50794533-091b-4d66-9463-96f0ce255785'
+                                    },
+                                    'start': {
+                                        'scriptId': '50794533-091b-4d66-9463-96f0ce255785'
+                                    },
+                                    'stop': None,
+                                    'getLogs': {
+                                        'scriptId': '50794533-091b-4d66-9463-96f0ce255785'
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
         """
 
         params = {
@@ -105,7 +277,24 @@ class Repositories:
         ------
         ValueError
             If the parameters 'file' and 'url' are not filled
+
+        Examples
+        --------
+        >>> saagie.repositories.create(name="hello world repo",
+                                       file="./test_input/technologies.zip")
+        {
+            'addRepository': {
+                'count': 1,
+                'objects': [
+                    {
+                        'id': 'd04e578f-546a-41bf-bb8c-790e99a4f6c8',
+                        'name': 'hello world repo'
+                    }
+                ]
+            }
+        }
         """
+
         params = {"repositoryInput": {"name": name}}
         result = self.__launch_request(file, url, GQL_CREATE_REPOSITORY, params)
         logging.info("✅ Repository [%s] successfully created", name)
@@ -114,6 +303,7 @@ class Repositories:
     def __launch_request(self, file: str, url: str, payload_str: str, params: Dict) -> Dict:
         """Launch a GQL request with specified file, payload and params
         GQL3 needed to use this function
+
         Parameters
         ----------
         file : str
@@ -130,6 +320,7 @@ class Repositories:
         dict
             Dict of the request response
         """
+
         if file:
             file = Path(file)
             with file.open(mode="rb") as file_content:
@@ -168,6 +359,15 @@ class Repositories:
         dict
             Dict of deleted repository
 
+        Examples
+        --------
+        >>> saagieapi.repositories.delete(repository_id="163360ba-3254-490e-9eec-ccd1dc096fd7")
+        {
+            'removeRepository': {
+                'id': '163360ba-3254-490e-9eec-ccd1dc096fd7',
+                'name': 'new name repo'
+            }
+        }
         """
 
         result = self.saagie_api.client_gateway.execute(
@@ -202,7 +402,28 @@ class Repositories:
         dict
             Dict of repository information
 
+        Examples
+        --------
+        >>> saagieapi.repositories.edit(repository_id="163360ba-3254-490e-9eec-ccd1dc096fd7",
+                                        name="new name repo",
+                                        url="https://github.com/saagie/technologies-community/releases/download/0.62.0/technologies.zip",
+                                        trigger_synchronization=True)
+        {
+            'editRepository': {
+                'count': 1,
+                'objects': [
+                    {
+                        'name': 'new name repo',
+                        'source': {
+                            'url': 'https://github.com/saagie/technologies-community/releases/download/0.62.0/technologies.zip'
+                        },
+                        'id': '163360ba-3254-490e-9eec-ccd1dc096fd7'
+                    }
+                ]
+            }
+        }
         """
+
         params = {"repositoryInput": {"id": repository_id, "triggerSynchronization": trigger_synchronization}}
         if name:
             params["repositoryInput"]["name"] = name
@@ -231,7 +452,55 @@ class Repositories:
         dict
             Dict of repository information
 
+        Examples
+        --------
+        >>> saagie.repositories.synchronize(repository_id="d04e578f-546a-41bf-bb8c-790e99a4f6c8",
+                                            file="./test_input/new_technologies.zip")
+         {
+            'synchronizeRepository': {
+                'count': 5,
+                'report': {
+                    'id': '47589bad-729d-4afe-99e8-05824dd66858',
+                    'endedAt': '2022-09-21T12:15:50.513Z',
+                    'startedAt': '2022-09-21T12:15:50.513Z',
+                    'trigger': {
+                        'author': 'hello.world',
+                        'type': 'MANUAL'
+                    },
+                    'technologyReports': [
+                        {
+                            'status': 'DELETED',
+                            'technologyId': 'aws-batch'
+                        },
+                        {
+                            'status': 'DELETED',
+                            'technologyId': 'aws-emr'
+                        },
+                        {
+                            'status': 'DELETED',
+                            'technologyId': 'aws-glue'
+                        },
+                        {
+                            'status': 'DELETED',
+                            'technologyId': 'aws-lambda'
+                        },
+                        {
+                            'status': 'UNCHANGED',
+                            'technologyId': 'cloudbeaver'
+                        },
+                        {
+                            'status': 'UNCHANGED',
+                            'technologyId': 'dash'
+                        }
+                    ],
+                    'issues': []
+                },
+                'repositoryId': '0e09c160-7f68-402e-9156-0d414e53318b',
+                'repositoryName': 'hello world repo'
+            }
+        }
         """
+
         params = {"id": repository_id}
         if file:
             result = self.__launch_request(file, "", GQL_SYNCHRONIZE_REPOSITORY, params)
@@ -255,10 +524,30 @@ class Repositories:
         -------
         dict
             Dict of repository information
+
         Raises
         ------
         NameError
             If the repository does not exist or the user don't have the permission to see it or can not be revert
+
+        Examples
+        --------
+        >>> saagieapi.repositories.revert_last_synchronization(repository_id="163360ba-3254-490e-9eec-ccd1dc096fd7")
+        {
+            'revertLastSynchronization': {
+                'report': {
+                    'id': 'f40650aa-73c0-4388-9742-331f8147b1a9',
+                    'trigger': {
+                        'author': 'hello.world',
+                        'type': 'URL_UPDATE'
+                    },
+                    'endedAt': '2022-09-21T12:04:41.551Z',
+                    'startedAt': '2022-09-21T12:04:41.551Z'
+                },
+                'repositoryName': 'new name repo',
+                'repositoryId': '163360ba-3254-490e-9eec-ccd1dc096fd7'
+            }
+        }
         """
         repositories = self.list(minimal=True, last_synchronization=True)["repositories"]
         if repository := list(filter(lambda p: p["id"] == repository_id, repositories)):
@@ -278,6 +567,7 @@ class Repositories:
         ----------
         repository_name : str
             Name of your project
+
         Returns
         -------
         str
@@ -287,6 +577,11 @@ class Repositories:
         ------
         NameError
             If repository does not exist or the user don't have permission to see it
+
+        Examples
+        --------
+        >>> saagieapi.repositories.get_id(repository_name="Saagie")
+        '9fcbddfe-a7b7-4d25-807c-ad030782c923'
         """
         repositories = self.list(minimal=True, last_synchronization=True)["repositories"]
         if repository := list(filter(lambda p: p["name"] == repository_name, repositories)):

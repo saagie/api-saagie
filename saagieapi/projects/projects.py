@@ -19,14 +19,18 @@ class Projects:
     def __map_role(role: str) -> str:
         """
         Map role with valid Saagie Role
+
+        Parameters
         ----------
-        params:role:str
+        role : str
             Role as simple string
+
         Returns
         -------
         str
             Valid Saagie role
         """
+
         if role.lower() in {"manager", "editor", "viewer"}:
             return f"ROLE_PROJECT_{role.upper()}"
         raise ValueError("❌ 'role' takes value in ('Manager', 'Editor', 'Viewer')")
@@ -81,20 +85,53 @@ class Projects:
         -------
         dict
             Dict of projects information
+
+        Examples
+        --------
+        >>> saagieapi.projects.list()
+        {
+            "projects":[
+                {
+                    "id":"8321e13c-892a-4481-8552-5be4d6cc5df4",
+                    "name":"Project A",
+                    "creator":"john.doe",
+                    "description":"My project A",
+                    "jobsCount":49,
+                    "status":"READY"
+                },
+                {
+                    "id":"33b70e1b-3111-4376-a839-12d2f93c323b",
+                    "name":"Project B",
+                    "creator":"john.doe",
+                    "description":"My project B",
+                    "jobsCount":1,
+                    "status":"READY"
+                }
+            ]
+        }
         """
+
         return self.saagie_api.client.execute(query=gql(GQL_LIST_PROJECTS), pprint_result=pprint_result)
 
     def get_id(self, project_name: str) -> Dict:
         """Get the project id with the project name
+
         Parameters
         ----------
         project_name : str
             Name of your project
+
         Returns
         -------
         str
             Project UUID
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_id("Project A")
+        "8321e13c-892a-4481-8552-5be4d6cc5df4"
         """
+
         projects = self.list()["projects"]
         if project := list(filter(lambda p: p["name"] == project_name, projects)):
             return project[0]["id"]
@@ -118,7 +155,21 @@ class Projects:
         -------
         dict
             Dict of project information
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_info(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            "project": {
+                "name":"Project A",
+                "creator":"john.doe",
+                "description":"My project A",
+                "jobsCount":49,
+                "status":"READY"
+            }
+        }
         """
+
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=pprint_result
         )
@@ -138,7 +189,42 @@ class Projects:
         -------
         dict
             Dict of available jobs technology ids
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_jobs_technologies(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            'technologiesByCategory': [
+                {
+                    'jobCategory': 'Extraction',
+                    'technologies': [
+                        {
+                            'id': '9bb75cad-69a5-4a9d-b059-811c6cde589e',
+                            '__typename': 'Technology'
+                        },
+                        {
+                            'id': 'f267085d-cc52-4ae8-ad9e-af8721c81127',
+                            '__typename': 'Technology'
+                        }
+                    ]
+                },
+                {
+                    'jobCategory': 'Processing',
+                    'technologies': [
+                        {
+                            'id': '9bb75cad-69a5-4a9d-b059-811c6cde589e',
+                            '__typename': 'Technology'
+                        }
+                    ]
+                },
+                {
+                    'jobCategory': 'Smart App',
+                    'technologies': []
+                }
+            ]
+        }
         """
+
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES),
             variable_values={"id": project_id},
@@ -155,10 +241,28 @@ class Projects:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
+
         Returns
         -------
         dict
             Dict of available apps technology ids
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_apps_technologies(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            'appTechnologies': [
+                {
+                    'id': '11d63963-0a74-4821-b17b-8fcec4882863'
+                },
+                {
+                    'id': '56ad4996-7285-49a6-aece-b9525c57c619'
+                },
+                {
+                    'id': 'd0b55623-9dc0-4e03-89c7-6a2494387a4f'
+                }
+            ]
+        }
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES),
@@ -201,7 +305,22 @@ class Projects:
         ------
         ValueError
             If given unknown role value
+
+        Examples
+        --------
+        >>> saagie_client.projects.create(name="Project_A",
+                                  groups_and_roles=[{"my_group": "Manager"}],
+                                  jobs_technologies_allowed={"saagie": ["python", "spark"]},
+                                  apps_technologies_allowed={"saagie": ["Jupyter Notebook"]})
+        {
+            'createProject': {
+                'id': '09515109-e8d3-4ed0-9ab7-5370efcb6cb5',
+                'name': 'Project_A',
+                'creator': 'toto.tata'
+            }
+        }
         """
+
         # Create the params of the query
         params = {"name": name}
         params = self._create_groupe_role(params, group, role, groups_and_roles)
@@ -219,6 +338,7 @@ class Projects:
         """
         Get technology ids for the apps configured in parameters
         If param is empty, get all apps technology ids from the official saagie catalog
+
         Parameters
         ----------
         apps_technologies_allowed:list, optional
@@ -229,6 +349,7 @@ class Projects:
         list
             List of dict of apps technologies
         """
+
         if not apps_technologies_allowed:
             return [
                 {"id": techno["id"]}
@@ -254,6 +375,7 @@ class Projects:
         """
         Get technology ids for the jobs configured in parameters
         If param is empty, get all jobs technology ids from the official saagie catalog
+
         Parameters
         ----------
         jobs_technologies_allowed:list, optional
@@ -264,6 +386,7 @@ class Projects:
         list
             List of dict of jobs technologies
         """
+
         if not jobs_technologies_allowed:
             return [
                 {"id": techno["id"]}
@@ -297,7 +420,26 @@ class Projects:
         -------
         dict
             Dict of rights associated for the project
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_rights(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            'rights': [
+                {
+                    'name': 'manager_group',
+                    'role': 'ROLE_PROJECT_MANAGER',
+                    'isAllProjects': True
+                },
+                {
+                    'name': 'my_group',
+                    'role': 'ROLE_PROJECT_MANAGER',
+                    'isAllProjects': False
+                }
+            ]
+        }
         """
+
         return self.saagie_api.client.execute(query=gql(GQL_GET_PROJECT_RIGHTS), variable_values={"id": project_id})
 
     def edit(
@@ -312,7 +454,6 @@ class Projects:
         apps_technologies_allowed: Dict = None,
     ) -> Dict:
         """Edit a project
-
 
         Parameters
         ----------
@@ -348,7 +489,25 @@ class Projects:
         ------
         ValueError
             If given unknown role value
+
+        Examples
+        --------
+        >>> saagie_client.projects.edit(project_id="9a261ae0-fd73-400c-b9b6-b4b63ac113eb",
+                               name="PROJECT B",
+                               groups_and_roles=[{"my_group": "Viewer"}],
+                               description="new desc",
+                               jobs_technologies_allowed={"saagie": ["r"]},
+                               apps_technologies_allowed={"saagie": ["Dash"]}
+                              )
+        {
+            'editProject': {
+                'id': '9a261ae0-fd73-400c-b9b6-b4b63ac113eb',
+                'name': 'PROJECT B',
+                'creator': 'toto.tata'
+            }
+        }
         """
+
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
         params = self._create_groupe_role(params, group, role, groups_and_roles)
@@ -391,7 +550,13 @@ class Projects:
         -------
         dict
             dict of archived project
+
+        Examples
+        --------
+        >>> saagieapi.projects.delete(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        { "deleteProject": True }
         """
+
         result = self.saagie_api.client.execute(
             query=gql(GQL_DELETE_PROJECT), variable_values={"projectId": project_id}
         )
@@ -424,10 +589,19 @@ class Projects:
             Whether to only fetch the current version of each job/app/pipeline
         project_only_env_vars : bool, optional
             True if only project environment variable should be exported False otherwise
+
         Returns
         -------
         bool
             True if project is successfully exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.projects.export(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4",
+                                  output_folder="./output/",
+                                  error_folder= "./error/",
+                                  versions_only_current = True,
+                                  project_only_env_vars = True)
         """
 
         output_folder = Path(output_folder) / project_id
@@ -532,11 +706,17 @@ class Projects:
         ----------
         path_to_folder : str, optional
             Path to the folder of the project to import
+
         Returns
         -------
         bool
             True if project is imported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.projects.import_from_json(path_to_folder="./output/")
         """
+
         try:
             path_to_folder = Path(path_to_folder)
             json_file = path_to_folder / "project.json"

@@ -11,8 +11,9 @@ class Profiles:
     def list(self, verify_ssl: Optional[bool] = None) -> Dict:
         """Get profiles
         NB: You can only list profiles if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
             By default, refers to saagie_api.verify_ssl
@@ -21,7 +22,24 @@ class Profiles:
         -------
         dict
             Dict of profiles on the platform
+
+        Examples
+        --------
+        >>> saagieapi.profiles.list()
+        [
+            {
+                "login": "test_user",
+                "job": "DATA_ENGINEER",
+                "email": "test_user@gmail.com"
+            },
+            {
+                "login": "customer_admin",
+                "job": None,
+                "email": None
+            }
+        ]
         """
+
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
             method="GET", url=f"{self.saagie_api.url_saagie}profiles/api/", raise_for_status=True, verify_ssl=verify_ssl
@@ -32,8 +50,9 @@ class Profiles:
     def get_info(self, user_name: str, verify_ssl: Optional[bool] = None) -> Dict:
         """Get profile info of a specific user
         NB: You can only get user's profile information if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         user_name: str
             User's name
         verify_ssl: bool, optional
@@ -44,7 +63,17 @@ class Profiles:
         -------
         Dict
             Dict of user's profile information on the platform
+
+        Examples
+        --------
+        >>> saagieapi.profiles.get_info(user_name="test_user")
+        {
+            "login": "test_user",
+            "job": "DATA_ENGINEER",
+            "email": "test_user@gmail.com"
+        }
         """
+
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
             method="GET",
@@ -70,7 +99,12 @@ class Profiles:
         -------
         bool
             True if profiles are exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.profiles.export(output_folder="/tmp/")
         """
+
         profiles = None
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         try:
@@ -108,7 +142,14 @@ class Profiles:
         -------
         bool
             True if profile is successfully edited error otherwise
+
+        Examples
+        --------
+        >>> saagieapi.profiles.edit(user_name="test_user",
+                                    job_title="PROJECT_MANAGER",
+                                    email="test.user@gmail.com")
         """
+
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         previous_profile = self.get_info(user_name, verify_ssl=verify_ssl)
         params = {

@@ -1,9 +1,7 @@
 Projects
 ========
 
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.projects
+    :members:
+    :undoc-members:
+    :show-inheritance:
