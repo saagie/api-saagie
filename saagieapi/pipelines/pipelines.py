@@ -92,6 +92,175 @@ class Pipelines:
         -------
         Dict
             Dict of pipelines information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.list_for_project(project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
+        {
+            "project": {
+                "pipelines": [
+                    {
+                        "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                        "name": "Pipeline A",
+                        "description": "My Pipeline A",
+                        "alerting": None,
+                        "pipelineInstanceCount": 0,
+                        "instances": [],
+                        "versions": [
+                            {
+                                "number": 1,
+                                "releaseNote": None,
+                                "graph": {
+                                    "jobNodes": [
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000000",
+                                            "job": {
+                                                "id": "6f56e714-37e4-4596-ae20-7016a1d954e9",
+                                                "name": "Spark 2.4 java"
+                                            },
+                                            "position": None,
+                                            "nextNodes": ["00000000-0000-0000-0000-000000000001"]
+                                        },
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000001",
+                                            "job": {
+                                                "id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a",
+                                                "name": "bash"
+                                            },
+                                            "position": None,
+                                            "nextNodes": []
+                                        }
+                                    ],
+                                    "conditionNodes": []
+                                },
+                                "creationDate": "2022-01-31T10:36:42.327Z",
+                                "creator": "john.doe",
+                                "isCurrent": True,
+                                "isMajor": False
+                            }
+                        ],
+                        "creationDate": "2022-01-31T10:36:42.327Z",
+                        "creator": "john.doe",
+                        "isScheduled": False,
+                        "cronScheduling": None,
+                        "scheduleStatus": None,
+                        "scheduleTimezone": "UTC",
+                        "isLegacyPipeline": False
+                    },
+                    {
+                        "id": "9a2642df-550c-4c69-814f-1008f177b0e1",
+                        "name": "Pipeline B",
+                        "description": None,
+                        "alerting": None,
+                        "pipelineInstanceCount": 2,
+                        "instances": [
+                            {
+                                "id": "cc11c32a-66c5-43ad-b176-444cee7079ff",
+                                "status": "SUCCEEDED",
+                                "startTime": "2022-03-15T11:42:07.559Z",
+                                "endTime": "2022-03-15T11:43:17.716Z",
+                                "runWithExecutionVariables": True,
+                                "initialExecutionVariables": [
+                                    {
+                                        "key": "TEST_PASSWORD",
+                                        "value": None,
+                                        "isPassword": True
+                                    },
+                                    {
+                                        "key": "TEST_PROJECT", 
+                                        "value": "TEST_PROJECT", 
+                                        "isPassword": False
+                                    }
+                                ],
+                                "jobsInstance": [
+                                    {
+                                        "id": "f8e77fc3-9c4d-450b-8efd-9d3080b38edb",
+                                        "jobId": "9a71afa4-aed4-4061-87d2-b279a3adf8c3",
+                                        "number": 80,
+                                        "startTime": "2022-03-15T11:42:07.559Z",
+                                        "endTime": "2022-03-15T11:43:17.716Z"
+                                    }
+                                ],
+                                "conditionsInstance": [
+                                    {
+                                        "id": "2292a535-affb-4b1c-973d-690c185d949e",
+                                        "conditionNodeId": "c2f23720-e361-11ed-894d-6b696861cc8f",
+                                        "isSuccess": true,
+                                        "startTime": "2022-03-15T11:42:30.559Z",
+                                        "endTime": "2022-03-15T11:42:45.559Z"
+                                    }
+                                ],
+                            },
+                            {
+                                "id": "d7aba110-3bd9-4505-b70c-84c4d212345",
+                                "status": "SUCCEEDED",
+                                "startTime": "2022-02-04T00:00:00.062Z",
+                                "endTime": "2022-02-04T00:00:27.249Z",
+                                "runWithExecutionVariables": False,
+                                "initialExecutionVariables": [],
+                                "jobsInstance": [],
+                                "conditionsInstance": [],
+                            }
+                        ],
+                        "versions": [
+                            {
+                                "number": 1,
+                                "releaseNote": None,
+                                "graph": {
+                                    "jobNodes": [
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000002",
+                                            "job": {
+                                                "id": "6f56e714-37e4-4596-ae20-7016a1d459e9",
+                                                "name": "Job test 1"
+                                            },
+                                            "position": None,
+                                            "nextNodes": ["00000000-0000-0000-0000-000000000001"]
+                                        },
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000003",
+                                            "job": {
+                                                "id": "6ea1b022-db8b-4af7-885b-56ddc9ba647a",
+                                                "name": "Job test 2"
+                                            },
+                                            "position": None,
+                                            "nextNodes": []
+                                        }
+                                    ],
+                                    "conditionNodes": [
+                                        {
+                                            "id": "00000000-0000-0000-0000-000000000001",
+                                            "position": {
+                                                "x": 310.00092,
+                                                "y": 75
+                                            },
+                                            "nextNodesSuccess": [
+                                                "00000000-0000-0000-0000-000000000003"
+                                            ],
+                                            "nextNodesFailure": [],
+                                            "condition": {
+                                                "toString": "ConditionExpression(expression=\"tube_name.contains(\"Tube\") || double(diameter) > 1.0\")"
+                                            }
+                                        }
+                                    ],
+                                },
+                                "creationDate": "2022-02-03T14:41:39.422Z",
+                                "creator": "john.doe",
+                                "isCurrent": True,
+                                "isMajor": False
+                            }
+                        ],
+                        "creationDate": "2022-02-03T14:41:39.422Z",
+                        "creator": "john.doe",
+                        "isScheduled": False,
+                        "cronScheduling": None,
+                        "scheduleStatus": None,
+                        "scheduleTimezone": "UTC",
+                        "isLegacyPipeline": False
+                    }
+                ]
+            }
+        }
         """
         params = {
             "projectId": project_id,
@@ -115,6 +284,24 @@ class Pipelines:
         -------
         Dict
             Dict of pipelines ids and names
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.list_for_project_minimal(project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
+        {
+            "project": {
+                "pipelines": [
+                    {
+                        "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                        "name": "Pipeline A"
+                    },
+                    {
+                        "id": "9a2642df-550c-4c69-814f-1008f177b0e1",
+                        "name": "Pipeline B"
+                    }
+                ]
+            }
+        }
         """
 
         return self.saagie_api.client.execute(
@@ -135,6 +322,14 @@ class Pipelines:
         -------
         str
             Pipeline UUID
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.get_id(
+        ...     project_name="Project A",
+        ...     pipeline_name="Pipeline A"
+        ... )
+        "5d1999f5-fa70-47d9-9f41-55ad48333629"
         """
         project_id = self.saagie_api.projects.get_id(project_name)
         pipelines = self.list_for_project(project_id, instances_limit=1)["project"]["pipelines"]
@@ -172,6 +367,122 @@ class Pipelines:
         -------
         dict
             Dict of pipeline's information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.get_info(pipeline_id="5d1999f5-fa70-47d9-9f41-55ad48333629")
+        {
+            "graphPipeline": {
+                "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                "name": "Pipeline A",
+                "description": "My Pipeline A",
+                "alerting": "NULL",
+                "pipelineInstanceCount": 0,
+                "instances": [
+                    {
+                        "id": "cc11c32a-66c5-43ad-b176-444cee7079ff",
+                        "status": "SUCCEEDED",
+                        "startTime": "2022-03-15T11:42:07.559Z",
+                        "endTime": "2022-03-15T11:43:17.716Z",
+                        "runWithExecutionVariables": True,
+                        "initialExecutionVariables": [
+                            {
+                                "key": "TEST_PASSWORD",
+                                "value": None,
+                                "isPassword": True
+                            },
+                            {
+                                "key": "TEST_PROJECT",
+                                "value": "TEST_PROJECT",
+                                "isPassword": False
+                            }
+                        ],
+                        "jobsInstance": [
+                            {
+                                "id": "f8e77fc3-9c4d-450b-8efd-9d3080b38edb",
+                                "jobId": "9a71afa4-aed4-4061-87d2-b279a3adf8c3",
+                                "number": 80,
+                                "startTime": "2022-03-15T11:42:07.559Z",
+                                "endTime": "2022-03-15T11:43:17.716Z"
+                            }
+                        ],
+                        "conditionsInstance": [
+                            {
+                                "id": "2292a535-affb-4b1c-973d-690c185d949e",
+                                "conditionNodeId": "c2f23720-e361-11ed-894d-6b696861cc8f",
+                                "isSuccess": true,
+                                "startTime": "2022-03-15T11:42:30.559Z",
+                                "endTime": "2022-03-15T11:42:45.559Z"
+                            }
+                        ],
+                    },
+                    {
+                        "id": "d7aba110-3bd9-4505-b70c-84c4d212345",
+                        "status": "SUCCEEDED",
+                        "startTime": "2022-02-04T00:00:00.062Z",
+                        "endTime": "2022-02-04T00:00:27.249Z",
+                        "runWithExecutionVariables": False,
+                        "initialExecutionVariables": [],
+                        "jobsInstance": [],
+                        "conditionsInstance": [],
+                    }
+                ],
+                "versions": [
+                    {
+                        "number": 1,
+                        "releaseNote": None,
+                        "graph": {
+                            "jobNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000000",
+                                    "job": {
+                                        "id": "6f56e714-37e4-4596-ae20-7016a1d954e9",
+                                        "name": "Spark 2.4 java"
+                                    },
+                                    "position": None,
+                                    "nextNodes": ["00000000-0000-0000-0000-000000000001"]
+                                },
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "job": {
+                                        "id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a", "name": "bash"
+                                    },
+                                    "position": None,
+                                    "nextNodes": []
+                                }
+                            ],
+                            "conditionNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "position": {
+                                        "x": 310.00092,
+                                        "y": 75
+                                    },
+                                    "nextNodesSuccess": [
+                                        "00000000-0000-0000-0000-000000000002"
+                                    ],
+                                    "nextNodesFailure": [],
+                                    "condition": {
+                                        "toString": "ConditionExpression(expression=\"tube_name.contains(\"Tube\") || double(diameter) > 1.0\")"
+                                    }
+                                }
+                            ]
+                        },
+                        "creationDate": "2022-01-31T10:36:42.327Z",
+                        "creator": "john.doe",
+                        "isCurrent": True,
+                        "isMajor": False
+                    }
+                ],
+                "creationDate": "2022-01-31T10:36:42.327Z",
+                "creator": "john.doe",
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isLegacyPipeline": False
+            }
+        }
         """
         params = {
             "id": pipeline_id,
@@ -199,6 +510,49 @@ class Pipelines:
         -------
         dict
             Dict of pipeline information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.get_instance(pipeline_instance_id="cc11c32a-66c5-43ad-b176-444cee7079ff")
+        {
+            "pipelineInstance": {
+                "id": "cc11c32a-66c5-43ad-b176-444cee7079ff",
+                "status": "SUCCEEDED",
+                "startTime": "2022-03-15T11:42:07.559Z",
+                "endTime": "2022-03-15T11:43:17.716Z",
+                "runWithExecutionVariables": True,
+                "initialExecutionVariables": [
+                    {
+                        "key": "TEST_PASSWORD",
+                        "value": None,
+                        "isPassword": True
+                    },
+                    {
+                        "key": "TEST_PROJECT", 
+                        "value": "TEST_PROJECT", 
+                        "isPassword": False
+                    }
+                ],
+                "jobsInstance": [
+                    {
+                        "id": "f8e77fc3-9c4d-450b-8efd-9d3080b38edb",
+                        "jobId": "9a71afa4-aed4-4061-87d2-b279a3adf8c3",
+                        "number": 80,
+                        "startTime": "2022-03-15T11:42:07.559Z",
+                        "endTime": "2022-03-15T11:43:17.716Z"
+                    }
+                ],
+                "conditionsInstance": [
+                    {
+                        "id": "00000000-0000-0000-0000-000000000001",
+                        "conditionNodeId": "c2f23720-e361-11ed-894d-6b696861cc8f",
+                        "isSuccess": True,
+                        "startTime": "2022-03-15T11:42:30.559Z",
+                        "endTime": "2022-03-15T11:42:45.559Z"
+                    }
+                ],
+            }
+        }
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE_INSTANCE),
@@ -257,6 +611,46 @@ class Pipelines:
         -------
         dict
             Dict of pipeline information
+
+        Examples
+        --------
+        >>> job1_id = "7a706539-69dd-4f5d-bba3-4eac6be74d8d"
+        >>> job2_id = "3dbbb785-a7f4-4840-9f98-814b105a1a31"
+        >>> job3_id = "00000000-0000-0000-0000-000000000001"
+        >>> job4_id = "00000000-0000-0000-0000-000000000002"
+        >>> # create several JobNode
+        >>> job_node1 = JobNode(job1_id)
+        >>> job_node2 = JobNode(job2_id)
+        >>> job_node3 = JobNode(job_id)
+        >>> job_node4 = JobNode(job_id)
+        >>> # create a condition node between job_node1 and job_node2 or job_node3
+        >>> condition_node_1 = ConditionStatusNode()
+        >>> condition_node_1.put_at_least_one_success()
+        >>> condition_node_1.add_success_node(job_node2)
+        >>> condition_node_1.add_failure_node(job_node3)
+        >>> job_node1.add_next_node(condition_node_1)
+        >>> # create a condition node between job_node2 and job_node4
+        >>> condition_node_2 = ConditionExpressionNode()
+        >>> condition_node_2.set_expression("1 + 1 == 2")
+        >>> condition_node_2.add_success_node(job_node4)
+        >>> job_node2.add_next_node(condition_node_2)
+        >>> graph_pipeline = GraphPipeline()
+        >>> graph_pipeline.add_root_node(job_node1)
+        >>> saagie.pipelines.create_graph(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     graph_pipeline=graph_pipeline,
+        ...     name="Amazing Pipeline",
+        ...     description="new pipeline",
+        ...     cron_scheduling="0 0 * * *",
+        ...     schedule_timezone="Pacific/Fakaofo",
+        ...     emails=["hello.world@gmail.com"],
+        ...     status_list=["FAILED"]
+        ... )
+        {
+            "createGraphPipeline": {
+                "id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c"
+            }
+        }
         """
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
@@ -297,6 +691,13 @@ class Pipelines:
         -------
         dict
             Dict containing status of deletion
+
+        Examples
+        --------
+        >>> pipeline_instance_id = saagieapi.pipelines.delete(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c")
+        {
+            "deletePipeline": True
+        }
         """
 
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_PIPELINE), variable_values={"id": pipeline_id})
@@ -318,6 +719,63 @@ class Pipelines:
         -------
         dict
             Dict of pipeline information
+
+        Examples
+        --------
+        >>> job1_id = "7a706539-69dd-4f5d-bba3-4eac6be74d8d"
+        >>> job2_id = "3dbbb785-a7f4-4840-9f98-814b105a1a31"
+        >>> job3_id = "e5e9fa38-1af8-42e7-95df-8d983eb78387"
+        >>> job_node1 = JobNode(job1_id)
+        >>> job_node2 = JobNode(job2_id)
+        >>> job_node3 = JobNode(job3_id)
+        >>> condition_node_1 = ConditionStatusNode()
+        >>> condition_node_1.put_at_least_one_success()
+        >>> job_node1.add_next_node(condition_node_1)
+        >>> condition_node_1.add_success_node(job_node2)
+        >>> condition_node_1.add_failure_node(job_node3)
+        >>> graph_pipeline = GraphPipeline()
+        >>> graph_pipeline.add_root_node(job_node1)
+        >>> saagie.pipelines.upgrade(
+        ...     pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
+        ...     graph_pipeline=graph_pipeline
+        ... )
+        {
+            "addGraphPipelineVersion":{
+                "number":4,
+                "releaseNote":"",
+                "graph":{
+                    "jobNodes":[
+                        {
+                            "id":"82383907-bdd9-4d66-bc00-a84ff3a9caee",
+                            "job":{
+                                "id":"7a706539-69dd-4f5d-bba3-4eac6be74d8d"
+                            }
+                        },
+                        {
+                            "id":"5501eea2-e7af-4b44-a784-387f133b28c6",
+                            "job":{
+                                "id":"3dbbb785-a7f4-4840-9f98-814b105a1a31"
+                            }
+                        },
+                        {
+                            "id":"560d99bb-4e7b-4ab4-a5df-d879d31b4c0a",
+                            "job":{
+                                "id":"e5e9fa38-1af8-42e7-95df-8d983eb78387"
+                            }
+                        }
+                    ],
+                    "conditionNodes":[
+                        {
+                            "id":"9d0e886c-7771-4aa7-8321-cbccfaf4d3bb"
+                        }
+                    ]
+                },
+                "creationDate":"2022-04-28T15:35:32.381215Z[UTC]",
+                "creator":"john.doe",
+                "isCurrent":True,
+                "isMajor":False
+            }
+        }
         """
         if not graph_pipeline.list_job_nodes:
             graph_pipeline.to_pipeline_graph_input()
@@ -386,6 +844,25 @@ class Pipelines:
         -------
         dict
             Dict of pipeline information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.edit(
+        ...        pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
+        ...     name="Amazing Pipeline 2"
+        ... )
+        {
+            "editPipeline":{
+                "id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
+                "name": "Amazing Pipeline 2",
+                "description": "",
+                "alerting": None,
+                "isScheduled": True,
+                "cronScheduling": "0 0 1 * *",
+                "scheduleTimezone": "UTC",
+                "hasExecutionVariablesEnabled": False
+            }
+        }
         """
         previous_pipeline_info = self.get_info(pipeline_id, pprint_result=False)["graphPipeline"]
 
@@ -484,6 +961,29 @@ class Pipelines:
         -------
         dict
             Dict of pipeline information
+
+        Examples
+        --------
+        >>> job1_id = "7a706539-69dd-4f5d-bba3-4eac6be74d8d"
+        >>> job2_id = "3dbbb785-a7f4-4840-9f98-814b105a1a31"
+        >>> job_node1 = JobNode(job1_id)
+        >>> job_node2 = JobNode(job2_id)
+        >>> condition_node_1 = ConditionStatusNode()
+        >>> condition_node_1.put_at_least_one_success()
+        >>> job_node1.add_next_node(condition_node_1)
+        >>> condition_node_1.add_success_node(job_node2)
+        >>> graph_pipeline = GraphPipeline()
+        >>> graph_pipeline.add_root_node(job_node1)
+        >>> saagie.pipelines.create_or_upgrade(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     graph_pipeline=graph_pipeline,
+        ...     name="Amazing Pipeline",
+        ...     description="new pipeline",
+        ...     cron_scheduling="0 0 * * *",
+        ...     schedule_timezone="Pacific/Fakaofo",
+        ...     emails=["hello.world@gmail.com"],
+        ...     status_list=["FAILED"]
+        ... )
         """
         pipeline_list = self.saagie_api.pipelines.list_for_project_minimal(project_id)["project"]["pipelines"]
 
@@ -542,6 +1042,27 @@ class Pipelines:
         dict
             Dict of rollback pipeline
 
+        Examples
+        --------
+        >>> saagie_api.pipelines.rollback(
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1", 
+        ...     version_number=1
+        ... )
+        {
+            "rollbackPipelineVersion": {
+                "id": "5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+                "versions": [
+                    {
+                        "number": 2, 
+                        "isCurrent": False
+                    },
+                    {
+                        "number": 1, 
+                        "isCurrent": True
+                    }
+                ]
+            }
+        }
         """
         result = self.saagie_api.client.execute(
             query=gql(GQL_ROLLBACK_PIPELINE_VERSION),
@@ -564,6 +1085,16 @@ class Pipelines:
         -------
         dict
             Dict of pipeline instance's information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.run(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c")
+        {
+            "runPipeline":{
+                "id":"975253ea-1b91-4633-acdf-dd9b09d53b18",
+                "status":"REQUESTED"
+            }
+        }
         """
         result = self.saagie_api.client.execute(
             query=gql(GQL_RUN_PIPELINE), variable_values={"pipelineId": pipeline_id}
@@ -595,6 +1126,11 @@ class Pipelines:
         ------
         TimeoutError
             the last state known of the pipeline before timeout
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.run_with_callback(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c")
+        "SUCCEEDED"
         """
         res = self.run(pipeline_id)
         pipeline_instance_id = res.get("runPipeline").get("id")
@@ -642,6 +1178,20 @@ class Pipelines:
         -------
         dict
             Dict of pipeline's instance information
+
+        Examples
+        --------
+        >>> saagie.pipelines.stop(pipeline_instance_id="8e9b9f16-4a5d-4188-a967-1a96b88e4358")
+        {
+            "stopPipelineInstance":{
+                "id":"0a83faaa-c4e9-4141-82d0-c434fcfb0f10",
+                "number":1,
+                "status":"KILLING",
+                "startTime":"2022-04-28T14:30:17.734Z",
+                "endTime":None,
+                "pipelineId":"ca79c5c8-2e57-4a35-bcfc-5065f0ee901c"
+            }
+        }
         """
         result = self.saagie_api.client.execute(
             query=gql(GQL_STOP_PIPELINE_INSTANCE), variable_values={"pipelineInstanceId": pipeline_instance_id}
@@ -675,10 +1225,21 @@ class Pipelines:
             Whether to only fetch the current version of each pipeline
         env_var_scope : str, optional
             Scope of the environment variables to export. Can be "GLOBAL", "PROJECT" or "PIPELINE"
+
         Returns
         -------
         bool
             True if pipeline is exported
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.export(
+        ...     pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c", 
+        ...     output_folder="./output/pipeline/",
+        ...     error_folder="./output/error/pipeline/",
+        ...     versions_only_current=True
+        ... )
+        True
         """
         output_folder = Path(output_folder)
         try:
@@ -723,16 +1284,26 @@ class Pipelines:
 
     def import_from_json(self, json_file: str, project_id: str) -> bool:
         """Import pipeline from JSON format
+        
         Parameters
         ----------
         json_file : str
             Path to the JSON file that contains pipeline information
         project_id : str
             Project ID
+
         Returns
         -------
         bool
             True if pipelines are imported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.import_from_json(
+        ...     json_file="/path/to/the/json/file.json", 
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        ... )
+        True
         """
         json_file = Path(json_file)
         env_vars_folder = json_file.parent / "env_vars"

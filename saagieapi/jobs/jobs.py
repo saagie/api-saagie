@@ -759,7 +759,6 @@ class Jobs:
         -------
         dict
             Dict with version number
-            Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
         Examples
         --------
@@ -857,8 +856,25 @@ class Jobs:
         -------
         dict
             Dict with version number
-            Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
+        Examples
+        --------
+        >>> saagieapi.jobs.upgrade_by_name(
+        ...     job_name="my job",
+        ...     project_name="My project",
+        ...     use_previous_artifact=True,
+        ...     runtime_version='3.8',
+        ...     command_line='python {file} new_arg',
+        ...     release_note="Second version"
+        ... )
+        {
+            "data":{
+                "addJobVersion":{
+                    "number":3,
+                    "__typename":"JobVersion"
+                }
+            }
+        }
         """
         return self.upgrade(
             self.get_id(job_name, project_name),
@@ -942,6 +958,43 @@ class Jobs:
         dict
             Either the same dict as create_job, or the one returned by
             concatenation of upgrade_job and edit_job
+
+        Examples
+        --------
+        >>> saagieapi.jobs.create_or_upgrade(
+        ...     job_name="my job",
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     file="/tmp/test.py",
+        ...     use_previous_artifact=False,
+        ...     description='My description',
+        ...     category='Extraction',
+        ...     technology='python',# technology id corresponding to your context.id in your technology catalog definition
+        ...     technology_catalog='Saagie',
+        ...     runtime_version='3.9',
+        ...     command_line='python {file}',
+        ...     release_note='First release',
+        ...     extra_technology='',
+        ...     extra_technology_version='',
+        ...     cron_scheduling='0 0 * * *',
+        ...     schedule_timezone='Europe/Paris',
+        ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
+        ...     emails=['email1@saagie.io', 'email2@saagie.io'],
+        ...     status_list=["FAILED", "KILLED"]
+        ... )
+        {
+            "data":{
+                "createJob":{
+                    "id":"60f46dce-c869-40c3-a2e5-1d7765a806db",
+                    "versions":[
+                        {
+                            "number":1,
+                            "__typename":"JobVersion"
+                        }
+                    ],
+                    "__typename":"Job"
+                }
+            }
+        }
         """
 
         job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
@@ -1019,6 +1072,35 @@ class Jobs:
         dict
             Dict of rollback job
 
+        Examples
+        --------
+        >>> saagie_api.jobs.rollback(
+        ...     job_id="58870149-5f1c-45e9-93dc-04b2b30a732c", 
+        ...     version_number=3
+        ... )
+        {
+            "rollbackJobVersion": {
+                "id": "58870149-5f1c-45e9-93dc-04b2b30a732c",
+                "versions": [
+                    {
+                        "number": 4, 
+                        "isCurrent": False
+                    },
+                    {
+                        "number": 3, 
+                        "isCurrent": True
+                    },
+                    {
+                        "number": 2, 
+                        "isCurrent": False
+                    },
+                    {
+                        "number": 1, 
+                        "isCurrent": False
+                    }
+                ]
+            }
+        }
         """
         result = self.saagie_api.client.execute(
             query=gql(GQL_ROLLBACK_JOB_VERSION), variable_values={"jobId": job_id, "versionNumber": version_number}
@@ -1039,6 +1121,12 @@ class Jobs:
         dict
             Dict of deleted job
 
+        Examples
+        --------
+        >>> saagieapi.jobs.delete(job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d")
+        {
+            "deleteJob": True
+        }
         """
 
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB), variable_values={"jobId": job_id})
@@ -1057,6 +1145,16 @@ class Jobs:
         -------
         dict
             Dict of the given job information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.run(job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d")
+        {
+            "runJob":{
+                "id":"5b9fc971-1c4e-4e45-a978-5851caef0162",
+                "status":"REQUESTED"
+            }
+        }
         """
 
         result = self.saagie_api.client.execute(query=gql(GQL_RUN_JOB), variable_values={"jobId": job_id})
@@ -1085,6 +1183,15 @@ class Jobs:
         ------
         TimeoutError
             When the status check is not responding
+
+        Examples
+        --------
+        >>> saagieapi.jobs.run_with_callback(
+        ...        job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+        ...        freq=5,
+        ...        timeout=60
+        ... )
+        "SUCCEEDED"
         """
         res = self.run(job_id)
         job_instance_id = res.get("runJob").get("id")
@@ -1122,6 +1229,27 @@ class Jobs:
         -------
         dict
             Job instance information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.stop(job_instance_id="8e9b9f16-4a5d-4188-a967-1a96b88e4358")
+        {
+            "stopJobInstance":{
+                "id":"8e9b9f16-4a5d-4188-a967-1a96b88e4358",
+                "number":17,
+                "status":"KILLING",
+                "history": {
+                    "currentStatus": {
+                        "status": "SUCCEEDED",
+                        "details": None,
+                        "reason": None
+                    }
+                },
+                "startTime":"2022-04-29T08:38:49.344Z",
+                "endTime":None,
+                "jobId":"e92ed472-50d6-4041-bba9-098a8e16f444"
+            }
+        }
         """
 
         result = self.saagie_api.client.execute(
@@ -1191,10 +1319,21 @@ class Jobs:
             to the oldest
         versions_only_current : bool, optional
             Whether to only fetch the current version of each job
+
         Returns
         -------
         bool
             True if job is exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.jobs.export(
+        ...    job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d", 
+        ...    output_folder="./output/job/",
+        ...    error_folder="./output/error/",
+        ...    versions_only_current=True
+        ... )
+        True
         """
         job_info = None
         output_folder = Path(output_folder)
@@ -1262,10 +1401,19 @@ class Jobs:
             Project ID to import the job
         path_to_folder : str
             Path to the folder of the job to import
+
         Returns
         -------
         bool
             True if job is imported False otherwise
+        
+        Examples
+        --------
+        >>> saagieapi.jobs.import_from_json(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     path_to_package="/path/to/the/package/of/the/job"
+        ... )
+        True
         """
         json_file = next(Path(path_to_folder).rglob("job.json"))
 
@@ -1330,6 +1478,18 @@ class Jobs:
         dict
             Dict of deleted instances
 
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_instances(
+        ...     job_id=job_id, 
+        ...     job_instances_id=["c8f156bc-78ab-4dda-acff-bbe828237fd9", "7e5549cd-32aa-42c4-88b5-ddf5f3087502"]
+        ... )
+        {
+            'deleteJobInstances': [
+                {'id': '7e5549cd-32aa-42c4-88b5-ddf5f3087502', 'success': True},
+                {'id': 'c8f156bc-78ab-4dda-acff-bbe828237fd9', 'success': True}
+            ]
+        }
         """
         params = {"jobId": job_id, "jobInstancesId": job_instances_id}
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_INSTANCE), variable_values=params)
@@ -1356,9 +1516,20 @@ class Jobs:
 
         Returns
         -------
-        int
+        Dict
             Return the number of instances deleted
 
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_instances_by_selector(
+        ...     job_id=job_id, 
+        ...     selector="FAILED",
+        ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
+        ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
+        ... )
+        {
+            'deleteJobInstancesBySelector': 1
+        }
         """
         params = {
             "jobId": job_id,
@@ -1384,8 +1555,16 @@ class Jobs:
         Returns
         -------
         dict
-            Dict of deleted versions
+            Dict of deleted versions with their number and success status
 
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_versions(job_id=job_id, versions=["1"])
+        {
+            'deleteJobVersions': [
+                {'number': 1, 'success': True}
+            ]
+        }
         """
         params = {"jobId": job_id, "jobVersionsNumber": versions}
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_VERSION), variable_values=params)
@@ -1403,7 +1582,17 @@ class Jobs:
         Returns
         -------
         dict
-            Dict of duplicate job
+            Dict of duplicate job with its id and name
+
+        Examples
+        --------
+        >>> saagie_api.jobs.duplicate(job_id=job_id)
+        {
+            'duplicateJob': {
+                'id': '29cf1b80-6b9c-47bc-a06c-c20897257097',
+                'name': 'Copy of my_job 2'
+            }
+        }
         """
         result = self.saagie_api.client.execute(query=gql(GQL_DUPLICATE_JOB), variable_values={"jobId": job_id})
         logging.info("✅ Job [%s] successfully duplicated", job_id)
@@ -1420,7 +1609,7 @@ class Jobs:
         Returns
         -------
         dict
-            Dict of job instances number by status
+            Dict of number of job instances by status
 
         Examples
         --------

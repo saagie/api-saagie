@@ -1,10 +1,7 @@
 Pipelines
 =========
 
-
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.pipelines.pipelines
+    :members:
+    :undoc-members:
+    :show-inheritance:
