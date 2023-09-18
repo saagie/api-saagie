@@ -2,9 +2,7 @@ Users
 =========
 
 
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.users
+    :members:
+    :undoc-members:
+    :show-inheritance:

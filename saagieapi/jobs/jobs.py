@@ -221,8 +221,8 @@ class Jobs:
                         "isPassword": True
                     },
                     {
-                        "key": "TEST_PROJECT", 
-                        "value": "TEST_PROJECT", 
+                        "key": "TEST_PROJECT",
+                        "value": "TEST_PROJECT",
                         "isPassword": False
                     }
                 ],
@@ -239,8 +239,8 @@ class Jobs:
                                 "isPassword": True
                             },
                             {
-                                "key": "TEST_PROJECT", 
-                                "value": "TEST_PROJECT", 
+                                "key": "TEST_PROJECT",
+                                "value": "TEST_PROJECT",
                                 "isPassword": False
                             }
                         ],
@@ -684,7 +684,7 @@ class Jobs:
                     ]
                 }
             }
-        }        
+        }
         """
         previous_job_version = self.get_info(job_id, pprint_result=False)["job"]
         if not previous_job_version:

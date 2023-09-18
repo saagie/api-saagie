@@ -995,7 +995,7 @@ class Apps:
             Release note for the app version
         exposed_ports: List[dict], optional
             List of dict of exposed ports
-            If not filled, it takes exposed_ports of previous version 
+            If not filled, it takes exposed_ports of previous version
             Each dict should contains 'port' as key
             Ex: [{"basePathVariableName":"SAAGIE_BASE_PATH",
                 "isRewriteUrl":True,
