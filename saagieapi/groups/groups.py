@@ -13,8 +13,9 @@ class Groups:
     def list(self, verify_ssl: Optional[bool] = None) -> List[Dict]:
         """Get groups
         NB: You can only list users if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
             By default, refers to saagie_api.verify_ssl
@@ -23,6 +24,20 @@ class Groups:
         -------
         dict
             Dict of groups on the platform
+
+        Examples
+        --------
+        >>> saagieapi.groups.list()
+        [
+            {
+                "name": "administrators",
+                "protected": True
+            },
+            {
+                "name": "test_group",
+                "protected": False
+            }
+        ]
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
@@ -37,8 +52,9 @@ class Groups:
     def get_permission(self, group_name: str, verify_ssl: Optional[bool] = None) -> Dict:
         """Get group's permissions
         NB: You can only list group's permission if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         group_name: str
             Name of the group
         verify_ssl: bool, optional
@@ -49,6 +65,46 @@ class Groups:
         -------
         dict
             Dict of group's permissions
+
+        Examples
+        --------
+        >>> saagieapi.groups.get_permission(group_name="test_group")
+        {
+            "name": "test_group",
+            "role": "ROLE_READER",
+            "authorizations": [
+                {
+                    "platformId": 1,
+                    "platformName": "Dev",
+                    "permissions": [
+                        {
+                            "artifact": {
+                                "type": "PROJECTS_ENVVAR_EDITOR"
+                            },
+                            "role": "ROLE_PROJECT_ENVVAR_EDITOR"
+                        },
+                        {
+                            "artifact": {
+                                "id": "87ad5abb-5ee9-4e7d-8c82-5b40378ad931",
+                                "type": "PROJECT"
+                            },
+                            "role": "ROLE_PROJECT_MANAGER"
+                        }
+                    ]
+                }
+            ],
+            "protected": False,
+            "realmAuthorization": {
+                "permissions": [
+                    {
+                        "artifact": {
+                            "type": "TECHNOLOGY_CATALOG"
+                        },
+                        "role": "ROLE_ACCESS"
+                    }
+                ]
+            }
+        }
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
@@ -63,8 +119,9 @@ class Groups:
     def get_users(self, group_name, verify_ssl: Optional[bool] = None) -> Dict:
         """Get group's users
         NB: You can only list group's users if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         group_name: str
             Name of the group
         verify_ssl: bool, optional
@@ -75,6 +132,15 @@ class Groups:
         -------
         dict
             Dict of group's users
+
+        Examples
+        --------
+        >>> saagieapi.groups.get_users(group_name="test_group")
+        {
+            "name": "test_group",
+            "users": ["test_user"],
+            "protected": False
+        }
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
@@ -89,8 +155,9 @@ class Groups:
     def export(self, output_folder: str, error_folder: Optional[str] = "", verify_ssl: Optional[bool] = None) -> bool:
         """Export groups
         NB: You can only export group's information if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         output_folder: str
             Folder to store the exported groups
         error_folder: str
@@ -104,6 +171,14 @@ class Groups:
         -------
         bool
             True if group is exported False otherwise
+        
+        Examples
+        --------
+        >>> saagieapi.groups.export(
+        ...     output_folder="./output/groups/",
+        ...     error_folder=""./output/error_folder/"
+        ... )
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         output_folder = check_folder_path(output_folder)
@@ -140,8 +215,9 @@ class Groups:
     def create(self, group_name: str, users: List[str], verify_ssl: Optional[bool] = None) -> bool:
         """Create a group
         NB: You can only create group if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         group_name: str
             Name of the group
         users: List[str]
@@ -154,6 +230,14 @@ class Groups:
         -------
         bool
             True if group is exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.groups.create(
+        ...     group_name="group_reader",
+        ...     users=["user1", "user2"]
+        ... )
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         self.saagie_api.request_client.send(
@@ -175,49 +259,17 @@ class Groups:
     ) -> bool:
         """Create a group
         NB: You can only create group if you have the admin role on the platform
-        Params
-        ------
+
+        Parameters
+        ----------
         group_name: str
             Name of the group
         authorizations: Optional[List[Dict]]
             Group's authorization on the platform
             if not filled, defaults to current value
-            For example:
-            [
-               {
-                 "platformId": 1,
-                 "platformName": "Dev",
-                 "permissions": [
-                   {
-                     "artifact": {
-                       "id": "project_id",
-                       "type": "PROJECT"
-                     },
-                     "role": "ROLE_PROJECT_VIEWER"
-                   }
-                 ]
-               }
-             ]
         realm_authorization: Optional[Dict]
-             Dict of authorization to technology catalog and cluster overview
-             if not filled, defaults to current value
-             For example:
-             {
-               "permissions": [
-                 {
-                   "artifact": {
-                     "type": "TECHNOLOGY_CATALOG"
-                   },
-                   "role": "ROLE_ACCESS"
-                 },
-                 {
-                   "artifact": {
-                     "type": "OPERATIONS"
-                   },
-                   "role": "ROLE_ACCESS"
-                 },
-               ]
-             }
+            Dict of authorization to technology catalog and cluster overview
+            if not filled, defaults to current value
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
             By default, refers to saagie_api.verify_ssl
@@ -226,6 +278,38 @@ class Groups:
         -------
         bool
             True if group's permission successfully edited False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.groups.edit_permission(
+        ...     group_name="group_reader",
+        ...     authorizations=[
+        ...         {
+        ...             "platformId": 1,
+        ...             "platformName": "Dev",
+        ...             "permissions": [
+        ...                 {
+        ...                     "artifact": {
+        ...                         "id": "project_id",
+        ...                         "type": "PROJECT"
+        ...                     },
+        ...                     "role": "ROLE_PROJECT_VIEWER"
+        ...                 }
+        ...             ]
+        ...         }
+        ...     ],
+        ...     realm_authorization={
+        ...         "permissions": [
+        ...             {
+        ...                 "artifact": {
+        ...                     "type": "TECHNOLOGY_CATALOG"
+        ...                 },
+        ...                 "role": "ROLE_ACCESS"
+        ...             }
+        ...         ]
+        ...     }
+        ... )
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         previous_group_permission = self.get_permission(group_name, verify_ssl)
@@ -253,14 +337,18 @@ class Groups:
         group_name : str
             Group name
         verify_ssl: bool, optional
-           Enable or disable verification of SSL certification
-           By default, refers to saagie_api.verify_ssl
+            Enable or disable verification of SSL certification
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
         bool
-           True if group is deleted Error otherwise
+            True if group is deleted Error otherwise
 
+        Examples
+        --------
+        >>> saagieapi.groups.delete(group_name="test_user")
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         self.saagie_api.request_client.send(
@@ -289,13 +377,21 @@ class Groups:
             Path to store the failed imported groups in case of error.
             If not set, failed imported users not write
         verify_ssl: bool, optional
-           Enable or disable verification of SSL certification
-           By default, refers to saagie_api.verify_ssl
+            Enable or disable verification of SSL certification
+            By default, refers to saagie_api.verify_ssl
 
         Returns
         -------
         bool
             True if groups are imported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.groups.import_from_json(
+        ...     path_to_folder="/path/to/the/group/folder",
+        ...     error_folder="/path/to/the/error/folder"
+        ... )
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         path_to_folder = Path(path_to_folder)
