@@ -848,7 +848,7 @@ class Pipelines:
         Examples
         --------
         >>> saagieapi.pipelines.edit(
-        ...        pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
+        ...     pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
         ...     name="Amazing Pipeline 2"
         ... )
         {
@@ -1284,7 +1284,7 @@ class Pipelines:
 
     def import_from_json(self, json_file: str, project_id: str) -> bool:
         """Import pipeline from JSON format
-        
+
         Parameters
         ----------
         json_file : str

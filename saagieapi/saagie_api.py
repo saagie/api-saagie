@@ -215,10 +215,34 @@ class SaagieApi:
     def get_cluster_capacity(self) -> Dict:
         """
         Get information for cluster (cpu, gpu, memory)
+
         Returns
         -------
         dict
             Dict of cluster resources
+
+        Examples
+        --------
+        >>> saagie_api.get_cluster_capacity()
+        {
+            "getClusterCapacity":[
+                {
+                    "cpu":3.8,
+                    "gpu":0.0,
+                    "memory":16.083734528
+                },
+                {
+                    "cpu":3.8,
+                    "gpu":0.0,
+                    "memory":16.083734528
+                },
+                {
+                    "cpu":3.8,
+                    "gpu":0.0,
+                    "memory":16.08372224
+                }
+            ]
+        }
         """
         query = gql(GQL_GET_CLUSTER_INFO)
         return self.client.execute(query)
@@ -230,10 +254,26 @@ class SaagieApi:
     def get_platform_info(self) -> Dict:
         """
         Get platform info (nb projects, jobs, apps, pipelines)
+
         Returns
         -------
         dict
             Dict of platform info
+
+        Examples
+        --------
+        >>> saagie_api.get_platform_info()
+        {
+            "platform": {
+                "id": 1,
+                "counts": {
+                    "projects": 21, 
+                    "jobs": 111, 
+                    "apps": 59, 
+                    "pipelines": 17
+                }
+            }
+        }
         """
         query = gql(GQL_GET_PLATFORM_INFO)
         return self.client.execute(query)
@@ -247,10 +287,55 @@ class SaagieApi:
         Get information for all repositories (id, name, technologies)
         NB: You can only get repositories information if you have the right to
         access the technology catalog
+
         Returns
         -------
         dict
             Dict of repositories
+
+        Examples
+        --------
+        >>> saagie_api.get_repositories_info()
+        {
+            "repositories":[
+                {
+                    "id":"9fcbddfe-a7b7-4d25-807c-ad030782c923",
+                    "name":"Saagie",
+                    "technologies":[
+                        {
+                            "id":"5cbb55aa-8ce9-449b-b0b9-64cc6781ea89",
+                            "label":"R",
+                            "available":True,
+                            "__typename":"JobTechnology"
+                        },
+                        {
+                            "id":"36912c68-d084-43b9-9fda-b5ded8eb7b13",
+                            "label":"Docker image",
+                            "available":True,
+                            "__typename":"AppTechnology"
+                        },
+                        {
+                            "id":"1d117fb6-0697-438a-b419-a69e0e7406e8",
+                            "label":"Spark",
+                            "available":True,
+                            "__typename":"SparkTechnology"
+                        }
+                    ]
+                },
+                {
+                    "id":"fff42d30-2029-4f23-b326-d751f256f533",
+                    "name":"Saagie Community",
+                    "technologies":[
+                        {
+                            "id":"034c28d7-c21f-4d7c-8dd9-7d09bc02f33f",
+                            "label":"ShinyProxy",
+                            "available":True,
+                            "__typename":"AppTechnology"
+                        }
+                    ]
+                }
+            ]
+        }
         """
         query = gql(GQL_GET_REPOSITORIES_INFO)
         return self.client_gateway.execute(query)

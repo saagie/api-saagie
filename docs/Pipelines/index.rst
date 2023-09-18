@@ -1,7 +1,7 @@
 Pipelines
 =========
 
-.. automodule:: saagieapi.pipelines.pipelines
+.. autoclass:: saagieapi.pipelines.Pipelines
     :members:
     :undoc-members:
     :show-inheritance:
