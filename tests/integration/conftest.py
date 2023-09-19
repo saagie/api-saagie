@@ -35,10 +35,6 @@ def create_global_project():
     Conf.import_dir = Conf.dir_path / "resources" / "import"
     Conf.output_dir = Path.cwd() / "output"
     Conf.output_dir_present = Conf.output_dir.is_dir()
-    # Conf.dir_path = os.path.dirname(os.path.abspath(__file__))
-    # Conf.import_dir = os.path.join(Conf.dir_path, "resources", "import")
-    # Conf.output_dir = os.path.join(Path.cwd(), "output")
-    # Conf.output_dir_present = os.path.isdir(Conf.output_dir)
 
     Conf.saagie_api = SaagieApi(
         url_saagie=Conf.url_saagie,

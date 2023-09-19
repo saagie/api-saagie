@@ -1271,6 +1271,7 @@ class Apps:
             return handle_error(f"Cannot open the JSON file {json_file}", exception)
 
         try:
+            app_name = app_info["name"]
             app_technology_name = app_info["technology"]["name"]
             app_technology_catalog = app_info["technology"]["technology_catalog"]
             app_runtime_context = app_info["currentVersion"].get("runtimeContextLabel")
@@ -1310,7 +1311,6 @@ class Apps:
                     )
                 context_app_info = context_app["id"]
 
-            app_name = app_info["name"]
             curr_version = app_info["currentVersion"]
 
             self.create_from_scratch(

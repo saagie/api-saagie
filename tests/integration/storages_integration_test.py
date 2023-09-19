@@ -103,7 +103,8 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            # context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.10",
         )
 
         app_id = create_app["installApp"]["id"]
@@ -125,7 +126,8 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            # context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.10",
         )
         app_id = create_app["installApp"]["id"]
         app_info = conf.saagie_api.apps.get_info(app_id)
@@ -154,7 +156,8 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            # context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.10",
         )
 
         app_id = create_app["installApp"]["id"]

@@ -1173,8 +1173,8 @@ class Jobs:
 
         Returns
         -------
-        str
-            Final state of the job
+        (str, str)
+            (Final state of the job, job instance id)
 
         Raises
         ------
@@ -1188,11 +1188,11 @@ class Jobs:
         ...        freq=5,
         ...        timeout=60
         ... )
-        "SUCCEEDED"
+        ("SUCCEEDED", "5b9fc971-1c4e-4e45-a978-5851caef0162")
         """
         res = self.run(job_id)
         job_instance_id = res.get("runJob").get("id")
-        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
+        final_status_list = ["SUCCEEDED", "FAILED", "KILLED", "UNKNOWN"]
         job_instance_info = self.get_instance(job_instance_id, pprint_result=False)
         state = job_instance_info.get("jobInstance").get("status")
         sec = 0
@@ -1212,7 +1212,7 @@ class Jobs:
             logging.info("✅ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
         elif state in ("FAILED", "KILLED"):
             logging.error("❌ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
-        return state
+        return (state, job_instance_id)
 
     def stop(self, job_instance_id: str) -> Dict:
         """Stop a given job instance

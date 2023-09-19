@@ -49,7 +49,7 @@
                 }
             ],
             "isMajor": false,
-            "runtimeContextLabel": "JupyterLab Python 3.8 / 3.9 / 3.10"
+            "runtimeContextLabel": "JupyterLab+GenAI 4.0 Python 3.10"
         }
     ],
     "currentVersion": {
@@ -88,7 +88,7 @@
             }
         ],
         "isMajor": false,
-        "runtimeContextLabel": "JupyterLab Python 3.8 / 3.9 / 3.10"
+        "runtimeContextLabel": "JupyterLab+GenAI 4.0 Python 3.10"
     },
     "history": {
         "id": "d6db9c91-0b02-4dd2-a611-cb39fc4d76b3",

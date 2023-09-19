@@ -303,9 +303,10 @@ class TestIntegrationJobs:
     def test_delete_instances(create_global_project, create_then_delete_job):
         conf = create_global_project
         job_id = create_then_delete_job
-        result = conf.saagie_api.jobs.run(job_id)
+        # result = conf.saagie_api.jobs.run(job_id)
+        _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id)
 
-        instance_id = result["runJob"]["id"]
+        # instance_id = result["runJob"]["id"]
 
         res = conf.saagie_api.jobs.delete_instances(job_id=job_id, job_instances_id=[instance_id])
 
@@ -318,10 +319,8 @@ class TestIntegrationJobs:
         conf = create_global_project
         job_id = create_then_delete_job
 
-        result = conf.saagie_api.jobs.run(job_id=job_id)
-        instance_id = result["runJob"]["id"]
-        result2 = conf.saagie_api.jobs.run(job_id=job_id)
-        instance_id2 = result2["runJob"]["id"]
+        _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
+        _, instance_id2 = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
 
         res = conf.saagie_api.jobs.delete_instances_by_selector(
             job_id=job_id, selector="ALL", exclude_instances_id=[instance_id], include_instances_id=[instance_id2]
