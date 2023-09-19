@@ -308,10 +308,12 @@ class Projects:
 
         Examples
         --------
-        >>> saagie_client.projects.create(name="Project_A",
-                                  groups_and_roles=[{"my_group": "Manager"}],
-                                  jobs_technologies_allowed={"saagie": ["python", "spark"]},
-                                  apps_technologies_allowed={"saagie": ["Jupyter Notebook"]})
+        >>> saagie_client.projects.create(
+        ...     name="Project_A",
+        ...     groups_and_roles=[{"my_group": "Manager"}],
+        ...     jobs_technologies_allowed={"saagie": ["python", "spark"]},
+        ...     apps_technologies_allowed={"saagie": ["Jupyter Notebook"]}
+        ... )
         {
             'createProject': {
                 'id': '09515109-e8d3-4ed0-9ab7-5370efcb6cb5',
@@ -492,13 +494,14 @@ class Projects:
 
         Examples
         --------
-        >>> saagie_client.projects.edit(project_id="9a261ae0-fd73-400c-b9b6-b4b63ac113eb",
-                               name="PROJECT B",
-                               groups_and_roles=[{"my_group": "Viewer"}],
-                               description="new desc",
-                               jobs_technologies_allowed={"saagie": ["r"]},
-                               apps_technologies_allowed={"saagie": ["Dash"]}
-                              )
+        >>> saagie_client.projects.edit(
+        ...     project_id="9a261ae0-fd73-400c-b9b6-b4b63ac113eb",
+        ...     name="PROJECT B",
+        ...     groups_and_roles=[{"my_group": "Viewer"}],
+        ...     description="new desc",
+        ...     jobs_technologies_allowed={"saagie": ["r"]},
+        ...     apps_technologies_allowed={"saagie": ["Dash"]}
+        ... )
         {
             'editProject': {
                 'id': '9a261ae0-fd73-400c-b9b6-b4b63ac113eb',
@@ -554,7 +557,9 @@ class Projects:
         Examples
         --------
         >>> saagieapi.projects.delete(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
-        { "deleteProject": True }
+        { 
+            "deleteProject": True
+        }
         """
 
         result = self.saagie_api.client.execute(
@@ -597,11 +602,14 @@ class Projects:
 
         Examples
         --------
-        >>> saagieapi.projects.export(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4",
-                                  output_folder="./output/",
-                                  error_folder= "./error/",
-                                  versions_only_current = True,
-                                  project_only_env_vars = True)
+        >>> saagieapi.projects.export(
+        ...     project_id="8321e13c-892a-4481-8552-5be4d6cc5df4",
+        ...     output_folder="./output/",
+        ...     error_folder= "./error/",
+        ...     versions_only_current = True,
+        ...     project_only_env_vars = True
+        ... )
+        True
         """
 
         output_folder = Path(output_folder) / project_id
@@ -715,6 +723,7 @@ class Projects:
         Examples
         --------
         >>> saagieapi.projects.import_from_json(path_to_folder="./output/")
+        True
         """
 
         try:

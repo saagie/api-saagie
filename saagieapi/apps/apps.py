@@ -55,139 +55,139 @@ class Apps:
         --------
         >>> saagieapi.apps.list_for_project(project_id="your_project_id")
         {
-           'project': {
-               'apps': [
-                   {
-                       'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
-                       'name': 'Jupyter Notebook',
-                       'description': '',
-                       'creationDate': '2022-02-23T08:50:24.326Z',
-                       'creator': 'user.test',
-                       'versions': [
-                           {
-                               'number': 1,
-                               'creationDate': '2022-02-23T08:50:24.327Z',
-                               'releaseNote': '',
-                               'dockerInfo': None,
-                               'runtimeContextId': 'jupyter-notebook-v2',
-                               'creator': 'user.test',
-                               'ports': [
-                                   {
-                                       'name': 'Notebook',
-                                       'number': 8888,
-                                       'isRewriteUrl': False,
-                                       'basePathVariableName': 'SAAGIE_BASE_PATH',
-                                       'scope': 'PROJECT',
-                                       'internalUrl': 'http://app-d0d6a466-10d9-4120-8101-56e46563e05a:8888'
-                                   }
-                               ],
-                               'isMajor': False,
-                               'volumesWithPath': [
-                                   {
-                                       'path': '/notebooks-dir',
-                                       'volume': {
-                                           'id': '68a50c6b-3737-4b68-b033-464eedd02eb1',
-                                           'name': 'storage jupyter notebook',
-                                           'creator': 'user.test',
-                                           'description': 'Automatically created by migration from app 68a50c6b-3737-4b68-b033-464eedd02eb1',
-                                           'size': '128 MB',
-                                           'projectId': '96a12345-303d-43cf-adb2-a7300d5bb9df',
-                                           'creationDate': '2022-02-23T08:50:24.327Z',
-                                           'linkedApp': {
-                                               'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
-                                               'name': 'jupyter notebook'
-                                           }
-                                       }
-                                   }
-                               ]
-                           }
-                       ],
-                       'currentVersion': {
-                           'number': 1,
-                           'creationDate': '2022-02-23T08:50:24.327Z',
-                           'releaseNote': '',
-                           'dockerInfo': None,
-                           'runtimeContextId': 'jupyter-notebook-v2',
-                           'creator': 'user.test',
-                           'ports': [
-                               {
-                                   'name': 'Notebook',
-                                   'number': 8888,
-                                   'isRewriteUrl': False,
-                                   'basePathVariableName': 'SAAGIE_BASE_PATH',
-                                   'scope': 'PROJECT',
-                                   'internalUrl': 'http://app-d0d6a466-10d9-4120-8101-56e46563e05a:8888'
-                               }
-                           ],
-                           'isMajor': False,
-                           'volumesWithPath': [
-                               {
-                                   'path': '/notebooks-dir',
-                                   'volume': {
-                                       'id': '68a50c6b-3737-4b68-b033-464eedd02eb1',
-                                       'name': 'storage jupyter notebook',
-                                       'creator': 'user.test',
-                                       'description': 'Automatically created by migration from app 68a50c6b-3737-4b68-b033-464eedd02eb1',
-                                       'size': '128 MB',
-                                       'projectId': '96a12345-303d-43cf-adb2-a7300d5bb9df',
-                                       'creationDate': '2022-02-23T08:50:24.327Z',
-                                       'linkedApp': {
-                                           'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
-                                           'name': 'jupyter notebook'
-                                       }
-                                   }
-                               }
-                           ]
-                       },
-                       'technology': {
-                           'id': '7d3f247c-b5a9-4a34-a0a2-f6b209bc2b63'
-                       },
-                       'linkedVolumes': [
-                           {
-                               'id': '68a50c6b-3737-4b68-b033-464eedd02eb1',
-                               'name': 'storage jupyter notebook',
-                               'creator': 'user.test',
-                               'description': 'Automatically created by migration from app 68a50c6b-3737-4b68-b033-464eedd02eb1',
-                               'size': '128 MB',
-                               'creationDate': '2022-02-23T08:50:24.327Z'
-                           }
-                       ],
-                       'isGenericApp': False,
-                       'history': {
-                           'id': 'affea4dd-d894-4742-bbd2-dd3a09c92020',
-                           'events': [
-                               {
-                                   'event': {
-                                       'recordAt': '2022-06-29T07:40:19.754Z',
-                                       'executionId': '5980d8cf-7cb6-4340-bd84-d3d17bdb5ab6'
-                                   },
-                                   'transitionTime': '2022-06-29T07:40:19.754Z'
-                               },
-                               {
-                                   'event': {
-                                       'recordAt': '2022-06-29T07:40:19.974Z',
-                                       'executionId': '5980d8cf-7cb6-4340-bd84-d3d17bdb5ab6'
-                                   },
-                                   'transitionTime': '2022-06-29T07:40:19.974Z'
-                               }
-                           ],
-                           'runningVersionNumber': 1,
-                           'currentDockerInfo': {
-                               'image': 'saagie/jupyter-python-nbk:v2-1.95.0',
-                               'dockerCredentialsId': None
-                           },
-                           'currentStatus': 'STOPPED',
-                           'currentExecutionId': 'f29c940f-4622-4263-8cec-41ae68513885',
-                           'startTime': '2022-06-29T08:14:49.205Z',
-                           'stopTime': '2022-06-29T08:19:59.946Z'
-                       },
-                       'alerting': None,
-                       'resources': None
-                   }
-               ]
+            'project': {
+                'apps': [
+                    {
+                        'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
+                        'name': 'Jupyter Notebook',
+                        'description': '',
+                        'creationDate': '2022-02-23T08:50:24.326Z',
+                        'creator': 'user.test',
+                        'versions': [
+                            {
+                                'number': 1,
+                                'creationDate': '2022-02-23T08:50:24.327Z',
+                                'releaseNote': '',
+                                'dockerInfo': None,
+                                'runtimeContextId': 'jupyter-notebook-v2',
+                                'creator': 'user.test',
+                                'ports': [
+                                    {
+                                        'name': 'Notebook',
+                                        'number': 8888,
+                                        'isRewriteUrl': False,
+                                        'basePathVariableName': 'SAAGIE_BASE_PATH',
+                                        'scope': 'PROJECT',
+                                        'internalUrl': 'http://app-d0d6a466-10d9-4120-8101-56e46563e05a:8888'
+                                    }
+                                ],
+                                'isMajor': False,
+                                'volumesWithPath': [
+                                    {
+                                        'path': '/notebooks-dir',
+                                        'volume': {
+                                            'id': '68a50c6b-3737-4b68-b033-464eedd02eb1',
+                                            'name': 'storage jupyter notebook',
+                                            'creator': 'user.test',
+                                            'description': 'Automatically created by migration from app 68a50c6b-3737-4b68-b033-464eedd02eb1',
+                                            'size': '128 MB',
+                                            'projectId': '96a12345-303d-43cf-adb2-a7300d5bb9df',
+                                            'creationDate': '2022-02-23T08:50:24.327Z',
+                                            'linkedApp': {
+                                                'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
+                                                'name': 'jupyter notebook'
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ],
+                        'currentVersion': {
+                            'number': 1,
+                            'creationDate': '2022-02-23T08:50:24.327Z',
+                            'releaseNote': '',
+                            'dockerInfo': None,
+                            'runtimeContextId': 'jupyter-notebook-v2',
+                            'creator': 'user.test',
+                            'ports': [
+                                {
+                                    'name': 'Notebook',
+                                    'number': 8888,
+                                    'isRewriteUrl': False,
+                                    'basePathVariableName': 'SAAGIE_BASE_PATH',
+                                    'scope': 'PROJECT',
+                                    'internalUrl': 'http://app-d0d6a466-10d9-4120-8101-56e46563e05a:8888'
+                                }
+                            ],
+                            'isMajor': False,
+                            'volumesWithPath': [
+                                {
+                                    'path': '/notebooks-dir',
+                                    'volume': {
+                                        'id': '68a50c6b-3737-4b68-b033-464eedd02eb1',
+                                        'name': 'storage jupyter notebook',
+                                        'creator': 'user.test',
+                                        'description': 'Automatically created by migration from app 68a50c6b-3737-4b68-b033-464eedd02eb1',
+                                        'size': '128 MB',
+                                        'projectId': '96a12345-303d-43cf-adb2-a7300d5bb9df',
+                                        'creationDate': '2022-02-23T08:50:24.327Z',
+                                        'linkedApp': {
+                                            'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
+                                            'name': 'jupyter notebook'
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        'technology': {
+                            'id': '7d3f247c-b5a9-4a34-a0a2-f6b209bc2b63'
+                        },
+                        'linkedVolumes': [
+                            {
+                                'id': '68a50c6b-3737-4b68-b033-464eedd02eb1',
+                                'name': 'storage jupyter notebook',
+                                'creator': 'user.test',
+                                'description': 'Automatically created by migration from app 68a50c6b-3737-4b68-b033-464eedd02eb1',
+                                'size': '128 MB',
+                                'creationDate': '2022-02-23T08:50:24.327Z'
+                            }
+                        ],
+                        'isGenericApp': False,
+                        'history': {
+                            'id': 'affea4dd-d894-4742-bbd2-dd3a09c92020',
+                            'events': [
+                                {
+                                    'event': {
+                                        'recordAt': '2022-06-29T07:40:19.754Z',
+                                        'executionId': '5980d8cf-7cb6-4340-bd84-d3d17bdb5ab6'
+                                    },
+                                    'transitionTime': '2022-06-29T07:40:19.754Z'
+                                },
+                                {
+                                    'event': {
+                                        'recordAt': '2022-06-29T07:40:19.974Z',
+                                        'executionId': '5980d8cf-7cb6-4340-bd84-d3d17bdb5ab6'
+                                    },
+                                    'transitionTime': '2022-06-29T07:40:19.974Z'
+                                }
+                            ],
+                            'runningVersionNumber': 1,
+                            'currentDockerInfo': {
+                                'image': 'saagie/jupyter-python-nbk:v2-1.95.0',
+                                'dockerCredentialsId': None
+                            },
+                            'currentStatus': 'STOPPED',
+                            'currentExecutionId': 'f29c940f-4622-4263-8cec-41ae68513885',
+                            'startTime': '2022-06-29T08:14:49.205Z',
+                            'stopTime': '2022-06-29T08:19:59.946Z'
+                        },
+                        'alerting': None,
+                        'resources': None
+                    }
+                ]
             }
         }
-        """
+        """ # pylint: disable=line-too-long
 
         params = {
             "id": project_id,
@@ -219,12 +219,12 @@ class Apps:
         >>> saagieapi.apps.list_for_project_minimal(project_id="your_project_id")
         {
             'project': {
-               'apps': [
-                   {
-                       'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
-                       'name': 'Jupyter Notebook'
-                   }
-               ]
+                'apps': [
+                    {
+                        'id': 'd0d6a466-10d9-4120-8101-56e46563e05a',
+                        'name': 'Jupyter Notebook'
+                    }
+                ]
             }
         }
         """
@@ -266,150 +266,150 @@ class Apps:
         --------
         >>> saagieapi.apps.get_info(app_id="your_app_id")
         {
-           'app': {
-               'id': 'b6e846d7-d871-46db-b858-7d39d6b60123',
-               'name': 'Jupyter lab',
-               'creationDate': '2022-05-09T14:12:31.819Z',
-               'technology': {
-                   'id': '7d3f247c-b5a9-4a34-a0a2-f6b209bc2b63'
-               },
-               'project': {
-                   'id': '96a74193-303d-43cf-adb2-a7300d5bb9df',
-                   'name': 'Saagie testing tool '
-               },
-               'description': '',
-               'currentVersion': {
-                   'number': 1,
-                   'creator': 'toto.hi',
-                   'creationDate': '2022-05-09T14:12:31.819Z',
-                   'releaseNote': 'First version of Jupyter Notebook with Spark 3.1 into Saagie.',
-                   'dockerInfo': None,
-                   'runtimeContextId': 'jupyter-spark-3.1',
-                   'ports': [
-                       {
-                           'name': 'Notebook',
-                           'number': 8888,
-                           'isRewriteUrl': False,
-                           'basePathVariableName': 'SAAGIE_BASE_PATH',
-                           'scope': 'PROJECT',
-                           'internalUrl': 'http://app-b6e846d7-d871-46db-b858-7d39d6b60146:8888'
-                       },
-                       {
-                           'name': 'SparkUI',
-                           'number': 8080,
-                           'isRewriteUrl': False,
-                           'basePathVariableName': 'SPARK_UI_PATH',
-                           'scope': 'PROJECT',
-                           'internalUrl': 'http://app-b6e846d7-d871-46db-b858-7d39d6b60146:8080'
-                       }
-                   ],
-                   'volumesWithPath': [
-                       {
-                           'path': '/notebooks-dir',
-                           'volume': {
-                               'id': 'c163216a-b024-4cb1-8aae-0664bf2f58b4',
-                               'name': 'storage Jupyter lab',
-                               'creator': 'toto.hi',
-                               'description': 'Automatically created by migration from app c163216a-b024-4cb1-8aae-0664bf2f58b4',
-                               'size': '128 MB',
-                               'projectId': '96a74193-303d-43cf-adb2-a7300d5bb9df',
-                               'creationDate': '2022-05-09T14:12:31.819Z',
-                               'linkedApp': {
-                                   'id': 'b6e846d7-d871-46db-b858-7d39d6b60146',
-                                   'name': 'Jupyter lab'
-                               }
-                           }
-                       }
-                   ],
-                   'isMajor': False
-               },
-               'history': {
-                   'id': '4f60dd23-4ec2-4996-b4da-d95376d72387',
-                   'currentStatus': 'STARTED',
-                   'currentExecutionId': 'f2d81d93-e1ae-4b09-a77e-4e50c13971ce',
-                   'currentDockerInfo': {
-                       'image': 'saagie/jupyter-python-nbk:pyspark-3.1.1-1.111.0',
-                       'dockerCredentialsId': None
-                   },
-                   'startTime': '2022-09-21T09:47:27.342Z',
-                   'events': [
-                       {
-                           'event': {
-                               'recordAt': '2022-06-21T12:57:22.734Z',
-                               'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
-                               'versionNumber': 1,
-                               'author': 'user.test'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-21T12:57:22.9Z',
-                               'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
-                               'status': 'STARTING'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-21T12:57:35.443Z',
-                               'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
-                               'status': 'STARTED'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-24T14:28:01.647Z',
-                               'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
-                               'author': 'user.test'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-24T14:28:01.726Z',
-                               'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
-                               'status': 'STOPPING'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-24T14:28:01.81Z',
-                               'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
-                               'status': 'STOPPED'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-29T07:41:41.713Z',
-                               'executionId': '9e525435-684f-470e-9818-fb865776da09',
-                               'versionNumber': 1,
-                               'author': 'user.test'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-29T07:41:41.912Z',
-                               'executionId': '9e525435-684f-470e-9818-fb865776da09',
-                               'status': 'STARTING'
-                           }
-                       },
-                       {
-                           'event': {
-                               'recordAt': '2022-06-29T07:48:22.359Z',
-                               'executionId': '9e525435-684f-470e-9818-fb865776da09',
-                               'status': 'STARTED'
-                           }
-                       }
-                   ]},
-               'isGenericApp': False,
-               'alerting': None,
-               'resources': None,
-               'linkedVolumes': [
-                   {
-                       'size': '128 MB'
-                   }
-               ]
-           }
+            'app': {
+                'id': 'b6e846d7-d871-46db-b858-7d39d6b60123',
+                'name': 'Jupyter lab',
+                'creationDate': '2022-05-09T14:12:31.819Z',
+                'technology': {
+                    'id': '7d3f247c-b5a9-4a34-a0a2-f6b209bc2b63'
+                },
+                'project': {
+                    'id': '96a74193-303d-43cf-adb2-a7300d5bb9df',
+                    'name': 'Saagie testing tool '
+                },
+                'description': '',
+                'currentVersion': {
+                    'number': 1,
+                    'creator': 'toto.hi',
+                    'creationDate': '2022-05-09T14:12:31.819Z',
+                    'releaseNote': 'First version of Jupyter Notebook with Spark 3.1 into Saagie.',
+                    'dockerInfo': None,
+                    'runtimeContextId': 'jupyter-spark-3.1',
+                    'ports': [
+                        {
+                            'name': 'Notebook',
+                            'number': 8888,
+                            'isRewriteUrl': False,
+                            'basePathVariableName': 'SAAGIE_BASE_PATH',
+                            'scope': 'PROJECT',
+                            'internalUrl': 'http://app-b6e846d7-d871-46db-b858-7d39d6b60146:8888'
+                        },
+                        {
+                            'name': 'SparkUI',
+                            'number': 8080,
+                            'isRewriteUrl': False,
+                            'basePathVariableName': 'SPARK_UI_PATH',
+                            'scope': 'PROJECT',
+                            'internalUrl': 'http://app-b6e846d7-d871-46db-b858-7d39d6b60146:8080'
+                        }
+                    ],
+                    'volumesWithPath': [
+                        {
+                            'path': '/notebooks-dir',
+                            'volume': {
+                                'id': 'c163216a-b024-4cb1-8aae-0664bf2f58b4',
+                                'name': 'storage Jupyter lab',
+                                'creator': 'toto.hi',
+                                'description': 'Automatically created by migration from app c163216a-b024-4cb1-8aae-0664bf2f58b4',
+                                'size': '128 MB',
+                                'projectId': '96a74193-303d-43cf-adb2-a7300d5bb9df',
+                                'creationDate': '2022-05-09T14:12:31.819Z',
+                                'linkedApp': {
+                                    'id': 'b6e846d7-d871-46db-b858-7d39d6b60146',
+                                    'name': 'Jupyter lab'
+                                }
+                            }
+                        }
+                    ],
+                    'isMajor': False
+                },
+                'history': {
+                    'id': '4f60dd23-4ec2-4996-b4da-d95376d72387',
+                    'currentStatus': 'STARTED',
+                    'currentExecutionId': 'f2d81d93-e1ae-4b09-a77e-4e50c13971ce',
+                    'currentDockerInfo': {
+                        'image': 'saagie/jupyter-python-nbk:pyspark-3.1.1-1.111.0',
+                        'dockerCredentialsId': None
+                    },
+                    'startTime': '2022-09-21T09:47:27.342Z',
+                    'events': [
+                        {
+                            'event': {
+                                'recordAt': '2022-06-21T12:57:22.734Z',
+                                'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
+                                'versionNumber': 1,
+                                'author': 'user.test'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-21T12:57:22.9Z',
+                                'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
+                                'status': 'STARTING'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-21T12:57:35.443Z',
+                                'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
+                                'status': 'STARTED'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-24T14:28:01.647Z',
+                                'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
+                                'author': 'user.test'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-24T14:28:01.726Z',
+                                'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
+                                'status': 'STOPPING'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-24T14:28:01.81Z',
+                                'executionId': '7eb4649c-2bcf-4062-a7d2-528a9d950e6d',
+                                'status': 'STOPPED'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-29T07:41:41.713Z',
+                                'executionId': '9e525435-684f-470e-9818-fb865776da09',
+                                'versionNumber': 1,
+                                'author': 'user.test'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-29T07:41:41.912Z',
+                                'executionId': '9e525435-684f-470e-9818-fb865776da09',
+                                'status': 'STARTING'
+                            }
+                        },
+                        {
+                            'event': {
+                                'recordAt': '2022-06-29T07:48:22.359Z',
+                                'executionId': '9e525435-684f-470e-9818-fb865776da09',
+                                'status': 'STARTED'
+                            }
+                        }
+                    ]},
+                'isGenericApp': False,
+                'alerting': None,
+                'resources': None,
+                'linkedVolumes': [
+                    {
+                        'size': '128 MB'
+                    }
+                ]
+            }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "id": app_id,
             "versionsOnlyCurrent": versions_only_current,
@@ -495,17 +495,20 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.create_from_scratch(project_id="project_id",
-        ...                                    app_name="App Example Scratch",
-        ...                                    image="saagie/ttyd-saagie:1.0",
-        ...                                    exposed_ports=[{
-        ...                                      "basePathVariableName": "SAAGIE_BASE_PATH",
-        ...                                      "isRewriteUrl": True,
-        ...                                      "scope": "PROJECT",
-        ...                                      "number": 7681,
-        ...                                      "name": "ttyd"
-        ...                                     }]
-        ...                                     )
+        >>> saagieapi.apps.create_from_scratch(
+        ...     project_id="project_id",
+        ...     app_name="App Example Scratch",
+        ...     image="saagie/ttyd-saagie:1.0",
+        ...     exposed_ports=[
+        ...         {
+        ...             "basePathVariableName": "SAAGIE_BASE_PATH",
+        ...             "isRewriteUrl": True,
+        ...             "scope": "PROJECT",
+        ...             "number": 7681,
+        ...             "name": "ttyd"
+        ...         }
+        ...     ]
+        ... )
         {
             'createApp': {
                 'id': '1221f83e-52de-4beb-89a0-1505de4e875f'
@@ -608,14 +611,16 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.create_from_catalog(project_id="your_project_id",
-        ...                                    context="7.15.1",
-        ...                                    technology_name="kibana")
+        >>> saagieapi.apps.create_from_catalog(
+        ...     project_id="your_project_id",
+        ...     context="7.15.1",
+        ...     technology_name="kibana"
+        ... )
         {
-           'installApp': {
-               'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
-               'name': 'Kibana'
-           }
+            'installApp': {
+                'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
+                'name': 'Kibana'
+            }
         }
         """
         # Initialize parameters to request GQL Graph
@@ -706,14 +711,16 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.edit(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e",
-        ...                     app_name="App_Example_Catalog_modify",
-        ...                     emails=["hello.world@gmail.com"],
-        ...                     status_list=["FAILED"])
+        >>> saagieapi.apps.edit(
+        ...     app_id="a6de6956-4038-493e-bbd3-f7b3616df39e",
+        ...     app_name="App_Example_Catalog_modify",
+        ...     emails=["hello.world@gmail.com"],
+        ...     status_list=["FAILED"]
+        ... )
         {
-           'editApp': {
-               'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e'
-           }
+            'editApp': {
+                'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e'
+            }
         }
         """
         params = {
@@ -752,9 +759,9 @@ class Apps:
         --------
         >>> saagieapi.apps.delete(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e")
         {
-           'deleteApp': {
-               'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e'
-           }
+            'deleteApp': {
+                'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e'
+            }
         }
         """
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_APP), variable_values={"appId": app_id})
@@ -764,20 +771,20 @@ class Apps:
     def run(self, app_id: str) -> Dict:
         """Run a given app
 
-         Parameters
-         ----------
-         app_id : str
-             UUID of your app (see README on how to find it)
+        Parameters
+        ----------
+        app_id : str
+            UUID of your app (see README on how to find it)
 
-         Returns
-         -------
-         dict
-             Dict of the given app information
+        Returns
+        -------
+        dict
+            Dict of the given app information
 
-         Examples
-         --------
-         >>> saagieapi.apps.run(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e")
-         {
+        Examples
+        --------
+        >>> saagieapi.apps.run(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e")
+        {
             'runApp': {
                 'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
                 'versions': [
@@ -818,14 +825,14 @@ class Apps:
         --------
         >>> saagie_api.apps.stop(app_id="a6de6956-4038-493e-bbd3-f7b3616df39e")
         {
-           'stopApp': {
-               'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
-               'history': {
-                   'id': 'ba494615-88b7-4c54-ad57-34a90461c407',
-                   'runningVersionNumber': 1,
-                   'currentStatus': 'STARTED'
-               }
-           }
+            'stopApp': {
+                'id': 'a6de6956-4038-493e-bbd3-f7b3616df39e',
+                'history': {
+                    'id': 'ba494615-88b7-4c54-ad57-34a90461c407',
+                    'runningVersionNumber': 1,
+                    'currentStatus': 'STARTED'
+                }
+            }
         }
         """
         result = self.saagie_api.client.execute(query=gql(GQL_STOP_APP), variable_values={"id": app_id})
@@ -953,8 +960,10 @@ class Apps:
 
         Examples
         --------
-        >>> saagie_client.apps.get_runtime_label_by_id(technology_id="11d63963-0a74-4821-b17b-8fcec1234567",
-        ...                                            runtime_id="jupyter-spark-3.1")
+        >>> saagie_client.apps.get_runtime_label_by_id(
+        ...     technology_id="11d63963-0a74-4821-b17b-8fcec1234567",
+        ...     runtime_id="jupyter-spark-3.1"
+        ... )
         'Jupyter Spark 3.1'
         """
         # Get all runtimes of the technology
@@ -1028,15 +1037,24 @@ class Apps:
 
         Examples
         --------
-        >>> saagie_client.apps.upgrade(app_id="97ec670f-8b11-479f-9cd2-c8904ef45b7f",
-        ...                            exposed_ports=[{"basePathVariableName": "SAAGIE_BASE_PATH",
-        ...                                            "isRewriteUrl": True,
-        ...                                            "scope": "PROJECT",
-        ...                                            "number": 80,
-        ...                                            "name": "Test Port"}],
-        ...                            storage_paths=[{"path": "/home",
-        ...                                            "volumeId": "00f5d5d4-1975-478b-81f3-2003b7cff4c2"}]
-        ...                           )
+        >>> saagie_client.apps.upgrade(
+        ...     app_id="97ec670f-8b11-479f-9cd2-c8904ef45b7f",
+        ...     exposed_ports=[
+        ...         {
+        ...             "basePathVariableName": "SAAGIE_BASE_PATH",
+        ...             "isRewriteUrl": True,
+        ...             "scope": "PROJECT",
+        ...             "number": 80,
+        ...             "name": "Test Port"
+        ...         }
+        ...     ],
+        ...     storage_paths=[
+        ...         {
+        ...             "path": "/home",
+        ...             "volumeId": "00f5d5d4-1975-478b-81f3-2003b7cff4c2"
+        ...         }
+        ...     ]
+        ... )
         {
             'addAppVersion': {
                 'number': 2,
@@ -1179,10 +1197,12 @@ class Apps:
 
         Examples
         --------
-        >>>    saagieapi.apps.export(app_id="befeacff-8b3b-4269-bf6d-73b5f369313a",
-        ...                          output_folder="./output/app/",
-        ...                          error_folder="./output/error/",
-        ...                          versions_only_current=True)
+        >>> saagieapi.apps.export(
+        ...     app_id="befeacff-8b3b-4269-bf6d-73b5f369313a",
+        ...     output_folder="./output/app/",
+        ...     error_folder="./output/error/",
+        ...     versions_only_current=True
+        ... )
         True
         """
         app_info = None
@@ -1237,8 +1257,10 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.import_from_json(json_file="/path/to/the/json/file.json",
-        ...                                 project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
+        >>> saagieapi.apps.import_from_json(
+        ...     json_file="/path/to/the/json/file.json",
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        ... )
         True
         """
         json_file = Path(json_file)
@@ -1329,7 +1351,10 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.get_id(app_name="my-app", project_name="my-project")
+        >>> saagieapi.apps.get_id(
+        ...     app_name="my-app", 
+        ...     project_name="my-project"
+        ... )
         "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
         """
         project_id = self.saagie_api.projects.get_id(project_name)
@@ -1357,9 +1382,11 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.get_stats(history_id="history_app_id",
-         ...                         version_number="version_number",
-         ...                         start_time="start_date")
+        >>> saagieapi.apps.get_stats(
+        ...     history_id="history_app_id",
+        ...     version_number="version_number",
+        ...     start_time="start_date"
+        ... )
         {
             'appStats': {
                 'uptimePercentage': 0.04,
@@ -1395,9 +1422,11 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.get_history_statuses(history_id="history_app_id",
-         ...                                    version_number="version_number",
-         ...                                    start_time="start_date")
+        >>> saagieapi.apps.get_history_statuses(
+        ...     history_id="history_app_id",
+        ...     version_number="version_number",
+        ...     start_time="start_date"
+        ... )
         {
             'appHistoryStatuses': [
                 {'status': 'STARTING', 'recordAt': '2023-08-01T08:38:34.859Z'},
@@ -1436,9 +1465,11 @@ class Apps:
 
         Examples
         --------
-        >>> saagieapi.apps.count_history_statuses(history_id="history_app_id",
-        ...                                       version_number="version_number",
-        ...                                       start_time="start_date")
+        >>> saagieapi.apps.count_history_statuses(
+        ...     history_id="history_app_id",
+        ...     version_number="version_number",
+        ...     start_time="start_date"
+        ... )
         {
             'countAppHistoryStatuses': 6
         }

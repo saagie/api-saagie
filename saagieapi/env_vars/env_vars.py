@@ -115,11 +115,12 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_global(name="TEST_PASSWORD",
-        ...                                  value="test",
-        ...                                  description="This is a password",
-        ...                                  is_password=True
-        ...                                 )
+        >>> saagieapi.env_vars.create_global(
+        ...     name="TEST_PASSWORD",
+        ...     value="test",
+        ...     description="This is a password",
+        ...     is_password=True
+        ... )
         {
             "saveEnvironmentVariable": {
                 "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
@@ -176,15 +177,16 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.update_global(name="TEST_PASSWORD",
-        ...                                  value="new value",
-        ...                                  description="This is a new password",
-        ...                                  is_password=True
-        ...                                 )
+        >>> saagieapi.env_vars.update_global(
+        ...     name="TEST_PASSWORD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
-           }
+            "saveEnvironmentVariable": {
+                "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
+            }
         }
         """
 
@@ -241,15 +243,16 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_or_update_global(name="TEST_PASSWORD",
-        ...                                            value="new value",
-        ...                                            description="This is a new password",
-        ...                                            is_password=True
-        ...                                           )
+        >>> saagieapi.env_vars.create_or_update_global(
+        ...     name="TEST_PASSWORD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
-           }
+            "saveEnvironmentVariable": {
+                "id": "069f3bf2-da1a-4106-acb4-3c7cc37367a3"
+            }
         }
         """
 
@@ -402,16 +405,17 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_for_project(name="TEST_PASSWORD",
-        ...                                       value="test",
-        ...                                       description="This is a password",
-        ...                                       is_password=True,
-        ...                                       project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                                      )
+        >>> saagieapi.env_vars.create_for_project(
+        ...     name="TEST_PASSWORD",
+        ...     value="test",
+        ...     description="This is a password",
+        ...     is_password=True,
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
-           }
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
         }
         """
         params = {
@@ -473,16 +477,17 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.update_for_project(name="TEST_PASSWORD",
-        ...                                       value="new value",
-        ...                                       description="This is a new password",
-        ...                                       is_password=True,
-        ...                                       project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                                      )
+        >>> saagieapi.env_vars.update_for_project(
+        ...     name="TEST_PASSWORD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True,
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
-           }
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
         }
         """
 
@@ -543,16 +548,17 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_or_update_for_project(name="TEST_PASSWORD",
-        ...                                                 value="new value",
-        ...                                                 description="This is a new password",
-        ...                                                 is_password=True,
-        ...                                                 project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                                                )
+        >>> saagieapi.env_vars.create_or_update_for_project(
+        ...     name="TEST_PASSWORD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True,
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
-           }
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
         }
         """
 
@@ -610,9 +616,10 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.delete_for_project(name="TEST_PASSWORD",
-        ...                                       project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                                      )
+        >>> saagieapi.env_vars.delete_for_project(
+        ...     name="TEST_PASSWORD",
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
             "deleteEnvironmentVariable": True
         }
@@ -736,12 +743,13 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
-        ...                                        name="TEST_PASSWORD",
-        ...                                        value="test",
-        ...                                        description="This is a password",
-        ...                                        is_password=True,
-        ...                                        )
+        >>> saagieapi.env_vars.create_for_pipeline(
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...     name="TEST_PASSWORD",
+        ...     value="test",
+        ...     description="This is a password",
+        ...     is_password=True,
+        ... )
         {
             "saveEnvironmentVariable": {
                 "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
@@ -807,19 +815,19 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagie_api.env_vars.update_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
-        ...                                         name="TEST_PASSWORD",
-        ...                                         new_name="TEST_PWD",
-        ...                                         value="new value",
-        ...                                         description="This is a new password",
-        ...                                         is_password=True,
-        ...                                        )
+        >>> saagie_api.env_vars.update_for_pipeline(
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...     name="TEST_PASSWORD",
+        ...     new_name="TEST_PWD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True,
+        ... )
         {
             "saveEnvironmentVariable": {
                 "id": "750c5366-caea-4d1f-ad38-fa6089ea2015"
             }
         }
-
         """
 
         existing_env_var = self.list_for_pipeline(pipeline_id, pprint_result=False)["pipelineEnvironmentVariables"]
@@ -879,12 +887,13 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_or_update_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
-        ...                                                  name="TEST_PASSWORD",
-        ...                                                  value="test",
-        ...                                                  description="This is a password",
-        ...                                                  is_password=True,
-        ...                                                 )
+        >>> saagieapi.env_vars.create_or_update_for_pipeline(
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...     name="TEST_PASSWORD",
+        ...     value="test",
+        ...     description="This is a password",
+        ...     is_password=True,
+        ... )
         {
             "saveEnvironmentVariable": {
                 "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
@@ -943,11 +952,12 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.delete_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
-        ...                                        name="TEST_PASSWORD",
-        ...                                       )
+        >>> saagieapi.env_vars.delete_for_pipeline(
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...     name="TEST_PASSWORD",
+        ... )
         {
-           "deleteEnvironmentVariable": True
+            "deleteEnvironmentVariable": True
         }
         """
         pipeline_envs = self.list_for_pipeline(pipeline_id, pprint_result=False)
@@ -1078,16 +1088,17 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create(name="TEST_PASSWORD",
-        ...                           value="test",
-        ...                           description="This is a password",
-        ...                           is_password=True,
-        ...                           project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                          )
+        >>> saagieapi.env_vars.create(
+        ...     name="TEST_PASSWORD",
+        ...     value="test",
+        ...     description="This is a password",
+        ...     is_password=True,
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
-           }
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
         }
         """
 
@@ -1157,16 +1168,17 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.update(name="TEST_PASSWORD",
-        ...                           value="new value",
-        ...                           description="This is a new password",
-        ...                           is_password=True,
-        ...                           project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                          )
+        >>> saagieapi.env_vars.update(
+        ...     name="TEST_PASSWORD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True,
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
-           }
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
         }
         """
 
@@ -1241,16 +1253,17 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.create_or_update(name="TEST_PASSWORD",
-        ...                                     value="new value",
-        ...                                     description="This is a new password",
-        ...                                     is_password=True,
-        ...                                     project_id="50033e21-83c2-4431-a723-d54c2693b964"
-        ...                                    )
+        >>> saagieapi.env_vars.create_or_update(
+        ...     name="TEST_PASSWORD",
+        ...     value="new value",
+        ...     description="This is a new password",
+        ...     is_password=True,
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964"
+        ... )
         {
-           "saveEnvironmentVariable": {
-               "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
-           }
+            "saveEnvironmentVariable": {
+                "id": "8aaee333-a9f4-40f5-807a-44f8efa65a2f"
+            }
         }
         """
 
@@ -1319,7 +1332,7 @@ class EnvVars:
         --------
         >>>   saagieapi.env_vars.delete(name="TEST_PASSWORD")
         {
-           "deleteEnvironmentVariable": True
+            "deleteEnvironmentVariable": True
         }
         """
         check_scope(scope, project_id, pipeline_id)
@@ -1355,9 +1368,13 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagie_api.env_vars.bulk_create_for_pipeline(pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
-        ...                                              env_vars={"BULK1": "HELLO", "BULK2": "WORLD"}
-        ...                                             )
+        >>> saagie_api.env_vars.bulk_create_for_pipeline(
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
+        ...     env_vars={
+        ...         "BULK1": "HELLO", 
+        ...         "BULK2": "WORLD"
+        ...     }
+        ... )
         {
             "replaceEnvironmentVariablesByRawForScope": [
                 {
@@ -1413,10 +1430,12 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.export(project_id="50033e21-83c2-4431-a723-d54c2693b964",
-        ...                           output_folder="./output/env_vars/",
-        ...                           error_folder="./output/error/",
-        ...                           project_only=True)
+        >>> saagieapi.env_vars.export(
+        ...     project_id="50033e21-83c2-4431-a723-d54c2693b964",
+        ...     output_folder="./output/env_vars/",
+        ...     error_folder="./output/error/",
+        ...     project_only=True
+        ... )
         True
         """
 
@@ -1467,8 +1486,10 @@ class EnvVars:
 
         Examples
         --------
-        >>> saagieapi.env_vars.import_from_json(json_file="/path/to/the/json/file.json",
-        ...                                     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
+        >>> saagieapi.env_vars.import_from_json(
+        ...     json_file="/path/to/the/json/file.json",
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        ... )
         True
         """
         json_file = Path(json_file)

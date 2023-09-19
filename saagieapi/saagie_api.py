@@ -267,9 +267,9 @@ class SaagieApi:
             "platform": {
                 "id": 1,
                 "counts": {
-                    "projects": 21, 
-                    "jobs": 111, 
-                    "apps": 59, 
+                    "projects": 21,
+                    "jobs": 111,
+                    "apps": 59,
                     "pipelines": 17
                 }
             }
@@ -807,7 +807,7 @@ class SaagieApi:
                 }
             }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "conditionNodeID": condition_id,
             "projectID": project_id,
@@ -885,7 +885,7 @@ class SaagieApi:
                 }
             }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "conditionInstanceId": condition_instance_id,
             "projectId": project_id,

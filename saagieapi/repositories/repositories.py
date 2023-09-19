@@ -244,7 +244,7 @@ class Repositories:
                 ]
             }
         }
-        """
+        """ # pylint: disable=line-too-long
 
         params = {
             "id": repository_id,
@@ -280,8 +280,10 @@ class Repositories:
 
         Examples
         --------
-        >>> saagie.repositories.create(name="hello world repo",
-                                       file="./test_input/technologies.zip")
+        >>> saagie.repositories.create(
+        ...     name="hello world repo",
+        ...     file="./test_input/technologies.zip"
+        ... )
         {
             'addRepository': {
                 'count': 1,
@@ -404,10 +406,12 @@ class Repositories:
 
         Examples
         --------
-        >>> saagieapi.repositories.edit(repository_id="163360ba-3254-490e-9eec-ccd1dc096fd7",
-                                        name="new name repo",
-                                        url="https://github.com/saagie/technologies-community/releases/download/0.62.0/technologies.zip",
-                                        trigger_synchronization=True)
+        >>> saagieapi.repositories.edit(
+        ...     repository_id="163360ba-3254-490e-9eec-ccd1dc096fd7",
+        ...     name="new name repo",
+        ...     url="https://github.com/saagie/technologies-community/releases/download/0.62.0/technologies.zip",
+        ...     trigger_synchronization=True
+        ... )
         {
             'editRepository': {
                 'count': 1,
@@ -422,7 +426,7 @@ class Repositories:
                 ]
             }
         }
-        """
+        """ # pylint: disable=line-too-long
 
         params = {"repositoryInput": {"id": repository_id, "triggerSynchronization": trigger_synchronization}}
         if name:
@@ -454,9 +458,11 @@ class Repositories:
 
         Examples
         --------
-        >>> saagie.repositories.synchronize(repository_id="d04e578f-546a-41bf-bb8c-790e99a4f6c8",
-                                            file="./test_input/new_technologies.zip")
-         {
+        >>> saagie.repositories.synchronize(
+        ...     repository_id="d04e578f-546a-41bf-bb8c-790e99a4f6c8",
+        ...     file="./test_input/new_technologies.zip"
+        ... )
+        {
             'synchronizeRepository': {
                 'count': 5,
                 'report': {

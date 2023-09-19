@@ -120,7 +120,7 @@ class Jobs:
                 }
             ]
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "instancesLimit": instances_limit,
@@ -149,9 +149,7 @@ class Jobs:
 
         Examples
         --------
-        >>> saagieapi.jobs.list_for_project_minimal(
-        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
-        ... )
+        >>> saagieapi.jobs.list_for_project_minimal(project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
         {
             "jobs": [
                 {
@@ -281,7 +279,6 @@ class Jobs:
         ...     job_name="Python test job"
         ... )
         "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"
-
         """
         jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
         if job := next((j for j in jobs if j["name"] == job_name), None):
@@ -411,7 +408,7 @@ class Jobs:
                 "resources": None
             }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "jobId": job_id,
             "instancesLimit": instances_limit,
@@ -534,7 +531,7 @@ class Jobs:
                 }
             }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "name": job_name,
@@ -995,7 +992,7 @@ class Jobs:
                 }
             }
         }
-        """
+        """ # pylint: disable=line-too-long
 
         job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
 
@@ -1075,7 +1072,7 @@ class Jobs:
         Examples
         --------
         >>> saagie_api.jobs.rollback(
-        ...     job_id="58870149-5f1c-45e9-93dc-04b2b30a732c", 
+        ...     job_id="58870149-5f1c-45e9-93dc-04b2b30a732c",
         ...     version_number=3
         ... )
         {
@@ -1083,19 +1080,19 @@ class Jobs:
                 "id": "58870149-5f1c-45e9-93dc-04b2b30a732c",
                 "versions": [
                     {
-                        "number": 4, 
+                        "number": 4,
                         "isCurrent": False
                     },
                     {
-                        "number": 3, 
+                        "number": 3,
                         "isCurrent": True
                     },
                     {
-                        "number": 2, 
+                        "number": 2,
                         "isCurrent": False
                     },
                     {
-                        "number": 1, 
+                        "number": 1,
                         "isCurrent": False
                     }
                 ]
@@ -1328,7 +1325,7 @@ class Jobs:
         Examples
         --------
         >>> saagieapi.jobs.export(
-        ...    job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d", 
+        ...    job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
         ...    output_folder="./output/job/",
         ...    error_folder="./output/error/",
         ...    versions_only_current=True
@@ -1406,7 +1403,7 @@ class Jobs:
         -------
         bool
             True if job is imported False otherwise
-        
+
         Examples
         --------
         >>> saagieapi.jobs.import_from_json(
@@ -1481,7 +1478,7 @@ class Jobs:
         Examples
         --------
         >>> saagie_api.jobs.delete_instances(
-        ...     job_id=job_id, 
+        ...     job_id=job_id,
         ...     job_instances_id=["c8f156bc-78ab-4dda-acff-bbe828237fd9", "7e5549cd-32aa-42c4-88b5-ddf5f3087502"]
         ... )
         {
@@ -1522,7 +1519,7 @@ class Jobs:
         Examples
         --------
         >>> saagie_api.jobs.delete_instances_by_selector(
-        ...     job_id=job_id, 
+        ...     job_id=job_id,
         ...     selector="FAILED",
         ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
         ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
@@ -1559,7 +1556,10 @@ class Jobs:
 
         Examples
         --------
-        >>> saagie_api.jobs.delete_versions(job_id=job_id, versions=["1"])
+        >>> saagie_api.jobs.delete_versions(
+        ...     job_id=job_id, 
+        ...     versions=["1"]
+        ... )
         {
             'deleteJobVersions': [
                 {'number': 1, 'success': True}

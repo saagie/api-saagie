@@ -103,6 +103,7 @@ class Profiles:
         Examples
         --------
         >>> saagieapi.profiles.export(output_folder="/tmp/")
+        True
         """
 
         profiles = None
@@ -145,9 +146,12 @@ class Profiles:
 
         Examples
         --------
-        >>> saagieapi.profiles.edit(user_name="test_user",
-                                    job_title="PROJECT_MANAGER",
-                                    email="test.user@gmail.com")
+        >>> saagieapi.profiles.edit(
+        ...     user_name="test_user",
+        ...     job_title="PROJECT_MANAGER",
+        ...     email="test.user@gmail.com"
+        ... )
+        True
         """
 
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl

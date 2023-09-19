@@ -167,8 +167,8 @@ class Pipelines:
                                         "isPassword": True
                                     },
                                     {
-                                        "key": "TEST_PROJECT", 
-                                        "value": "TEST_PROJECT", 
+                                        "key": "TEST_PROJECT",
+                                        "value": "TEST_PROJECT",
                                         "isPassword": False
                                     }
                                 ],
@@ -261,7 +261,7 @@ class Pipelines:
                 ]
             }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "instancesLimit": instances_limit,
@@ -483,7 +483,7 @@ class Pipelines:
                 "isLegacyPipeline": False
             }
         }
-        """
+        """ # pylint: disable=line-too-long
         params = {
             "id": pipeline_id,
             "instancesLimit": instances_limit,
@@ -528,8 +528,8 @@ class Pipelines:
                         "isPassword": True
                     },
                     {
-                        "key": "TEST_PROJECT", 
-                        "value": "TEST_PROJECT", 
+                        "key": "TEST_PROJECT",
+                        "value": "TEST_PROJECT",
                         "isPassword": False
                     }
                 ],
@@ -694,7 +694,7 @@ class Pipelines:
 
         Examples
         --------
-        >>> pipeline_instance_id = saagieapi.pipelines.delete(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c")
+        >>> saagieapi.pipelines.delete(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c")
         {
             "deletePipeline": True
         }
@@ -805,8 +805,7 @@ class Pipelines:
     ) -> Dict:  # sourcery skip: remove-redundant-if, simplify-boolean-comparison
         # pylint: disable=singleton-comparison
         """Edit a pipeline
-        NB : You can only edit pipeline if you have at least the editor role on
-        the project
+        NB : You can only edit pipeline if you have at least the editor role on the project
 
         Parameters
         ----------
@@ -984,6 +983,11 @@ class Pipelines:
         ...     emails=["hello.world@gmail.com"],
         ...     status_list=["FAILED"]
         ... )
+        {
+            "createGraphPipeline": {
+                "id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c"
+            }
+        }
         """
         pipeline_list = self.saagie_api.pipelines.list_for_project_minimal(project_id)["project"]["pipelines"]
 
@@ -1045,7 +1049,7 @@ class Pipelines:
         Examples
         --------
         >>> saagie_api.pipelines.rollback(
-        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1", 
+        ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
         ...     version_number=1
         ... )
         {
@@ -1053,11 +1057,11 @@ class Pipelines:
                 "id": "5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
                 "versions": [
                     {
-                        "number": 2, 
+                        "number": 2,
                         "isCurrent": False
                     },
                     {
-                        "number": 1, 
+                        "number": 1,
                         "isCurrent": True
                     }
                 ]
@@ -1234,7 +1238,7 @@ class Pipelines:
         Examples
         --------
         >>> saagieapi.pipelines.export(
-        ...     pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c", 
+        ...     pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
         ...     output_folder="./output/pipeline/",
         ...     error_folder="./output/error/pipeline/",
         ...     versions_only_current=True
@@ -1300,7 +1304,7 @@ class Pipelines:
         Examples
         --------
         >>> saagieapi.pipelines.import_from_json(
-        ...     json_file="/path/to/the/json/file.json", 
+        ...     json_file="/path/to/the/json/file.json",
         ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
         ... )
         True

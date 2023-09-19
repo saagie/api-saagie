@@ -31,15 +31,15 @@ class DockerCredentials:
         --------
         >>> saagie.docker_credentials.list_for_project(project_id="123456789")
         {
-           "allDockerCredentials":[
-               {
-                   "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-                   "registry":None,
-                   "username":"myuser",
-                   "lastUpdate":"2022-04-26T14:20:17.118Z",
-                   "jobs":[]
-               }
-           ]
+            "allDockerCredentials":[
+                {
+                    "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+                    "registry":None,
+                    "username":"myuser",
+                    "lastUpdate":"2022-04-26T14:20:17.118Z",
+                    "jobs":[]
+                }
+            ]
         }
         """
         params = {"projectId": project_id}
@@ -68,16 +68,18 @@ class DockerCredentials:
 
         Examples
         --------
-        >>> saagieapi.docker_credentials.get_info(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                 credential_id="0cb2662f-84eb-4a7d-93cb-2340f7773bce")
+        >>> saagieapi.docker_credentials.get_info(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     credential_id="0cb2662f-84eb-4a7d-93cb-2340f7773bce"
+        ... )
         {
-           "dockerCredentials":{
-               "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-               "registry":None,
-               "username":"myuser",
-               "lastUpdate":"2022-04-27T08:15:41.023Z",
-               "jobs":[]
-           }
+            "dockerCredentials":{
+                "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+                "registry":None,
+                "username":"myuser",
+                "lastUpdate":"2022-04-27T08:15:41.023Z",
+                "jobs":[]
+            }
         }
         """
         params = {"projectId": project_id, "id": credential_id}
@@ -106,14 +108,16 @@ class DockerCredentials:
 
         Examples
         --------
-        >>> saagieapi.docker_credentials.get_info_for_username(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                              username="myuser")
+        >>> saagieapi.docker_credentials.get_info_for_username(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     username="myuser"
+        ... )
         {
-           "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-           "registry":None,
-           "username":"myuser",
-           "lastUpdate":"2022-04-26T14:20:17.118Z",
-           "jobs": []
+            "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+            "registry":None,
+            "username":"myuser",
+            "lastUpdate":"2022-04-26T14:20:17.118Z",
+            "jobs": []
         }
         """
         if all_docker_credentials := self.list_for_project(project_id, pprint_result=False)["allDockerCredentials"]:
@@ -152,16 +156,18 @@ class DockerCredentials:
 
         Examples
         --------
-        >>>    saagieapi.docker_credentials.create(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                        username="myuser",
-        ...                                        password="mypassword")
+        >>> saagieapi.docker_credentials.create(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     username="myuser",
+        ...     password="mypassword"
+        ... )
         {
-           "createDockerCredentials":{
-               "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-               "registry":None,
-               "username":"myuser",
-               "lastUpdate":"2022-04-26T14:20:17.138482Z[UTC]"
-           }
+            "createDockerCredentials":{
+                "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+                "registry":None,
+                "username":"myuser",
+                "lastUpdate":"2022-04-26T14:20:17.138482Z[UTC]"
+            }
         }
         """
         params = {"username": username, "password": password, "projectId": project_id}
@@ -200,17 +206,19 @@ class DockerCredentials:
 
         Examples
         --------
-        >>> saagieapi.docker_credentials.upgrade(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                      credential_id="0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-        ...                                      username="myuser",
-        ...                                      password="mypassword")
+        >>> saagieapi.docker_credentials.upgrade(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     credential_id="0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+        ...     username="myuser",
+        ...     password="mypassword"
+        ... )
         {
-           "updateDockerCredentials":{
-               "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-               "registry":None,
-               "username":"myuser",
-               "lastUpdate":"2022-04-26T14:20:17.138482Z[UTC]"
-           }
+            "updateDockerCredentials":{
+                "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+                "registry":None,
+                "username":"myuser",
+                "lastUpdate":"2022-04-26T14:20:17.138482Z[UTC]"
+            }
         }
         """
         params = {"id": credential_id, "password": password, "projectId": project_id}
@@ -245,16 +253,18 @@ class DockerCredentials:
 
         Examples
         --------
-        >>>  saagieapi.docker_credentials.upgrade_for_username(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                                    username="myuser",
-        ...                                                    password="mypassword")
+        >>> saagieapi.docker_credentials.upgrade_for_username(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     username="myuser",
+        ...     password="mypassword"
+        ... )
         {
-           "updateDockerCredentials":{
-               "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
-               "registry":None,
-               "username":"myuser",
-               "lastUpdate":"2022-04-26T14:20:17.138482Z[UTC]"
-           }
+            "updateDockerCredentials":{
+                "id":"0cb2662f-84eb-4a7d-93cb-2340f7773bce",
+                "registry":None,
+                "username":"myuser",
+                "lastUpdate":"2022-04-26T14:20:17.138482Z[UTC]"
+            }
         }
         """
         credential_id = self.get_info_for_username(project_id, username, registry)["id"]
@@ -285,10 +295,12 @@ class DockerCredentials:
 
         Examples
         --------
-        >>> saagieapi.docker_credentials.delete(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                     credential_id="0cb2662f-84eb-4a7d-93cb-2340f7773bce")
+        >>> saagieapi.docker_credentials.delete(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     credential_id="0cb2662f-84eb-4a7d-93cb-2340f7773bce"
+        ... )
         {
-           'deleteDockerCredentials': True
+            'deleteDockerCredentials': True
         }
         """
         params = {"id": credential_id, "projectId": project_id}
@@ -317,10 +329,12 @@ class DockerCredentials:
 
         Examples
         --------
-        >>> saagieapi.docker_credentials.delete_for_username(project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
-        ...                                                  username="myuser")
+        >>> saagieapi.docker_credentials.delete_for_username(
+        ...     project_id="860b8dc8-e734-4c98-b2e7-f9ec32ab4771",
+        ...     username="myuser"
+        ... )
         {
-           'deleteDockerCredentials': True
+            'deleteDockerCredentials': True
         }
         """
         credential_id = self.get_info_for_username(project_id, username, registry)["id"]

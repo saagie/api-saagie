@@ -32,28 +32,28 @@ class Users:
         --------
         >>> saagieapi.users.list()
         [
-           {
-               "login": "test_user",
-               "roles": [
-                   "ROLE_READER"
-               ],
-               "platforms": [],
-               "groups": [
-                   "test_group"
-               ],
-               "protected": False
-           },
-           {
-               "login": "customer_admin",
-               "roles": [
-                   "ROLE_ADMIN"
-               ],
-               "platforms": [],
-               "groups": [
-                   "administrators"
-               ],
-               "protected": True
-           }
+            {
+                "login": "test_user",
+                "roles": [
+                    "ROLE_READER"
+                ],
+                "platforms": [],
+                "groups": [
+                    "test_group"
+                ],
+                "protected": False
+            },
+            {
+                "login": "customer_admin",
+                "roles": [
+                    "ROLE_ADMIN"
+                ],
+                "platforms": [],
+                "groups": [
+                    "administrators"
+                ],
+                "protected": True
+            }
         ]
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
@@ -90,15 +90,15 @@ class Users:
         --------
         >>> saagieapi.users.get_info(user_name="test_user")
         {
-           "login": "test_user",
-           "roles": [
-               "ROLE_READER"
-           ],
-           "platforms": [],
-           "groups": [
-               "test_group"
-           ],
-           "protected": False
+            "login": "test_user",
+            "roles": [
+                "ROLE_READER"
+            ],
+            "platforms": [],
+            "groups": [
+                "test_group"
+            ],
+            "protected": False
         }
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
@@ -181,9 +181,11 @@ class Users:
 
         Examples
         --------
-        >>>    saagieapi.users.import_from_json(json_file="/path/to/the/json/file.json",
-        ...                                     temp_pwd="NewPwd123!",
-        ...                                     error_folder="/path/to/the/error/folder")
+        >>> saagieapi.users.import_from_json(
+        ...     json_file="/path/to/the/json/file.json",
+        ...     temp_pwd="NewPwd123!",
+        ...     error_folder="/path/to/the/error/folder"
+        ... )
         True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
@@ -279,11 +281,12 @@ class Users:
 
         Examples
         --------
-        >>>   saagieapi.users.create(user_name="user_reader",
-        ...                          password="A123456#a",
-        ...                          roles=["ROLE_READER"],
-        ...                          groups=["reader_group"]
-        ...                         )
+        >>> saagieapi.users.create(
+        ...     user_name="user_reader",
+        ...     password="A123456#a",
+        ...     roles=["ROLE_READER"],
+        ...     groups=["reader_group"]
+        ... )
         True
         """
         if platforms is None:
@@ -331,7 +334,7 @@ class Users:
 
         Examples
         --------
-        >>>   saagieapi.users.delete(user_name="user_reader")
+        >>> saagieapi.users.delete(user_name="user_reader")
         True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
@@ -370,10 +373,11 @@ class Users:
 
         Examples
         --------
-        >>> saagieapi.users.edit_password(user_name="test_user",
-        ...                               previous_pwd="A123456#a",
-        ...                               new_pwd="NewPwd123!"
-        ...                              )
+        >>> saagieapi.users.edit_password(
+        ...     user_name="test_user",
+        ...     previous_pwd="A123456#a",
+        ...     new_pwd="NewPwd123!"
+        ... )
         True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl

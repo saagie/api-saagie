@@ -171,7 +171,7 @@ class Groups:
         -------
         bool
             True if group is exported False otherwise
-        
+
         Examples
         --------
         >>> saagieapi.groups.export(
