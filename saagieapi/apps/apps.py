@@ -187,7 +187,7 @@ class Apps:
                 ]
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
 
         params = {
             "id": project_id,
@@ -409,7 +409,7 @@ class Apps:
                 ]
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "id": app_id,
             "versionsOnlyCurrent": versions_only_current,
@@ -1352,7 +1352,7 @@ class Apps:
         Examples
         --------
         >>> saagieapi.apps.get_id(
-        ...     app_name="my-app", 
+        ...     app_name="my-app",
         ...     project_name="my-project"
         ... )
         "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"

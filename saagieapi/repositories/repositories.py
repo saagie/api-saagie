@@ -244,7 +244,7 @@ class Repositories:
                 ]
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
 
         params = {
             "id": repository_id,
@@ -426,7 +426,7 @@ class Repositories:
                 ]
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
 
         params = {"repositoryInput": {"id": repository_id, "triggerSynchronization": trigger_synchronization}}
         if name:

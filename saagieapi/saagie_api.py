@@ -807,7 +807,7 @@ class SaagieApi:
                 }
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "conditionNodeID": condition_id,
             "projectID": project_id,
@@ -885,7 +885,7 @@ class SaagieApi:
                 }
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "conditionInstanceId": condition_instance_id,
             "projectId": project_id,

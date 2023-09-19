@@ -1371,7 +1371,7 @@ class EnvVars:
         >>> saagie_api.env_vars.bulk_create_for_pipeline(
         ...     pipeline_id="5a064fe8-8de3-4dc7-9a69-40b079deaeb1",
         ...     env_vars={
-        ...         "BULK1": "HELLO", 
+        ...         "BULK1": "HELLO",
         ...         "BULK2": "WORLD"
         ...     }
         ... )

@@ -261,7 +261,7 @@ class Pipelines:
                 ]
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "instancesLimit": instances_limit,
@@ -483,7 +483,7 @@ class Pipelines:
                 "isLegacyPipeline": False
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "id": pipeline_id,
             "instancesLimit": instances_limit,

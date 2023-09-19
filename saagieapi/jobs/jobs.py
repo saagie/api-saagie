@@ -120,7 +120,7 @@ class Jobs:
                 }
             ]
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "instancesLimit": instances_limit,
@@ -408,7 +408,7 @@ class Jobs:
                 "resources": None
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "jobId": job_id,
             "instancesLimit": instances_limit,
@@ -531,7 +531,7 @@ class Jobs:
                 }
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "name": job_name,
@@ -992,7 +992,7 @@ class Jobs:
                 }
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
 
         job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
 
@@ -1557,7 +1557,7 @@ class Jobs:
         Examples
         --------
         >>> saagie_api.jobs.delete_versions(
-        ...     job_id=job_id, 
+        ...     job_id=job_id,
         ...     versions=["1"]
         ... )
         {

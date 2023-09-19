@@ -110,7 +110,7 @@ class Storages:
                 }
             ]
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         params = {
             "id": project_id,
             "minimal": minimal,
@@ -175,7 +175,7 @@ class Storages:
                 }
             }
         }
-        """ # pylint: disable=line-too-long
+        """  # pylint: disable=line-too-long
         storages = self.list_for_project(project_id)["project"]["volumes"]
         for storage in storages:
             if storage["id"] == storage_id:
