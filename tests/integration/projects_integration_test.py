@@ -1,7 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
 import os
 from datetime import datetime
-import time
 from typing import List
 
 import pytest
@@ -82,23 +81,6 @@ class TestIntegrationProject:
         description = "For integration test"
         result = conf.saagie_api.projects.create(name=project_name, description=description)
 
-        # Waiting for the project to be ready
-        project_status = conf.saagie_api.projects.get_info(project_id=conf.project_id)["project"]["status"]
-        waiting_time = 0
-
-        # Safety: wait for 5min max for project initialisation
-        project_creation_timeout = 400
-        while project_status != "READY" and waiting_time <= project_creation_timeout:
-            time.sleep(10)
-            project_status = conf.saagie_api.projects.get_info(conf.project_id)["project"]["status"]
-            waiting_time += 10
-        if project_status != "READY":
-            raise TimeoutError(
-                f"Project creation is taking longer than usual, "
-                f"aborting integration tests after {project_creation_timeout} seconds"
-            )
-
-        # conf.saagie_api.projects.delete(conf.saagie_api.projects.get_id(project_name))
         conf.saagie_api.projects.delete(result["createProject"]["id"])
         assert project_name == result["createProject"]["name"]
 

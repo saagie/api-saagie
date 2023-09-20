@@ -1123,8 +1123,8 @@ class Pipelines:
 
         Returns
         -------
-        str
-            the final state of the pipeline
+        (str, str)
+            (the final state of the pipeline, the pipeline instance id)
 
         Raises
         ------
@@ -1134,7 +1134,7 @@ class Pipelines:
         Examples
         --------
         >>> saagieapi.pipelines.run_with_callback(pipeline_id="ca79c5c8-2e57-4a35-bcfc-5065f0ee901c")
-        "SUCCEEDED"
+        ("SUCCEEDED", "975253ea-1b91-4633-acdf-dd9b09d53b18")
         """
         res = self.run(pipeline_id)
         pipeline_instance_id = res.get("runPipeline").get("id")
@@ -1143,7 +1143,7 @@ class Pipelines:
         state = pipeline_instance_info.get("pipelineInstance").get("status")
 
         sec = 0
-        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
+        final_status_list = ["SUCCEEDED", "FAILED", "KILLED", "UNKNOWN"]
 
         logging.info("⏳ Pipeline id %s with instance %s has just been requested", pipeline_id, pipeline_instance_id)
 
@@ -1166,7 +1166,7 @@ class Pipelines:
                 "❌ Pipeline id %s with instance %s has the status %s", pipeline_id, pipeline_instance_id, state
             )
 
-        return state
+        return (state, pipeline_instance_id)
 
     def stop(self, pipeline_instance_id: str) -> Dict:
         """Stop a given pipeline instance
