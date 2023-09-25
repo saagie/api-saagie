@@ -306,8 +306,6 @@ class TestIntegrationJobs:
         # result = conf.saagie_api.jobs.run(job_id)
         _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id)
 
-        # instance_id = result["runJob"]["id"]
-
         res = conf.saagie_api.jobs.delete_instances(job_id=job_id, job_instances_id=[instance_id])
 
         # test only the presence of the field, deletion can't be made because instances are still in the orchestrator

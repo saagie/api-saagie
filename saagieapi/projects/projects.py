@@ -617,7 +617,6 @@ class Projects:
 
         project_info = self.get_info(project_id)["project"]
 
-        job_tech_dict = {}
         job_tech_dict = defaultdict(list)
         for category in self.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
             for tech in category["technologies"]:

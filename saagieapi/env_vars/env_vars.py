@@ -992,6 +992,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        scope_only : bool, optional
+            Whether to return only the environment variables of the given scope
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global

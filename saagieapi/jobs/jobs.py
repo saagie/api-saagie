@@ -1159,7 +1159,7 @@ class Jobs:
         return result
 
     def run_with_callback(self, job_id: str, freq: int = 10, timeout: int = -1) -> Dict:
-        """Run a job and wait for the final status (KILLED, FAILED or SUCCESS).
+        """Run a job and wait for the final status (KILLED, FAILED, UNKNOWN or SUCCESS).
         Regularly check (default to 10s) the job's status.
 
         Parameters
@@ -1210,7 +1210,7 @@ class Jobs:
                 state = job_instance_info.get("jobInstance").get("status")
         if state == "SUCCEEDED":
             logging.info("✅ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
-        elif state in ("FAILED", "KILLED"):
+        elif state in ("FAILED", "KILLED", "UNKNOWN"):
             logging.error("❌ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
         return (state, job_instance_id)
 

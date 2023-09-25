@@ -809,7 +809,7 @@ class Apps:
         return result
 
     def stop(self, app_id: str) -> Dict:
-        """Stop a given job instance
+        """Stop a given app instance
 
         Parameters
         ----------

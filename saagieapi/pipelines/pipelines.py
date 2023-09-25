@@ -1107,10 +1107,8 @@ class Pipelines:
         return result
 
     def run_with_callback(self, pipeline_id: str, freq: int = 10, timeout: int = -1) -> str:
-        """Run a given pipeline and wait for its final status (KILLED, FAILED
-        or SUCCESS).
-        NB : You can only run pipeline if you have at least the editor role on
-        the project
+        """Run a given pipeline and wait for its final status (KILLED, FAILED, UNKNOWN or SUCCESS).
+        NB : You can only run pipeline if you have at least the editor role on the project
 
         Parameters
         ----------
@@ -1161,7 +1159,7 @@ class Pipelines:
             logging.info(
                 "✅ Pipeline id %s with instance %s has the status %s", pipeline_id, pipeline_instance_id, state
             )
-        elif state in ("FAILED", "KILLED"):
+        elif state in ("FAILED", "KILLED", "UNKNOWN"):
             logging.error(
                 "❌ Pipeline id %s with instance %s has the status %s", pipeline_id, pipeline_instance_id, state
             )
