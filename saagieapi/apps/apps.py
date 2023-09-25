@@ -475,7 +475,7 @@ class Apps:
         logins : list of str, optional
             Logins to receive alerts for the app. Each item should be a valid login.
         status_list : list of str, optional
-            Receive an email when the job status changes to a specific status.
+            Receive an email when the app status changes to a specific status.
             Each item of the list should be one of these following values:
             "STARTING", "STARTED", "ROLLING_BACK", "UPGRADING", "RECOVERING",
             "RESTARTING", "STOPPING", "STOPPED", "FAILED".
