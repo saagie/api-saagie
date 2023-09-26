@@ -1006,32 +1006,30 @@ class EnvVars:
         Examples
         --------
         >>> saagieapi.env_vars.list(scope="GLOBAL")
-        {
-            "globalEnvironmentVariables": [
-                {
-                    "id": "334c2e0e-e8ea-4639-911e-757bf36bc91b",
-                    "name": "TEST_PASSWORD",
-                    "scope": "GLOBAL",
-                    "value": None,
-                    "description": "This is a password",
-                    "isPassword": True,
-                    "isValid": True,
-                    "overriddenValues": [],
-                    "invalidReasons": None
-                },
-                {
-                    "id": "eb430066-551a-47f3-97c6-e56a9272fbd0",
-                    "name": "PORT_WEBHDFS",
-                    "scope": "GLOBAL",
-                    "value": "50070",
-                    "description": "",
-                    "isPassword": False,
-                    "isValid": True,
-                    "overriddenValues": [],
-                    "invalidReasons": None
-                }
-            ]
-        }
+        [
+            {
+                "id": "334c2e0e-e8ea-4639-911e-757bf36bc91b",
+                "name": "TEST_PASSWORD",
+                "scope": "GLOBAL",
+                "value": None,
+                "description": "This is a password",
+                "isPassword": True,
+                "isValid": True,
+                "overriddenValues": [],
+                "invalidReasons": None
+            },
+            {
+                "id": "eb430066-551a-47f3-97c6-e56a9272fbd0",
+                "name": "PORT_WEBHDFS",
+                "scope": "GLOBAL",
+                "value": "50070",
+                "description": "",
+                "isPassword": False,
+                "isValid": True,
+                "overriddenValues": [],
+                "invalidReasons": None
+            }
+        ]
         """
         check_scope(scope, project_id, pipeline_id)
 
@@ -1053,6 +1051,61 @@ class EnvVars:
             )["pipelineEnvironmentVariables"]
 
         return [env for env in res if env["scope"] == scope] if scope_only else res
+
+    def get(
+        self,
+        scope: str,
+        name: str,
+        project_id: str = None,
+        pipeline_id: str = None,
+        scope_only: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
+        """
+        Get environment variable information
+        NB: You can only get environment variable information if you have at least the
+        viewer role on the project
+
+        Parameters
+        ----------
+        scope : str
+            Scope of the environment variable to get. Must be one of GLOBAL, PROJECT or PIPELINE
+        name : str
+            Name of the environment variable to get
+        project_id : str, optional
+            UUID of your project (see README on how to find it)
+        pipeline_id : str, optional
+            UUID of your pipeline (see README on how to find it)
+        scope_only : bool, optional
+            Whether to return only the environment variables of the given scope
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
+
+        Returns
+        -------
+        dict (or None if not found)
+            Dict of environment variable
+
+        Examples
+        --------
+        >>> saagie_api.env_vars.get(scope="GLOBAL", name="TEST_GLOBAL_ENV_VARS")
+        {
+            'id': 'ef1aecd1-8cb0-4a09-8b1c-dff72ca97c1f',
+            'name': 'TEST_GLOBAL_ENV_VARS',
+            'scope': 'GLOBAL',
+            'value': 'DEFAULT_VALUE',
+            'description': '',
+            'isPassword': False,
+            'isValid': True,
+            'invalidReasons': None
+        }
+        """
+        check_scope(scope, project_id, pipeline_id)
+
+        env_vars = self.list(scope, project_id, pipeline_id, scope_only, pprint_result)
+
+        return next((d for d in env_vars if d["name"] == name), None)
 
     def create(
         self,
