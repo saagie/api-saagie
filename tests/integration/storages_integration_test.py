@@ -8,7 +8,7 @@ class TestIntegrationStorages:
     @staticmethod
     def create_storage(create_global_project):
         conf = create_global_project
-        storage_name = "hello_world" + str(datetime.now())
+        storage_name = f"hello_world{datetime.now()}"
         storage = conf.saagie_api.storages.create(
             project_id=conf.project_id,
             storage_name=storage_name,
@@ -31,15 +31,9 @@ class TestIntegrationStorages:
     def test_create_storage(create_then_delete_storage, create_global_project):
         conf = create_global_project
         storage = create_then_delete_storage
-        is_created = False
-
         storages = conf.saagie_api.storages.list_for_project(project_id=conf.project_id)["project"]
-        for elem in storages["volumes"]:
-            if elem["id"] == storage["id"]:
-                is_created = True
-                break
-
-        assert is_created is True
+        is_created = any(elem["id"] == storage["id"] for elem in storages["volumes"])
+        assert is_created
 
     @staticmethod
     def test_get_info(create_then_delete_storage, create_global_project):
@@ -109,7 +103,7 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.10",
         )
 
         app_id = create_app["installApp"]["id"]
@@ -131,7 +125,7 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.10",
         )
         app_id = create_app["installApp"]["id"]
         app_info = conf.saagie_api.apps.get_info(app_id)
@@ -160,7 +154,7 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab Python 3.8 / 3.9 / 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.10",
         )
 
         app_id = create_app["installApp"]["id"]

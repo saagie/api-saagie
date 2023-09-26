@@ -153,7 +153,7 @@ Your Saagie projects homepage has the following structure
 
 .. code:: python
 
-    res = saagieapi.pipelines.get_instance(pipeline_instance_id="pipeline_instance_id")`
+    res = saagieapi.pipelines.get_instance(pipeline_instance_id="pipeline_instance_id")
     condition_id = res["pipelineInstance"]["conditionsInstance"]["conditionNodeId"]
     condition_instance_id = res["pipelineInstance"]["conditionsInstance"]["id"]
 

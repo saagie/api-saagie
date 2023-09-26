@@ -1,5 +1,6 @@
 import json
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
@@ -11,8 +12,12 @@ class Users:
 
     def list(self, verify_ssl: Optional[bool] = None) -> List[Dict]:
         """Get users
-        NB: You can only list users if you have the admin role on the platform
-        Params
+
+        NOTE
+        ----
+        You can only list users if you have the admin role on the platform
+
+        Parameters
         ------
         verify_ssl: bool, optional
             Enable or disable verification of SSL certification
@@ -21,13 +26,36 @@ class Users:
         Returns
         -------
         List[Dict]
-            List of users on the platform, each dict have the following struct:
-            {'login': 'str',
-              'roles': ['str'],
-              'platforms': [],
-              'groups': ['str'],
-              'protected': bool
+            List of users on the platform, each dict have the following structure:
+            {'login': 'str', 'roles': ['str'], 'platforms': [], 'groups': ['str'], 'protected': bool}
+
+        Examples
+        --------
+        >>> saagieapi.users.list()
+        [
+            {
+                "login": "test_user",
+                "roles": [
+                    "ROLE_READER"
+                ],
+                "platforms": [],
+                "groups": [
+                    "test_group"
+                ],
+                "protected": False
+            },
+            {
+                "login": "customer_admin",
+                "roles": [
+                    "ROLE_ADMIN"
+                ],
+                "platforms": [],
+                "groups": [
+                    "administrators"
+                ],
+                "protected": True
             }
+        ]
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
@@ -40,8 +68,12 @@ class Users:
 
     def get_info(self, user_name: str, verify_ssl: Optional[bool] = None) -> Dict:
         """Get info of a specific user
-        NB: You can only get user's information if you have the admin role on the platform
-        Params
+
+        NOTE
+        ----
+        You can only get user's information if you have the admin role on the platform.
+
+        Parameters
         ------
         user_name: str
             User's name
@@ -52,13 +84,23 @@ class Users:
         Returns
         -------
         Dict
-            Dict of user's information on the platform,
-            {'login': 'str',
-              'roles': ['str'],
-              'platforms': [],
-              'groups': ['str'],
-              'protected': bool
-            }
+            Dict of user's information on the platform, the dict have the following structure:
+            {'login': 'str', 'roles': ['str'], 'platforms': [], 'groups': ['str'], 'protected': bool}
+
+        Examples
+        --------
+        >>> saagieapi.users.get_info(user_name="test_user")
+        {
+            "login": "test_user",
+            "roles": [
+                "ROLE_READER"
+            ],
+            "platforms": [],
+            "groups": [
+                "test_group"
+            ],
+            "protected": False
+        }
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         response = self.saagie_api.request_client.send(
@@ -71,7 +113,10 @@ class Users:
 
     def export(self, output_folder: str, verify_ssl: Optional[bool] = None) -> bool:
         """Export users in a file
-        NB: You can only use this function if you have the admin role on the platform
+
+        NOTE
+        ----
+        You can only use this function if you have the admin role on the platform
 
         Parameters
         ----------
@@ -85,6 +130,11 @@ class Users:
         -------
         bool
             True if users are exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.users.export(output_folder="./output/users/")
+        True
         """
         users = None
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
@@ -94,20 +144,22 @@ class Users:
             logging.warning("❌ Cannot get the user's information on the platform")
             logging.error("Something went wrong %s", exception)
         if users:
-            output_folder = check_folder_path(output_folder)
+            output_folder = Path(output_folder)
             create_folder(output_folder)
-            write_to_json_file(output_folder + "users.json", users)
+            write_to_json_file(output_folder / "users.json", users)
             logging.info("✅ Users of the platform have been successfully exported")
             return True
-        else:
-            return False
+        return False
 
     def import_from_json(
         self, json_file: str, temp_pwd: str, error_folder: Optional[str] = "", verify_ssl: Optional[bool] = None
     ) -> bool:
         """Import users from JSON format file
-        NB: You can only use this function if you have the admin role on the platform
-            All protected (created at platform installation) users will not be imported.
+
+        NOTE
+        ----
+        You can only use this function if you have the admin role on the platform
+        All protected (created at platform installation) users will not be imported.
 
         Parameters
         ----------
@@ -128,6 +180,14 @@ class Users:
         bool
             True if users are all imported or already existed False otherwise
 
+        Examples
+        --------
+        >>> saagieapi.users.import_from_json(
+        ...     json_file="/path/to/the/json/file.json",
+        ...     temp_pwd="NewPwd123!",
+        ...     error_folder="/path/to/the/error/folder"
+        ... )
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
 
@@ -173,15 +233,15 @@ class Users:
                     already_exist_list.append(user["login"])
 
         if failed_list:
-            logging.info(f"{len(failed_list)}/{total_user} are failed to import")
-            logging.warning(f"❌ The following users are failed to import: {failed_list}")
+            logging.info("%s/%s are failed to import", len(failed_list), total_user)
+            logging.warning("❌ The following users are failed to import: %s", failed_list)
             write_error(error_folder, "users", str(failed_list))
             return False
-        else:
-            logging.info(f"{len(imported_list)}/{total_user} are successfully imported")
-            logging.info(f"{len(already_exist_list)}/{total_user} are already exist")
-            logging.info("✅ Users have been successfully imported")
-            return True
+
+        logging.info("%s/%s are successfully imported", len(imported_list), total_user)
+        logging.info("%s/%s are already exist", len(already_exist_list), total_user)
+        logging.info("✅ Users have been successfully imported")
+        return True
 
     def create(
         self,
@@ -193,7 +253,10 @@ class Users:
         verify_ssl: Optional[bool] = None,
     ) -> bool:
         """Create a given user
-        NB: You can only use this function if you have the admin role on the platform
+
+        NOTE
+        ----
+        You can only use this function if you have the admin role on the platform
 
         Parameters
         ----------
@@ -217,6 +280,15 @@ class Users:
         bool
            True if user is created Error otherwise
 
+        Examples
+        --------
+        >>> saagieapi.users.create(
+        ...     user_name="user_reader",
+        ...     password="A123456#a",
+        ...     roles=["ROLE_READER"],
+        ...     groups=["reader_group"]
+        ... )
+        True
         """
         if platforms is None:
             platforms = []
@@ -243,7 +315,10 @@ class Users:
 
     def delete(self, user_name, verify_ssl: Optional[bool] = None) -> bool:
         """Delete a given user
-        NB: You can only use this function if you have the admin role on the platform
+
+        NOTE
+        ----
+        You can only use this function if you have the admin role on the platform
 
         Parameters
         ----------
@@ -258,6 +333,10 @@ class Users:
         bool
            True if user is deleted Error otherwise
 
+        Examples
+        --------
+        >>> saagieapi.users.delete(user_name="user_reader")
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         self.saagie_api.request_client.send(
@@ -271,7 +350,10 @@ class Users:
 
     def edit_password(self, user_name, previous_pwd, new_pwd, verify_ssl: Optional[bool] = None):
         """Edit a given user's password
-        NB: You can only use this function if you have the admin role on the platform
+
+        NOTE
+        ----
+        You can only use this function if you have the admin role on the platform
 
         Parameters
         ----------
@@ -289,6 +371,15 @@ class Users:
         -------
         bool
             True if user's password is successfully edited Error otherwise
+
+        Examples
+        --------
+        >>> saagieapi.users.edit_password(
+        ...     user_name="test_user",
+        ...     previous_pwd="A123456#a",
+        ...     new_pwd="NewPwd123!"
+        ... )
+        True
         """
         verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
         self.saagie_api.request_client.send(

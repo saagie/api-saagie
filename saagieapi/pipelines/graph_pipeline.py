@@ -1,6 +1,8 @@
 import uuid
 from typing import List
 
+# pylint: disable=missing-function-docstring
+
 
 class Node:
     def __init__(self) -> None:
@@ -67,7 +69,6 @@ class GraphPipeline:
         if str(node.uid) not in [jn.get("uid") for jn in self.list_job_nodes] and str(node.uid) not in [
             cn.get("uid") for cn in self.list_conditions_nodes
         ]:
-
             if isinstance(node, JobNode):
                 dict_job = {"id": str(node.uid), "nextNodes": [str(nn.uid) for nn in node.next_nodes], "job": {}}
                 dict_job["job"]["id"] = node.job_id

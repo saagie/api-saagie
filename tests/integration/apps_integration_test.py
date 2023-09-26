@@ -10,7 +10,7 @@ class TestIntegrationApps:
     @staticmethod
     def create_app_from_scratch(create_global_project):
         conf = create_global_project
-        app_name = f"hello_world{str(datetime.now())}"
+        app_name = f"hello_world{datetime.now()}"
         app = conf.saagie_api.apps.create_from_scratch(
             project_id=conf.project_id,
             app_name=app_name,
@@ -114,7 +114,7 @@ class TestIntegrationApps:
                 time.sleep(1)
                 tries -= 1
             if tries == 0:
-                raise Exception("App is not stopped")
+                raise TimeoutError("App is not stopped")
 
         conf.saagie_api.apps.run(app_id=app_id)
 
@@ -126,6 +126,15 @@ class TestIntegrationApps:
     def test_stop_app(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
         app_id = create_then_delete_app_from_scratch
+
+        app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+        tries = 60
+        while app_info["app"]["history"]["currentStatus"] != "STARTED" and tries > 0:
+            app_info = conf.saagie_api.apps.get_info(app_id=app_id)
+            time.sleep(1)
+            tries -= 1
+        if tries == 0:
+            raise TimeoutError("App is not started")
 
         conf.saagie_api.apps.stop(app_id=app_id)
 

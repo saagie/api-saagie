@@ -73,7 +73,7 @@ class SaagieApi:
             realm=self.realm, url=self.url_saagie, platform=id_platform, login=user, password=password
         )
         logging.info("✅ Successfully connected to your platform %s", self.url_saagie)
-        url_api = f"{self.url_saagie}projects/api/platform/{str(id_platform)}/graphql"
+        url_api = f"{self.url_saagie}projects/api/platform/{id_platform}/graphql"
         self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
 
         url_gateway = f"{self.url_saagie}gateway/api/graphql"
@@ -115,14 +115,13 @@ class SaagieApi:
         """
         url_regex = re.compile(r"(https://(\w+)-(?:\w|\.)+)/projects/platform/(\d+)")
         matches_url = url_regex.match(url_saagie_platform)
-        if bool(matches_url):
-            url_saagie = matches_url.group(1)
-            realm = matches_url.group(2)
-            id_platform = matches_url.group(3)
-        else:
+        if not bool(matches_url):
             raise ValueError(
                 "❌ Please use a correct URL (eg: https://saagie-workspace.prod.saagie.io/projects/platform/6/)"
             )
+        url_saagie = matches_url[1]
+        realm = matches_url[2]
+        id_platform = matches_url[3]
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
@@ -163,11 +162,8 @@ class SaagieApi:
 
         if not status_list:
             status_list = ["FAILED"]
-        wrong_status_list = []
-        for item in status_list:
-            if item not in valid_status_list:
-                wrong_status_list.append(item)
-        if wrong_status_list:
+
+        if wrong_status_list := [item for item in status_list if item not in valid_status_list]:
             raise RuntimeError(
                 f"❌ The following status are not valid: {wrong_status_list}. "
                 f"Please make sure that each item of the parameter status_list should be "
@@ -219,10 +215,34 @@ class SaagieApi:
     def get_cluster_capacity(self) -> Dict:
         """
         Get information for cluster (cpu, gpu, memory)
+
         Returns
         -------
         dict
             Dict of cluster resources
+
+        Examples
+        --------
+        >>> saagie_api.get_cluster_capacity()
+        {
+            "getClusterCapacity":[
+                {
+                    "cpu":3.8,
+                    "gpu":0.0,
+                    "memory":16.083734528
+                },
+                {
+                    "cpu":3.8,
+                    "gpu":0.0,
+                    "memory":16.083734528
+                },
+                {
+                    "cpu":3.8,
+                    "gpu":0.0,
+                    "memory":16.08372224
+                }
+            ]
+        }
         """
         query = gql(GQL_GET_CLUSTER_INFO)
         return self.client.execute(query)
@@ -234,10 +254,26 @@ class SaagieApi:
     def get_platform_info(self) -> Dict:
         """
         Get platform info (nb projects, jobs, apps, pipelines)
+
         Returns
         -------
         dict
             Dict of platform info
+
+        Examples
+        --------
+        >>> saagie_api.get_platform_info()
+        {
+            "platform": {
+                "id": 1,
+                "counts": {
+                    "projects": 21,
+                    "jobs": 111,
+                    "apps": 59,
+                    "pipelines": 17
+                }
+            }
+        }
         """
         query = gql(GQL_GET_PLATFORM_INFO)
         return self.client.execute(query)
@@ -251,10 +287,55 @@ class SaagieApi:
         Get information for all repositories (id, name, technologies)
         NB: You can only get repositories information if you have the right to
         access the technology catalog
+
         Returns
         -------
         dict
             Dict of repositories
+
+        Examples
+        --------
+        >>> saagie_api.get_repositories_info()
+        {
+            "repositories":[
+                {
+                    "id":"9fcbddfe-a7b7-4d25-807c-ad030782c923",
+                    "name":"Saagie",
+                    "technologies":[
+                        {
+                            "id":"5cbb55aa-8ce9-449b-b0b9-64cc6781ea89",
+                            "label":"R",
+                            "available":True,
+                            "__typename":"JobTechnology"
+                        },
+                        {
+                            "id":"36912c68-d084-43b9-9fda-b5ded8eb7b13",
+                            "label":"Docker image",
+                            "available":True,
+                            "__typename":"AppTechnology"
+                        },
+                        {
+                            "id":"1d117fb6-0697-438a-b419-a69e0e7406e8",
+                            "label":"Spark",
+                            "available":True,
+                            "__typename":"SparkTechnology"
+                        }
+                    ]
+                },
+                {
+                    "id":"fff42d30-2029-4f23-b326-d751f256f533",
+                    "name":"Saagie Community",
+                    "technologies":[
+                        {
+                            "id":"034c28d7-c21f-4d7c-8dd9-7d09bc02f33f",
+                            "label":"ShinyProxy",
+                            "available":True,
+                            "__typename":"AppTechnology"
+                        }
+                    ]
+                }
+            ]
+        }
         """
         query = gql(GQL_GET_REPOSITORIES_INFO)
         return self.client_gateway.execute(query)
@@ -362,10 +443,64 @@ class SaagieApi:
     def get_available_technologies(self, catalog: str) -> List:
         """Get the list of available jobs technologies for the specified catalog
 
+        Parameters
+        ----------
+        catalog : str
+            Catalog name
+
         Returns
         -------
         dict
             Dict of technologies available
+
+        Examples
+        --------
+        >>> saagieapi.get_available_technologies(catalog="Saagie")
+        [
+            {
+                'id': 'a3a5e5ea-7af1-47db-b9ca-fed722a123b1',
+                'label': 'Apache Superset',
+                'available': True,
+                '__typename': 'AppTechnology'
+            },
+            {
+                'id': '19d446bd-bf31-462b-9c0b-023123f5dc4a',
+                'label': 'CloudBeaver',
+                'available': True,
+                '__typename': 'AppTechnology'
+            },
+            {
+                'id': 'a55afd45-3938-4ee3-8d16-e93227c76b93',
+                'label': 'Dash',
+                'available': True,
+                '__typename': 'AppTechnology'
+            }
+            ,
+            {
+                'id': '4adb934e-8ee7-4942-9951-fd461b6769b1',
+                'label': 'Bash',
+                'available': True,
+                '__typename': 'JobTechnology'
+            },
+            {
+                'id': '1669e3ca-9fcf-1234-be11-cc2f3afabb1d',
+                'label': 'Generic',
+                'available': True,
+                '__typename': 'JobTechnology'
+            },
+            {
+                'id': '7f7c5c02-e187-448c-8552-99eed6af2001',
+                'label': 'Java/Scala',
+                'available': True,
+                '__typename': 'JobTechnology'
+            },
+            {
+                'id': '9bb93cad-69a5-4a9d-b059-811c6cde589e',
+                'label': 'Python',
+                'available': True,
+                '__typename': 'JobTechnology'
+            }
+        ]
         """
         all_technologies_in_catalog = [
             repository["technologies"]
@@ -391,12 +526,94 @@ class SaagieApi:
         dict
             Dict of runtime labels
 
+        Examples
+        --------
+        >>> saagieapi.get_runtimes(technology_id="11d63963-0a74-4821-b17b-8fcec4882863")
+        {
+            'technology': {
+                '__typename': 'AppTechnology',
+                'id': '11d63963-0a74-4821-b17b-8fcec4882863',
+                'label': 'Jupyter Notebook',
+                'available': True,
+                'appContexts': [
+                    {
+                        'id': 'jupyter-spark-3.1',
+                        'available': True,
+                        'deprecationDate': None,
+                        'description': None,
+                        'dockerInfo': {
+                            'image': 'saagie/jupyter-python-nbk',
+                            'version': 'pyspark-3.1.1-1.111.0'
+                        },
+                        'facets': [],
+                        'label': 'JupyterLab Spark 3.1',
+                        'lastUpdate': '2023-02-07T09:43:08.057Z',
+                        'ports': [
+                            {
+                                'basePath': 'SAAGIE_BASE_PATH',
+                                'name': 'Notebook',
+                                'port': 8888,
+                                'rewriteUrl': False,
+                                'scope': 'PROJECT'
+                            },
+                            {
+                                'basePath': 'SPARK_UI_PATH',
+                                'name': 'SparkUI',
+                                'port': 8080,
+                                'rewriteUrl': False,
+                                'scope': 'PROJECT'
+                            }
+                        ],
+                        'missingFacets': [],
+                        'recommended': False,
+                        'trustLevel': 'Stable',
+                        'volumes': [
+                            {
+                                'path': '/notebooks-dir',
+                                'size': '64 MB'
+                            }
+                        ]
+                    },
+                    {
+                        'id': 'jupyterlab-3.8-3.9',
+                        'available': True,
+                        'deprecationDate': None,
+                        'description': None,
+                        'dockerInfo': {
+                            'image': 'saagie/jupyterlab-python-nbk',
+                            'version': '3.8-3.9-1.139.0'
+                        },
+                        'facets': [],
+                        'label': 'JupyterLab Python 3.8 / 3.9 / 3.10',
+                        'lastUpdate': '2023-02-07T09:43:08.057Z',
+                        'ports': [
+                            {
+                                'basePath': 'SAAGIE_BASE_PATH',
+                                'name': 'Notebook',
+                                'port': 8888,
+                                'rewriteUrl': False,
+                                'scope': 'PROJECT'
+                            }
+                        ],
+                        'missingFacets': [],
+                        'recommended': True,
+                        'trustLevel': 'Stable',
+                        'volumes': [
+                            {
+                                'path': '/notebooks-dir',
+                                'size': '64 MB'
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
         """
         return self.client_gateway.execute(gql(GQL_GET_RUNTIMES), variable_values={"id": technology_id})
 
     def get_technology_name_by_id(self, technology_id: str) -> Tuple[str, str]:
-        """
-        Get the name and the repository of a specific technology
+        """Get the name and the repository of a specific technology
+
         Parameters
         ----------
         technology_id : str
@@ -405,8 +622,12 @@ class SaagieApi:
         Returns
         -------
         (str, str)
-        Repository name and the label of the specific technology
+            Repository name and the label of the specific technology
 
+        Examples
+        --------
+        >>> saagieapi.get_technology_name_by_id(technology_id="11d63963-0a74-4821-b17b-8fcec4882863")
+        ('Saagie', 'Jupyter Notebook')
         """
         all_technologies = self.get_repositories_info()["repositories"]
 
@@ -461,12 +682,25 @@ class SaagieApi:
         -------
         Dict
             Dict of result of the condition expression
+
+        Examples
+        --------
+        >>> saagieapi.check_condition_expression(
+        ...     expression="double(rmse) > 500.0",
+        ...     project_id="your_project_id",
+        ...     variables={"key": "rmse", "value": 300}
+        ... )
+        {
+            "data": {
+                "evaluateConditionExpression": False
+            }
+        }
         """
 
         params = {
             "projectId": project_id,
             "expression": expression,
-            "variables": variables if variables else {"key": "", "value": ""},
+            "variables": variables or {"key": "", "value": ""},
         }
         return self.client.execute(query=gql(GQL_CHECK_CUSTOM_EXPRESSION), variable_values=params)
 
@@ -486,6 +720,19 @@ class SaagieApi:
         -------
         Dic
             Dict of number of logs lines
+
+        Examples
+        --------
+        >>> saagieapi.count_condition_logs(
+        ...     condition_instance_id="your_condition_instance_id",
+        ...     project_id="your_project_id",
+        ...     streams=["STDOUT"]
+        ... )
+        {
+            "data": {
+                "conditionPipelineCountFilteredLogs": 4
+            }
+        }
         """
 
         params = {"conditionInstanceId": condition_instance_id, "projectID": project_id, "streams": streams}
@@ -522,7 +769,45 @@ class SaagieApi:
         -------
         dict
             Dict of logs lines
-        """
+
+        Examples
+        --------
+        >>> saagieapi.get_condition_instance_logs_by_condition(
+        ...     condition_id="condition_node_id",
+        ...     project_id="project_id",
+        ...     pipeline_instance_id="pipeline_instance_id",
+        ...     streams=["STDOUT"]
+        ... )
+        {
+            "data": {
+                "conditionPipelineByNodeIdFilteredLogs": {
+                    "count": 4,
+                    "content": [
+                        {
+                            "index": 0,
+                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition: 'tube_name.contains(\"Tube\") ||",
+                            "stream": "STDOUT"
+                        },
+                        {
+                            "index": 1,
+                            "value": "double(diameter) > 1.0'",
+                            "stream": "STDOUT"
+                        },
+                        {
+                            "index": 2,
+                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition evaluation took: 4.736725ms",
+                            "stream": "STDOUT"
+                        },
+                        {
+                            "index": 3,
+                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Result: true",
+                            "stream": "STDOUT"
+                        }
+                    ]
+                }
+            }
+        }
+        """  # pylint: disable=line-too-long
         params = {
             "conditionNodeID": condition_id,
             "projectID": project_id,
@@ -564,7 +849,43 @@ class SaagieApi:
         -------
         dict
             Dict of logs lines
-        """
+
+        Examples
+        --------
+        >>> saagieapi.get_condition_instance_logs_by_instance(
+        ...     condition_instance_id="condition_instance_id",
+        ...     project_id="project_id"
+        ... )
+        {
+            "data": {
+                "conditionPipelineByNodeIdFilteredLogs": {
+                    "count": 4,
+                    "content": [
+                        {
+                            "index": 0,
+                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition: 'tube_name.contains(\"Tube\") ||",
+                            "stream": "STDOUT"
+                        },
+                        {
+                            "index": 1,
+                            "value": "double(diameter) > 1.0'",
+                            "stream": "STDOUT"
+                        },
+                        {
+                            "index": 2,
+                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition evaluation took: 4.736725ms",
+                            "stream": "STDOUT"
+                        },
+                        {
+                            "index": 3,
+                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Result: true",
+                            "stream": "STDOUT"
+                        }
+                    ]
+                }
+            }
+        }
+        """  # pylint: disable=line-too-long
         params = {
             "conditionInstanceId": condition_instance_id,
             "projectId": project_id,

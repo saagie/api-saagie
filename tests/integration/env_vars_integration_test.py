@@ -14,7 +14,9 @@ class TestIntegrationEnvVars:
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
-        conf.saagie_api.env_vars.create_global(name=name, value=value, description=description, is_password=False)
+        conf.saagie_api.env_vars.create(
+            scope="GLOBAL", name=name, value=value, description=description, is_password=False
+        )
 
         return name
 
@@ -26,7 +28,9 @@ class TestIntegrationEnvVars:
         value = "VALUE_TEST_VIA_API_PASSWORD"
         description = "DESCRIPTION_TEST_VIA_API_PASSWORD"
 
-        conf.saagie_api.env_vars.create_global(name=name, value=value, description=description, is_password=True)
+        conf.saagie_api.env_vars.create(
+            scope="GLOBAL", name=name, value=value, description=description, is_password=True
+        )
 
         return name
 
@@ -38,7 +42,7 @@ class TestIntegrationEnvVars:
 
         yield name
 
-        conf.saagie_api.env_vars.delete_global(name)
+        conf.saagie_api.env_vars.delete(scope="GLOBAL", name=name)
 
     @pytest.fixture
     @staticmethod
@@ -48,14 +52,14 @@ class TestIntegrationEnvVars:
 
         yield name
 
-        conf.saagie_api.env_vars.delete_global(name)
+        conf.saagie_api.env_vars.delete(scope="GLOBAL", name=name)
 
     @staticmethod
     def test_create_global_env_var(create_then_delete_global_env_var, create_global_project):
         conf = create_global_project
         name = create_then_delete_global_env_var
 
-        global_envs = conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
+        global_envs = conf.saagie_api.env_vars.list(scope="GLOBAL")
 
         global_envs_names = [env["name"] for env in global_envs]
 
@@ -66,7 +70,7 @@ class TestIntegrationEnvVars:
         conf = create_global_project
         name = create_global_env_var
 
-        result = conf.saagie_api.env_vars.delete_global(name)
+        result = conf.saagie_api.env_vars.delete(scope="GLOBAL", name=name)
 
         assert result == {"deleteEnvironmentVariable": True}
 
@@ -76,18 +80,15 @@ class TestIntegrationEnvVars:
         name = create_then_delete_global_env_var
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
-        conf.saagie_api.env_vars.update_global(
-            name,
+        conf.saagie_api.env_vars.update(
+            scope="GLOBAL",
+            name=name,
             value=env_var_input["value"],
             description=env_var_input["description"],
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
-            env_var
-            for env_var in conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
-            if env_var["name"] == name
-        ][0]
+        env_var = next(env_var for env_var in conf.saagie_api.env_vars.list(scope="GLOBAL") if env_var["name"] == name)
 
         to_validate = {
             "value": env_var["value"],
@@ -103,15 +104,11 @@ class TestIntegrationEnvVars:
         name = create_then_delete_global_env_var_password
         env_var_input = {"description": "new description", "isPassword": True}
 
-        conf.saagie_api.env_vars.update_global(
-            name, description=env_var_input["description"], is_password=env_var_input["isPassword"]
+        conf.saagie_api.env_vars.update(
+            scope="GLOBAL", name=name, description=env_var_input["description"], is_password=env_var_input["isPassword"]
         )
 
-        env_var = [
-            env_var
-            for env_var in conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
-            if env_var["name"] == name
-        ][0]
+        env_var = next(env_var for env_var in conf.saagie_api.env_vars.list(scope="GLOBAL") if env_var["name"] == name)
 
         to_validate = {"description": env_var["description"], "isPassword": env_var["isPassword"]}
 
@@ -124,18 +121,15 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # First call to create the variable
-        conf.saagie_api.env_vars.create_or_update_global(
-            name,
+        conf.saagie_api.env_vars.create_or_update(
+            scope="GLOBAL",
+            name=name,
             value=env_var_input["value"],
             description=env_var_input["description"],
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
-            env_var
-            for env_var in conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
-            if env_var["name"] == name
-        ][0]
+        env_var = next(env_var for env_var in conf.saagie_api.env_vars.list(scope="GLOBAL") if env_var["name"] == name)
 
         to_validate = {
             "value": env_var["value"],
@@ -146,18 +140,15 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        conf.saagie_api.env_vars.create_or_update_global(
-            name,
+        conf.saagie_api.env_vars.create_or_update(
+            scope="GLOBAL",
+            name=name,
             value=env_var_input["value"],
             description=env_var_input["description"],
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
-            env_var
-            for env_var in conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]
-            if env_var["name"] == name
-        ][0]
+        env_var = next(env_var for env_var in conf.saagie_api.env_vars.list(scope="GLOBAL") if env_var["name"] == name)
 
         to_validate = {
             "value": env_var["value"],
@@ -167,7 +158,7 @@ class TestIntegrationEnvVars:
 
         assert env_var_input == to_validate
 
-        conf.saagie_api.env_vars.delete_global(name)
+        conf.saagie_api.env_vars.delete(scope="GLOBAL", name=name)
 
     @pytest.fixture
     @staticmethod
@@ -177,8 +168,13 @@ class TestIntegrationEnvVars:
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
-        conf.saagie_api.env_vars.create_for_project(
-            project_id=conf.project_id, name=name, value=value, description=description, is_password=False
+        conf.saagie_api.env_vars.create(
+            scope="PROJECT",
+            project_id=conf.project_id,
+            name=name,
+            value=value,
+            description=description,
+            is_password=False,
         )
 
         return name
@@ -191,15 +187,15 @@ class TestIntegrationEnvVars:
 
         yield name
 
-        conf.saagie_api.env_vars.delete_for_project(project_id=conf.project_id, name=name)
+        conf.saagie_api.env_vars.delete(scope="PROJECT", project_id=conf.project_id, name=name)
 
     @staticmethod
     def test_create_project_env_var(create_then_delete_project_env_var, create_global_project):
         conf = create_global_project
         name = create_then_delete_project_env_var
 
-        project_envs = conf.saagie_api.env_vars.list_for_project(conf.project_id)
-        project_env_names = [env["name"] for env in project_envs["projectEnvironmentVariables"]]
+        project_envs = conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
+        project_env_names = [env["name"] for env in project_envs]
 
         assert name in project_env_names
 
@@ -208,7 +204,7 @@ class TestIntegrationEnvVars:
         conf = create_global_project
         name = create_project_env_var
 
-        result = conf.saagie_api.env_vars.delete_for_project(conf.project_id, name)
+        result = conf.saagie_api.env_vars.delete(scope="PROJECT", project_id=conf.project_id, name=name)
 
         assert result == {"deleteEnvironmentVariable": True}
 
@@ -218,19 +214,20 @@ class TestIntegrationEnvVars:
         name = create_then_delete_project_env_var
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
-        conf.saagie_api.env_vars.update_for_project(
-            conf.project_id,
-            name,
+        conf.saagie_api.env_vars.update(
+            scope="PROJECT",
+            project_id=conf.project_id,
+            name=name,
             value=env_var_input["value"],
             description=env_var_input["description"],
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
             if env_var["name"] == name
-        ][0]
+        )
         to_validate = {
             "value": env_var["value"],
             "description": env_var["description"],
@@ -246,9 +243,10 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
         with pytest.raises(ValueError) as rte:
-            conf.saagie_api.env_vars.update_for_project(
-                conf.project_id,
-                name,
+            conf.saagie_api.env_vars.update(
+                scope="PROJECT",
+                project_id=conf.project_id,
+                name=name,
                 value=env_var_input["value"],
                 description=env_var_input["description"],
                 is_password=env_var_input["isPassword"],
@@ -262,7 +260,8 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # First call to create the variable
-        conf.saagie_api.env_vars.create_or_update_for_project(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PROJECT",
             project_id=conf.project_id,
             name=name,
             value=env_var_input["value"],
@@ -270,11 +269,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
             if env_var["name"] == name
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -285,7 +284,8 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        conf.saagie_api.env_vars.create_or_update_for_project(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PROJECT",
             project_id=conf.project_id,
             name=name,
             value=env_var_input["value"],
@@ -293,11 +293,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
             if env_var["name"] == name
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -307,7 +307,7 @@ class TestIntegrationEnvVars:
 
         assert env_var_input == to_validate
 
-        conf.saagie_api.env_vars.delete_for_project(conf.project_id, name=name)
+        conf.saagie_api.env_vars.delete(scope="PROJECT", project_id=conf.project_id, name=name)
 
     @staticmethod
     def test_create_or_update_project_env_var_with_existing_global_env_var(create_global_project):
@@ -316,18 +316,19 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # Create a global env with the same name
-        conf.saagie_api.env_vars.create_global(
+        conf.saagie_api.env_vars.create(
+            scope="GLOBAL",
             name=name,
             value=env_var_input["value"],
             is_password=env_var_input["isPassword"],
             description=env_var_input["description"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
             if env_var["name"] == name
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -338,7 +339,8 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # call to overwrite the variable in the project
-        conf.saagie_api.env_vars.create_or_update_for_project(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PROJECT",
             project_id=conf.project_id,
             name=name,
             value=env_var_input["value"],
@@ -346,11 +348,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
             if env_var["name"] == name and env_var["scope"] == "PROJECT"
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -361,7 +363,8 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        conf.saagie_api.env_vars.create_or_update_for_project(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PROJECT",
             project_id=conf.project_id,
             name=name,
             value=env_var_input["value"],
@@ -369,11 +372,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_project(conf.project_id)["projectEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PROJECT", project_id=conf.project_id)
             if env_var["name"] == name and env_var["scope"] == "PROJECT"
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -383,8 +386,8 @@ class TestIntegrationEnvVars:
 
         assert env_var_input == to_validate
 
-        conf.saagie_api.env_vars.delete_for_project(conf.project_id, name=name)
-        conf.saagie_api.env_vars.delete_global(name=name)
+        conf.saagie_api.env_vars.delete(scope="PROJECT", project_id=conf.project_id, name=name)
+        conf.saagie_api.env_vars.delete(scope="GLOBAL", name=name)
 
     @staticmethod
     def test_export_variable(create_then_delete_project_env_var, create_global_project):
@@ -439,8 +442,13 @@ class TestIntegrationEnvVars:
         value = "VALUE_TEST_VIA_API"
         description = "DESCRIPTION_TEST_VIA_API"
 
-        conf.saagie_api.env_vars.create_for_pipeline(
-            pipeline_id=pipeline_id, name=name, value=value, description=description, is_password=False
+        conf.saagie_api.env_vars.create(
+            scope="PIPELINE",
+            pipeline_id=pipeline_id,
+            name=name,
+            value=value,
+            description=description,
+            is_password=False,
         )
 
         yield pipeline_id, name
@@ -456,24 +464,23 @@ class TestIntegrationEnvVars:
 
         yield pipeline_id, name
 
-        conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id=pipeline_id, name=name)
+        conf.saagie_api.env_vars.delete(scope="PIPELINE", pipeline_id=pipeline_id, name=name)
 
     @staticmethod
     def test_create_pipeline_env_var(create_then_delete_pipeline_env_var, create_global_project):
         conf = create_global_project
         pipeline_id, name = create_then_delete_pipeline_env_var
 
-        pipeline_envs = conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)
-        pipeline_env_names = [env["name"] for env in pipeline_envs["pipelineEnvironmentVariables"]]
+        pipeline_envs = conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id, scope_only=True)
 
-        assert name in pipeline_env_names
+        assert name in [env["name"] for env in pipeline_envs]
 
     @staticmethod
     def test_delete_pipeline_env_var(create_pipeline_env_var, create_global_project):
         conf = create_global_project
         pipeline_id, name = create_pipeline_env_var
 
-        result = conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name)
+        result = conf.saagie_api.env_vars.delete(scope="PIPELINE", pipeline_id=pipeline_id, name=name)
 
         assert result == {"deleteEnvironmentVariable": True}
 
@@ -483,19 +490,20 @@ class TestIntegrationEnvVars:
         pipeline_id, name = create_then_delete_pipeline_env_var
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
-        conf.saagie_api.env_vars.update_for_pipeline(
-            pipeline_id,
-            name,
+        conf.saagie_api.env_vars.update(
+            scope="PIPELINE",
+            pipeline_id=pipeline_id,
+            name=name,
             value=env_var_input["value"],
             description=env_var_input["description"],
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id, scope_only=True)
             if env_var["name"] == name
-        ][0]
+        )
         to_validate = {
             "value": env_var["value"],
             "description": env_var["description"],
@@ -514,9 +522,10 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "newvalue", "description": "new description", "isPassword": False}
 
         with pytest.raises(ValueError) as rte:
-            conf.saagie_api.env_vars.update_for_pipeline(
-                pipeline_id,
-                name,
+            conf.saagie_api.env_vars.update(
+                scope="PIPELINE",
+                pipeline_id=pipeline_id,
+                name=name,
                 value=env_var_input["value"],
                 description=env_var_input["description"],
                 is_password=env_var_input["isPassword"],
@@ -531,7 +540,8 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # First call to create the variable
-        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PIPELINE",
             pipeline_id=pipeline_id,
             name=name,
             value=env_var_input["value"],
@@ -539,11 +549,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
             if env_var["name"] == name
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -554,7 +564,8 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PIPELINE",
             pipeline_id=pipeline_id,
             name=name,
             value=env_var_input["value"],
@@ -562,11 +573,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
             if env_var["name"] == name
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -576,7 +587,7 @@ class TestIntegrationEnvVars:
 
         assert env_var_input == to_validate
 
-        conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name=name)
+        conf.saagie_api.env_vars.delete(scope="PIPELINE", pipeline_id=pipeline_id, name=name)
         conf.saagie_api.pipelines.delete(pipeline_id)
         conf.saagie_api.jobs.delete(job_id)
 
@@ -590,18 +601,19 @@ class TestIntegrationEnvVars:
         env_var_input = {"value": "TEST_VALUE", "description": "Test description", "isPassword": False}
 
         # Create a global env with the same name
-        conf.saagie_api.env_vars.create_global(
+        conf.saagie_api.env_vars.create(
+            scope="GLOBAL",
             name=name,
             value=env_var_input["value"],
             is_password=env_var_input["isPassword"],
             description=env_var_input["description"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
             if env_var["name"] == name
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -612,7 +624,8 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # call to overwrite the variable in the project
-        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PIPELINE",
             pipeline_id=pipeline_id,
             name=name,
             value=env_var_input["value"],
@@ -620,11 +633,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
             if env_var["name"] == name and env_var["scope"] == "PIPELINE"
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -635,7 +648,8 @@ class TestIntegrationEnvVars:
         assert env_var_input == to_validate
 
         # Second call to update the variable
-        conf.saagie_api.env_vars.create_or_update_for_pipeline(
+        conf.saagie_api.env_vars.create_or_update(
+            scope="PIPELINE",
             pipeline_id=pipeline_id,
             name=name,
             value=env_var_input["value"],
@@ -643,11 +657,11 @@ class TestIntegrationEnvVars:
             is_password=env_var_input["isPassword"],
         )
 
-        env_var = [
+        env_var = next(
             env_var
-            for env_var in conf.saagie_api.env_vars.list_for_pipeline(pipeline_id)["pipelineEnvironmentVariables"]
+            for env_var in conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
             if env_var["name"] == name and env_var["scope"] == "PIPELINE"
-        ][0]
+        )
 
         to_validate = {
             "value": env_var["value"],
@@ -657,8 +671,8 @@ class TestIntegrationEnvVars:
 
         assert env_var_input == to_validate
 
-        conf.saagie_api.env_vars.delete_for_pipeline(pipeline_id, name=name)
-        conf.saagie_api.env_vars.delete_global(name=name)
+        conf.saagie_api.env_vars.delete(scope="PIPELINE", pipeline_id=pipeline_id, name=name)
+        conf.saagie_api.env_vars.delete(scope="GLOBAL", name=name)
         conf.saagie_api.pipelines.delete(pipeline_id)
         conf.saagie_api.jobs.delete(job_id)
 
@@ -671,6 +685,6 @@ class TestIntegrationEnvVars:
 
         conf.saagie_api.env_vars.bulk_create_for_pipeline(pipeline_id=pipeline_id, env_vars=env_vars)
 
-        env_list = conf.saagie_api.env_vars.list_for_pipeline(pipeline_id=pipeline_id)
+        env_list = conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id)
 
         assert name not in env_list

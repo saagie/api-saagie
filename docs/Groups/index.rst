@@ -1,10 +1,7 @@
 Groups
 =========
 
-
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.groups
+    :members:
+    :undoc-members:
+    :show-inheritance:

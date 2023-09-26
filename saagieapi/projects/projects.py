@@ -1,13 +1,13 @@
 import json
 import logging
-import os
 import time
 from collections import defaultdict
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from gql import gql
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
+from ..utils.folder_functions import create_folder, write_to_json_file
 from .gql_queries import *
 
 
@@ -19,17 +19,21 @@ class Projects:
     def __map_role(role: str) -> str:
         """
         Map role with valid Saagie Role
+
+        Parameters
         ----------
-        params:role:str
+        role : str
             Role as simple string
+
         Returns
         -------
         str
             Valid Saagie role
         """
-        if role.lower() in ("manager", "editor", "viewer"):
+
+        if role.lower() in {"manager", "editor", "viewer"}:
             return f"ROLE_PROJECT_{role.upper()}"
-        raise ValueError("❌ 'role' takes value in ('Manager', 'Editor'," " 'Viewer')")
+        raise ValueError("❌ 'role' takes value in ('Manager', 'Editor', 'Viewer')")
 
     @staticmethod
     def _create_groupe_role(
@@ -38,7 +42,6 @@ class Projects:
         role: Optional[str],
         groups_and_roles: Optional[List[Dict]],
     ) -> Dict:
-
         if groups_and_roles and (group or role):
             raise RuntimeError(
                 "❌ Too many arguments, specify either a group and role, "
@@ -82,25 +85,56 @@ class Projects:
         -------
         dict
             Dict of projects information
+
+        Examples
+        --------
+        >>> saagieapi.projects.list()
+        {
+            "projects":[
+                {
+                    "id":"8321e13c-892a-4481-8552-5be4d6cc5df4",
+                    "name":"Project A",
+                    "creator":"john.doe",
+                    "description":"My project A",
+                    "jobsCount":49,
+                    "status":"READY"
+                },
+                {
+                    "id":"33b70e1b-3111-4376-a839-12d2f93c323b",
+                    "name":"Project B",
+                    "creator":"john.doe",
+                    "description":"My project B",
+                    "jobsCount":1,
+                    "status":"READY"
+                }
+            ]
+        }
         """
+
         return self.saagie_api.client.execute(query=gql(GQL_LIST_PROJECTS), pprint_result=pprint_result)
 
     def get_id(self, project_name: str) -> Dict:
         """Get the project id with the project name
+
         Parameters
         ----------
         project_name : str
             Name of your project
+
         Returns
         -------
         str
             Project UUID
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_id("Project A")
+        "8321e13c-892a-4481-8552-5be4d6cc5df4"
         """
+
         projects = self.list()["projects"]
-        project = list(filter(lambda p: p["name"] == project_name, projects))
-        if project:
-            project_id = project[0]["id"]
-            return project_id
+        if project := list(filter(lambda p: p["name"] == project_name, projects)):
+            return project[0]["id"]
         raise NameError(f"❌ Project {project_name} does not exist or you don't have permission to see it.")
 
     def get_info(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
@@ -121,7 +155,21 @@ class Projects:
         -------
         dict
             Dict of project information
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_info(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            "project": {
+                "name":"Project A",
+                "creator":"john.doe",
+                "description":"My project A",
+                "jobsCount":49,
+                "status":"READY"
+            }
+        }
         """
+
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=pprint_result
         )
@@ -141,7 +189,42 @@ class Projects:
         -------
         dict
             Dict of available jobs technology ids
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_jobs_technologies(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            'technologiesByCategory': [
+                {
+                    'jobCategory': 'Extraction',
+                    'technologies': [
+                        {
+                            'id': '9bb75cad-69a5-4a9d-b059-811c6cde589e',
+                            '__typename': 'Technology'
+                        },
+                        {
+                            'id': 'f267085d-cc52-4ae8-ad9e-af8721c81127',
+                            '__typename': 'Technology'
+                        }
+                    ]
+                },
+                {
+                    'jobCategory': 'Processing',
+                    'technologies': [
+                        {
+                            'id': '9bb75cad-69a5-4a9d-b059-811c6cde589e',
+                            '__typename': 'Technology'
+                        }
+                    ]
+                },
+                {
+                    'jobCategory': 'Smart App',
+                    'technologies': []
+                }
+            ]
+        }
         """
+
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_JOBS_TECHNOLOGIES),
             variable_values={"id": project_id},
@@ -158,10 +241,28 @@ class Projects:
         pprint_result : bool, optional
             Whether to pretty print the result of the query, default to
             saagie_api.pprint_global
+
         Returns
         -------
         dict
             Dict of available apps technology ids
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_apps_technologies(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            'appTechnologies': [
+                {
+                    'id': '11d63963-0a74-4821-b17b-8fcec4882863'
+                },
+                {
+                    'id': '56ad4996-7285-49a6-aece-b9525c57c619'
+                },
+                {
+                    'id': 'd0b55623-9dc0-4e03-89c7-6a2494387a4f'
+                }
+            ]
+        }
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PROJECT_APPS_TECHNOLOGIES),
@@ -204,7 +305,24 @@ class Projects:
         ------
         ValueError
             If given unknown role value
+
+        Examples
+        --------
+        >>> saagie_client.projects.create(
+        ...     name="Project_A",
+        ...     groups_and_roles=[{"my_group": "Manager"}],
+        ...     jobs_technologies_allowed={"saagie": ["python", "spark"]},
+        ...     apps_technologies_allowed={"saagie": ["Jupyter Notebook"]}
+        ... )
+        {
+            'createProject': {
+                'id': '09515109-e8d3-4ed0-9ab7-5370efcb6cb5',
+                'name': 'Project_A',
+                'creator': 'toto.tata'
+            }
+        }
         """
+
         # Create the params of the query
         params = {"name": name}
         params = self._create_groupe_role(params, group, role, groups_and_roles)
@@ -222,6 +340,7 @@ class Projects:
         """
         Get technology ids for the apps configured in parameters
         If param is empty, get all apps technology ids from the official saagie catalog
+
         Parameters
         ----------
         apps_technologies_allowed:list, optional
@@ -232,6 +351,7 @@ class Projects:
         list
             List of dict of apps technologies
         """
+
         if not apps_technologies_allowed:
             return [
                 {"id": techno["id"]}
@@ -257,6 +377,7 @@ class Projects:
         """
         Get technology ids for the jobs configured in parameters
         If param is empty, get all jobs technology ids from the official saagie catalog
+
         Parameters
         ----------
         jobs_technologies_allowed:list, optional
@@ -267,11 +388,12 @@ class Projects:
         list
             List of dict of jobs technologies
         """
+
         if not jobs_technologies_allowed:
             return [
                 {"id": techno["id"]}
                 for techno in self.saagie_api.get_available_technologies("saagie")
-                if techno["__typename"] == "JobTechnology" or (techno["__typename"] == "SparkTechnology")
+                if techno["__typename"] in ("JobTechnology", "SparkTechnology")
             ]
         tech_ids = []
         for catalog, technos in jobs_technologies_allowed.items():
@@ -281,7 +403,7 @@ class Projects:
                     [
                         techno
                         for techno in self.saagie_api.get_available_technologies(catalog)
-                        if techno["__typename"] == "JobTechnology" or techno["__typename"] == "SparkTechnology"
+                        if techno["__typename"] in ("JobTechnology", "SparkTechnology")
                     ],
                     catalog,
                 )
@@ -300,7 +422,26 @@ class Projects:
         -------
         dict
             Dict of rights associated for the project
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_rights(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            'rights': [
+                {
+                    'name': 'manager_group',
+                    'role': 'ROLE_PROJECT_MANAGER',
+                    'isAllProjects': True
+                },
+                {
+                    'name': 'my_group',
+                    'role': 'ROLE_PROJECT_MANAGER',
+                    'isAllProjects': False
+                }
+            ]
+        }
         """
+
         return self.saagie_api.client.execute(query=gql(GQL_GET_PROJECT_RIGHTS), variable_values={"id": project_id})
 
     def edit(
@@ -315,7 +456,6 @@ class Projects:
         apps_technologies_allowed: Dict = None,
     ) -> Dict:
         """Edit a project
-
 
         Parameters
         ----------
@@ -351,7 +491,26 @@ class Projects:
         ------
         ValueError
             If given unknown role value
+
+        Examples
+        --------
+        >>> saagie_client.projects.edit(
+        ...     project_id="9a261ae0-fd73-400c-b9b6-b4b63ac113eb",
+        ...     name="PROJECT B",
+        ...     groups_and_roles=[{"my_group": "Viewer"}],
+        ...     description="new desc",
+        ...     jobs_technologies_allowed={"saagie": ["r"]},
+        ...     apps_technologies_allowed={"saagie": ["Dash"]}
+        ... )
+        {
+            'editProject': {
+                'id': '9a261ae0-fd73-400c-b9b6-b4b63ac113eb',
+                'name': 'PROJECT B',
+                'creator': 'toto.tata'
+            }
+        }
         """
+
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
         params = self._create_groupe_role(params, group, role, groups_and_roles)
@@ -394,7 +553,15 @@ class Projects:
         -------
         dict
             dict of archived project
+
+        Examples
+        --------
+        >>> saagieapi.projects.delete(project_id="8321e13c-892a-4481-8552-5be4d6cc5df4")
+        {
+            "deleteProject": True
+        }
         """
+
         result = self.saagie_api.client.execute(
             query=gql(GQL_DELETE_PROJECT), variable_values={"projectId": project_id}
         )
@@ -427,51 +594,52 @@ class Projects:
             Whether to only fetch the current version of each job/app/pipeline
         project_only_env_vars : bool, optional
             True if only project environment variable should be exported False otherwise
+
         Returns
         -------
         bool
             True if project is successfully exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.projects.export(
+        ...     project_id="8321e13c-892a-4481-8552-5be4d6cc5df4",
+        ...     output_folder="./output/",
+        ...     error_folder= "./error/",
+        ...     versions_only_current = True,
+        ...     project_only_env_vars = True
+        ... )
+        True
         """
 
-        result = True
-        output_folder = check_folder_path(output_folder)
-        output_folder += project_id + "/"
+        output_folder = Path(output_folder) / project_id
         create_folder(output_folder)
-        output_folder_job = output_folder + "jobs/"
-        output_folder_pipeline = output_folder + "pipelines/"
-        output_folder_app = output_folder + "apps/"
-        output_folder_env_vars = output_folder + "env_vars/"
 
-        project_info = self.saagie_api.projects.get_info(project_id)["project"]
+        project_info = self.get_info(project_id)["project"]
 
-        job_tech_dict = {}
         job_tech_dict = defaultdict(list)
-        for category in self.saagie_api.projects.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
+        for category in self.get_jobs_technologies(project_id=project_id)["technologiesByCategory"]:
             for tech in category["technologies"]:
                 catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
-                if catalog != "" and techno != "":
-                    if techno not in job_tech_dict[catalog]:
-                        job_tech_dict[catalog].append(techno)
+                if catalog != "" and techno != "" and techno not in job_tech_dict[catalog]:
+                    job_tech_dict[catalog].append(techno)
 
-        project_info["jobs_technologies"] = job_tech_dict if job_tech_dict else None
+        project_info["jobs_technologies"] = job_tech_dict or None
 
         app_tech_dict = {}
         app_tech_dict = defaultdict(list)
-        for tech in self.saagie_api.projects.get_apps_technologies(project_id=project_id)["appTechnologies"]:
+        for tech in self.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
-            if catalog != "" and techno != "":
-                if techno not in app_tech_dict[catalog]:
-                    app_tech_dict[catalog].append(techno)
+            if catalog != "" and techno != "" and techno not in app_tech_dict[catalog]:
+                app_tech_dict[catalog].append(techno)
 
-        project_info["apps_technologies"] = app_tech_dict if app_tech_dict else None
+        project_info["apps_technologies"] = app_tech_dict or None
 
-        rights = []
-        for right in self.saagie_api.projects.get_rights(project_id)["rights"]:
-            rights.append({right["name"]: right["role"].split("_")[-1]})
+        rights = [{right["name"]: right["role"].split("_")[-1]} for right in self.get_rights(project_id)["rights"]]
 
         project_info["rights"] = rights
 
-        write_to_json_file(output_folder + "project.json", project_info)
+        write_to_json_file(output_folder / "project.json", project_info)
 
         list_jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)
         id_jobs = [job["id"] for job in list_jobs["jobs"]]
@@ -488,15 +656,18 @@ class Projects:
         env_var_failed = []
 
         env_vars_export = self.saagie_api.env_vars.export(
-            project_id, output_folder_env_vars, error_folder=error_folder, project_only=project_only_env_vars
+            project_id=project_id,
+            output_folder=output_folder / "env_vars",
+            error_folder=error_folder,
+            project_only=project_only_env_vars,
         )
         if not env_vars_export:
             env_var_failed.append(project_id)
 
         for id_job in id_jobs:
             job_export = self.saagie_api.jobs.export(
-                id_job,
-                output_folder_job,
+                job_id=id_job,
+                output_folder=output_folder / "jobs",
                 error_folder=error_folder,
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
@@ -506,8 +677,8 @@ class Projects:
 
         for id_pipeline in id_pipelines:
             pipeline_export = self.saagie_api.pipelines.export(
-                id_pipeline,
-                output_folder_pipeline,
+                pipeline_id=id_pipeline,
+                output_folder=output_folder / "pipelines",
                 error_folder=error_folder,
                 versions_limit=versions_limit,
                 versions_only_current=versions_only_current,
@@ -517,19 +688,20 @@ class Projects:
 
         for id_app in id_apps:
             app_export = self.saagie_api.apps.export(
-                id_app,
-                output_folder_app,
+                app_id=id_app,
+                output_folder=output_folder / "apps",
                 error_folder=error_folder,
                 versions_only_current=versions_only_current,
             )
             if not app_export:
                 app_failed.append(id_app)
+
         if job_failed or pipeline_failed or app_failed or env_var_failed:
-            result = False
             logging.warning("❌ Project [%s] has not been successfully exported", project_id)
-        else:
-            logging.info("✅ Project [%s] successfully exported", project_id)
-        return result
+            return False
+
+        logging.info("✅ Project [%s] successfully exported", project_id)
+        return True
 
     def import_from_json(
         self,
@@ -541,15 +713,22 @@ class Projects:
         ----------
         path_to_folder : str, optional
             Path to the folder of the project to import
+
         Returns
         -------
         bool
             True if project is imported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.projects.import_from_json(path_to_folder="./output/")
+        True
         """
+
         try:
-            path_to_folder = os.path.abspath(path_to_folder)
-            json_file = os.path.join(path_to_folder, "project.json")
-            with open(json_file, "r") as file:
+            path_to_folder = Path(path_to_folder)
+            json_file = path_to_folder / "project.json"
+            with json_file.open("r", encoding="utf-8") as file:
                 config_dict = json.load(file)
         except Exception as exception:
             logging.warning("Cannot open the JSON file %s", json_file)
@@ -567,14 +746,14 @@ class Projects:
             )["createProject"]["id"]
 
             # Waiting for the project to be ready
-            project_status = self.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
+            project_status = self.get_info(project_id=new_project_id)["project"]["status"]
             waiting_time = 0
 
             # Safety: wait for 5min max for project initialisation
             project_creation_timeout = 400
             while project_status != "READY" and waiting_time <= project_creation_timeout:
                 time.sleep(10)
-                project_status = self.saagie_api.projects.get_info(new_project_id)["project"]["status"]
+                project_status = self.get_info(new_project_id)["project"]["status"]
                 waiting_time += 10
             if project_status != "READY":
                 raise TimeoutError(
@@ -589,47 +768,34 @@ class Projects:
         status = True
         list_failed = {"jobs": [], "pipelines": [], "apps": [], "env_vars": []}
 
-        jobs_list = list(os.listdir(os.path.join(path_to_folder, "jobs")))
-        for job in jobs_list:
-            # TODO if conversion of path_to_folder to absolute path is not efficient
-            # os.chdir(os.path.abspath(path_to_folder))
+        for filename in (path_to_folder / "jobs").rglob("job.json"):
             job_status = self.saagie_api.jobs.import_from_json(
-                project_id=new_project_id, path_to_folder=os.path.join(path_to_folder, "jobs", job)
+                project_id=new_project_id, path_to_folder=filename.parent
             )
             if not job_status:
-                list_failed["jobs"].append(job)
+                list_failed["jobs"].append(filename.parent.name)
                 status = False
 
         # Import pipelines
-        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "pipelines")):
-            for filename in filenames:
-                json_file = os.path.join(dirpath, filename)
-                pipeline_status = self.saagie_api.pipelines.import_from_json(
-                    json_file=json_file, project_id=new_project_id
-                )
-                if not pipeline_status:
-                    list_failed["pipelines"].append(dirpath.split(os.sep)[-1])
-                    status = False
+        for filename in (path_to_folder / "pipelines").rglob("pipeline.json"):
+            pipeline_status = self.saagie_api.pipelines.import_from_json(json_file=filename, project_id=new_project_id)
+            if not pipeline_status:
+                list_failed["pipelines"].append(filename.parent.name)
+                status = False
 
         # Import apps
-        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "apps")):
-            for filename in filenames:
-                json_file = os.path.join(dirpath, filename)
-                app_status = self.saagie_api.apps.import_from_json(json_file=json_file, project_id=new_project_id)
-                if not app_status:
-                    list_failed["apps"].append(dirpath.split(os.sep)[-1])
-                    status = False
+        for filename in (path_to_folder / "apps").rglob("app.json"):
+            app_status = self.saagie_api.apps.import_from_json(json_file=filename, project_id=new_project_id)
+            if not app_status:
+                list_failed["apps"].append(filename.parent.name)
+                status = False
 
         # Import env vars
-        for (dirpath, _, filenames) in os.walk(os.path.join(path_to_folder, "env_vars")):
-            for filename in filenames:
-                json_file = os.path.join(dirpath, filename)
-                env_var_status = self.saagie_api.env_vars.import_from_json(
-                    json_file=json_file, project_id=new_project_id
-                )
-                if not env_var_status:
-                    list_failed["env_vars"].append(dirpath.split(os.sep)[-1])
-                    status = False
+        for filename in (path_to_folder / "env_vars").rglob("env_var.json"):
+            env_var_status = self.saagie_api.env_vars.import_from_json(json_file=filename, project_id=new_project_id)
+            if not env_var_status:
+                list_failed["env_vars"].append(filename.parent.name)
+                status = False
 
         if not status:
             logging.error("Something went wrong during project import %s", list_failed)

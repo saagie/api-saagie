@@ -1,7 +1,4 @@
 # pylint: disable=attribute-defined-outside-init
-import os
-import time
-
 import pytest
 
 
@@ -45,16 +42,16 @@ class TestIntegrationJobs:
         job = conf.saagie_api.jobs.create(
             job_name="job_name",
             project_id=conf.project_id,
-            file=os.path.join(conf.dir_path, "resources", "hello_world.py"),
+            file=conf.dir_path / "resources" / "hello_world.py",
             description="",
             category="Extraction",
             technology_catalog="Saagie",
             technology="spark",
-            runtime_version="2.4",
+            runtime_version="3.1",
             command_line="spark-submit",
             release_note="release_note",
             extra_technology="Python",
-            extra_technology_version="3.7",
+            extra_technology_version="3.9",
         )
         job_id = job["data"]["createJob"]["id"]
         project_jobs = conf.saagie_api.jobs.list_for_project(project_id=conf.project_id, instances_limit=0)
@@ -109,7 +106,7 @@ class TestIntegrationJobs:
 
         job_instance_status = conf.saagie_api.jobs.get_instance(job_instance_id)["jobInstance"]["status"]
 
-        assert job_instance_status in ["KILLED", "KILLING"]
+        assert job_instance_status in ("KILLED", "KILLING")
 
     @staticmethod
     def test_edit_job(create_then_delete_job, create_global_project):
@@ -147,31 +144,28 @@ class TestIntegrationJobs:
     def test_export_job(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job
-        result = conf.saagie_api.jobs.export(job_id, os.path.join(conf.output_dir, "jobs"))
-        to_validate = True
-        assert result == to_validate
+        result = conf.saagie_api.jobs.export(job_id, conf.output_dir / "jobs")
+        assert result
 
     @staticmethod
     def test_import_job_from_json(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.jobs.import_from_json(
             project_id=conf.project_id,
-            path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job"),
+            path_to_folder=conf.import_dir / "project" / "jobs" / "job",
         )
 
-        to_validate = True
-        assert result == to_validate
+        assert result
 
     @staticmethod
     def test_import_job_spark_from_json(create_global_project):
         conf = create_global_project
         result = conf.saagie_api.jobs.import_from_json(
             project_id=conf.project_id,
-            path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job_spark"),
+            path_to_folder=conf.import_dir / "project" / "jobs" / "job_spark",
         )
 
-        to_validate = True
-        assert result == to_validate
+        assert result
 
     @staticmethod
     def test_upgrade_job(create_then_delete_job, create_global_project):
@@ -199,7 +193,7 @@ class TestIntegrationJobs:
     def test_create_or_upgrade_job(delete_job, create_global_project):
         conf = create_global_project
         job_name = delete_job
-        file = os.path.join(conf.dir_path, "resources", "hello_world.py")
+        file = conf.dir_path / "resources" / "hello_world.py"
 
         job_create = conf.saagie_api.jobs.create_or_upgrade(
             job_name=job_name,
@@ -309,9 +303,7 @@ class TestIntegrationJobs:
     def test_delete_instances(create_global_project, create_then_delete_job):
         conf = create_global_project
         job_id = create_then_delete_job
-        result = conf.saagie_api.jobs.run(job_id)
-
-        instance_id = result["runJob"]["id"]
+        _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id)
 
         res = conf.saagie_api.jobs.delete_instances(job_id=job_id, job_instances_id=[instance_id])
 
@@ -324,10 +316,8 @@ class TestIntegrationJobs:
         conf = create_global_project
         job_id = create_then_delete_job
 
-        result = conf.saagie_api.jobs.run(job_id=job_id)
-        instance_id = result["runJob"]["id"]
-        result2 = conf.saagie_api.jobs.run(job_id=job_id)
-        instance_id2 = result2["runJob"]["id"]
+        _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
+        _, instance_id2 = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
 
         res = conf.saagie_api.jobs.delete_instances_by_selector(
             job_id=job_id, selector="ALL", exclude_instances_id=[instance_id], include_instances_id=[instance_id2]
@@ -354,7 +344,7 @@ class TestIntegrationJobs:
 
         res = conf.saagie_api.jobs.delete_versions(job_id=job_id, versions=["1"])
 
-        assert res["deleteJobVersions"][0]["success"] is True
+        assert res["deleteJobVersions"][0]["success"]
 
     @staticmethod
     def test_duplicate_job(create_then_delete_job, create_global_project):

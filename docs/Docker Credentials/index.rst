@@ -1,10 +1,7 @@
 Docker Credentials
-=========
+==================
 
-
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.docker_credentials
+    :members:
+    :undoc-members:
+    :show-inheritance:

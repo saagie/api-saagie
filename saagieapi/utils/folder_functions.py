@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+from pathlib import Path
 
 import requests
 
@@ -18,10 +19,10 @@ def create_folder(folder_path: str) -> None:
     -------
 
     """
-    is_exist = os.path.exists(folder_path)
-    if not is_exist:
+    path = Path(folder_path)
+    if not path.exists():
         logging.info("Creating folder: '%s'", folder_path)
-        os.makedirs(folder_path)
+        path.mkdir(parents=True)
 
 
 def delete_folder(folder_path: str) -> None:
@@ -53,9 +54,7 @@ def check_folder_path(folder_path: str) -> str:
     str
         folder_path ends with a slash
     """
-    if not folder_path.endswith("/"):
-        folder_path += "/"
-    return folder_path
+    return folder_path if folder_path.endswith(os.sep) else f"{folder_path}{os.sep}"
 
 
 def write_to_json_file(file_path: str, content: object) -> None:
@@ -111,9 +110,7 @@ def remove_slash_folder_path(folder_path: str) -> str:
     str
         folder_path without slash at the end
     """
-    if folder_path.endswith("/"):
-        folder_path = folder_path[:-1]
-    return folder_path
+    return folder_path.removesuffix("/")
 
 
 def write_string_to_file(file_path: str, content: str) -> None:
@@ -130,18 +127,12 @@ def write_string_to_file(file_path: str, content: str) -> None:
     -------
 
     """
-    file_exist = os.path.exists(file_path)
-    if file_exist:
-        file_size = os.path.getsize(file_path)
-        if file_size == 0:
-            with open(file_path, "w", encoding="utf-8") as file:
-                file.write(f"{content}\n")
-        else:
-            with open(file_path, "a", encoding="utf-8") as file:
-                file.write(f"{content}\n")
-    else:
-        with open(file_path, "w", encoding="utf-8") as file:
+    path = Path(file_path)
+    if path.exists():
+        with open(file_path, "a", encoding="utf-8") as file:
             file.write(f"{content}\n")
+    else:
+        path.write_text(f"{content}\n", encoding="utf-8")
 
 
 def write_error(error_folder, element, error_content):
@@ -162,7 +153,7 @@ def write_error(error_folder, element, error_content):
 
     """
     if error_folder:
-        error_folder = check_folder_path(error_folder) + f"{element}/"
+        error_folder = f"{check_folder_path(error_folder)}{element}/"
         create_folder(error_folder)
-        error_file_path = error_folder + f"{element}_error.txt"
+        error_file_path = f"{error_folder}{element}_error.txt"
         write_string_to_file(error_file_path, error_content)

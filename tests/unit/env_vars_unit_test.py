@@ -2,15 +2,17 @@
 import os
 import sys
 
+import pytest
 from gql import gql
 
+from saagieapi.env_vars.env_vars import check_scope
 from saagieapi.env_vars.gql_queries import *
 
 from .saagie_api_unit_test import create_gql_client
 
 dir_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append("../..")
-sys.path.append(dir_path + "/..")
+sys.path.append(f"{dir_path}/..")
 
 
 class TestEnvVars:
@@ -44,3 +46,20 @@ class TestEnvVars:
     def test_create_pipeline_env_vars(self):
         query = gql(GQL_CREATE_PIPELINE_ENV_VAR)
         self.client.validate(query)
+
+    def test_check_scope_global(self):
+        check_scope(scope="GLOBAL", project_id=None, pipeline_id=None)
+
+    def test_check_scope_project_success(self):
+        check_scope(scope="PROJECT", project_id="project_id", pipeline_id=None)
+
+    def test_check_scope_project_error(self):
+        with pytest.raises(ValueError):
+            check_scope(scope="PROJECT", project_id=None, pipeline_id=None)
+
+    def test_check_scope_pipeline_success(self):
+        check_scope(scope="PIPELINE", project_id=None, pipeline_id="pipeline_id")
+
+    def test_check_scope_pipeline_error(self):
+        with pytest.raises(ValueError):
+            check_scope(scope="PIPELINE", project_id=None, pipeline_id=None)

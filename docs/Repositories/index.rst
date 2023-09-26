@@ -1,9 +1,7 @@
 Repositories
-=====
+============
 
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.repositories
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -9,7 +9,6 @@ import requests
 from gql import gql
 
 from ..utils.folder_functions import (
-    check_folder_path,
     create_folder,
     remove_slash_folder_path,
     write_error,
@@ -18,6 +17,18 @@ from ..utils.folder_functions import (
 )
 from ..utils.rich_console import console
 from .gql_queries import *
+
+
+def handle_write_error(msg, job_id, error_folder):
+    logging.warning(msg, job_id)
+    write_error(error_folder, "jobs", job_id)
+    return False
+
+
+def handle_log_error(msg, exception):
+    logging.warning(msg)
+    logging.error("Something went wrong %s", exception)
+    return False
 
 
 class Jobs:
@@ -56,7 +67,60 @@ class Jobs:
         -------
         dict
             Dict of jobs information
-        """
+
+        Examples
+        --------
+        >>> saagieapi.jobs.list_for_project(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     instances_limit=2
+        ... )
+        {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "description": "Amazing python job",
+                    "alerting": None,
+                    "countJobInstance": 0,
+                    "instances": [],
+                    "versions": [
+                        {
+                            "number": 1,
+                            "creationDate": "2022-04-26T12:08:15.286Z",
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "packageInfo": {
+                                "name": "_tmp_test.py",
+                                "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10/version/1/artifact/_tmp_test.py"
+                            },
+                            "dockerInfo": None,
+                            "extraTechnology": None,
+                            "isCurrent": True,
+                            "isMajor": False
+                        }
+                    ],
+                    "category": "Extraction",
+                    "technology": {
+                        "id": "0db6d0a7-ad4b-45cd-8082-913a192daa25"
+                    },
+                    "isScheduled": False,
+                    "cronScheduling": None,
+                    "scheduleTimezone": "UTC",
+                    "scheduleStatus": None,
+                    "isStreaming": False,
+                    "creationDate": "2022-04-26T12:08:15.286Z",
+                    "migrationStatus": None,
+                    "migrationProjectId": None,
+                    "isDeletable": True,
+                    "pipelines": [],
+                    "graphPipelines": [],
+                    "doesUseGPU": False,
+                    "resources": None
+                }
+            ]
+        }
+        """  # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "instancesLimit": instances_limit,
@@ -82,6 +146,24 @@ class Jobs:
         -------
         dict
             Dict of jobs ids and names
+
+        Examples
+        --------
+        >>> saagieapi.jobs.list_for_project_minimal(project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771")
+        {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "alias": "Python_test_job_1"
+                },
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2"
+                }
+            ]
+        }
         """
 
         return self.saagie_api.client.execute(
@@ -103,6 +185,70 @@ class Jobs:
         -------
         dict
             Dict of instance information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.get_instance(job_instance_id="befe73b2-81ab-418f-bc2f-9d012102a895")
+        {
+            "jobInstance": {
+                "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
+                "number": 1,
+                "status": "SUCCEEDED",
+                "history": {
+                    "currentStatus": {
+                        "status": "SUCCEEDED",
+                        "details": None,
+                        "reason": None
+                    }
+                },
+                "startTime": "2022-04-19T13:45:49.783Z",
+                "endTime": "2022-04-19T13:45:57.388Z",
+                "jobId": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+                "version":{
+                    "number": 1,
+                    "releaseNote": "",
+                    "runtimeVersion": "3.7",
+                    "commandLine": "python {file} arg1 arg2",
+                    "isMajor": False,
+                    "isCurrent": True
+                }
+                "executionGlobalVariablesInput": [
+                    {
+                        "key": "TEST_PASSWORD",
+                        "value": None,
+                        "isPassword": True
+                    },
+                    {
+                        "key": "TEST_PROJECT",
+                        "value": "TEST_PROJECT",
+                        "isPassword": False
+                    }
+                ],
+                "executionVariablesInput": [
+                    {
+                        "parentJobInstanceId": None,
+                        "parentJobId": None,
+                        "parentJobAlias": None,
+                        "isDirectParent": None,
+                        "executionVariables": [
+                            {
+                                "key": "TEST_PASSWORD",
+                                "value": None,
+                                "isPassword": True
+                            },
+                            {
+                                "key": "TEST_PROJECT",
+                                "value": "TEST_PROJECT",
+                                "isPassword": False
+                            }
+                        ],
+                        "isGlobalVariables": True
+                    }
+                ],
+                "executionVariablesOutput": None,
+                "executionVariablesByKey": []
+            }
+        }
         """
 
         return self.saagie_api.client.execute(
@@ -126,12 +272,17 @@ class Jobs:
         str
             Job UUID
 
+        Examples
+        --------
+        >>> saagieapi.jobs.get_id(
+        ...     project_name="Test project",
+        ...     job_name="Python test job"
+        ... )
+        "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"
         """
-        project_id = self.saagie_api.projects.get_id(project_name)
-        jobs = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
-        job = list(filter(lambda j: j["name"] == job_name, jobs))
-        if job:
-            return job[0]["id"]
+        jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
+        if job := next((j for j in jobs if j["name"] == job_name), None):
+            return job["id"]
         raise NameError(f"❌ Job {job_name} does not exist.")
 
     def get_info(
@@ -165,7 +316,99 @@ class Jobs:
         dict
             Dict of job's info
 
-        """
+        Examples
+        --------
+        >>> saagieapi.jobs.get_info(
+        ...     job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+        ...     instances_limit=2
+        ... )
+        {
+            "job": {
+                "id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+                "name": "Python test job",
+                "description": "Amazing python job",
+                "alerting": None,
+                "countJobInstance": 5,
+                "instances": [
+                    {
+                        "id": "61f6175a-fd38-4fac-9fa9-a7b63554f14e",
+                        "status": "SUCCEEDED",
+                        "history": {
+                            "currentStatus": {
+                                "status": "SUCCEEDED",
+                                "details": None,
+                                "reason": None
+                            }
+                        },
+                        "startTime": "2022-04-19T13:46:40.045Z",
+                        "endTime": "2022-04-19T13:46:47.708Z",
+                        "version": {
+                            "number": 1,
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "isMajor": False,
+                            "doesUseGPU": False
+                        }
+                    },
+                    {
+                        "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
+                        "status": "SUCCEEDED",
+                        "history": {
+                            "currentStatus": {
+                                "status": "SUCCEEDED",
+                                "details": None,
+                                "reason": None
+                            }
+                        },
+                        "startTime": "2022-04-19T13:45:49.783Z",
+                        "endTime": "2022-04-19T13:45:57.388Z",
+                        "version":{
+                            "number": 1,
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "isMajor": False,
+                            "doesUseGPU": False
+                        }
+                    }
+                ],
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py"
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False
+                    }
+                ],
+                "category": "Extraction",
+                "technology": {
+                    "id": "0db6d0a7-ad4b-45cd-8082-913a192daa25"
+                },
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isStreaming": False,
+                "creationDate": "2022-04-26T08:16:20.681Z",
+                "migrationStatus": None,
+                "migrationProjectId": None,
+                "isDeletable": True,
+                "graphPipelines": [],
+                "doesUseGPU": False,
+                "resources": None
+            }
+        }
+        """  # pylint: disable=line-too-long
         params = {
             "jobId": job_id,
             "instancesLimit": instances_limit,
@@ -186,11 +429,11 @@ class Jobs:
         category: str = "Processing",
         technology: str = "python",
         technology_catalog: str = "Saagie",
-        runtime_version: str = "3.7",
+        runtime_version: str = "3.10",
         command_line: str = "python {file} arg1 arg2",
         release_note: str = "",
-        extra_technology: str = "",
-        extra_technology_version: str = "",
+        extra_technology: str = None,
+        extra_technology_version: str = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         resources: Dict = None,
@@ -253,7 +496,42 @@ class Jobs:
         dict
             Dict of job information
 
-        """
+        Examples
+        --------
+        >>> saagieapi.jobs.create(
+        ...     job_name="my job",
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     file="/tmp/test.py",
+        ...     description='My description',
+        ...     category='Extraction',
+        ...     technology='python',# technology id corresponding to your context.id in your technology catalog definition
+        ...     technology_catalog='Saagie',
+        ...     runtime_version='3.9',
+        ...     command_line='python {file}',
+        ...     release_note='First release',
+        ...     extra_technology='',
+        ...     extra_technology_version='',
+        ...     cron_scheduling='0 0 * * *',
+        ...     schedule_timezone='Europe/Paris',
+        ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
+        ...     emails=['email1@saagie.io', 'email2@saagie.io'],
+        ...     status_list=["FAILED", "KILLED"]
+        ... )
+        {
+            "data":{
+                "createJob":{
+                    "id":"60f46dce-c869-40c3-a2e5-1d7765a806db",
+                    "versions":[
+                        {
+                            "number":1,
+                            "__typename":"JobVersion"
+                        }
+                    ],
+                    "__typename":"Job"
+                }
+            }
+        }
+        """  # pylint: disable=line-too-long
         params = {
             "projectId": project_id,
             "name": job_name,
@@ -264,24 +542,21 @@ class Jobs:
             "commandLine": command_line,
         }
 
-        if category not in ["Extraction", "Processing", "Smart App"]:
+        if category not in ("Extraction", "Processing", "Smart App"):
             raise RuntimeError(
                 f"❌ Category {category} does not exist in Saagie. "
                 f"Please specify either Extraction, Processing or Smart App"
             )
 
-        technologies_for_project = self.saagie_api.projects.get_jobs_technologies(project_id, pprint_result=False)[
+        technos_project = self.saagie_api.projects.get_jobs_technologies(project_id, pprint_result=False)[
             "technologiesByCategory"
         ]
-        technologies_for_project_and_category = [
+
+        technos_project_category = [
             tech["id"]
-            for tech in [tech["technologies"] for tech in technologies_for_project if tech["jobCategory"] == category][
-                0
-            ]
+            for tech in next(tech["technologies"] for tech in technos_project if tech["jobCategory"] == category)
         ]
-        params = self.saagie_api.check_technology(
-            params, technology, technology_catalog, technologies_for_project_and_category
-        )
+        params = self.saagie_api.check_technology(params, technology, technology_catalog, technos_project_category)
         available_runtimes = [
             tech["id"]
             for tech in self.saagie_api.get_runtimes(params["technologyId"])["technology"]["contexts"]
@@ -292,7 +567,7 @@ class Jobs:
                 f"❌ Runtime {runtime_version} for technology {technology} does not exist "
                 f"in the catalog {technology_catalog} or is deprecated"
             )
-        if extra_technology != "":
+        if extra_technology is not None or extra_technology != "":
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
@@ -300,7 +575,6 @@ class Jobs:
 
         if cron_scheduling:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         else:
             params["isScheduled"] = False
 
@@ -322,7 +596,7 @@ class Jobs:
         resources: Dict = None,
         emails: List = None,
         status_list: List = None,
-    ) -> Dict:
+    ) -> Dict:  # sourcery skip: remove-redundant-if, simplify-boolean-comparison
         # pylint: disable=singleton-comparison
         """Edit a job
 
@@ -364,33 +638,66 @@ class Jobs:
         -------
         dict
             Dict of job information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.edit(
+        ...     job_id="60f46dce-c869-40c3-a2e5-1d7765a806db",
+        ...     job_name="newname",
+        ...     description="new desc",
+        ...     is_scheduled=True,
+        ...     cron_scheduling='0 * * * *',
+        ...     schedule_timezone='Europe/Paris',
+        ...     resources={"cpu": {"request": 1.5, "limit": 2.2}, "memory": {"request": 2.0}},
+        ...     emails=['email1@saagie.io'],
+        ...     status_list=["FAILED", "QUEUED"]
+        ... )
+        {
+            "editJob": {
+                "id": "60f46dce-c869-40c3-a2e5-1d7765a806db",
+                "name": "newname",
+                "alias": "newname",
+                "description": "new desc",
+                "isScheduled": True,
+                "cronScheduling": "0 * * * *",
+                "scheduleTimezone": "Europe/Paris",
+                "resources": {
+                    "cpu": {
+                        "request": 1.5,
+                        "limit": 2.2
+                    },
+                    "memory": {
+                        "request": 2.0,
+                        "limit": None
+                    }
+                },
+                "alerting": {
+                    "emails": [
+                        "email1@saagie.io"
+                    ],
+                    "statusList": [
+                        "FAILED",
+                        "QUEUED"
+                    ]
+                }
+            }
+        }
         """
-        params = {"jobId": job_id}
         previous_job_version = self.get_info(job_id, pprint_result=False)["job"]
         if not previous_job_version:
             raise RuntimeError(f"❌ The job {job_id} you're trying to edit does not exist")
 
-        if job_name:
-            params["name"] = job_name
-        else:
-            params["name"] = previous_job_version["name"]
-
-        if description:
-            params["description"] = description
-        else:
-            params["description"] = previous_job_version["description"]
-
-        if resources:
-            params["resources"] = resources
-        else:
-            params["resources"] = previous_job_version["resources"]
+        params = {
+            "jobId": job_id,
+            "name": job_name or previous_job_version["name"],
+            "description": description or previous_job_version["description"],
+            "resources": resources or previous_job_version["resources"],
+        }
 
         if is_scheduled:
             params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
-
         elif is_scheduled == False:
             params["isScheduled"] = False
-
         else:
             params["isScheduled"] = previous_job_version["isScheduled"]
             params["cronScheduling"] = previous_job_version["cronScheduling"]
@@ -400,13 +707,11 @@ class Jobs:
             params = self.saagie_api.check_alerting(emails, params, status_list)
         elif isinstance(emails, List):
             params["alerting"] = None
-        else:
-            previous_alerting = previous_job_version["alerting"]
-            if previous_alerting:
-                params["alerting"] = {
-                    "emails": previous_alerting["emails"],
-                    "statusList": previous_alerting["statusList"],
-                }
+        elif previous_alerting := previous_job_version["alerting"]:
+            params["alerting"] = {
+                "emails": previous_alerting["emails"],
+                "statusList": previous_alerting["statusList"],
+            }
 
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_JOB), variable_values=params)
         logging.info("✅ Job [%s] successfully edited", job_id)
@@ -416,12 +721,12 @@ class Jobs:
         self,
         job_id: str,
         file: str = None,
-        use_previous_artifact: bool = False,
-        runtime_version: str = "3.7",
-        command_line: str = "python {file} arg1 arg2",
-        release_note: str = None,
-        extra_technology: str = "",
-        extra_technology_version: str = "",
+        use_previous_artifact: bool = True,
+        runtime_version: str = None,
+        command_line: str = None,
+        release_note: str = "",
+        extra_technology: str = None,
+        extra_technology_version: str = None,
     ) -> Dict:
         """Upgrade a job
 
@@ -435,33 +740,53 @@ class Jobs:
             Use previous artifact
         runtime_version: str (optional)
             Runtime version, the ID of the context
+            Example: "3.10"
         command_line: str (optional)
-            Command line
+            Command line used to run the job
+            Example: "python3 {file} arg1 arg2"
         release_note: str (optional)
             Release note
         extra_technology: str (optional)
             Extra technology when needed (spark jobs). If not needed, leave to
-            empty string or the request will not work
+            None or the request will not work
         extra_technology_version: str (optional)
-            Version of the extra technology. Leave to empty string when not
-            needed
+            Version of the extra technology. Leave to None when not needed
 
         Returns
         -------
         dict
             Dict with version number
-            Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
+        Examples
+        --------
+        >>> saagieapi.jobs.upgrade(
+        ...     job_id="60f46dce-c869-40c3-a2e5-1d7765a806db",
+        ...     use_previous_artifact=True,
+        ...     runtime_version='3.8',
+        ...     command_line='python {file} new_arg',
+        ...     release_note="Second version"
+        ... )
+        {
+            "data":{
+                "addJobVersion":{
+                    "number":2,
+                    "__typename":"JobVersion"
+                }
+            }
+        }
         """
 
+        # Get the job's current informations
+        job_info = self.get_info(job_id, instances_limit=1, versions_only_current=True, pprint_result=False)["job"]
+
         # Verify if specified runtime exists
-        technology_id = self.get_info(job_id, pprint_result=False)["job"]["technology"]["id"]
+        technology_id = job_info["technology"]["id"]
         available_runtimes = [
             tech["id"]
             for tech in self.saagie_api.get_runtimes(technology_id)["technology"]["contexts"]
             if tech["available"] is True
         ]
-        if runtime_version not in available_runtimes:
+        if runtime_version is not None and runtime_version not in available_runtimes:
             raise RuntimeError(
                 f"❌ Specified runtime does not exist ({runtime_version}). "
                 f"Available runtimes : {','.join(available_runtimes)}."
@@ -473,15 +798,17 @@ class Jobs:
                 "By default, the specified file will be used."
             )
 
+        # Create the params dict with new values when specified or old values otherwise
         params = {
             "jobId": job_id,
             "releaseNote": release_note,
-            "runtimeVersion": runtime_version,
-            "commandLine": command_line,
-            "usePreviousArtifact": use_previous_artifact,
+            "runtimeVersion": runtime_version or job_info["versions"][0]["runtimeVersion"],
+            "commandLine": command_line or job_info["versions"][0]["commandLine"],
+            "usePreviousArtifact": bool(use_previous_artifact and job_info["versions"][0]["packageInfo"]),
         }
 
-        if extra_technology != "":
+        # Add extra technology parameter if needed
+        if extra_technology is not None:
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
         result = self.__launch_request(file, GQL_UPGRADE_JOB, params)
         logging.info("✅ Job [%s] successfully upgraded", job_id)
@@ -492,12 +819,12 @@ class Jobs:
         job_name: str,
         project_name: str,
         file=None,
-        use_previous_artifact: bool = False,
-        runtime_version: str = "3.6",
-        command_line: str = "python {file} arg1 arg2",
+        use_previous_artifact: bool = True,
+        runtime_version: str = None,
+        command_line: str = None,
         release_note: str = None,
-        extra_technology: str = "",
-        extra_technology_version: str = "",
+        extra_technology: str = None,
+        extra_technology_version: str = None,
     ) -> Dict:
         """Upgrade a job
 
@@ -518,22 +845,36 @@ class Jobs:
         release_note: str (optional)
             Release note
         extra_technology: str (optional)
-            Extra technology when needed (spark jobs). If not needed, leave to
-            empty string or the request will not work
+            Extra technology when needed (spark jobs). If not needed, leave to None or the request will not work
         extra_technology_version: str (optional)
-            Version of the extra technology. Leave to empty string when not
-            needed
+            Version of the extra technology. Leave to None when not needed
 
         Returns
         -------
         dict
             Dict with version number
-            Example: {'addJobVersion': {'number': 5, '__typename': 'JobVersion'}}
 
+        Examples
+        --------
+        >>> saagieapi.jobs.upgrade_by_name(
+        ...     job_name="my job",
+        ...     project_name="My project",
+        ...     use_previous_artifact=True,
+        ...     runtime_version='3.8',
+        ...     command_line='python {file} new_arg',
+        ...     release_note="Second version"
+        ... )
+        {
+            "data":{
+                "addJobVersion":{
+                    "number":3,
+                    "__typename":"JobVersion"
+                }
+            }
+        }
         """
-        job_id = self.get_id(job_name, project_name)
         return self.upgrade(
-            job_id,
+            self.get_id(job_name, project_name),
             file,
             use_previous_artifact,
             runtime_version,
@@ -548,17 +889,17 @@ class Jobs:
         job_name: str,
         project_id: str,
         file: str = None,
-        use_previous_artifact: bool = None,
-        description: str = "",
-        category: str = "Processing",
-        technology: str = "python",
-        technology_catalog: str = "Saagie",
-        runtime_version: str = "3.8",
-        command_line: str = "python {file} arg1 arg2",
-        release_note: str = "",
-        extra_technology: str = "",
-        extra_technology_version: str = "",
-        is_scheduled: bool = False,
+        use_previous_artifact: bool = True,
+        description: str = None,
+        category: str = None,
+        technology: str = None,
+        technology_catalog: str = None,
+        runtime_version: str = None,
+        command_line: str = None,
+        release_note: str = None,
+        extra_technology: str = None,
+        extra_technology_version: str = None,
+        is_scheduled: bool = None,
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         resources: Dict = None,
@@ -593,10 +934,9 @@ class Jobs:
             Release note
         extra_technology: str (optional)
             Extra technology when needed (spark jobs). If not needed, leave to
-            empty string or the request will not work
+            None or the request will not work
         extra_technology_version: str (optional)
-            Version of the extra technology. Leave to empty string when not
-            needed
+            Version of the extra technology. Leave to None when not needed
         is_scheduled: bool (optional)
             True if the job is scheduled, False to deactivate scheduling
         cron_scheduling: str (optional)
@@ -615,13 +955,50 @@ class Jobs:
         dict
             Either the same dict as create_job, or the one returned by
             concatenation of upgrade_job and edit_job
-        """
+
+        Examples
+        --------
+        >>> saagieapi.jobs.create_or_upgrade(
+        ...     job_name="my job",
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     file="/tmp/test.py",
+        ...     use_previous_artifact=False,
+        ...     description='My description',
+        ...     category='Extraction',
+        ...     technology='python',# technology id corresponding to your context.id in your technology catalog definition
+        ...     technology_catalog='Saagie',
+        ...     runtime_version='3.9',
+        ...     command_line='python {file}',
+        ...     release_note='First release',
+        ...     extra_technology='',
+        ...     extra_technology_version='',
+        ...     cron_scheduling='0 0 * * *',
+        ...     schedule_timezone='Europe/Paris',
+        ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
+        ...     emails=['email1@saagie.io', 'email2@saagie.io'],
+        ...     status_list=["FAILED", "KILLED"]
+        ... )
+        {
+            "data":{
+                "createJob":{
+                    "id":"60f46dce-c869-40c3-a2e5-1d7765a806db",
+                    "versions":[
+                        {
+                            "number":1,
+                            "__typename":"JobVersion"
+                        }
+                    ],
+                    "__typename":"Job"
+                }
+            }
+        }
+        """  # pylint: disable=line-too-long
 
         job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
-        job_names = [job["name"] for job in job_list]
 
-        if job_name in job_names:
-            job_id = [job["id"] for job in job_list if job["name"] == job_name][0]
+        # If the job already exists, upgrade it
+        if job_name in [job["name"] for job in job_list]:
+            job_id = next(job["id"] for job in job_list if job["name"] == job_name)
 
             responses = {
                 "addJobVersion": self.upgrade(
@@ -650,25 +1027,32 @@ class Jobs:
 
             return responses
 
-        return self.create(
-            job_name=job_name,
-            project_id=project_id,
-            file=file,
-            description=description,
-            category=category,
-            technology=technology,
-            technology_catalog=technology_catalog,
-            runtime_version=runtime_version,
-            command_line=command_line,
-            release_note=release_note,
-            extra_technology=extra_technology,
-            extra_technology_version=extra_technology_version,
-            cron_scheduling=cron_scheduling,
-            schedule_timezone=schedule_timezone,
-            resources=resources,
-            emails=emails,
-            status_list=status_list,
-        )
+        # If the job does not exist, create it
+        args = {
+            k: v
+            for k, v in {
+                "job_name": job_name,
+                "project_id": project_id,
+                "file": file,
+                "description": description,
+                "category": category,
+                "technology": technology,
+                "technology_catalog": technology_catalog,
+                "runtime_version": runtime_version,
+                "command_line": command_line,
+                "release_note": release_note,
+                "extra_technology": extra_technology,
+                "extra_technology_version": extra_technology_version,
+                "cron_scheduling": cron_scheduling,
+                "schedule_timezone": schedule_timezone,
+                "resources": resources,
+                "emails": emails,
+                "status_list": status_list,
+            }.items()
+            if v is not None  # Remove None values from the dict
+        }
+
+        return self.create(**args)
 
     def rollback(self, job_id: str, version_number: str):
         """Rollback a given job to the given version
@@ -685,6 +1069,35 @@ class Jobs:
         dict
             Dict of rollback job
 
+        Examples
+        --------
+        >>> saagie_api.jobs.rollback(
+        ...     job_id="58870149-5f1c-45e9-93dc-04b2b30a732c",
+        ...     version_number=3
+        ... )
+        {
+            "rollbackJobVersion": {
+                "id": "58870149-5f1c-45e9-93dc-04b2b30a732c",
+                "versions": [
+                    {
+                        "number": 4,
+                        "isCurrent": False
+                    },
+                    {
+                        "number": 3,
+                        "isCurrent": True
+                    },
+                    {
+                        "number": 2,
+                        "isCurrent": False
+                    },
+                    {
+                        "number": 1,
+                        "isCurrent": False
+                    }
+                ]
+            }
+        }
         """
         result = self.saagie_api.client.execute(
             query=gql(GQL_ROLLBACK_JOB_VERSION), variable_values={"jobId": job_id, "versionNumber": version_number}
@@ -705,6 +1118,12 @@ class Jobs:
         dict
             Dict of deleted job
 
+        Examples
+        --------
+        >>> saagieapi.jobs.delete(job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d")
+        {
+            "deleteJob": True
+        }
         """
 
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB), variable_values={"jobId": job_id})
@@ -723,6 +1142,16 @@ class Jobs:
         -------
         dict
             Dict of the given job information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.run(job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d")
+        {
+            "runJob":{
+                "id":"5b9fc971-1c4e-4e45-a978-5851caef0162",
+                "status":"REQUESTED"
+            }
+        }
         """
 
         result = self.saagie_api.client.execute(query=gql(GQL_RUN_JOB), variable_values={"jobId": job_id})
@@ -730,7 +1159,7 @@ class Jobs:
         return result
 
     def run_with_callback(self, job_id: str, freq: int = 10, timeout: int = -1) -> Dict:
-        """Run a job and wait for the final status (KILLED, FAILED or SUCCESS).
+        """Run a job and wait for the final status (KILLED, FAILED, UNKNOWN or SUCCESS).
         Regularly check (default to 10s) the job's status.
 
         Parameters
@@ -744,26 +1173,36 @@ class Jobs:
 
         Returns
         -------
-        str
-            Final state of the job
+        (str, str)
+            (Final state of the job, job instance id)
 
         Raises
         ------
         TimeoutError
             When the status check is not responding
+
+        Examples
+        --------
+        >>> saagieapi.jobs.run_with_callback(
+        ...        job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+        ...        freq=5,
+        ...        timeout=60
+        ... )
+        ("SUCCEEDED", "5b9fc971-1c4e-4e45-a978-5851caef0162")
         """
         res = self.run(job_id)
         job_instance_id = res.get("runJob").get("id")
-        final_status_list = ["SUCCEEDED", "FAILED", "KILLED"]
+        final_status_list = ["SUCCEEDED", "FAILED", "KILLED", "UNKNOWN"]
         job_instance_info = self.get_instance(job_instance_id, pprint_result=False)
         state = job_instance_info.get("jobInstance").get("status")
         sec = 0
+        if timeout == -1:
+            timeout = float("inf")
 
         logging.info("⏳ Job id %s with instance %s has just been requested", job_id, job_instance_id)
         while state not in final_status_list:
             with console.status(f"Job is currently {state}", refresh_per_second=100):
-                t_out = False if timeout == -1 else sec >= timeout
-                if t_out:
+                if sec >= timeout:
                     raise TimeoutError(f"❌ Last state known : {state}")
                 time.sleep(freq)
                 sec += freq
@@ -771,9 +1210,9 @@ class Jobs:
                 state = job_instance_info.get("jobInstance").get("status")
         if state == "SUCCEEDED":
             logging.info("✅ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
-        elif state in ["FAILED", "KILLED"]:
+        elif state in ("FAILED", "KILLED", "UNKNOWN"):
             logging.error("❌ Job id %s with instance %s has the status %s", job_id, job_instance_id, state)
-        return state
+        return (state, job_instance_id)
 
     def stop(self, job_instance_id: str) -> Dict:
         """Stop a given job instance
@@ -787,6 +1226,27 @@ class Jobs:
         -------
         dict
             Job instance information
+
+        Examples
+        --------
+        >>> saagieapi.jobs.stop(job_instance_id="8e9b9f16-4a5d-4188-a967-1a96b88e4358")
+        {
+            "stopJobInstance":{
+                "id":"8e9b9f16-4a5d-4188-a967-1a96b88e4358",
+                "number":17,
+                "status":"KILLING",
+                "history": {
+                    "currentStatus": {
+                        "status": "SUCCEEDED",
+                        "details": None,
+                        "reason": None
+                    }
+                },
+                "startTime":"2022-04-29T08:38:49.344Z",
+                "endTime":None,
+                "jobId":"e92ed472-50d6-4041-bba9-098a8e16f444"
+            }
+        }
         """
 
         result = self.saagie_api.client.execute(
@@ -812,9 +1272,9 @@ class Jobs:
             Dict of the request response
         """
         if file:
-            file_info = os.path.split(os.path.abspath(file))
-            os.chdir(file_info[0])
-            file = Path(file_info[-1])
+            file_info = Path(file)
+            os.chdir(file_info.parent)
+            file = Path(file_info.name)
             with file.open(mode="rb") as file_content:
                 params["file"] = file_content
                 try:
@@ -826,15 +1286,12 @@ class Jobs:
                     logging.error("Something went wrong %s", exception)
                     raise exception
                 return res
-
         else:
             try:
-                req = self.saagie_api.client.execute(query=gql(payload_str), variable_values=params)
-                res = {"data": req}
+                return {"data": self.saagie_api.client.execute(query=gql(payload_str), variable_values=params)}
             except Exception as exception:
                 logging.error("Something went wrong %s", exception)
                 raise exception
-            return res
 
     def export(
         self,
@@ -859,15 +1316,24 @@ class Jobs:
             to the oldest
         versions_only_current : bool, optional
             Whether to only fetch the current version of each job
+
         Returns
         -------
         bool
             True if job is exported False otherwise
+
+        Examples
+        --------
+        >>> saagieapi.jobs.export(
+        ...    job_id="f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+        ...    output_folder="./output/job/",
+        ...    error_folder="./output/error/",
+        ...    versions_only_current=True
+        ... )
+        True
         """
-        result = True
         job_info = None
-        output_folder = check_folder_path(output_folder)
-        url_saagie = remove_slash_folder_path(self.saagie_api.url_saagie)
+        output_folder = Path(output_folder)
 
         try:
             job_info = self.get_info(
@@ -877,52 +1343,47 @@ class Jobs:
                 versions_only_current=versions_only_current,
             )["job"]
         except Exception as exception:
-            result = False
-            logging.warning("Cannot get the information of the job [%s]", job_id)
             logging.error("Something went wrong %s", exception)
+            return handle_write_error("Cannot get the information of the job [%s]", job_id, error_folder)
 
-        if job_info:
-            create_folder(output_folder + job_id)
-            job_techno_id = job_info["technology"]["id"]
-            repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_techno_id)
-            if not repo_name:
-                result = False
-                logging.warning(
-                    "Cannot export the job: [%s] because the technology used for this job was deleted", job_id
-                )
+        if not job_info:
+            return handle_write_error("Cannot get the information of the job [%s]", job_id, error_folder)
+
+        create_folder(output_folder / job_id)
+        repo_name, techno_name = self.saagie_api.get_technology_name_by_id(job_info["technology"]["id"])
+
+        if not repo_name:
+            return handle_write_error(
+                "Cannot export the job: [%s] because the technology used for this job was deleted",
+                job_id,
+                error_folder,
+            )
+        job_info["technology"]["name"] = techno_name
+        job_info["technology"]["technology_catalog"] = repo_name
+        write_to_json_file(output_folder / job_id / "job.json", job_info)
+
+        for version in [version for version in job_info.get("versions", []) if version["packageInfo"]]:
+            local_folder = output_folder / job_id / "version" / str(version["number"])
+            create_folder(local_folder)
+            req = requests.get(
+                remove_slash_folder_path(self.saagie_api.url_saagie) + version["packageInfo"]["downloadUrl"],
+                auth=self.saagie_api.auth,
+                stream=True,
+                timeout=60,
+            )
+            if req.status_code == 200:
+                logging.info("Downloading the version %s of the job", version["number"])
+                write_request_response_to_file(local_folder / version["packageInfo"]["name"], req)
             else:
-                job_info["technology"]["name"] = techno_name
-                job_info["technology"]["technology_catalog"] = repo_name
-                write_to_json_file(output_folder + job_id + "/job.json", job_info)
+                handle_write_error(
+                    f"❌ Cannot download the version [{version['number']}] of the job [%s], \
+                        please verify if everything is ok",
+                    job_id,
+                    error_folder,
+                )
 
-                if job_info["versions"]:
-                    for version in job_info["versions"]:
-                        if version["packageInfo"]:
-                            download_url = url_saagie + version["packageInfo"]["downloadUrl"]
-                            local_folder = output_folder + job_id + f"/version/{version['number']}/"
-                            local_file_name = version["packageInfo"]["name"]
-                            create_folder(local_folder)
-                            req = requests.get(download_url, auth=self.saagie_api.auth, stream=True)
-                            if req.status_code == 200:
-                                logging.info("Downloading the version %s of the job", version["number"])
-                                write_request_response_to_file(local_folder + local_file_name, req)
-
-                            else:
-                                logging.warning(
-                                    "❌ Cannot download the version [%s] of the job [%s], \
-                                    please verify if everything is ok",
-                                    {version["number"]},
-                                    job_id,
-                                )
-                                result = False
-        else:
-            result = False
-        if result:
-            logging.info("✅ Job [%s] successfully exported", job_id)
-        else:
-            logging.warning("❌ Job [%s] has not been successfully exported", job_id)
-            write_error(error_folder, "jobs", job_id)
-        return result
+        logging.info("✅ Job [%s] successfully exported", job_id)
+        return True
 
     def import_from_json(
         self,
@@ -937,82 +1398,65 @@ class Jobs:
             Project ID to import the job
         path_to_folder : str
             Path to the folder of the job to import
+
         Returns
         -------
         bool
             True if job is imported False otherwise
-        """
-        result = True
 
-        list_files = []
-        for (dirpath, _, filenames) in os.walk(path_to_folder):
-            list_files.extend(os.path.join(dirpath, filename) for filename in filenames)
-        json_files = [f for f in list_files if "job.json" in f]
-        json_file = json_files[0]
+        Examples
+        --------
+        >>> saagieapi.jobs.import_from_json(
+        ...     project_id="860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
+        ...     path_to_package="/path/to/the/package/of/the/job"
+        ... )
+        True
+        """
+        json_file = next(Path(path_to_folder).rglob("job.json"))
 
         try:
-            with open(json_file, "r", encoding="utf-8") as file:
+            with json_file.open("r", encoding="utf-8") as file:
                 job_info = json.load(file)
         except Exception as exception:
-            logging.warning("Cannot open the JSON file %s", json_file)
-            logging.error("Something went wrong %s", exception)
-            return False
-
+            return handle_log_error(f"Cannot open the JSON file {json_file}", exception)
         try:
             job_name = job_info["name"]
-            job_description = job_info["description"]
-            job_category = job_info["category"]
-            job_technology_name = job_info["technology"]["name"]
-            job_technology_catalog = job_info["technology"]["technology_catalog"]
 
-            job_cron_scheduling = job_info["cronScheduling"]
-            job_schedule_timezone = job_info["scheduleTimezone"]
-            job_resources = job_info["resources"]
+            version = next(version for version in job_info["versions"] if version["isCurrent"])
 
-            job_emails = job_info["alerting"]["emails"] if job_info["alerting"] else ""
-            job_status_list = job_info["alerting"]["statusList"] if job_info["alerting"] else ""
-
-            version = [version for version in job_info["versions"] if version["isCurrent"]][0]
-            job_runtime_version = version["runtimeVersion"]
-            job_command_line = version["commandLine"]
-            job_release_note = version["releaseNote"]
-            job_extra_technology_name = version["extraTechnology"]["language"] if version["extraTechnology"] else ""
-            job_extra_technology_version = version["extraTechnology"]["version"] if version["extraTechnology"] else ""
-
-            if package := [f for f in list_files if os.path.join("version", str(version["number"])) in f]:
-                path_to_package = package[0]
-                file_info = os.path.split(os.path.abspath(path_to_package))
-                os.chdir(file_info[0])
-                file_name = file_info[-1]
+            if path_to_package := next((json_file.parent / "version" / str(version["number"])).iterdir(), None):
+                os.chdir(path_to_package.parent)
+                file_name = path_to_package.name
             else:
                 file_name = ""
 
             self.create(
-                job_name,
-                project_id,
-                file_name,
-                job_description,
-                job_category,
-                job_technology_name,
-                job_technology_catalog,
-                job_runtime_version,
-                job_command_line,
-                job_release_note,
-                job_extra_technology_name,
-                job_extra_technology_version,
-                job_cron_scheduling,
-                job_schedule_timezone,
-                job_resources,
-                job_emails,
-                job_status_list,
+                job_name=job_name,
+                project_id=project_id,
+                file=file_name,
+                description=job_info["description"],
+                category=job_info["category"],
+                technology=job_info["technology"]["name"],
+                technology_catalog=job_info["technology"]["technology_catalog"],
+                runtime_version=version["runtimeVersion"],
+                command_line=version["commandLine"],
+                release_note=version["releaseNote"],
+                extra_technology=(version.get("extraTechnology") or {}).get("language", ""),
+                extra_technology_version=(version.get("extraTechnology") or {}).get("version", ""),
+                cron_scheduling=job_info["cronScheduling"],
+                schedule_timezone=job_info["scheduleTimezone"],
+                resources=job_info["resources"],
+                emails=(job_info.get("alerting") or {}).get("emails", ""),
+                status_list=(job_info.get("alerting") or {}).get("statusList", ""),
             )
+
             logging.info("✅ Job [%s] successfully imported", job_name)
         except Exception as exception:
-            result = False
-            logging.warning("❌ Job [%s] has not been successfully imported", job_name)
-            logging.error("Something went wrong %s", exception)
-
-        return result
+            return handle_log_error(
+                f"❌ Job [{job_name}] has not been successfully imported",
+                exception,
+            )
+        return True
 
     def delete_instances(self, job_id, job_instances_id):
         """Delete given job's instances
@@ -1031,6 +1475,18 @@ class Jobs:
         dict
             Dict of deleted instances
 
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_instances(
+        ...     job_id=job_id,
+        ...     job_instances_id=["c8f156bc-78ab-4dda-acff-bbe828237fd9", "7e5549cd-32aa-42c4-88b5-ddf5f3087502"]
+        ... )
+        {
+            'deleteJobInstances': [
+                {'id': '7e5549cd-32aa-42c4-88b5-ddf5f3087502', 'success': True},
+                {'id': 'c8f156bc-78ab-4dda-acff-bbe828237fd9', 'success': True}
+            ]
+        }
         """
         params = {"jobId": job_id, "jobInstancesId": job_instances_id}
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_INSTANCE), variable_values=params)
@@ -1057,9 +1513,20 @@ class Jobs:
 
         Returns
         -------
-        int
+        Dict
             Return the number of instances deleted
 
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_instances_by_selector(
+        ...     job_id=job_id,
+        ...     selector="FAILED",
+        ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
+        ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
+        ... )
+        {
+            'deleteJobInstancesBySelector': 1
+        }
         """
         params = {
             "jobId": job_id,
@@ -1085,8 +1552,19 @@ class Jobs:
         Returns
         -------
         dict
-            Dict of deleted versions
+            Dict of deleted versions with their number and success status
 
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_versions(
+        ...     job_id=job_id,
+        ...     versions=["1"]
+        ... )
+        {
+            'deleteJobVersions': [
+                {'number': 1, 'success': True}
+            ]
+        }
         """
         params = {"jobId": job_id, "jobVersionsNumber": versions}
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_VERSION), variable_values=params)
@@ -1104,7 +1582,17 @@ class Jobs:
         Returns
         -------
         dict
-            Dict of duplicate job
+            Dict of duplicate job with its id and name
+
+        Examples
+        --------
+        >>> saagie_api.jobs.duplicate(job_id=job_id)
+        {
+            'duplicateJob': {
+                'id': '29cf1b80-6b9c-47bc-a06c-c20897257097',
+                'name': 'Copy of my_job 2'
+            }
+        }
         """
         result = self.saagie_api.client.execute(query=gql(GQL_DUPLICATE_JOB), variable_values={"jobId": job_id})
         logging.info("✅ Job [%s] successfully duplicated", job_id)
@@ -1121,7 +1609,20 @@ class Jobs:
         Returns
         -------
         dict
-            Dict of job instances number by status
+            Dict of number of job instances by status
+
+        Examples
+        --------
+        >>> saagie_api.jobs.count_instances_by_status(job_id=job_id)
+        {
+            'countJobInstancesBySelector': [
+                {'selector': 'ALL', 'count': 0},
+                {'selector': 'SUCCEEDED', 'count': 0},
+                {'selector': 'FAILED', 'count': 0},
+                {'selector': 'STOPPED', 'count': 0},
+                {'selector': 'UNKNOWN', 'count': 0}
+            ]
+        }
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_COUNT_INSTANCES_BY_SELECTOR), variable_values={"jobId": job_id}

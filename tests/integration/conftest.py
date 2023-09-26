@@ -4,6 +4,7 @@ import os
 import shutil
 import time
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 import urllib3
@@ -30,10 +31,10 @@ def create_global_project():
     Conf.password = os.environ["PWD_TEST_SAAGIE"]
     Conf.realm = os.environ["REALM_TEST_SAAGIE"]
 
-    Conf.dir_path = os.path.dirname(os.path.abspath(__file__))
-    Conf.import_dir = os.path.join(Conf.dir_path, "resources", "import")
-    Conf.output_dir = os.path.join(os.getcwd(), "output")
-    Conf.output_dir_present = os.path.isdir(Conf.output_dir)
+    Conf.dir_path = Path(__file__).parent
+    Conf.import_dir = Conf.dir_path / "resources" / "import"
+    Conf.output_dir = Path.cwd() / "output"
+    Conf.output_dir_present = Conf.output_dir.is_dir()
 
     Conf.saagie_api = SaagieApi(
         url_saagie=Conf.url_saagie,
@@ -45,7 +46,7 @@ def create_global_project():
 
     # Create a test project
     Conf.group = os.environ["USER_GROUP_TEST_SAAGIE"]
-    Conf.project_name = f"Integration_test_Saagie_API {str(datetime.timestamp(datetime.now()))}"
+    Conf.project_name = f"Integration_test_Saagie_API {datetime.timestamp(datetime.now())}"
 
     result = Conf.saagie_api.projects.create(
         name=Conf.project_name,
@@ -74,13 +75,13 @@ def create_global_project():
 
     @staticmethod
     def delete_test_global_env_var(conf):
-        path = os.path.join(conf.import_dir, "env_vars", "GLOBAL", "variable.json")
+        path = conf.import_dir / "env_vars" / "GLOBAL" / "variable.json"
         # Delete variable if it already exist
         with open(path, encoding="utf-8") as json_file:
             var_name = json.load(json_file)["name"]
-        var_list = [var["name"] for var in conf.saagie_api.env_vars.list_globals()["globalEnvironmentVariables"]]
+        var_list = [var["name"] for var in conf.saagie_api.env_vars.list(scope="GLOBAL")]
         if var_name in var_list:
-            conf.saagie_api.env_vars.delete_global(var_name)
+            conf.saagie_api.env_vars.delete(scope="GLOBAL", name=var_name)
 
     Conf.delete_test_global_env_var = delete_test_global_env_var
 
@@ -117,7 +118,7 @@ def create_global_project():
 def create_job(create_global_project):
     conf = create_global_project
     job_name = "python_test"
-    file = os.path.join(conf.dir_path, "resources", "hello_world.py")
+    file = conf.dir_path / "resources" / "hello_world.py"
 
     job = conf.saagie_api.jobs.create(
         job_name=job_name,

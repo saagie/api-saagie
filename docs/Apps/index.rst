@@ -1,10 +1,8 @@
 Apps
-=========
+====
 
 
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.apps
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -19,7 +19,7 @@ class BearerAuth(requests.auth.AuthBase):
         self.token = self._authenticate(self._realm, self._url, self._login, self._password)
 
     def __call__(self, req):
-        req.headers["authorization"] = "Bearer " + self.token
+        req.headers["authorization"] = f"Bearer {self.token}"
         return req
 
     @staticmethod
@@ -37,7 +37,9 @@ class BearerAuth(requests.auth.AuthBase):
             session.headers["Content-Type"] = "application/json"
             session.headers["Saagie-Realm"] = realm
             response = session.post(
-                url + "/authentication/api/open/authenticate", json={"login": login, "password": password}, verify=False
+                f"{url}/authentication/api/open/authenticate",
+                json={"login": login, "password": password},
+                verify=False,
             )
             response.raise_for_status()
             return response.text

@@ -2,9 +2,7 @@ Storages
 =========
 
 
-.. toctree::
-    :titlesonly:
-    :glob:
-    :maxdepth: 4
-
-    *
+.. automodule:: saagieapi.storages
+    :members:
+    :undoc-members:
+    :show-inheritance:
