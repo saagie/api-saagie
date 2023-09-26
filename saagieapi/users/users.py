@@ -144,7 +144,6 @@ class Users:
             logging.warning("❌ Cannot get the user's information on the platform")
             logging.error("Something went wrong %s", exception)
         if users:
-            # output_folder = check_folder_path(output_folder)
             output_folder = Path(output_folder)
             create_folder(output_folder)
             write_to_json_file(output_folder / "users.json", users)

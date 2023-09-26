@@ -303,7 +303,6 @@ class TestIntegrationJobs:
     def test_delete_instances(create_global_project, create_then_delete_job):
         conf = create_global_project
         job_id = create_then_delete_job
-        # result = conf.saagie_api.jobs.run(job_id)
         _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id)
 
         res = conf.saagie_api.jobs.delete_instances(job_id=job_id, job_instances_id=[instance_id])
