@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import Dict, Optional
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_to_json_file
@@ -114,9 +115,9 @@ class Profiles:
             logging.warning("❌ Cannot get the profile's information on the platform")
             logging.error("Something went wrong %s", exception)
         if profiles:
-            output_folder = check_folder_path(output_folder)
+            output_folder = Path(output_folder)
             create_folder(output_folder)
-            write_to_json_file(f"{output_folder}profiles.json", profiles)
+            write_to_json_file(output_folder / "profiles.json", profiles)
             logging.info("✅ Profiles of the platform have been successfully exported")
             return True
         return False

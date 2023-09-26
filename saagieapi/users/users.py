@@ -1,5 +1,6 @@
 import json
 import logging
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
@@ -143,9 +144,10 @@ class Users:
             logging.warning("❌ Cannot get the user's information on the platform")
             logging.error("Something went wrong %s", exception)
         if users:
-            output_folder = check_folder_path(output_folder)
+            # output_folder = check_folder_path(output_folder)
+            output_folder = Path(output_folder)
             create_folder(output_folder)
-            write_to_json_file(f"{output_folder}users.json", users)
+            write_to_json_file(output_folder / "users.json", users)
             logging.info("✅ Users of the platform have been successfully exported")
             return True
         return False
