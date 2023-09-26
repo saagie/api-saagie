@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.8.0 (2023-09-26)
+### :sparkles:
+* :sparkles: revert semantic_release version ([#193](https://github.com/saagie/api-saagie/issues/193)) ([`b8933ef`](https://github.com/saagie/api-saagie/commit/b8933efb753948b8e3ae9fef652575ac3dc92c61))
+
 ## v2.7.0 (2023-08-02)
 ### :sparkles:
 * :sparkles:  Feat/product 2023 03 ([#190](https://github.com/saagie/api-saagie/issues/190)) ([`b56d204`](https://github.com/saagie/api-saagie/commit/b56d204d2373a6d897d56b4aa10bdb887d37a4df))
