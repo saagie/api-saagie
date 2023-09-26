@@ -31,11 +31,13 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.semantic_release]
-version_toml = "pyproject.toml:tool.poetry.version"
+version_toml = [
+  "pyproject.toml:tool.poetry.version",
+]
 tag_format = "{version}"
 build_command = "poetry build"
 commit_author = "Team Service <service@saagie.com>"
-commit_parser = "semantic_release.history.emoji_parser"
+commit_parser = "emoji"
 
 [tool.pylint.master]
 output-format = "colorized"
