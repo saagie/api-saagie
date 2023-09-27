@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.8.1 (2023-09-27)
+### :bug:
+* :bug: Add env_vars.get to get env var information ([#194](https://github.com/saagie/api-saagie/issues/194)) ([`8f38ec1`](https://github.com/saagie/api-saagie/commit/8f38ec11cd5819a50e601efd519a71a5287f5942))
+
 ## v2.8.0 (2023-09-26)
 ### :sparkles:
 * :sparkles: revert semantic_release version ([#193](https://github.com/saagie/api-saagie/issues/193)) ([`b8933ef`](https://github.com/saagie/api-saagie/commit/b8933efb753948b8e3ae9fef652575ac3dc92c61))
