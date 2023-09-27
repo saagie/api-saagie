@@ -66,6 +66,15 @@ class TestIntegrationEnvVars:
         assert name in global_envs_names
 
     @staticmethod
+    def test_get_global_env_var(create_then_delete_global_env_var, create_global_project):
+        conf = create_global_project
+        name = create_then_delete_global_env_var
+
+        env = conf.saagie_api.env_vars.get(scope="GLOBAL", name=name)
+
+        assert env["name"] == name
+
+    @staticmethod
     def test_delete_global_env_var(create_global_env_var, create_global_project):
         conf = create_global_project
         name = create_global_env_var
@@ -198,6 +207,15 @@ class TestIntegrationEnvVars:
         project_env_names = [env["name"] for env in project_envs]
 
         assert name in project_env_names
+
+    @staticmethod
+    def test_get_project_env_var(create_then_delete_project_env_var, create_global_project):
+        conf = create_global_project
+        name = create_then_delete_project_env_var
+
+        env = conf.saagie_api.env_vars.get(scope="PROJECT", name=name, project_id=conf.project_id)
+
+        assert env["name"] == name
 
     @staticmethod
     def test_delete_project_env_var(create_project_env_var, create_global_project):
@@ -474,6 +492,15 @@ class TestIntegrationEnvVars:
         pipeline_envs = conf.saagie_api.env_vars.list(scope="PIPELINE", pipeline_id=pipeline_id, scope_only=True)
 
         assert name in [env["name"] for env in pipeline_envs]
+
+    @staticmethod
+    def test_get_pipeline_env_var(create_then_delete_pipeline_env_var, create_global_project):
+        conf = create_global_project
+        pipeline_id, name = create_then_delete_pipeline_env_var
+
+        env = conf.saagie_api.env_vars.get(scope="PIPELINE", name=name, pipeline_id=pipeline_id, scope_only=True)
+
+        assert env["name"] == name
 
     @staticmethod
     def test_delete_pipeline_env_var(create_pipeline_env_var, create_global_project):
