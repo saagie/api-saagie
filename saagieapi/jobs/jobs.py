@@ -567,7 +567,7 @@ class Jobs:
                 f"❌ Runtime {runtime_version} for technology {technology} does not exist "
                 f"in the catalog {technology_catalog} or is deprecated"
             )
-        if extra_technology is not None or extra_technology != "":
+        if extra_technology is not None and extra_technology != "":
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
