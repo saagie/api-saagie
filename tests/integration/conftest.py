@@ -131,8 +131,6 @@ def create_job(create_global_project):
         runtime_version="3.9",
         command_line="python {file} arg1 arg2",
         release_note="",
-        extra_technology="",
-        extra_technology_version="",
     )
 
     return job["data"]["createJob"]["id"]
