@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.8.2 (2023-10-02)
+### :bug:
+* :bug: fix creation of job ([#195](https://github.com/saagie/api-saagie/issues/195)) ([`5b89206`](https://github.com/saagie/api-saagie/commit/5b892068d5422998ccc962bc8d0813a1f0676b5b))
+
 ## v2.8.1 (2023-09-27)
 ### :bug:
 * :bug: Add env_vars.get to get env var information ([#194](https://github.com/saagie/api-saagie/issues/194)) ([`8f38ec1`](https://github.com/saagie/api-saagie/commit/8f38ec11cd5819a50e601efd519a71a5287f5942))
