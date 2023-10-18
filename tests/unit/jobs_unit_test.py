@@ -144,9 +144,8 @@ class TestJobs:
         }
         saagie_api_mock.client.execute.return_value = return_value
         # Patch the self.__launch_request and self.get_info methods to avoid calling the API
-        with (
-            patch.object(instance, "_Jobs__launch_request", return_value={"name": job_params["job_name"]}),
-            patch.object(
+        with patch.object(instance, "_Jobs__launch_request", return_value={"name": job_params["job_name"]}):
+            with patch.object(
                 instance,
                 "get_info",
                 return_value={
@@ -159,9 +158,8 @@ class TestJobs:
                         "alerting": "",
                     }
                 },
-            ),
-        ):
-            job_result = instance.edit(**job_params)
+            ):
+                job_result = instance.edit(**job_params)
 
         assert job_result == return_value
 
