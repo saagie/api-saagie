@@ -190,7 +190,7 @@ class EnvVars:
         }
         """
 
-        existing_env_var = self.list_globals(pprint_result=False)["globalEnvironmentVariables"]
+        existing_env_var = self.list(scope="GLOBAL", pprint_result=False)["globalEnvironmentVariables"]
 
         if name not in [env_var["name"] for env_var in existing_env_var]:
             raise ValueError(f"❌ Environment variable {name} does not exists")
@@ -1144,6 +1144,7 @@ class EnvVars:
         Examples
         --------
         >>> saagieapi.env_vars.create(
+        ...     scope="PROJECT",
         ...     name="TEST_PASSWORD",
         ...     value="test",
         ...     description="This is a password",
@@ -1224,6 +1225,7 @@ class EnvVars:
         Examples
         --------
         >>> saagieapi.env_vars.update(
+        ...     scope="PROJECT",
         ...     name="TEST_PASSWORD",
         ...     value="new value",
         ...     description="This is a new password",
@@ -1385,7 +1387,7 @@ class EnvVars:
 
         Examples
         --------
-        >>>   saagieapi.env_vars.delete(name="TEST_PASSWORD")
+        >>>   saagieapi.env_vars.delete(scope="GLOBAL", name="TEST_PASSWORD")
         {
             "deleteEnvironmentVariable": True
         }

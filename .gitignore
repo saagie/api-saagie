@@ -7,3 +7,7 @@ dist/
 tests/output
 output
 _build
+venv
+.vscode
+.coverage
+cov.xml
