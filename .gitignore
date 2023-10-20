@@ -7,3 +7,4 @@ dist/
 tests/output
 output
 _build
+cov.xml

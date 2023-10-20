@@ -388,6 +388,100 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
 }
 """
 
+GQL_GET_JOB_INFO_BY_ALIAS = """
+query jobInfoByAlias($projectId: UUID!, $alias: String!, $instancesLimit: Int, $versionsLimit: Int, $versionsOnlyCurrent: Boolean){
+    jobByAlias(projectId: $projectId, alias: $alias){
+        id
+        name
+        alias
+        description
+        alerting{
+            emails
+            loginEmails{
+                login
+                email
+            }
+            statusList
+        }
+        instances(limit: $instancesLimit){
+            id
+            status
+            history {
+                currentStatus {
+                    status
+                    details
+                    reason
+                }
+            }
+            startTime
+            endTime
+            version {
+                number
+                releaseNote
+                runtimeVersion
+                commandLine
+                isMajor
+                doesUseGPU
+            }
+        }
+        countJobInstance
+        versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
+            number
+            creationDate
+            releaseNote
+            runtimeVersion
+            commandLine
+            packageInfo{
+                name
+                downloadUrl
+            }
+            dockerInfo{
+                image
+                dockerCredentialsId
+            }
+            extraTechnology{
+                language
+                version
+            }
+            isCurrent
+            isMajor
+            deletableState {
+                deletable
+                reasons
+            }
+        }
+        category
+        technology {
+            id
+        }
+        isScheduled
+        cronScheduling
+        scheduleStatus
+        scheduleTimezone
+        isStreaming
+        creationDate
+        migrationStatus
+        migrationProjectId
+        isDeletable
+        graphPipelines(isCurrent: true){
+            id
+        }
+        doesUseGPU
+        resources{
+            cpu {
+                request
+                limit
+            }
+            memory{
+                request
+                limit
+            }
+        }
+        originalJobId
+    }
+}
+"""
+
 GQL_DELETE_JOB = """
 mutation deleteJobMutation($jobId: UUID!){
     deleteJob(jobId: $jobId)
@@ -418,13 +512,27 @@ mutation deleteJobInstances($jobId: UUID!, $jobInstancesId: [UUID!]) {
 GQL_DELETE_JOB_INSTANCES_BY_SELECTOR = """
 mutation deleteJobInstancesBySelector($jobId: UUID!, 
                                     $selector: JobInstanceSelector!, 
-                                    $minusInstancesId: [UUID!], 
-                                    $moreInstancesId: [UUID!]) {
+                                    $excludeJobInstanceId: [UUID!], 
+                                    $includeJobInstanceId: [UUID!]) {
     deleteJobInstancesBySelector(
         jobId: $jobId, 
         selector: $selector,
-        minusJobInstanceIds: $minusInstancesId,
-        moreJobInstanceIds: $moreInstancesId
+        excludeJobInstanceIds: $excludeJobInstanceId,
+        includeJobInstanceIds: $includeJobInstanceId
+    )
+}
+"""
+
+GQL_DELETE_JOB_INSTANCES_BY_DATE = """
+mutation deleteJobInstancesByDate($jobId: UUID!, 
+                                    $beforeAt: DateTime!, 
+                                    $excludeJobInstanceId: [UUID!], 
+                                    $includeJobInstanceId: [UUID!]) {
+    deleteJobInstancesByDate(
+        jobId: $jobId, 
+        beforeAt: $beforeAt,
+        excludeJobInstanceIds: $excludeJobInstanceId,
+        includeJobInstanceIds: $includeJobInstanceId
     )
 }
 """
@@ -452,6 +560,31 @@ query countJobInstancesBySelector($jobId: UUID!) {
     countJobInstancesBySelector(jobId: $jobId) {
         selector
         count
+    }
+}
+"""
+
+GQL_COUNT_INSTANCES_BY_DATE = """
+query countJobInstancesByDate($jobId: UUID!, $beforeAt: DateTime!) {
+    countJobInstancesByDate(
+        jobId: $jobId, 
+        beforeAt: $beforeAt
+    )
+}
+"""
+
+GQL_MOVE_JOB = """
+mutation migrateJobsMutation($jobId: UUID!, $targetPlatformId: Int!, $targetProjectId: UUID!) {  
+    moveJob(jobId: $jobId, targetPlatformId: $targetPlatformId, targetProjectId: $targetProjectId)
+}
+"""
+
+GQL_GENERATE_JOB_DESCRIPTION = """
+mutation editJobWithAiGeneratedDescriptionMutation($jobId: UUID!) {
+    editJobWithAiGeneratedDescription(jobId: $jobId) {
+        id
+        description
+        aiDescriptionVersionNumber
     }
 }
 """

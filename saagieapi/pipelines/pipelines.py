@@ -1,6 +1,7 @@
 import json
 import logging
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -492,6 +493,170 @@ class Pipelines:
         }
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_PIPELINE), variable_values=params, pprint_result=pprint_result
+        )
+
+    def get_info_by_name(
+        self,
+        project_id: str,
+        pipeline_name: str,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
+        """Get a given pipeline information by giving its name
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your pipeline  (see README on how to find it)
+        pipeline_name : str
+            Name of your pipeline
+        instances_limit : int, optional
+            Maximum limit of instances to fetch per job. Fetch from most recent
+            to the oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per pipeline. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each pipeline
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
+
+        Returns
+        -------
+        dict
+            Dict of pipeline's information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.get_info_by_name(
+        ...     project_id=""8321e13c-892a-4481-8552-5be4d6cc5df4",
+        ...     pipeline_id="Pipeline A"
+        ... )
+        {
+            "graphPipeline": {
+                "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                "name": "Pipeline A",
+                "description": "My Pipeline A",
+                "alerting": "NULL",
+                "pipelineInstanceCount": 0,
+                "instances": [
+                    {
+                        "id": "cc11c32a-66c5-43ad-b176-444cee7079ff",
+                        "status": "SUCCEEDED",
+                        "startTime": "2022-03-15T11:42:07.559Z",
+                        "endTime": "2022-03-15T11:43:17.716Z",
+                        "runWithExecutionVariables": True,
+                        "initialExecutionVariables": [
+                            {
+                                "key": "TEST_PASSWORD",
+                                "value": None,
+                                "isPassword": True
+                            },
+                            {
+                                "key": "TEST_PROJECT",
+                                "value": "TEST_PROJECT",
+                                "isPassword": False
+                            }
+                        ],
+                        "jobsInstance": [
+                            {
+                                "id": "f8e77fc3-9c4d-450b-8efd-9d3080b38edb",
+                                "jobId": "9a71afa4-aed4-4061-87d2-b279a3adf8c3",
+                                "number": 80,
+                                "startTime": "2022-03-15T11:42:07.559Z",
+                                "endTime": "2022-03-15T11:43:17.716Z"
+                            }
+                        ],
+                        "conditionsInstance": [
+                            {
+                                "id": "2292a535-affb-4b1c-973d-690c185d949e",
+                                "conditionNodeId": "c2f23720-e361-11ed-894d-6b696861cc8f",
+                                "isSuccess": true,
+                                "startTime": "2022-03-15T11:42:30.559Z",
+                                "endTime": "2022-03-15T11:42:45.559Z"
+                            }
+                        ],
+                    },
+                    {
+                        "id": "d7aba110-3bd9-4505-b70c-84c4d212345",
+                        "status": "SUCCEEDED",
+                        "startTime": "2022-02-04T00:00:00.062Z",
+                        "endTime": "2022-02-04T00:00:27.249Z",
+                        "runWithExecutionVariables": False,
+                        "initialExecutionVariables": [],
+                        "jobsInstance": [],
+                        "conditionsInstance": [],
+                    }
+                ],
+                "versions": [
+                    {
+                        "number": 1,
+                        "releaseNote": None,
+                        "graph": {
+                            "jobNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000000",
+                                    "job": {
+                                        "id": "6f56e714-37e4-4596-ae20-7016a1d954e9",
+                                        "name": "Spark 2.4 java"
+                                    },
+                                    "position": None,
+                                    "nextNodes": ["00000000-0000-0000-0000-000000000001"]
+                                },
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "job": {
+                                        "id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a", "name": "bash"
+                                    },
+                                    "position": None,
+                                    "nextNodes": []
+                                }
+                            ],
+                            "conditionNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "position": {
+                                        "x": 310.00092,
+                                        "y": 75
+                                    },
+                                    "nextNodesSuccess": [
+                                        "00000000-0000-0000-0000-000000000002"
+                                    ],
+                                    "nextNodesFailure": [],
+                                    "condition": {
+                                        "toString": "ConditionExpression(expression=\"tube_name.contains(\"Tube\") || double(diameter) > 1.0\")"
+                                    }
+                                }
+                            ]
+                        },
+                        "creationDate": "2022-01-31T10:36:42.327Z",
+                        "creator": "john.doe",
+                        "isCurrent": True,
+                        "isMajor": False
+                    }
+                ],
+                "creationDate": "2022-01-31T10:36:42.327Z",
+                "creator": "john.doe",
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isLegacyPipeline": False
+            }
+        }
+        """  # pylint: disable=line-too-long
+        params = {
+            "projectId": project_id,
+            "pipelineName": pipeline_name,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_PIPELINE_BY_NAME), variable_values=params, pprint_result=pprint_result
         )
 
     def get_instance(self, pipeline_instance_id: str, pprint_result: Optional[bool] = None) -> Dict:
@@ -1373,3 +1538,240 @@ class Pipelines:
 
         logging.info("✅ Pipeline [%s] has been successfully imported", pipeline_name)
         return True
+
+    def count_deletable_instances_by_status(self, pipeline_id: str) -> Dict:
+        """Count deletable instances of pipeline by status
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of number of deletable instances of pipeline by status
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.count_deletable_instances_by_status(pipeline_id=pipeline_id)
+        {
+            'countDeletablePipelineInstancesByStatus': [
+                {'selector': 'ALL', 'count': 0},
+                {'selector': 'SUCCEEDED', 'count': 0},
+                {'selector': 'FAILED', 'count': 0},
+                {'selector': 'STOPPED', 'count': 0},
+                {'selector': 'UNKNOWN', 'count': 0}
+            ]
+        }
+        """
+        return self.saagie_api.client.execute(
+            query=gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_STATUS), variable_values={"pipelineId": pipeline_id}
+        )
+
+    def count_deletable_instances_by_date(self, pipeline_id: str, date_before: str) -> Dict:
+        """Count deletable instances of pipeline by status
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        date_before : str
+            Instances before this date will be counted. The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'
+
+        Returns
+        -------
+        dict
+            Dict of number of deletable instances of pipeline by status
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.count_deletable_instances_by_date(pipeline_id=pipeline_id, )
+        {
+            "countDeletablePipelineInstancesByDate": 6
+        }
+        """
+        # need to check the date is in this format : 2023-02-01T00:00:00+01:00
+        # if not, it will raise an error and stop the call
+        try:
+            datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError as e:
+            raise ValueError(
+                "The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'. \
+                Please change your date_before parameter"
+            ) from e
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE),
+            variable_values={"pipelineId": pipeline_id, "beforeAt": date_before},
+        )
+
+    def delete_versions(self, pipeline_id: str, versions: [int]):
+        """Delete given pipeline's versions and associated instances
+        NB: You can only delete a version with terminated instances
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        versions : [int]
+            List of version numbers to delete
+
+        Returns
+        -------
+        dict
+            Dict of deleted versions with their number and success status
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.delete_versions(
+        ...     pipeline_id=pipeline_id,
+        ...     versions=[1]
+        ... )
+        {
+            "deletePipelineVersions": [
+                {
+                    "number": 1,
+                    "success": true
+                }
+            ]
+        }
+        """
+        params = {"pipelineId": pipeline_id, "versions": versions}
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_PIPELINE_VERSION), variable_values=params)
+        logging.info("✅ Versions of pipeline [%s] successfully deleted", pipeline_id)
+        return result
+
+    def delete_instances(self, pipeline_id: str, pipeline_instances_id: [str]) -> int:
+        """Delete given pipeline's instances
+        Also you can only delete instances if they aren't processing by the orchestrator
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        pipeline_instances_id : [str]
+            List of UUID of instances to delete (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of deleted instances
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.delete_instances(
+        ...     pipeline_id=pipeline_id,
+        ...     pipeline_instances_id=["c8f156bc-78ab-4dda-acff-bbe828237fd9", "7e5549cd-32aa-42c4-88b5-ddf5f3087502"]
+        ... )
+        {
+            'deletePipelineInstances': [
+                {'id': '7e5549cd-32aa-42c4-88b5-ddf5f3087502', 'success': True},
+                {'id': 'c8f156bc-78ab-4dda-acff-bbe828237fd9', 'success': True}
+            ]
+        }
+        """
+        params = {"pipelineId": pipeline_id, "pipelineInstancesId": pipeline_instances_id}
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_PIPELINE_INSTANCE), variable_values=params)
+        logging.info("✅ Instances of pipeline [%s] successfully deleted", pipeline_id)
+        return result
+
+    def delete_instances_by_selector(
+        self, pipeline_id: str, selector, exclude_instances_id: List = None, include_instances_id: List = None
+    ) -> int:
+        """Delete given pipeline's instances by selector
+        Also you can only delete instances if they aren't processing by the orchestrator
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        selector : str
+            Name of status to select in this list : ALL, SUCCEEDED, FAILED, STOPPED, UNKNOWN
+        exclude_instances_id : [str]
+            List of UUID of instances of your pipeline to exclude from the deletion
+        include_instances_id: [str]
+            List of UUID of instances of your pipeline to include from the deletion
+
+        Returns
+        -------
+        Dict
+            Return the number of instances deleted
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.delete_instances_by_selector(
+        ...     pipeline_id=pipeline_id,
+        ...     selector="FAILED",
+        ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
+        ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
+        ... )
+        {
+            'deletePipelineInstancesByStatusSelector': 1
+        }
+        """
+        params = {
+            "pipelineId": pipeline_id,
+            "selector": selector,
+            "excludePipelineInstanceId": [] if exclude_instances_id is None else exclude_instances_id,
+            "includePipelineInstanceId": [] if include_instances_id is None else include_instances_id,
+        }
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_DELETE_PIPELINE_INSTANCE_BY_SELECTOR), variable_values=params
+        )
+        logging.info("✅ Instances of pipeline [%s] successfully deleted", pipeline_id)
+        return result
+
+    def delete_instances_by_date(
+        self, pipeline_id: str, date_before: str, exclude_instances_id: List = None, include_instances_id: List = None
+    ) -> int:
+        """Delete given pipeline's instances by selector
+        Also you can only delete instances if they aren't processing by the orchestrator
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+        date_before : str
+            Instances before this date will be counted. The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'
+        exclude_instances_id : [str]
+            List of UUID of instances of your pipeline to exclude from the deletion
+        include_instances_id: [str]
+            List of UUID of instances of your pipeline to include from the deletion
+
+        Returns
+        -------
+        Dict
+            Return the number of instances deleted
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.delete_instances_by_selector(
+        ...     pipeline_id=pipeline_id,
+        ...     selector="FAILED",
+        ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
+        ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
+        ... )
+        {
+            'deletePipelineInstancesByStatusSelector': 1
+        }
+        """
+        # need to check the date is in this format : 2023-02-01T00:00:00+01:00
+        # if not, it will raise an error and stop the call
+        try:
+            datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError as e:
+            raise ValueError(
+                "The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'. \
+                Please change your date_before parameter"
+            ) from e
+
+        params = {
+            "pipelineId": pipeline_id,
+            "beforeAt": date_before,
+            "excludePipelineInstanceId": [] if exclude_instances_id is None else exclude_instances_id,
+            "includePipelineInstanceId": [] if include_instances_id is None else include_instances_id,
+        }
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_PIPELINE_INSTANCE_BY_DATE), variable_values=params)
+        logging.info("✅ Instances of pipeline [%s] successfully deleted", pipeline_id)
+        return result

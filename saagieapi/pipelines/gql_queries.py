@@ -188,6 +188,99 @@ query graphPipelineQuery($id: UUID!,
 }
 """
 
+GQL_GET_PIPELINE_BY_NAME = """
+query graphPipelineByNameQuery(
+    $projectId: UUID!, 
+    $pipelineName: String!,
+    $instancesLimit: Int, 
+    $versionsLimit: Int, 
+    $versionsOnlyCurrent: Boolean
+) {
+    graphPipelineByName(projectId: $projectId, name: $pipelineName) {
+        id
+        name
+        description
+        alerting{
+            emails
+            loginEmails{
+                login
+                email
+            }
+            statusList
+        }
+        pipelineInstanceCount
+        instances(limit: $instancesLimit){
+            id
+            status
+            startTime
+            endTime
+            runWithExecutionVariables
+            initialExecutionVariables{
+                key
+                value
+                isPassword
+            }
+            jobsInstance{
+                id
+                jobId
+                number
+                startTime
+                endTime
+            }
+            conditionsInstance{
+                id
+                conditionNodeId
+                isSuccess
+                startTime
+                endTime
+            }
+        }
+        versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
+            number
+            releaseNote
+            graph{
+                jobNodes{
+                    id
+                    job{
+                        id
+                        name
+                    }
+                    position{
+                        x
+                        y
+                    }
+                    nextNodes
+                }
+                conditionNodes{
+                    id
+                    position{
+                        x
+                        y
+                    }
+                    nextNodesSuccess
+                    nextNodesFailure
+                    condition {
+                        toString
+                    }
+                }
+            }
+            creationDate
+            creator
+            isCurrent
+            isMajor
+        }
+        creationDate
+        creator
+        isScheduled
+        cronScheduling
+        scheduleStatus
+        scheduleTimezone
+        isLegacyPipeline
+        hasExecutionVariablesEnabled
+    }
+}
+"""
+
 GQL_STOP_PIPELINE_INSTANCE = """
 mutation stopPipelineInstanceMutation($pipelineInstanceId: UUID!){
     stopPipelineInstance(pipelineInstanceId: $pipelineInstanceId){
@@ -359,5 +452,67 @@ mutation rollbackPipelineVersionMutation($pipelineId: UUID!, $versionNumber: Int
             isCurrent
         }
     }
+}
+"""
+
+GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_STATUS = """
+query countDeletablePipelineInstancesByStatus($pipelineId: UUID!){
+    countDeletablePipelineInstancesByStatus(pipelineId: $pipelineId){
+        selector
+        count
+    }
+}
+"""
+
+GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE = """
+query countDeletablePipelineInstancesByDate($pipelineId: UUID!, $beforeAt: DateTime!) {
+  countDeletablePipelineInstancesByDate(
+    pipelineId: $pipelineId
+    beforeAt: $beforeAt
+  )
+}
+"""
+
+GQL_DELETE_PIPELINE_VERSION = """
+mutation deletePipelineVersions($pipelineId: UUID!, $versions: [Int!]!){
+    deletePipelineVersions(pipelineId: $pipelineId, pipelineVersionNumbers: $versions){
+        number,
+        success
+    }
+}
+"""
+
+GQL_DELETE_PIPELINE_INSTANCE = """
+mutation deletePipelineInstances($pipelineId: UUID!, $pipelineInstancesId: [UUID!]){
+    deletePipelineInstances(pipelineId: $pipelineId, pipelineInstanceIds: $pipelineInstancesId){
+        id,
+        success
+    }
+}
+"""
+
+GQL_DELETE_PIPELINE_INSTANCE_BY_SELECTOR = """
+mutation deletePipelineInstancesByStatusSelector(
+    $pipelineId: UUID!, 
+    $selector: PipelineInstanceStatusSelector!, 
+    $excludePipelineInstanceId: [UUID!], $includePipelineInstanceId: [UUID!]) 
+{
+    deletePipelineInstancesByStatusSelector(
+        pipelineId: $pipelineId
+        selector: $selector
+        excludePipelineInstanceIds: $excludePipelineInstanceId
+        includePipelineInstanceIds: $includePipelineInstanceId
+    )
+}
+"""
+
+GQL_DELETE_PIPELINE_INSTANCE_BY_DATE = """
+mutation deletePipelineInstancesByDateSelector($pipelineId: UUID!, $beforeAt: DateTime!, $excludePipelineInstanceId: [UUID!], $includePipelineInstanceId: [UUID!]) {
+    deletePipelineInstancesByDateSelector(
+        pipelineId: $pipelineId
+        beforeAt: $beforeAt
+        excludePipelineInstanceIds: $excludePipelineInstanceId
+        includePipelineInstanceIds: $includePipelineInstanceId
+    )
 }
 """

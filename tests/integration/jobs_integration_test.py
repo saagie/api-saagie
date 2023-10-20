@@ -328,6 +328,25 @@ class TestIntegrationJobs:
         assert "deleteJobInstancesBySelector" in res
 
     @staticmethod
+    def test_delete_instances_by_date(create_global_project, create_then_delete_job):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
+        _, instance_id2 = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
+
+        res = conf.saagie_api.jobs.delete_instances_by_selector(
+            job_id=job_id,
+            date_before="2023-10-01T00:00:00+01:00",
+            exclude_instances_id=[instance_id],
+            include_instances_id=[instance_id2],
+        )
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deleteJobInstancesByDate" in res
+
+    @staticmethod
     def test_delete_job_versions(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job

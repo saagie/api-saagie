@@ -96,3 +96,27 @@ class TestIntegrationProject:
             str(rte.value) == "❌ Too few arguments, specify either a group and role, "
             "or multiple groups and roles with groups_and_roles"
         )
+
+    @staticmethod
+    def test_get_project_info(create_global_project):
+        conf = create_global_project
+        expected_project = {
+            "id": conf.project_id,
+            "name": conf.project_name,
+            "description": "For integration test",
+        }
+        output_project = conf.saagie_api.projects.get_info(conf.project_id)
+        assert expected_project["id"] == output_project["projectByName"]["id"]
+        assert expected_project["name"] == output_project["projectByName"]["name"]
+
+    @staticmethod
+    def test_get_project_info_by_name(create_global_project):
+        conf = create_global_project
+        expected_project = {
+            "id": conf.project_id,
+            "name": conf.project_name,
+            "description": "For integration test",
+        }
+        output_project = conf.saagie_api.projects.get_info_by_name(conf.project_name)
+        assert expected_project["id"] == output_project["projectByName"]["id"]
+        assert expected_project["name"] == output_project["projectByName"]["name"]

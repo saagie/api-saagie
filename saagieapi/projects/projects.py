@@ -174,6 +174,44 @@ class Projects:
             query=gql(GQL_GET_PROJECT_INFO), variable_values={"id": project_id}, pprint_result=pprint_result
         )
 
+    def get_info_by_name(self, project_name: str, pprint_result: Optional[bool] = None) -> Dict:
+        """Get information for a given project (id, name, creator, description,
+        jobCount and status)
+        NB: You can only get project information if you have at least the
+        viewer role on this project or on all projects.
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your project (see README on how to find it)
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
+
+        Returns
+        -------
+        dict
+            Dict of project information
+
+        Examples
+        --------
+        >>> saagieapi.projects.get_info_by_name(project_name="Project A")
+        {
+            "projectByName": {
+                "id": "8321e13c-892a-4481-8552-5be4d6cc5df4",
+                "name":"Project A",
+                "creator":"john.doe",
+                "description":"My project A",
+                "jobsCount":49,
+                "status":"READY"
+            }
+        }
+        """
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_PROJECT_INFO_BY_NAME), variable_values={"name": project_name}, pprint_result=pprint_result
+        )
+
     def get_jobs_technologies(self, project_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """List available jobs technologies id for the project
 
