@@ -463,7 +463,7 @@ class Jobs:
         ...     instances_limit=2
         ... )
         {
-            "job": {
+            "jobByAlias": {
                 "id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
                 "name": "Python test job",
                 "description": "Amazing python job",
@@ -1879,7 +1879,7 @@ class Jobs:
 
         Examples
         --------
-        >>> saagie_api.jobs.move_job(job_id=job_id, platform_id=1, project_id=project_id)
+        >>> saagie_api.jobs.move_job(job_id=job_id, target_platform_id=1, target_project_id=project_id)
         {
             'moveJob': '29cf1b80-6b9c-47bc-a06c-c20897257097',
         }

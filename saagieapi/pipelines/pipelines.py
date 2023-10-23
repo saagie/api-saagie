@@ -536,7 +536,7 @@ class Pipelines:
         ...     pipeline_id="Pipeline A"
         ... )
         {
-            "graphPipeline": {
+            "graphPipelineByName": {
                 "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
                 "name": "Pipeline A",
                 "description": "My Pipeline A",
@@ -1586,7 +1586,10 @@ class Pipelines:
 
         Examples
         --------
-        >>> saagie_api.pipelines.count_deletable_instances_by_date(pipeline_id=pipeline_id, )
+        >>> saagie_api.pipelines.count_deletable_instances_by_date(
+        ...     pipeline_id=pipeline_id,
+        ...     date_before="2023-10-01T00:00:00+01:00"
+        ... )
         {
             "countDeletablePipelineInstancesByDate": 6
         }
@@ -1746,17 +1749,17 @@ class Pipelines:
 
         Examples
         --------
-        >>> saagie_api.pipelines.delete_instances_by_selector(
+        >>> saagie_api.pipelines.delete_instances_by_date(
         ...     pipeline_id=pipeline_id,
-        ...     selector="FAILED",
+        ...     beforeAt="2023-10-01T00:00:00+01:00",
         ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
         ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
         ... )
         {
-            'deletePipelineInstancesByStatusSelector': 1
+            'deletePipelineInstancesByDateSelector': 1
         }
         """
-        # need to check the date is in this format : 2023-02-01T00:00:00+01:00
+        # need to check if the date is in this format : 2023-02-01T00:00:00+01:00
         # if not, it will raise an error and stop the call
         try:
             datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
