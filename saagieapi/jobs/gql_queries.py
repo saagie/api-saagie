@@ -405,7 +405,6 @@ query jobInfoByAlias($projectId: UUID!, $alias: String!, $instancesLimit: Int, $
         }
         instances(limit: $instancesLimit){
             id
-            status
             history {
                 currentStatus {
                     status
@@ -421,7 +420,6 @@ query jobInfoByAlias($projectId: UUID!, $alias: String!, $instancesLimit: Int, $
                 runtimeVersion
                 commandLine
                 isMajor
-                doesUseGPU
             }
         }
         countJobInstance
