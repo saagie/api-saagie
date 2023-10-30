@@ -379,21 +379,23 @@ class TestIntegrationJobs:
         assert result["duplicateJob"]["id"] in [job["id"] for job in jobs_list["jobs"]]
 
     @staticmethod
-    def test_count_instances_by_status(create_then_delete_job, create_global_project):
+    def test_count_deletable_instances_by_status(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job
 
-        result = conf.saagie_api.jobs.count_instances_by_status(job_id=job_id)
+        result = conf.saagie_api.jobs.count_deletable_instances_by_status(job_id=job_id)
 
         assert len(result["countJobInstancesBySelector"]) == 5
         assert "ALL" in [select["selector"] for select in result["countJobInstancesBySelector"]]
 
     @staticmethod
-    def test_count_instances_by_date(create_then_delete_job, create_global_project):
+    def test_count_deletable_instances_by_date(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job
 
-        result = conf.saagie_api.jobs.count_instances_by_date(job_id=job_id, date_before="2023-10-01T00:00:00+01:00")
+        result = conf.saagie_api.jobs.count_deletable_instances_by_date(
+            job_id=job_id, date_before="2023-10-01T00:00:00+01:00"
+        )
 
         assert "countJobInstancesByDate" in result
         assert result["countJobInstancesByDate"] == 0
