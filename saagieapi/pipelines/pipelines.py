@@ -1598,11 +1598,11 @@ class Pipelines:
         # if not, it will raise an error and stop the call
         try:
             datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
-        except ValueError as e:
+        except ValueError as exception:
             raise ValueError(
                 "The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'. \
                 Please change your date_before parameter"
-            ) from e
+            ) from exception
 
         return self.saagie_api.client.execute(
             query=gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE),
@@ -1716,8 +1716,8 @@ class Pipelines:
         params = {
             "pipelineId": pipeline_id,
             "selector": selector,
-            "excludePipelineInstanceId": [] if exclude_instances_id is None else exclude_instances_id,
-            "includePipelineInstanceId": [] if include_instances_id is None else include_instances_id,
+            "excludePipelineInstanceId": exclude_instances_id or [],
+            "includePipelineInstanceId": include_instances_id or [],
         }
         result = self.saagie_api.client.execute(
             query=gql(GQL_DELETE_PIPELINE_INSTANCE_BY_SELECTOR), variable_values=params
@@ -1763,17 +1763,17 @@ class Pipelines:
         # if not, it will raise an error and stop the call
         try:
             datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
-        except ValueError as e:
+        except ValueError as exception:
             raise ValueError(
                 "The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'. \
                 Please change your date_before parameter"
-            ) from e
+            ) from exception
 
         params = {
             "pipelineId": pipeline_id,
             "beforeAt": date_before,
-            "excludePipelineInstanceId": [] if exclude_instances_id is None else exclude_instances_id,
-            "includePipelineInstanceId": [] if include_instances_id is None else include_instances_id,
+            "excludePipelineInstanceId": exclude_instances_id or [],
+            "includePipelineInstanceId": include_instances_id or [],
         }
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_PIPELINE_INSTANCE_BY_DATE), variable_values=params)
         logging.info("✅ Instances of pipeline [%s] successfully deleted", pipeline_id)

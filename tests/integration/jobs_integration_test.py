@@ -443,7 +443,7 @@ class TestIntegrationJobs:
         assert job_init["job"]["name"] == job_after["job"]["name"]
 
     @staticmethod
-    def test_generate_description_by_AI(create_then_delete_job, create_global_project):
+    def test_generate_description_by_ai(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job
 

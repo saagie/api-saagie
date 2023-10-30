@@ -320,7 +320,7 @@ class TestIntegrationPipelines:
 
         release_note = "amazing new version !"
 
-        pipeline_version_info = conf.saagie_api.pipelines.upgrade(pipeline_id, graph_pipeline, release_note)
+        _ = conf.saagie_api.pipelines.upgrade(pipeline_id, graph_pipeline, release_note)
 
         result = conf.saagie_api.pipelines.delete_versions(pipeline_id=pipeline_id, versions=[1])
 

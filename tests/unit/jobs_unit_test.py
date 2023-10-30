@@ -70,5 +70,5 @@ class TestJobs:
     def test_move_job(self):
         self.client.validate(gql(GQL_MOVE_JOB))
 
-    def test_generate_description_by_AI(self):
+    def test_generate_description_by_ai(self):
         self.client.validate(gql(GQL_GENERATE_JOB_DESCRIPTION))
