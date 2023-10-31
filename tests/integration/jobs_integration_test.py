@@ -1,4 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
+import time
+
 import pytest
 
 
@@ -328,6 +330,25 @@ class TestIntegrationJobs:
         assert "deleteJobInstancesBySelector" in res
 
     @staticmethod
+    def test_delete_instances_by_date(create_global_project, create_then_delete_job):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        _, instance_id = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
+        _, instance_id2 = conf.saagie_api.jobs.run_with_callback(job_id=job_id)
+
+        res = conf.saagie_api.jobs.delete_instances_by_date(
+            job_id=job_id,
+            date_before="2023-10-01T00:00:00+01:00",
+            exclude_instances_id=[instance_id],
+            include_instances_id=[instance_id2],
+        )
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deleteJobInstancesByDate" in res
+
+    @staticmethod
     def test_delete_job_versions(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job
@@ -358,11 +379,84 @@ class TestIntegrationJobs:
         assert result["duplicateJob"]["id"] in [job["id"] for job in jobs_list["jobs"]]
 
     @staticmethod
-    def test_count_instances_by_status(create_then_delete_job, create_global_project):
+    def test_count_deletable_instances_by_status(create_then_delete_job, create_global_project):
         conf = create_global_project
         job_id = create_then_delete_job
 
-        result = conf.saagie_api.jobs.count_instances_by_status(job_id=job_id)
+        result = conf.saagie_api.jobs.count_deletable_instances_by_status(job_id=job_id)
 
         assert len(result["countJobInstancesBySelector"]) == 5
         assert "ALL" in [select["selector"] for select in result["countJobInstancesBySelector"]]
+
+    @staticmethod
+    def test_count_deletable_instances_by_date(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        result = conf.saagie_api.jobs.count_deletable_instances_by_date(
+            job_id=job_id, date_before="2023-10-01T00:00:00+01:00"
+        )
+
+        assert "countJobInstancesByDate" in result
+        assert result["countJobInstancesByDate"] == 0
+
+    @staticmethod
+    def test_move_job(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        job_init = conf.saagie_api.jobs.get_info(job_id=job_id)
+
+        res = conf.saagie_api.projects.create(
+            name="test_project_move_job",
+            group=conf.group,
+            role="Manager",
+            description="For integration test move job",
+            jobs_technologies_allowed={"saagie": ["python", "spark", "bash"]},
+        )
+        new_project_id = res["createProject"]["id"]
+
+        # Waiting for the project to be ready
+        project_status = conf.saagie_api.projects.get_info(project_id=new_project_id)["project"]["status"]
+        waiting_time = 0
+
+        # Safety: wait for 5min max for project initialisation
+        project_creation_timeout = 400
+        while project_status != "READY" and waiting_time <= project_creation_timeout:
+            time.sleep(10)
+            project_status = conf.saagie_api.projects.get_info(new_project_id)["project"]["status"]
+            waiting_time += 10
+        if project_status != "READY":
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds"
+            )
+
+        result = conf.saagie_api.jobs.move_job(
+            job_id=job_id, target_platform_id=conf.id_platform, target_project_id=new_project_id
+        )
+
+        job_after = conf.saagie_api.jobs.get_info(job_id=result["moveJob"])
+
+        conf.saagie_api.projects.delete(project_id=new_project_id)
+
+        assert job_init["job"]["name"] == job_after["job"]["name"]
+
+    @staticmethod
+    def test_generate_description_by_ai(create_then_delete_job, create_global_project):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        result = conf.saagie_api.jobs.generate_description_by_AI(job_id=job_id)
+
+        assert "editJobWithAiGeneratedDescription" in result
+        assert result["editJobWithAiGeneratedDescription"]["id"] == job_id
+
+    @staticmethod
+    def test_get_info_by_alias(create_global_project, create_then_delete_job):
+        conf = create_global_project
+        job_id = create_then_delete_job
+
+        result = conf.saagie_api.jobs.get_info_by_alias(project_id=conf.project_id, job_alias="python_test")
+
+        assert result["jobByAlias"]["id"] == job_id

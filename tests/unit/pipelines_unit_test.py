@@ -22,6 +22,10 @@ class TestPipelines:
         query = gql(GQL_GET_PIPELINE)
         self.client.validate(query)
 
+    def test_get_pipeline_by_name(self):
+        query = gql(GQL_GET_PIPELINE_BY_NAME)
+        self.client.validate(query)
+
     def test_stop_pipeline_instance(self):
         query = gql(GQL_STOP_PIPELINE_INSTANCE)
         self.client.validate(query)
@@ -52,4 +56,28 @@ class TestPipelines:
 
     def test_rollback_pipeline(self):
         query = gql(GQL_ROLLBACK_PIPELINE_VERSION)
+        self.client.validate(query)
+
+    def test_delete_versions(self):
+        query = gql(GQL_DELETE_PIPELINE_VERSION)
+        self.client.validate(query)
+
+    def test_delete_instances(self):
+        query = gql(GQL_DELETE_PIPELINE_INSTANCE)
+        self.client.validate(query)
+
+    def test_delete_instances_by_selector(self):
+        query = gql(GQL_DELETE_PIPELINE_INSTANCE_BY_SELECTOR)
+        self.client.validate(query)
+
+    def test_delete_instances_by_date(self):
+        query = gql(GQL_DELETE_PIPELINE_INSTANCE_BY_DATE)
+        self.client.validate(query)
+
+    def test_count_deletable_instances_by_status(self):
+        query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_STATUS)
+        self.client.validate(query)
+
+    def test_count_deletable_instances_by_date(self):
+        query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE)
         self.client.validate(query)

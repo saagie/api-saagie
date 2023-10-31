@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from ..utils.folder_functions import check_folder_path, create_folder, write_error, write_to_json_file
+from ..utils.folder_functions import create_folder, write_error, write_to_json_file
 
 
 class Users:

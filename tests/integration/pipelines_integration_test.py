@@ -293,3 +293,116 @@ class TestIntegrationPipelines:
 
         assert "editPipeline" in pipeline_upgrade
         assert "addGraphPipelineVersion" in pipeline_upgrade
+
+    @staticmethod
+    def test_delete_versions(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, job_id = create_then_delete_graph_pipeline
+
+        job_node1 = JobNode(job_id)
+        job_node2 = JobNode(job_id)
+        job_node3 = JobNode(job_id)
+        job_node4 = JobNode(job_id)
+        condition_node_1 = ConditionStatusNode()
+        condition_node_1.put_at_least_one_success()
+        job_node1.add_next_node(condition_node_1)
+        condition_node_1.add_success_node(job_node2)
+        condition_node_1.add_failure_node(job_node3)
+
+        condition_node_2 = ConditionExpressionNode()
+        condition_node_2.set_expression("1 + 1 == 2")
+        condition_node_2.add_success_node(job_node4)
+
+        job_node2.add_next_node(condition_node_2)
+
+        graph_pipeline = GraphPipeline()
+        graph_pipeline.add_root_node(job_node1)
+
+        release_note = "amazing new version !"
+
+        _ = conf.saagie_api.pipelines.upgrade(pipeline_id, graph_pipeline, release_note)
+
+        result = conf.saagie_api.pipelines.delete_versions(pipeline_id=pipeline_id, versions=[1])
+
+        assert result["deletePipelineVersions"][0]["success"] is True
+
+    @staticmethod
+    def test_delete_instances(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        _, instance_id = conf.saagie_api.pipelines.run_with_callback(pipeline_id)
+
+        res = conf.saagie_api.pipelines.delete_instances(pipeline_id=pipeline_id, pipeline_instances_id=[instance_id])
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deletePipelineInstances" in res
+
+    @staticmethod
+    def test_delete_instances_by_status(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        _, instance_id = conf.saagie_api.pipelines.run_with_callback(pipeline_id=pipeline_id)
+        _, instance_id2 = conf.saagie_api.pipelines.run_with_callback(pipeline_id=pipeline_id)
+
+        res = conf.saagie_api.pipelines.delete_instances_by_selector(
+            pipeline_id=pipeline_id,
+            selector="ALL",
+            exclude_instances_id=[instance_id],
+            include_instances_id=[instance_id2],
+        )
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deletePipelineInstancesByStatusSelector" in res
+
+    @staticmethod
+    def test_delete_instances_by_date(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        _, instance_id = conf.saagie_api.pipelines.run_with_callback(pipeline_id=pipeline_id)
+        _, instance_id2 = conf.saagie_api.pipelines.run_with_callback(pipeline_id=pipeline_id)
+
+        res = conf.saagie_api.pipelines.delete_instances_by_date(
+            pipeline_id=pipeline_id,
+            date_before="2023-10-01T00:00:00+01:00",
+            exclude_instances_id=[instance_id],
+            include_instances_id=[instance_id2],
+        )
+
+        # test only the presence of the field, deletion can't be made because instances are still in the orchestrator
+        # and system can't delete them
+        assert "deletePipelineInstancesByDateSelector" in res
+
+    @staticmethod
+    def test_count_deletable_instances_by_status(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        result = conf.saagie_api.pipelines.count_deletable_instances_by_status(pipeline_id=pipeline_id)
+
+        assert len(result["countDeletablePipelineInstancesByStatus"]) == 5
+        assert "ALL" in [select["selector"] for select in result["countDeletablePipelineInstancesByStatus"]]
+
+    @staticmethod
+    def test_count_deletable_instances_by_date(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        result = conf.saagie_api.pipelines.count_deletable_instances_by_date(
+            pipeline_id=pipeline_id, date_before="2023-10-01T00:00:00+01:00"
+        )
+
+        assert "countDeletablePipelineInstancesByDate" in result
+
+    @staticmethod
+    def test_get_info_by_name(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        result = conf.saagie_api.pipelines.get_info_by_name(pipeline_name="TEST_VIA_API", project_id=conf.project_id)
+
+        assert result["graphPipelineByName"]["id"] == pipeline_id

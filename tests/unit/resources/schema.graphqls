@@ -23,11 +23,17 @@ type Query {
     skip:Int
   ): [Project!]
 
-  # Get a project's details from its UUID. Project details include the pipelines and apps contained in the project.
+  # Get a project's details from its UUID. Project details include the pipelines, jobs and apps contained in the project.
   #
   # You can only get a project's details if you have at least the viewer role in this project or in all projects.
   #
   project(id: UUID!): Project
+
+  # Get a project's details from its name. Project details include the pipelines, jobs and apps contained in the project.
+  #
+  # You can only get a project's details if you have at least the viewer role in this project or in all projects.
+  #
+  projectByName(name: String!): Project
 
   # List jobs in a given project.
   #
@@ -40,6 +46,11 @@ type Query {
   #
   # You can only get a job's details if you have at least the viewer role in the project associated to the job or in all projects.
   job(id: UUID!): Job
+
+  # Get a job's details from its projectId and alias.
+  #
+  # You can only get a job's details if you have at least the viewer role in the project associated to the job or in all projects.
+  jobByAlias(projectId: UUID!, alias: String!): Job
 
   # List webApps in a given project.
   #
@@ -209,6 +220,9 @@ type Query {
   # Count a job instance by Selector with jobId parent.
   countJobInstancesBySelector(jobId: UUID!): [JobInstanceSelectorCount!]
 
+  # Count job instances with startTime older than given date with jobId parent.
+  countJobInstancesByDate(jobId: UUID!, beforeAt: DateTime!): Int
+
   # Get a condition instance's details by providing its UUID.
   #
   # You can only get a condition instance if you have at least the viewer role in the project associated to the condition instance or in all projects.
@@ -256,6 +270,14 @@ type Query {
   # This endpoint allows to retrieve a pipeline with versions in linear or graph format.
   graphPipeline(id: UUID!): Pipeline
 
+
+  # Get a pipeline's details from its projectId and name.
+  #
+  # You can only get a pipeline's details if you have at least the viewer role in the project associated to the pipeline or in all projects.
+  #
+  # This endpoint allows to retrieve a pipeline with versions in linear or graph format.
+  graphPipelineByName(projectId: UUID!, name: String!): Pipeline
+
   # List users by realm.
   usersByRealm: [UserEmail]
 
@@ -263,6 +285,12 @@ type Query {
   #
   # You can only get pipeline version if you have at least the viewer role in the project associated to the pipeline or in all projects.
   pipelineVersion(pipelineId: UUID!, number: Int!): PipelineVersion
+
+  # Count pipeline instances by status selector with pipelineId parent.
+  countDeletablePipelineInstancesByStatus(pipelineId: UUID!): [PipelineInstanceSelectorCount!]
+
+  # Count pipeline instances with startTime older than given date with pipelineId parent.
+  countDeletablePipelineInstancesByDate(pipelineId: UUID!, beforeAt: DateTime!): Int
 
   # Get a specific pipeline instance's details.
   #
@@ -316,12 +344,30 @@ type Mutation {
 
   # Delete job instances by selector.
   #
-  # You can remove only job instances that are children of jobId,
-  # and only a job instance not associated to a pipeline instance
+  # You can remove only job instances that are children of jobId, and only job instances not associated to a pipeline instance
   # and you can only run the delete if you have at least the editor role in the project associated.
+  # - excludeJobInstanceIds corresponds to the instances you wish to remove from the status filter.
+  # - includeJobInstanceIds corresponds to the instances you wish to add to the status filter, takes precedence over exclude.
+  # It return the number of deleted job instances.
+  deleteJobInstancesBySelector(
+    jobId: UUID!,
+    selector: JobInstanceSelector!,
+    # Argument is deprecated : it is not implemented and may be removed or changed in future releases. use excludeJobInstanceIds instead.
+    minusJobInstanceIds: [UUID!],
+    excludeJobInstanceIds: [UUID!],
+    # Argument is deprecated : it is not implemented and may be removed or changed in future releases. use includeJobInstanceIds instead.
+    moreJobInstanceIds: [UUID!],
+    includeJobInstanceIds: [UUID!]
+  ): Int!
+
+  # Delete job instances with startTime older than given date.
   #
-  # return the number of deleted job instances
-  deleteJobInstancesBySelector(jobId: UUID!, selector: JobInstanceSelector!, minusJobInstanceIds: [UUID!], moreJobInstanceIds: [UUID!]): Int!
+  # You can remove only job instances that are children of jobId, and only job instances not associated to a pipeline instance
+  # and you can only run the delete if you have at least the editor role in the project associated.
+  # - excludeJobInstanceIds corresponds to the instances you wish to remove from the date filter.
+  # - includeJobInstanceIds corresponds to the instances you wish to add to the date filter, takes precedence over exclude.
+  # It return the number of deleted job instances.
+  deleteJobInstancesByDate(jobId: UUID!, beforeAt: DateTime!, excludeJobInstanceIds: [UUID!], includeJobInstanceIds: [UUID!]): Int!
 
   # Create a project.
   #
@@ -417,6 +463,14 @@ type Mutation {
   # You can only edit a job if you have at least the editor role in the project associated to the job or in all projects.
   editJob(job: JobEditionInput!): Job!
 
+  # Edit a job description by AI.
+  #
+  # The job description will be edited and replaced by a text generated by a generative AI based on the job's source code,
+  # which will be sent to a service external to Saagie.
+  #
+  # You can only edit a job if you have at least the editor role in the project associated to the job or in all projects.
+  editJobWithAiGeneratedDescription(jobId: UUID!): Job!
+
   # Add a job version.
   #
   # **Fields validation:**
@@ -502,7 +556,18 @@ type Mutation {
   #   must not be in migration state, streaming or scheduled.
   # - target project: must exist, must not be the same as the source project, must be ready.
   # - category: must exist in the target project and have the appropriate job technologies.
-  moveJobs(jobIds: [UUID!]!, projectId: UUID, category: String): Boolean
+  # This deprecated endpoint allows to async move jobs. Use the endpoint `moveJob` instead.
+  moveJobs(jobIds: [UUID!]!, projectId: UUID!, category: String): Boolean @deprecated(reason: "Use moveJob")
+
+  # Move job from a project to another. The target can be in another platform.
+  #
+  # You can only move job if you have at least the editor role in both the source and target projects.
+  #
+  # **Fields validation:**
+  # - jobId: must exist, must be deletable (not in pipeline), must not be in migration state, streaming or scheduled.
+  # - targetPlatformId: must exist, must not be the same as the source project, must be ready.
+  # - targetProjectId: must not be the same as the source project, must exist and have the appropriate technology in the same category or target category if it is given.
+  moveJob(jobId: UUID!, targetPlatformId: Int!, targetProjectId: UUID!, targetCategory: String): UUID!
 
   # Delete a job.
   #
@@ -559,6 +624,44 @@ type Mutation {
   #
   # You can set/unset a pipeline version as major if you have at least the editor role in the project associated to the pipeline or in all projects.
   setMajorPipelineVersion(pipelineId: UUID!, versionNumber: Int!, isMajor: Boolean!): PipelineVersion
+
+  # Delete pipeline instances.
+  # All job instances (and their logs) associated with this pipelines instances will be deleted.
+  #
+  # You can remove only pipeline instances that are children of pipelineId, and only a pipeline instance if is terminated.
+  # You can only delete if you have at least the editor role in the project associated.
+  deletePipelineInstances(pipelineId: UUID!, pipelineInstanceIds: [UUID!]): [DeletionResultItem!]!
+
+  # Delete pipeline versions.
+  #
+  # You can remove only a pipeline version that are children of pipelineId, and only a pipeline version with terminated instances.
+  # You can only delete if you have at least the editor role in the project associated.
+  deletePipelineVersions(pipelineId: UUID!, pipelineVersionNumbers: [Int!]!): [DeletionVersionResultItem!]!
+
+  # Delete pipeline instances by status selector.
+  # All job instances (and their logs) associated with this pipelines instances will be deleted.
+  #
+  # You can remove only pipeline instances that are children of pipelineId
+  # and you can only run the delete if you have at least the editor role in the project associated.
+  # - excludePipelineInstanceIds corresponds to the instances you wish to remove from the status filter.
+  # - includePipelineInstanceIds corresponds to the instances you wish to add to the status filter, takes precedence over exclude.
+  # It return the number of deleted pipeline instances.
+  deletePipelineInstancesByStatusSelector(
+    pipelineId: UUID!,
+    selector: PipelineInstanceStatusSelector!,
+    excludePipelineInstanceIds: [UUID!],
+    includePipelineInstanceIds: [UUID!]
+  ): Int!
+
+  # Delete pipeline instances with startTime older than given date.
+  # All job instances (and their logs) associated with this pipelines instances will be deleted.
+  #
+  # You can remove only pipeline instances that are children of pipelineId
+  # and you can only run the delete if you have at least the editor role in the project associated.
+  # - excludePipelineInstanceIds corresponds to the instances you wish to remove from the date filter.
+  # - includePipelineInstanceIds corresponds to the instances you wish to add to the date filter, takes precedence over exclude.
+  # It return the number of deleted job instances.
+  deletePipelineInstancesByDateSelector(pipelineId: UUID!, beforeAt: DateTime!, excludePipelineInstanceIds: [UUID!], includePipelineInstanceIds: [UUID!]): Int!
 
   # Stop a pipeline instance and get a pipeline instance in return.
   #
@@ -956,6 +1059,7 @@ type PlatformCounts {
 
 type Platform {
   id: Int!
+  name: String
   counts: PlatformCounts!
 }
 
@@ -1011,6 +1115,7 @@ type Project {
   creator: String!
   description: String
   jobsCount: Int!
+  jobs(limit: Int): [Job!]!
   status: ProjectStatus!
   apps: [App!]!
   # Volumes associated to this project
@@ -1033,12 +1138,15 @@ type Volume {
 
 type Job {
   id: UUID!
+  project: Project!
   name: String!
   # `alias` is the short name of this job which can be used in your other jobs (directly in your code) to reference it.
   #
   # Only alphanumeric and underscore characters are allowed.
   alias: String
   description: String
+  aiDescriptionVersionNumber: Int
+  aiDescriptionState: JobAiGeneratedDescriptionState
   countJobInstance: Int
   # Attribute checkInPipelineInstance is now deprecated
   instances(limit: Int, skip: Int, checkInPipelineInstance: Boolean, lastExecution: Boolean): [JobInstance!]
@@ -1053,13 +1161,26 @@ type Job {
   isStreaming: Boolean!
   creationDate: DateTime!
   migrationStatus: MigrationStatus
+  migrationPlatformId: Int
   migrationProjectId: UUID
+  migrationJobId: UUID
+  originalJobId: UUID
   isDeletable: Boolean!
+  deletableState: JobDeletableState
   pipelines(isCurrent: Boolean): [Pipeline!]
   graphPipelines(isCurrent: Boolean): [Pipeline!]
   doesUseGPU: Boolean
   resources: JobResourceRequestLimit
-  originalJobId: UUID
+}
+
+type JobDeletableState {
+  deletable: Boolean!
+  reasons: [JobDeletableStateReason!]
+}
+
+type JobAiGeneratedDescriptionState {
+  enabled: Boolean!
+  reasons: [JobAiGeneratedDescriptionStateReason!]
 }
 
 type App {
@@ -1290,6 +1411,7 @@ type JobInstance {
 }
 
 type InstanceHistory {
+  statuses: [InstanceStatusDetails]!
   currentStatus: InstanceStatusDetails!
 }
 
@@ -1297,6 +1419,7 @@ type InstanceStatusDetails {
   status: InstanceStatus!
   details: String
   reason: StatusReason
+  recordAt: DateTime!
 }
 
 type ExecutionVariablesInput {
@@ -1517,6 +1640,12 @@ type PipelineVersion {
   creator: String!
   isCurrent: Boolean!
   isMajor: Boolean!
+  deletableState: PipelineVersionDeletableState
+}
+
+type PipelineVersionDeletableState {
+  deletable: Boolean!
+  reasons: [PipelineVersionDeletableStateReason!]
 }
 
 # Directed Acyclic Graph (DAG) of nodes of jobs and conditions of a pipeline in graph format
@@ -1595,6 +1724,12 @@ type PipelineInstance {
   pipelineName: String
   runTrigger: Trigger
   stopTrigger: AuthoredTrigger
+  deletableState: PipelineInstanceDeletableState
+}
+
+type PipelineInstanceDeletableState {
+  deletable: Boolean!
+  reasons: [PipelineInstanceDeletableStateReason!]
 }
 
 type ExecutionVariable {
@@ -1756,6 +1891,11 @@ type JobInstanceSelectorCount {
   count: Int!
 }
 
+type PipelineInstanceSelectorCount {
+  selector: PipelineInstanceStatusSelector!
+  count: Int!
+}
+
 type DeletionResultItem {
   id: UUID
   success: Boolean
@@ -1876,3 +2016,41 @@ enum JobVersionDeletableStateReason {
   VERSION_LINKED_TO_PIPELINE_INSTANCE
   VERSION_INSTANCES_NOT_YET_CLEANED
 }
+
+enum JobDeletableStateReason {
+  HAS_UNFINISHED_INSTANCES
+  LINKED_TO_PIPELINE
+  INSTANCES_NOT_YET_CLEANED
+}
+
+enum JobAiGeneratedDescriptionStateReason {
+  FEATURE_DISABLED
+  FEATURE_DISABLED_ON_PLATFORM
+  TECHNOLOGY_CONTEXT_DISABLED
+  ALREADY_GENERATED
+  SOURCE_CODE_NOT_READABLE
+  CONTEXT_NOT_AVAILABLE
+}
+
+enum PipelineInstanceStatusSelector {
+  ALL,
+  SUCCEEDED,
+  FAILED,
+  STOPPED,
+  UNKNOWN
+}
+
+enum PipelineInstanceDeletableStateReason {
+  INSTANCE_NOT_TERMINATED,
+  INSTANCE_DOES_NOT_MATCH_PIPELINE,
+  INSTANCE_NOT_YET_CLEANED,
+  JOB_INSTANCES_NOT_TERMINATED,
+  JOB_INSTANCES_NOT_IN_PIPELINE
+}
+
+enum PipelineVersionDeletableStateReason {
+  CURRENT_VERSION
+  VERSION_HAS_UNFINISHED_INSTANCES
+  VERSION_INSTANCES_NOT_YET_CLEANED
+}
+

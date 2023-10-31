@@ -2,9 +2,11 @@ import json
 import logging
 import os
 import time
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
+import deprecation
 import requests
 from gql import gql
 
@@ -418,6 +420,146 @@ class Jobs:
 
         return self.saagie_api.client.execute(
             query=gql(GQL_GET_JOB_INFO), variable_values=params, pprint_result=pprint_result
+        )
+
+    def get_info_by_alias(
+        self,
+        project_id: str,
+        job_alias: str,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
+        """Get job's info
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of the project of your job
+        job_alias : str
+            Alias of your job
+        instances_limit : int, optional
+            Maximum limit of instances to fetch per job. Fetch from most recent
+            to oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per job. Fetch from most recent
+            to oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each job
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
+
+        Returns
+        -------
+        dict
+            Dict of job's info
+
+        Examples
+        --------
+        >>> saagieapi.jobs.get_info_by_alias(
+        ...     project_id="7c199d29-676a-483f-b28b-112ec71fcf81",
+        ...     job_alias="Python_test_job"
+        ...     instances_limit=2
+        ... )
+        {
+            "jobByAlias": {
+                "id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d",
+                "name": "Python test job",
+                "description": "Amazing python job",
+                "alerting": None,
+                "countJobInstance": 5,
+                "instances": [
+                    {
+                        "id": "61f6175a-fd38-4fac-9fa9-a7b63554f14e",
+                        "status": "SUCCEEDED",
+                        "history": {
+                            "currentStatus": {
+                                "status": "SUCCEEDED",
+                                "details": None,
+                                "reason": None
+                            }
+                        },
+                        "startTime": "2022-04-19T13:46:40.045Z",
+                        "endTime": "2022-04-19T13:46:47.708Z",
+                        "version": {
+                            "number": 1,
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "isMajor": False,
+                            "doesUseGPU": False
+                        }
+                    },
+                    {
+                        "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
+                        "status": "SUCCEEDED",
+                        "history": {
+                            "currentStatus": {
+                                "status": "SUCCEEDED",
+                                "details": None,
+                                "reason": None
+                            }
+                        },
+                        "startTime": "2022-04-19T13:45:49.783Z",
+                        "endTime": "2022-04-19T13:45:57.388Z",
+                        "version":{
+                            "number": 1,
+                            "releaseNote": "",
+                            "runtimeVersion": "3.7",
+                            "commandLine": "python {file} arg1 arg2",
+                            "isMajor": False,
+                            "doesUseGPU": False
+                        }
+                    }
+                ],
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py"
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False
+                    }
+                ],
+                "category": "Extraction",
+                "technology": {
+                    "id": "0db6d0a7-ad4b-45cd-8082-913a192daa25"
+                },
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isStreaming": False,
+                "creationDate": "2022-04-26T08:16:20.681Z",
+                "migrationStatus": None,
+                "migrationProjectId": None,
+                "isDeletable": True,
+                "graphPipelines": [],
+                "doesUseGPU": False,
+                "resources": None
+            }
+        }
+        """  # pylint: disable=line-too-long
+        params = {
+            "projectId": project_id,
+            "alias": job_alias,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_JOB_INFO_BY_ALIAS), variable_values=params, pprint_result=pprint_result
         )
 
     def create(
@@ -1531,10 +1673,65 @@ class Jobs:
         params = {
             "jobId": job_id,
             "selector": selector,
-            "minusInstancesId": [] if exclude_instances_id is None else exclude_instances_id,
-            "moreInstancesId": [] if include_instances_id is None else include_instances_id,
+            "excludeJobInstanceId": exclude_instances_id or [],
+            "includeJobInstanceId": include_instances_id or [],
         }
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR), variable_values=params)
+        logging.info("✅ Instances of job [%s] successfully deleted", job_id)
+        return result
+
+    def delete_instances_by_date(
+        self, job_id: str, date_before: str, exclude_instances_id: List = None, include_instances_id: List = None
+    ):
+        """Delete given job's instances by date
+        NB: You can only delete an instance not associated to a pipeline instance.
+        Also you can only delete instances if they aren't processing by the orchestrator
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        date_before : str
+            Instances before this date will be deleted. The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'
+        exclude_instances_id : [str]
+            List of UUID of instances of your job to exclude from the deletion
+        include_instances_id: [str]
+            List of UUID of instances of your job to include from the deletion
+
+        Returns
+        -------
+        Dict
+            Return the number of instances deleted
+
+        Examples
+        --------
+        >>> saagie_api.jobs.delete_instances_by_date(
+        ...     job_id=job_id,
+        ...     date_before="2023-06-01T00:00:00+01:00",
+        ...     exclude_instances_id=["478d48d4-1609-4bf0-883d-097d43709aa8"],
+        ...     include_instances_id=["47d3df2c-5a38-4a5e-a49e-5405ad8f1699"]
+        ... )
+        {
+            'deleteJobInstancesByDate': 1
+        }
+        """
+        # need to check the date is in this format : 2023-02-01T00:00:00+01:00
+        # if not, it will raise an error and stop the call
+        try:
+            datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError as exception:
+            raise ValueError(
+                "The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'. \
+                Please change your date_before parameter"
+            ) from exception
+
+        params = {
+            "jobId": job_id,
+            "beforeAt": date_before,
+            "excludeJobInstanceId": exclude_instances_id or [],
+            "includeJobInstanceId": include_instances_id or [],
+        }
+        result = self.saagie_api.client.execute(query=gql(GQL_DELETE_JOB_INSTANCES_BY_DATE), variable_values=params)
         logging.info("✅ Instances of job [%s] successfully deleted", job_id)
         return result
 
@@ -1598,8 +1795,13 @@ class Jobs:
         logging.info("✅ Job [%s] successfully duplicated", job_id)
         return result
 
+    @deprecation.deprecated(
+        details="This function is deprecated and will be removed in a future version. "
+        "Please use :func:`count_deletable_instances_by_status()` instead.",
+        deprecated_in="2.9.0",
+    )
     def count_instances_by_status(self, job_id):
-        """Count job instances by status
+        """Count deletable job instances by status
 
         Parameters
         ----------
@@ -1626,4 +1828,139 @@ class Jobs:
         """
         return self.saagie_api.client.execute(
             query=gql(GQL_COUNT_INSTANCES_BY_SELECTOR), variable_values={"jobId": job_id}
+        )
+
+    def count_deletable_instances_by_status(self, job_id):
+        """Count deletable job instances by status
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of number of job instances by status
+
+        Examples
+        --------
+        >>> saagie_api.jobs.count_deletable_instances_by_status(job_id=job_id)
+        {
+            'countJobInstancesBySelector': [
+                {'selector': 'ALL', 'count': 0},
+                {'selector': 'SUCCEEDED', 'count': 0},
+                {'selector': 'FAILED', 'count': 0},
+                {'selector': 'STOPPED', 'count': 0},
+                {'selector': 'UNKNOWN', 'count': 0}
+            ]
+        }
+        """
+        return self.saagie_api.client.execute(
+            query=gql(GQL_COUNT_INSTANCES_BY_SELECTOR), variable_values={"jobId": job_id}
+        )
+
+    def count_deletable_instances_by_date(self, job_id: str, date_before: str):
+        """Count deletable job instances by date
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        date_before : str
+            Instances before this date will be counted. The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'
+
+        Returns
+        -------
+        dict
+            Dict of number of job instances before the given date
+
+        Examples
+        --------
+        >>> saagie_api.jobs.count_instances_by_date(job_id=job_id, date_before="2023-06-01T00:00:00+01:00")
+        {
+            'countJobInstancesByDate': 3
+        }
+        """
+        # need to check the date is in this format : 2023-02-01T00:00:00+01:00
+        # if not, it will raise an error and stop the call
+        try:
+            datetime.strptime(date_before, "%Y-%m-%dT%H:%M:%S%z")
+        except ValueError as exception:
+            raise ValueError(
+                "The date must be in this format : '%Y-%m-%dT%H:%M:%S%z'. \
+                Please change your date_before parameter"
+            ) from exception
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_COUNT_INSTANCES_BY_DATE), variable_values={"jobId": job_id, "beforeAt": date_before}
+        )
+
+    def move_job(self, job_id: str, target_platform_id: int, target_project_id: str):
+        """Move a job to another project in the same platform or another one
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+        target_platform_id : int
+            Id of the platform to move the job to
+        target_project_id : str
+            UUID of the project to move the job to
+
+        Returns
+        -------
+        dict
+            Dict of the moved job with its new id
+
+        Examples
+        --------
+        >>> saagie_api.jobs.move_job(job_id=job_id, target_platform_id=1, target_project_id=project_id)
+        {
+            'moveJob': '29cf1b80-6b9c-47bc-a06c-c20897257097',
+        }
+        """
+        return self.saagie_api.client.execute(
+            query=gql(GQL_MOVE_JOB),
+            variable_values={
+                "jobId": job_id,
+                "targetPlatformId": target_platform_id,
+                "targetProjectId": target_project_id,
+            },
+        )
+
+    def generate_description_by_AI(self, job_id: str):
+        """Generate a description for a job using AI.
+        Be careful, by calling this function the code contained in the job package will be sent to OpenAI
+        and thus will not be secured anymore by Saagie DataOps Platform.
+        Otherwise, the function returns an error if the description is already the one generated by AI.
+
+        Parameters
+        ----------
+        job_id : str
+            UUID of your job (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of the generated description
+
+        Examples
+        --------
+        >>> saagie_api.jobs.generate_description_by_AI(job_id=job_id)
+        {
+            'editJobWithAiGeneratedDescription': {
+                'id': 'bfa25e4a-1796-4ebb-8c3d-138f74146973',
+                'description': 'The purpose of this code is to display the message "Hello World" on the screen.',
+                'aiDescriptionVersionNumber': 1
+            }
+        }
+        """
+        # if executed a second time and the description is already the one generated by AI,
+        # it will return an error and I don't know how to handle it
+        # example : TransportQueryError: {'message': 'Job not valid', 'path': ['editJobWithAiGeneratedDescription'],
+        # 'extensions': {'job.description': 'Job description is already generated', 'classification':'ValidationError'}}
+
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GENERATE_JOB_DESCRIPTION), variable_values={"jobId": job_id}
         )
