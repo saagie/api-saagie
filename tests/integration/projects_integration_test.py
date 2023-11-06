@@ -1,5 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
 import os
+import time
 from datetime import datetime
 from typing import List
 
@@ -78,17 +79,35 @@ class TestIntegrationProject:
     def test_create_project_without_group_and_role(create_global_project):
         conf = create_global_project
         project_name = f"Integration_test_Saagie_API {datetime.timestamp(datetime.now())}"
-        description = "For integration test"
-        result = conf.saagie_api.projects.create(name=project_name, description=description)
+        description = "For integration test - group and role"
 
-        conf.saagie_api.projects.delete(result["createProject"]["id"])
+        result = conf.saagie_api.projects.create(name=project_name, description=description)
+        project_id = result["createProject"]["id"]
+
+        # Waiting for the project to be ready
+        project_status = conf.saagie_api.projects.get_info(project_id=project_id)["project"]["status"]
+        waiting_time = 0
+
+        # Safety: wait for 5min max for project initialisation
+        project_creation_timeout = 400
+        while project_status != "READY" and waiting_time <= project_creation_timeout:
+            time.sleep(10)
+            project_status = conf.saagie_api.projects.get_info(project_id)["project"]["status"]
+            waiting_time += 10
+        if project_status != "READY":
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds"
+            )
+
+        conf.saagie_api.projects.delete(project_id)
         assert project_name == result["createProject"]["name"]
 
     @staticmethod
     def test_create_project_with_group_and_no_role(create_global_project):
         conf = create_global_project
         project_name = f"Integration_test_Saagie_API {datetime.timestamp(datetime.now())}"
-        description = "For integration test"
+        description = "For integration test - group and no role"
 
         with pytest.raises(RuntimeError) as rte:
             conf.saagie_api.projects.create(name=project_name, description=description, group=conf.group)
@@ -96,3 +115,26 @@ class TestIntegrationProject:
             str(rte.value) == "❌ Too few arguments, specify either a group and role, "
             "or multiple groups and roles with groups_and_roles"
         )
+
+    @staticmethod
+    def test_get_project_info(create_global_project):
+        conf = create_global_project
+        expected_project = {
+            "id": conf.project_id,
+            "name": conf.project_name,
+            "description": "For integration test",
+        }
+        output_project = conf.saagie_api.projects.get_info(conf.project_id)
+        assert expected_project["name"] == output_project["project"]["name"]
+
+    @staticmethod
+    def test_get_project_info_by_name(create_global_project):
+        conf = create_global_project
+        expected_project = {
+            "id": conf.project_id,
+            "name": conf.project_name,
+            "description": "For integration test",
+        }
+        output_project = conf.saagie_api.projects.get_info_by_name(conf.project_name)
+        assert expected_project["id"] == output_project["projectByName"]["id"]
+        assert expected_project["name"] == output_project["projectByName"]["name"]

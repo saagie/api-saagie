@@ -22,7 +22,20 @@ query projectQuery($id: UUID!) {
         status
     }
 }
-  """
+"""
+
+GQL_GET_PROJECT_INFO_BY_NAME = """
+query projectByNameQuery($name: String!) {
+    projectByName(name: $name){
+        id
+        name
+        creator
+        description
+        jobsCount
+        status
+    }
+}
+"""
 
 GQL_GET_PROJECT_JOBS_TECHNOLOGIES = """
 query projectQuery($id: UUID!) {

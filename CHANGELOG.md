@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v2.9.1 (2023-10-31)
+### :bug:
+* :bug: Correct version number compatibility ([#197](https://github.com/saagie/api-saagie/issues/197)) ([`4f40054`](https://github.com/saagie/api-saagie/commit/4f400549cb1b2aab2a6e0a0a77413825d02241aa))
+
+## v2.9.0 (2023-10-31)
+### :sparkles:
+* :sparkles: Feat/product 2023 04 ([#196](https://github.com/saagie/api-saagie/issues/196)) ([`de5545a`](https://github.com/saagie/api-saagie/commit/de5545a4f9b8fd03ac30fe8b827ff6fd9b3ef545))
+
 ## v2.8.2 (2023-10-02)
 ### :bug:
 * :bug: fix creation of job ([#195](https://github.com/saagie/api-saagie/issues/195)) ([`5b89206`](https://github.com/saagie/api-saagie/commit/5b892068d5422998ccc962bc8d0813a1f0676b5b))

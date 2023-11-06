@@ -97,6 +97,9 @@ class TestJobs:
     def test_gql_get_info_job(self):
         self.client.validate(gql(GQL_GET_JOB_INFO))
 
+    def test_get_info_job_by_alias(self):
+        self.client.validate(gql(GQL_GET_JOB_INFO_BY_ALIAS))
+
     def test_get_job_instance(self):
         self.client.validate(gql(GQL_GET_JOB_INSTANCE))
 
@@ -175,6 +178,9 @@ class TestJobs:
     def test_delete_instances_by_selector(self):
         self.client.validate(gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR))
 
+    def test_delete_instances_by_date(self):
+        self.client.validate(gql(GQL_DELETE_JOB_INSTANCES_BY_DATE))
+
     def test_delete_versions(self):
         self.client.validate(gql(GQL_DELETE_JOB_VERSION))
 
@@ -183,3 +189,12 @@ class TestJobs:
 
     def test_count_instances_by_status(self):
         self.client.validate(gql(GQL_COUNT_INSTANCES_BY_SELECTOR))
+
+    def test_count_instances_by_date(self):
+        self.client.validate(gql(GQL_COUNT_INSTANCES_BY_DATE))
+
+    def test_move_job(self):
+        self.client.validate(gql(GQL_MOVE_JOB))
+
+    def test_generate_description_by_ai(self):
+        self.client.validate(gql(GQL_GENERATE_JOB_DESCRIPTION))
