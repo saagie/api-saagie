@@ -27,6 +27,7 @@ GQL_GET_PLATFORM_INFO = """
 {
     platform{
         id
+        name
         counts{
             projects
             jobs

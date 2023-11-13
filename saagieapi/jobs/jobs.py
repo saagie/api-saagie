@@ -1877,7 +1877,7 @@ class Jobs:
 
         Examples
         --------
-        >>> saagie_api.jobs.count_instances_by_date(job_id=job_id, date_before="2023-06-01T00:00:00+01:00")
+        >>> saagie_api.jobs.count_deletable_instances_by_date(job_id=job_id, date_before="2023-06-01T00:00:00+01:00")
         {
             'countJobInstancesByDate': 3
         }
@@ -1929,7 +1929,7 @@ class Jobs:
             },
         )
 
-    def generate_description_by_AI(self, job_id: str):
+    def generate_description_by_ai(self, job_id: str):
         """Generate a description for a job using AI.
         Be careful, by calling this function the code contained in the job package will be sent to OpenAI
         and thus will not be secured anymore by Saagie DataOps Platform.
@@ -1947,7 +1947,7 @@ class Jobs:
 
         Examples
         --------
-        >>> saagie_api.jobs.generate_description_by_AI(job_id=job_id)
+        >>> saagie_api.jobs.generate_description_by_ai(job_id=job_id)
         {
             'editJobWithAiGeneratedDescription': {
                 'id': 'bfa25e4a-1796-4ebb-8c3d-138f74146973',
