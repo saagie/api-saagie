@@ -160,11 +160,12 @@ Your Saagie projects homepage has the following structure
 
 
 
-Contents
---------
+.. Contents
+.. --------
 
 .. toctree::
     :titlesonly:
+    :hidden:
 
     Platform/index
     Projects/index

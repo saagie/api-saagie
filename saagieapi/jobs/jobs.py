@@ -1877,7 +1877,7 @@ class Jobs:
 
         Examples
         --------
-        >>> saagie_api.jobs.count_instances_by_date(job_id=job_id, date_before="2023-06-01T00:00:00+01:00")
+        >>> saagie_api.jobs.count_deletable_instances_by_date(job_id=job_id, date_before="2023-06-01T00:00:00+01:00")
         {
             'countJobInstancesByDate': 3
         }
