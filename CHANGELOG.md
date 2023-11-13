@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.9.2 (2023-11-13)
+### :bug:
+* :bug: Feat/change doc theme ([#202](https://github.com/saagie/api-saagie/issues/202)) ([`d646b44`](https://github.com/saagie/api-saagie/commit/d646b441c0826dd700b9e4453b8fc66ed2c0ed7b))
+
 ## v2.9.1 (2023-10-31)
 ### :bug:
 * :bug: Correct version number compatibility ([#197](https://github.com/saagie/api-saagie/issues/197)) ([`4f40054`](https://github.com/saagie/api-saagie/commit/4f400549cb1b2aab2a6e0a0a77413825d02241aa))
