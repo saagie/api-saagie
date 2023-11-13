@@ -447,7 +447,7 @@ class TestIntegrationJobs:
         conf = create_global_project
         job_id = create_then_delete_job
 
-        result = conf.saagie_api.jobs.generate_description_by_AI(job_id=job_id)
+        result = conf.saagie_api.jobs.generate_description_by_ai(job_id=job_id)
 
         assert "editJobWithAiGeneratedDescription" in result
         assert result["editJobWithAiGeneratedDescription"]["id"] == job_id
