@@ -1778,3 +1778,32 @@ class Pipelines:
         result = self.saagie_api.client.execute(query=gql(GQL_DELETE_PIPELINE_INSTANCE_BY_DATE), variable_values=params)
         logging.info("✅ Instances of pipeline [%s] successfully deleted", pipeline_id)
         return result
+
+    def duplicate(self, pipeline_id):
+        """Duplicate a given pipeline
+
+        Parameters
+        ----------
+        pipeline_id : str
+            UUID of your pipeline (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of duplicate pipeline with its id and name
+
+        Examples
+        --------
+        >>> saagie_api.pipelines.duplicate(pipeline_id=pipeline_id)
+        {
+            'duplicatePipeline': {
+                'id': '29cf1b80-6b9c-47bc-a06c-c20897257097',
+                'name': 'Copy of my_job 2'
+            }
+        }
+        """
+        result = self.saagie_api.client.execute(
+            query=gql(GQL_DUPLICATE_PIPELINE), variable_values={"pipelineId": pipeline_id}
+        )
+        logging.info("✅ Pipeline [%s] successfully duplicated", pipeline_id)
+        return result

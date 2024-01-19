@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 import pytest
@@ -166,3 +167,56 @@ class TestIntegrationStorages:
         with pytest.raises(ValueError) as vale:
             conf.saagie_api.storages.unlink(storage_id, conf.project_id)
         assert str(vale.value).startswith(f"❌ Storage '{storage_id}' is currently used by an App. Unlink impossible.")
+
+    @staticmethod
+    def test_move_storage(create_global_project, create_then_delete_storage):
+        conf = create_global_project
+
+        storage = create_then_delete_storage
+
+        res_proj = conf.saagie_api.projects.create(
+            name="test_move_storage",
+            group=conf.group,
+            role="Manager",
+            jobs_technologies_allowed={"saagie": ["python", "spark", "bash"]},
+            description="test_move_storage",
+        )
+
+        project_id = res_proj["createProject"]["id"]
+
+        # Waiting for the project to be ready
+        project_status = conf.saagie_api.projects.get_info(project_id=project_id)["project"]["status"]
+        waiting_time = 0
+
+        # Safety: wait for 5min max for project initialisation
+        project_creation_timeout = 400
+        while project_status != "READY" and waiting_time <= project_creation_timeout:
+            time.sleep(10)
+            project_status = conf.saagie_api.projects.get_info(project_id)["project"]["status"]
+            waiting_time += 10
+        if project_status != "READY":
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds"
+            )
+
+        result = conf.saagie_api.storages.move(
+            storage_id=storage["id"],
+            target_platform_id=1,
+            target_project_id=conf.project_id,
+        )
+
+        conf.saagie_api.projects.delete(project_id)
+
+        assert result == {"moveVolume": storage["id"]}
+
+    @staticmethod
+    def test_get_storage_info(create_then_delete_storage, create_global_project):
+        conf = create_global_project
+
+        storage = create_then_delete_storage
+
+        result = conf.saagie_api.storages.get(storage_id=storage["id"])
+        del result["volume"]["creationDate"]
+
+        assert storage == result
