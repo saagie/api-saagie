@@ -32,6 +32,7 @@ query projectQuery($id: UUID!, $minimal: Boolean!) {
         volumes {
             id
             name
+            projectId
             ...volumeInformation @skip(if: $minimal)
         }
     }
@@ -43,6 +44,7 @@ mutation createVolumeMutation($volume: VolumeInput!) {
     createVolume(volume: $volume) {
         id
         name
+        projectId
         description
         size
         creator

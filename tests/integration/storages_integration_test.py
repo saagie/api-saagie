@@ -169,10 +169,10 @@ class TestIntegrationStorages:
         assert str(vale.value).startswith(f"❌ Storage '{storage_id}' is currently used by an App. Unlink impossible.")
 
     @staticmethod
-    def test_move_storage(create_global_project, create_then_delete_storage):
+    def test_move_storage(create_global_project, create_storage):
         conf = create_global_project
 
-        storage = create_then_delete_storage
+        storage = create_storage
 
         res_proj = conf.saagie_api.projects.create(
             name="test_move_storage",
@@ -203,12 +203,15 @@ class TestIntegrationStorages:
         result = conf.saagie_api.storages.move(
             storage_id=storage["id"],
             target_platform_id=1,
-            target_project_id=conf.project_id,
+            target_project_id=project_id,
         )
+
+        res = conf.saagie_api.storages.get(storage_id=result["moveVolume"])
 
         conf.saagie_api.projects.delete(project_id)
 
-        assert result == {"moveVolume": storage["id"]}
+        # assert result == {"moveVolume": storage["id"]}
+        assert res["volume"]["name"] == storage["name"]
 
     @staticmethod
     def test_get_storage_info(create_then_delete_storage, create_global_project):
@@ -219,4 +222,4 @@ class TestIntegrationStorages:
         result = conf.saagie_api.storages.get(storage_id=storage["id"])
         del result["volume"]["creationDate"]
 
-        assert storage == result
+        assert storage == result["volume"]

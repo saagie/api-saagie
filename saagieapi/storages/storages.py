@@ -402,7 +402,7 @@ class Storages:
             }
         }
         """
-        storage_info = self.get_info(project_id, storage_id)
+        storage_info = self.get(storage_id=storage_id)["volume"]
         if storage_info["linkedApp"] is not None and "currentVersion" in storage_info["linkedApp"]:
             for volume in storage_info["linkedApp"]["currentVersion"]["volumesWithPath"]:
                 if volume["volume"]["id"] == storage_id:
@@ -445,7 +445,7 @@ class Storages:
             }
         }
         """
-        storage_info = self.get_info(project_id, storage_id)
+        storage_info = self.get(storage_id=storage_id)["volume"]
         if storage_info["linkedApp"] is not None and "currentVersion" in storage_info["linkedApp"].keys():
             for volume in storage_info["linkedApp"]["currentVersion"]["volumesWithPath"]:
                 if volume["volume"]["id"] == storage_id:
