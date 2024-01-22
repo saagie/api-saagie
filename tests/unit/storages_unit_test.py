@@ -29,3 +29,11 @@ class TestStorages:
     def test_unlink_storage(self):
         query = gql(GQL_UNLINK_STORAGE)
         self.client.validate(query)
+
+    def test_get_storage(self):
+        query = gql(GQL_GET_STORAGE_INFO)
+        self.client.validate(query)
+
+    def test_move_storage(self):
+        query = gql(GQL_MOVE_STORAGE)
+        self.client.validate(query)

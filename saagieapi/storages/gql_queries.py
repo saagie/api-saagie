@@ -32,6 +32,7 @@ query projectQuery($id: UUID!, $minimal: Boolean!) {
         volumes {
             id
             name
+            projectId
             ...volumeInformation @skip(if: $minimal)
         }
     }
@@ -43,6 +44,7 @@ mutation createVolumeMutation($volume: VolumeInput!) {
     createVolume(volume: $volume) {
         id
         name
+        projectId
         description
         size
         creator
@@ -76,6 +78,46 @@ mutation unlinkVolumeMutation($id: UUID!) {
     unlinkVolume(id: $id) {
         id
         name
+    }
+}
+"""
+
+GQL_MOVE_STORAGE = """
+mutation moveVolumeMutation($volumeId: UUID!, $targetPlatformId: Int!, $targetProjectId: UUID!) {  
+    moveVolume(volumeId: $volumeId, targetPlatformId: $targetPlatformId, targetProjectId: $targetProjectId)
+}
+"""
+
+GQL_GET_STORAGE_INFO = """
+fragment appVersionFieldInformation on AppVersion {
+    number
+    volumesWithPath {
+        path
+        volume {
+            id
+        }
+    }
+}
+
+query volumeInfoQuery($volumeId: UUID!) {
+    volume(id: $volumeId) {
+        id
+        name
+        projectId
+        size
+        description
+        creationDate
+        creator
+        linkedApp {
+            id
+            name
+            versions {
+                ...appVersionFieldInformation
+            }
+            currentVersion {
+                ...appVersionFieldInformation
+            }
+        }
     }
 }
 """

@@ -76,6 +76,11 @@ type Query {
   # Get app stats (uptime and downtime percentages and recovered count).
   appStats(appHistoryId: UUID!, versionNumber: Int!, startTime: DateTime!): AppStats
 
+  # Get an volume's details from its UUID.
+  #
+  # You can only get an volume's details if you have at least the viewer role in the project associated to the volume or in all projects.
+  volume(id: UUID!): Volume
+
   # List environment variables in a given project.
   #
   # You can only list environment variables if you have at least the viewer role in this project or in all projects.
@@ -603,6 +608,25 @@ type Mutation {
   # You can only delete a pipeline if you have the global Super-Admin role.
   deletePipeline(id: UUID!): Boolean!
 
+  # Duplicate a pipeline in the same project. Its jobs is not duplicated and only current version of pipeline is duplicated.
+  #
+  # You can only duplicate a pipeline if you have at least role editor on the project associated to the pipeline or on all projects.
+  duplicatePipeline(originalPipelineId: UUID!): Pipeline!
+
+  # Move pipeline with its jobs from a project to another. The target can be in another platform.
+  # Also move all jobs associated with this pipeline.
+  # Move all versions of all jobs of pipeline and all versions of pipeline.
+  #
+  # You can only move pipeline if you have at least the editor role in both the source and target projects.
+  # You can only move pipeline if all its jobs (and all versions) is only in this pipeline and not other.
+  # All job's technologies must exist in the target project.
+  #
+  # **Fields validation:**
+  # - pipelineId: must exist, must be deletable, must not be in migration state.
+  # - targetPlatformId: must exist, must not be the same as the source project, must be ready.
+  # - targetProjectId: must not be the same as the source project, must exist and have the appropriate technology in the same category or target category if it is given.
+  movePipeline(pipelineId: UUID!, targetPlatformId: Int!, targetProjectId: UUID!): UUID!
+
   # Add a new pipeline version in linear format to an existing pipeline.
   #
   # You can only add a version to a pipeline if you have at least the editor role in the project associated to the pipeline or in all projects.
@@ -700,6 +724,19 @@ type Mutation {
   editVolume(volumeEdition: VolumeEditionInput!): Volume!
 
   unlinkVolume(id: UUID!): Volume
+
+  # Move volume from a project to another. The target can be in another platform.
+  #
+  # You can only move volume if you have at least the editor role in both the source and target projects.
+  #
+  # **Fields validation:**
+  # - volumeId: must exist, must be link with an app
+  # - targetPlatformId: must exist, must not be the same as the source project, must be ready.
+  # - targetProjectId: must not be the same as the source project and must exist
+  #
+  # **Returns:**
+  # UUID of the volume moved in the target
+  moveVolume(volumeId: UUID!, targetPlatformId: Int!, targetProjectId: UUID!): UUID!
 
   # Create a Connection related to a project.
   # **Fields validation:**
@@ -1043,6 +1080,7 @@ input VolumeEditionInput {
   id: UUID!
   name: String
   description: String
+  size: DataSize
 }
 
 input EntryInput {
@@ -1134,6 +1172,10 @@ type Volume {
   projectId: UUID!
   creationDate: DateTime!
   linkedApp: App
+  migrationStatus: MigrationStatus
+  migrationPlatformId: Int
+  migrationProjectId: UUID
+  migrationVolumeId: UUID
 }
 
 type Job {
@@ -1212,6 +1254,7 @@ type AppHistory {
   startTime: DateTime
   stopTime: DateTime
   author: String
+  triggerType: TriggerType
 }
 
 type StatusHistoryByAction {
@@ -1245,35 +1288,40 @@ type RunAction implements AppEvent {
   recordAt: DateTime!
   executionId: UUID!
   versionNumber: Int!
-  author: String!
+  author: String
+  triggerType: TriggerType
 }
 
 type RollbackAction implements AppEvent {
   recordAt: DateTime!
   executionId: UUID!
   versionNumber: Int!
-  author: String!
+  author: String
+  triggerType: TriggerType
 }
 
 type UpgradeAction implements AppEvent {
   recordAt: DateTime!
   executionId: UUID!
   versionNumber: Int!
-  author: String!
+  author: String
+  triggerType: TriggerType
 }
 
 type StopAction implements AppEvent {
   recordAt: DateTime!
   executionId: UUID!
   versionNumber: Int!
-  author: String!
+  author: String
+  triggerType: TriggerType
 }
 
 type RestartAction implements AppEvent {
   recordAt: DateTime!
   executionId: UUID!
   versionNumber: Int!
-  author: String!
+  author: String
+  triggerType: TriggerType
 }
 
 enum AppStatus {
@@ -1408,6 +1456,12 @@ type JobInstance {
   sparkuiUrl: String
   runTrigger: Trigger
   stopTrigger: AuthoredTrigger
+  deletableState: JobInstanceDeletableState
+}
+
+type JobInstanceDeletableState {
+  deletable: Boolean!
+  reasons: [JobInstanceDeletableStateReason!]
 }
 
 type InstanceHistory {
@@ -1622,8 +1676,45 @@ type Pipeline {
   cronScheduling: Cron
   scheduleStatus: ScheduleStatus
   scheduleTimezone: TimeZone
+  migrationStatus: MigrationStatus
+  sourcesMigration: [MigrationData]
+  targetMigration: MigrationData
   # Indicates whether this pipeline version is a linear pipeline or not
   isLegacyPipeline: Boolean
+  # Preview: use with precaution this field, it can be removed or changed in the future
+  allVersionsJobTechnologiesByCategory: [TechnologyByCategory]
+  movableState: PipelineMovableState
+}
+
+type MigrationData {
+  platformId: Int!
+  projectId: UUID!
+  migrationDate: DateTime!
+  pipelineId: UUID
+}
+
+type PipelineMovableState {
+  movable: Boolean!
+  reasons: [PipelineMovableStateError!]
+}
+
+type PipelineMovableStateError {
+    reason: PipelineMovableStateErrorReason!
+    offendingId: UUID
+    offendingName: String
+    sharedJobInManyPipelinesError: SharedJobInManyPipelines
+}
+
+type SharedJobInManyPipelines {
+  jobId: UUID!
+  jobName: String!
+  otherPipelinesLinked: [OtherPipelineWithSharedJob!]!
+}
+
+type OtherPipelineWithSharedJob {
+  pipelineId: UUID!
+  pipelineName: String!
+  pipelineVersions: [Int]!
 }
 
 type PipelineVersion {
@@ -1997,6 +2088,8 @@ enum MigrationStatus {
 
 enum TriggerType {
   MANUAL_JOB,
+  MANUAL_APP,
+  EXPAND_VOLUME,
   CRON_JOB,
   CRON_PIPELINE,
   MANUAL_PIPELINE
@@ -2008,6 +2101,13 @@ enum JobInstanceSelector {
   FAILED,
   STOPPED,
   UNKNOWN
+}
+
+enum JobInstanceDeletableStateReason {
+  INSTANCE_NOT_TERMINATED,
+  INSTANCE_NOT_YET_CLEANED,
+  INSTANCE_LINKED_TO_PIPELINE,
+  INSTANCE_DOES_NOT_MATCH_JOB
 }
 
 enum JobVersionDeletableStateReason {
@@ -2052,5 +2152,17 @@ enum PipelineVersionDeletableStateReason {
   CURRENT_VERSION
   VERSION_HAS_UNFINISHED_INSTANCES
   VERSION_INSTANCES_NOT_YET_CLEANED
+}
+
+enum PipelineMovableStateErrorReason {
+  PIPELINE_HAS_UNFINISHED_INSTANCES,
+  PIPELINE_HAS_INSTANCES_NOT_YET_CLEANED,
+  PIPELINE_ALREADY_IN_MIGRATION_STATE,
+  PIPELINE_SCHEDULED,
+  JOB_HAS_UNFINISHED_INSTANCES,
+  JOB_HAS_INSTANCES_NOT_YET_CLEANED,
+  JOB_ALREADY_IN_MIGRATION_STATE,
+  JOB_SCHEDULED,
+  JOBS_EXISTS_IN_MANY_PIPELINES
 }
 

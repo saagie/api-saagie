@@ -81,3 +81,7 @@ class TestPipelines:
     def test_count_deletable_instances_by_date(self):
         query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE)
         self.client.validate(query)
+
+    def test_duplicate_pipeline(self):
+        query = gql(GQL_DUPLICATE_PIPELINE)
+        self.client.validate(query)

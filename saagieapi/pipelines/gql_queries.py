@@ -516,3 +516,12 @@ mutation deletePipelineInstancesByDateSelector($pipelineId: UUID!, $beforeAt: Da
     )
 }
 """
+
+GQL_DUPLICATE_PIPELINE = """
+mutation duplicatePipeline($pipelineId: UUID!) {
+    duplicatePipeline(originalPipelineId: $pipelineId) {
+        id
+        name
+    }
+}
+"""
