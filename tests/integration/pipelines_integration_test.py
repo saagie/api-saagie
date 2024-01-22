@@ -414,4 +414,6 @@ class TestIntegrationPipelines:
 
         result = conf.saagie_api.pipelines.duplicate(pipeline_id=pipeline_id)
 
+        conf.saagie_api.pipelines.delete(pipeline_id=result["duplicatePipeline"]["id"])
+
         assert "duplicatePipeline" in result
