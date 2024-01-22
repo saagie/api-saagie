@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.10.0 (2024-01-22)
+### :sparkles:
+* :sparkles:  Add product's functionnalities of 2023.05 ([#206](https://github.com/saagie/api-saagie/issues/206)) ([`61310e7`](https://github.com/saagie/api-saagie/commit/61310e7fd490495cffd55c322bae219c95bb02b6))
+
 ## v2.9.2 (2023-11-13)
 ### :bug:
 * :bug: Feat/change doc theme ([#202](https://github.com/saagie/api-saagie/issues/202)) ([`d646b44`](https://github.com/saagie/api-saagie/commit/d646b441c0826dd700b9e4453b8fc66ed2c0ed7b))
