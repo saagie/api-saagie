@@ -283,6 +283,14 @@ type Query {
   # This endpoint allows to retrieve a pipeline with versions in linear or graph format.
   graphPipelineByName(projectId: UUID!, name: String!): Pipeline
 
+
+  # Get a pipeline's details from its projectId and alias.
+  #
+  # You can only get a pipeline's details if you have at least the viewer role in the project associated to the pipeline or in all projects.
+  #
+  # This endpoint allows to retrieve a pipeline with versions in linear or graph format.
+  graphPipelineByAlias(projectId: UUID!, name: String!): Pipeline!
+
   # List users by realm.
   usersByRealm: [UserEmail]
 
@@ -608,10 +616,15 @@ type Mutation {
   # You can only delete a pipeline if you have the global Super-Admin role.
   deletePipeline(id: UUID!): Boolean!
 
-  # Duplicate a pipeline in the same project. Its jobs is not duplicated and only current version of pipeline is duplicated.
+  # Duplicate a pipeline in the same project. Only current version of pipeline is duplicated.
+  # By default, pipeline's jobs are not duplicated.
   #
+  # **Fields validation:**
+  # - originalPipelineId: (required) must exist, must be deletable, must not be in migration state.
+  # - duplicateJobs: (optional, false by default) if true, duplicate all jobs (only each current version) associated with the current version of pipeline.
+
   # You can only duplicate a pipeline if you have at least role editor on the project associated to the pipeline or on all projects.
-  duplicatePipeline(originalPipelineId: UUID!): Pipeline!
+  duplicatePipeline(originalPipelineId: UUID!, duplicateJobs: Boolean): Pipeline!
 
   # Move pipeline with its jobs from a project to another. The target can be in another platform.
   # Also move all jobs associated with this pipeline.
@@ -710,7 +723,7 @@ type Mutation {
   # **Fields validation:**
   # - name: must be unique (case insensitive) in the project, shorter than 255 characters and cannot be empty.
   # - project: must exist. Use 'projects' query to list all projects.
-  # - size: size in MB, must be between 64MB and the maximum value set by your administrator.
+  # - size: size in MB, must be between the step (eq. minimum) and the maximum value set by your administrator.
   createVolume(volume: VolumeInput!): Volume!
 
   # Delete a volume.
@@ -737,6 +750,11 @@ type Mutation {
   # **Returns:**
   # UUID of the volume moved in the target
   moveVolume(volumeId: UUID!, targetPlatformId: Int!, targetProjectId: UUID!): UUID!
+
+  # Duplicate a volume in the same project.
+  #
+  # You can only duplicate a volume if you have at least role editor on the project associated to the volume or on all projects.
+  duplicateVolume(originalVolumeId: UUID!): Volume!
 
   # Create a Connection related to a project.
   # **Fields validation:**
@@ -838,6 +856,7 @@ input JobVersionInput {
   doesUseGPU: Boolean
   connectionId: UUID
   externalJobParams: [ExternalJobParamInput!]
+  sourceUrl: String
 }
 
 input ExternalJobParamInput {
@@ -956,6 +975,7 @@ input SecurityGroupInput {
 
 input PipelineInput {
   name: String!
+  alias: String!
   description: String
   alerting: JobPipelineAlertingInput
   projectId: UUID!
@@ -969,6 +989,7 @@ input PipelineInput {
 # Input to create a pipeline with a Directed Acyclic Graph
 input GraphPipelineInput {
   name: String!
+  alias: String!
   description: String
   alerting: JobPipelineAlertingInput
   # Enable or disable modification of variables in jobs during execution
@@ -1044,6 +1065,7 @@ input NodePositionInput {
 input PipelineEditionInput {
   id: UUID!
   name: String
+  alias: String
   description: String
   alerting: JobPipelineAlertingInput
   # Enable or disable modification of variables in jobs during execution
@@ -1176,6 +1198,10 @@ type Volume {
   migrationPlatformId: Int
   migrationProjectId: UUID
   migrationVolumeId: UUID
+  duplicationStatus: DuplicationStatus
+  duplicationTargetId: UUID
+  originalVolumeId: UUID
+  isLocked: Boolean
 }
 
 type Job {
@@ -1533,6 +1559,7 @@ type JobVersion {
   doesUseGPU: Boolean @deprecated(reason: "Use Job.doesUseGPU instead")
   connectionId: UUID
   externalJobParams: [ExternalJobParam!]
+  sourceUrl: String
 }
 
 type JobVersionDeletableState {
@@ -1661,6 +1688,7 @@ type SecurityGroup {
 type Pipeline {
   id: UUID!
   name: String!
+  alias: String!
   description: String
   alerting: JobPipelineAlerting
   # Indicates if modification of variables in jobs of this pipeline is enable or disable during execution
@@ -1720,10 +1748,8 @@ type OtherPipelineWithSharedJob {
 type PipelineVersion {
   number: Int!
   releaseNote: String
-  # List of jobs in a linear pipeline
-  #
-  # This field is deprecated and used only for linear pipelines, use `graph` instead
-  jobs: [Job!] @deprecated(reason: "Use graph instead")
+  # Set of jobs in a linear pipeline (soon deprecated) or graph pipeline
+  jobs: [Job!]
   # Corresponds to the graph of jobs and conditions of a pipeline in graph format
   # For a linear pipeline, it returns a graph corresponding to the list of jobs.
   graph: PipelineGraph
@@ -2083,6 +2109,12 @@ enum MigrationStatus {
   MIGRATING_IN
   MIGRATING_OUT
   READY
+  FAILED
+}
+
+enum DuplicationStatus {
+  DUPLICATION_OUT,
+  DUPLICATION_IN,
   FAILED
 }
 

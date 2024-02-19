@@ -5,6 +5,7 @@ query projectPipelinesQuery($projectId: UUID!) {
         pipelines{
             id
             name
+            alias
         }
     }
 }
@@ -19,6 +20,7 @@ query projectPipelinesQuery($projectId: UUID!,
         pipelines{
             id
             name
+            alias
             description
             alerting{
                 emails
@@ -106,6 +108,7 @@ query graphPipelineQuery($id: UUID!,
     graphPipeline(id: $id){
         id
         name
+        alias
         description
         alerting{
             emails
@@ -199,6 +202,7 @@ query graphPipelineByNameQuery(
     graphPipelineByName(projectId: $projectId, name: $pipelineName) {
         id
         name
+        alias
         description
         alerting{
             emails
@@ -302,7 +306,8 @@ mutation($id: UUID!,
 		 $isScheduled: Boolean, 
 		 $cronScheduling: Cron, 
 		 $scheduleTimezone:TimeZone, 
-		 $hasExecutionVariablesEnabled: Boolean)    {
+		 $hasExecutionVariablesEnabled: Boolean,
+         $alias: String)    {
     editPipeline(pipeline: 
         {
             id: $id
@@ -313,10 +318,12 @@ mutation($id: UUID!,
             cronScheduling: $cronScheduling
             scheduleTimezone: $scheduleTimezone
             hasExecutionVariablesEnabled: $hasExecutionVariablesEnabled
+            alias: $alias
         }
     ){
         id
         name
+        alias
         description
         alerting{
             emails
@@ -380,21 +387,24 @@ mutation createGraphPipelineMutation($name: String!,
                                      $cronScheduling: Cron, 
                                      $scheduleTimezone:TimeZone,
                                      $jobNodes: [JobNodeInput!], 
-                                     $conditionNodes: [ConditionNodeInput!]) {
-    createGraphPipeline(pipeline:    {
-        name: $name
-        description: $description
-        projectId: $projectId
-        releaseNote : $releaseNote
-        alerting: $alerting
-        isScheduled: $isScheduled
-        cronScheduling: $cronScheduling
-        scheduleTimezone: $scheduleTimezone
-        graph: {
-            jobNodes: $jobNodes
-            conditionNodes: $conditionNodes
+                                     $conditionNodes: [ConditionNodeInput!],
+                                     $alias: String!) {
+    createGraphPipeline(
+        pipeline: {
+            name: $name
+            description: $description
+            projectId: $projectId
+            releaseNote : $releaseNote
+            alerting: $alerting
+            isScheduled: $isScheduled
+            cronScheduling: $cronScheduling
+            scheduleTimezone: $scheduleTimezone
+            graph: {
+                jobNodes: $jobNodes
+                conditionNodes: $conditionNodes
+            }
+            alias: $alias
         }
-    }
     ) {
         id
     }
@@ -518,8 +528,8 @@ mutation deletePipelineInstancesByDateSelector($pipelineId: UUID!, $beforeAt: Da
 """
 
 GQL_DUPLICATE_PIPELINE = """
-mutation duplicatePipeline($pipelineId: UUID!) {
-    duplicatePipeline(originalPipelineId: $pipelineId) {
+mutation duplicatePipeline($pipelineId: UUID!, $duplicateJobs: Boolean) {
+    duplicatePipeline(originalPipelineId: $pipelineId, duplicateJobs: $duplicateJobs) {
         id
         name
     }
