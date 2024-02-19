@@ -1139,7 +1139,8 @@ class Jobs:
         ...     schedule_timezone='Europe/Paris',
         ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
         ...     emails=['email1@saagie.io', 'email2@saagie.io'],
-        ...     status_list=["FAILED", "KILLED"]
+        ...     status_list=["FAILED", "KILLED"],
+        ...     source_url="",
         ... )
         {
             "data":{
