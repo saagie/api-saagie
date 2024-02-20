@@ -13,7 +13,7 @@ class TestIntegrationStorages:
         storage = conf.saagie_api.storages.create(
             project_id=conf.project_id,
             storage_name=storage_name,
-            storage_size="128 MB",
+            storage_size="1 GB",
             storage_description="Be happy",
         )
         return storage["createVolume"]
@@ -65,7 +65,7 @@ class TestIntegrationStorages:
         storage_input = {
             "id": storage["id"],
             "name": "storage new name",
-            "size": "128.0 MB",
+            "size": "1.0 GB",
             "description": "storage new description",
         }
 
@@ -223,3 +223,16 @@ class TestIntegrationStorages:
         del result["volume"]["creationDate"]
 
         assert storage == result["volume"]
+
+    @staticmethod
+    def test_duplicate_storage(create_then_delete_storage, create_global_project):
+        conf = create_global_project
+
+        storage = create_then_delete_storage
+
+        # needed to let the time to the storage to be created and ready in the orchestrator
+        time.sleep(5)
+
+        result = conf.saagie_api.storages.duplicate(storage_id=storage["id"])
+
+        assert result["duplicateVolume"]["originalVolumeId"] == storage["id"]

@@ -62,6 +62,7 @@ query jobsQuery($projectId: UUID!, $category: String, $technologyId: UUID, $inst
                 deletable
                 reasons
             }
+            sourceUrl
         }
         category
         technology {
@@ -231,13 +232,25 @@ mutation editJobMutation($jobId: UUID!, $name: String, $description: String,
 """
 
 GQL_CREATE_JOB = """
-mutation createJobMutation($projectId: UUID!, $name: String!, $description: String, $category: String!,
-                           $isScheduled: Boolean!, $cronScheduling: Cron, $scheduleTimezone: TimeZone
-                           $technologyId: UUID!, $extraTechnology: ExtraTechnologyInput,
-                           $alerting: JobPipelineAlertingInput, $resources: JobResourceInput,
-                           $releaseNote: String, $runtimeVersion: String, $commandLine: String,
-                           $dockerInfo: JobDockerInput, $file: Upload) {
-    createJob(job: {
+mutation createJobMutation($projectId: UUID!, 
+                            $name: String!, 
+                            $description: String, 
+                            $category: String!,
+                            $isScheduled: Boolean!, 
+                            $cronScheduling: Cron, 
+                            $scheduleTimezone: TimeZone
+                            $technologyId: UUID!, 
+                            $extraTechnology: ExtraTechnologyInput,
+                            $alerting: JobPipelineAlertingInput, 
+                            $resources: JobResourceInput,
+                            $releaseNote: String, 
+                            $runtimeVersion: String, 
+                            $commandLine: String,
+                            $dockerInfo: JobDockerInput, 
+                            $file: Upload, 
+                            $sourceUrl: String) {
+    createJob(
+        job: {
             projectId: $projectId
             name: $name
             description: $description
@@ -259,6 +272,7 @@ mutation createJobMutation($projectId: UUID!, $name: String!, $description: Stri
             commandLine: $commandLine
             extraTechnology: $extraTechnology
             dockerInfo: $dockerInfo
+            sourceUrl: $sourceUrl
         }
         file: $file
     ){
@@ -273,9 +287,15 @@ mutation createJobMutation($projectId: UUID!, $name: String!, $description: Stri
 """
 
 GQL_UPGRADE_JOB = """
-mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVersion: String, $commandLine: String,
-                               $extraTechnology: ExtraTechnologyInput,
-                               $usePreviousArtifact: Boolean, $dockerInfo: JobDockerInput, $file: Upload) {
+mutation addJobVersionMutation($jobId: UUID!, 
+                                $releaseNote: String, 
+                                $runtimeVersion: String, 
+                                $commandLine: String,
+                                $extraTechnology: ExtraTechnologyInput,
+                                $usePreviousArtifact: Boolean, 
+                                $dockerInfo: JobDockerInput, 
+                                $file: Upload,
+                                $sourceUrl: String) {
     addJobVersion(
         jobId: $jobId
         jobVersion: {
@@ -285,6 +305,7 @@ mutation addJobVersionMutation($jobId: UUID!, $releaseNote: String, $runtimeVers
             extraTechnology: $extraTechnology
             dockerInfo: $dockerInfo
             usePreviousArtifact: $usePreviousArtifact
+            sourceUrl: $sourceUrl
         }
         file: $file
     ){
@@ -355,6 +376,7 @@ query jobInfoQuery($jobId: UUID!, $instancesLimit: Int, $versionsLimit: Int, $ve
                 deletable
                 reasons
             }
+            sourceUrl
         }
         category
         technology {
@@ -447,6 +469,7 @@ query jobInfoByAlias($projectId: UUID!, $alias: String!, $instancesLimit: Int, $
                 deletable
                 reasons
             }
+            sourceUrl
         }
         category
         technology {

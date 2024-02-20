@@ -81,6 +81,7 @@ class TestIntegrationPipelines:
         pipeline_id, _ = create_then_delete_graph_pipeline
         pipeline_input = {
             "name": "test_edit_graph_pipeline",
+            "alias": "test_edit_alias_graph_pipeline",
             "description": "test_edit_graph_pipeline",
             "is_scheduled": True,
             "cron_scheduling": "0 0 * * *",
@@ -91,6 +92,7 @@ class TestIntegrationPipelines:
         conf.saagie_api.pipelines.edit(
             pipeline_id,
             name=pipeline_input["name"],
+            alias=pipeline_input["alias"],
             description=pipeline_input["description"],
             is_scheduled=pipeline_input["is_scheduled"],
             cron_scheduling=pipeline_input["cron_scheduling"],
@@ -100,6 +102,7 @@ class TestIntegrationPipelines:
         pipeline_info = conf.saagie_api.pipelines.get_info(pipeline_id)
         to_validate = {
             "name": pipeline_info["graphPipeline"]["name"],
+            "alias": pipeline_info["graphPipeline"]["alias"],
             "description": pipeline_info["graphPipeline"]["description"],
             "alerting": None,
             "is_scheduled": pipeline_info["graphPipeline"]["isScheduled"],
@@ -240,6 +243,7 @@ class TestIntegrationPipelines:
     def test_create_or_upgrade_pipeline(delete_pipeline, create_job, create_global_project):
         conf = create_global_project
         pipeline_name = delete_pipeline
+        pipeline_alias = pipeline_name.replace(" ", "_")
 
         job_id = create_job
         job_node1 = JobNode(job_id)
@@ -263,6 +267,7 @@ class TestIntegrationPipelines:
 
         pipeline_create = conf.saagie_api.pipelines.create_or_upgrade(
             name=pipeline_name,
+            alias=pipeline_alias,
             project_id=conf.project_id,
             description="Description pipeline dev test",
             release_note="First release",
@@ -280,6 +285,7 @@ class TestIntegrationPipelines:
 
         pipeline_upgrade = conf.saagie_api.pipelines.create_or_upgrade(
             name=pipeline_name,
+            alias=pipeline_alias,
             project_id=conf.project_id,
             description="Description pipeline dev test",
             release_note="Second release",

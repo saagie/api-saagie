@@ -71,7 +71,10 @@ class Storages:
                             "number":1,
                             "volumesWithPath":[]
                         }
-                    }
+                    },
+                    "originalVolumeId":"None",
+                    "duplicationStatus":"None",
+                    "isLocked":false
                 },
                 {
                     "id":"905d8441-8955-444f-a333-19d7c6fe6274",
@@ -107,7 +110,10 @@ class Storages:
                                 }
                             ]
                         }
-                    }
+                    },
+                    "originalVolumeId":"None",
+                    "duplicationStatus":"None",
+                    "isLocked":false
                 }
             ]
         }
@@ -179,7 +185,10 @@ class Storages:
                     "number":1,
                     "volumesWithPath":[]
                 }
-            }
+            },
+            "originalVolumeId":"None",
+            "duplicationStatus":"None",
+            "isLocked":false
         }
         """  # pylint: disable=line-too-long
         storages = self.list_for_project(project_id)["project"]["volumes"]
@@ -241,7 +250,10 @@ class Storages:
                         "number":1,
                         "volumesWithPath":[]
                     }
-                }
+                },
+                "originalVolumeId":"None",
+                "duplicationStatus":"None",
+                "isLocked":false
             }
         }
         """  # pylint: disable=line-too-long
@@ -294,7 +306,10 @@ class Storages:
                 "description":"storage description",
                 "creationDate":"2022-09-12T13:52:19.523Z",
                 "creator":"user.name",
-                "linkedApp":"None"
+                "linkedApp":"None",
+                "originalVolumeId":"None",
+                "duplicationStatus":"None",
+                "isLocked":false
             }
         }
         """
@@ -486,4 +501,34 @@ class Storages:
                 "targetPlatformId": target_platform_id,
                 "targetProjectId": target_project_id,
             },
+        )
+
+    def duplicate(self, storage_id: str):
+        """Duplicate a storage
+
+        Parameters
+        ----------
+        storage_id : str
+            UUID of your storage (see README on how to find it)
+
+        Returns
+        -------
+        dict
+            Dict of the duplicated storage with its new id
+
+        Examples
+        --------
+        >>> saagie_api.storages.duplicate(storage_id='fdb43a11-ccec-4b10-9690-2b83fbd7eb93')
+        {
+            'duplicateVolume': {
+                id: '29cf1b80-6b9c-47bc-a06c-c20897257097',
+                name: 'storage name (copy)',
+                originalVolumeId: 'fdb43a11-ccec-4b10-9690-2b83fbd7eb93',
+                isLocked: true,
+            }
+        }
+        """
+        return self.saagie_api.client.execute(
+            query=gql(GQL_DUPLICATE_STORAGE),
+            variable_values={"volumeId": storage_id},
         )

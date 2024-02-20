@@ -376,6 +376,7 @@ class Pipelines:
             "graphPipeline": {
                 "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
                 "name": "Pipeline A",
+                "alias": "Pipeline_A",
                 "description": "My Pipeline A",
                 "alerting": "NULL",
                 "pipelineInstanceCount": 0,
@@ -730,6 +731,7 @@ class Pipelines:
         name: str,
         project_id: str,
         graph_pipeline: GraphPipeline,
+        alias: str,
         description: str = "",
         release_note: str = "",
         emails: List[str] = None,
@@ -755,6 +757,8 @@ class Pipelines:
                 job_node1.add_next_node(job_node2) # Indicates that the job_node_1 is followed by job_node_2
                 graph_pipeline = GraphPipeline()
                 graph_pipeline.add_root_node(job_node1) # Indicates the pipeline will start with job_node1
+        alias: str
+            Alias of the pipeline
         description : str, optional
             Description of the pipeline
         release_note: str, optional
@@ -827,6 +831,7 @@ class Pipelines:
             "releaseNote": release_note,
             "jobNodes": graph_pipeline.list_job_nodes,
             "conditionNodes": graph_pipeline.list_conditions_nodes,
+            "alias": alias,
         }
 
         if cron_scheduling:
@@ -871,7 +876,7 @@ class Pipelines:
 
     def upgrade(self, pipeline_id: str, graph_pipeline: GraphPipeline, release_note: str = "") -> Dict:
         """
-        Create a pipeline in a given project
+        Upgrade a pipeline in a given project
 
         Parameters
         ----------
@@ -960,6 +965,7 @@ class Pipelines:
         self,
         pipeline_id: str,
         name: str = None,
+        alias: str = None,
         description: str = None,
         emails: List[str] = None,
         status_list: List[str] = None,
@@ -979,6 +985,9 @@ class Pipelines:
         name : str, optional
             Pipeline name,
             if not filled, defaults to current value, else it will change the pipeline name
+        alias : str, optional
+            Alias of the pipeline
+            if not filled, defaults to current value, else it will change the alias of the pipeline
         description : str, optional
             Description of the pipeline
             if not filled, defaults to current value, else it will change the description of the pipeline
@@ -1019,6 +1028,7 @@ class Pipelines:
             "editPipeline":{
                 "id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c",
                 "name": "Amazing Pipeline 2",
+                "alias": "Amazing_Pipeline_2",
                 "description": "",
                 "alerting": None,
                 "isScheduled": True,
@@ -1033,6 +1043,7 @@ class Pipelines:
         params = {
             "id": pipeline_id,
             "name": name or previous_pipeline_info["name"],
+            "alias": alias or previous_pipeline_info["alias"],
             "description": description or previous_pipeline_info["description"],
         }
 
@@ -1068,6 +1079,7 @@ class Pipelines:
     def create_or_upgrade(
         self,
         name: str,
+        alias: str,
         project_id: str,
         graph_pipeline: GraphPipeline,
         description: str = None,
@@ -1085,6 +1097,8 @@ class Pipelines:
         ----------
         name : str
             Pipeline name
+        alias : str
+            Alias of the pipeline
         project_id : str
             UUID of your project (see README on how to find it)
         graph_pipeline : GraphPipeline
@@ -1163,6 +1177,7 @@ class Pipelines:
                 "editPipeline": self.edit(
                     pipeline_id=pipeline_id,
                     name=name,
+                    alias=alias,
                     description=description,
                     emails=emails,
                     status_list=status_list,
@@ -1182,6 +1197,7 @@ class Pipelines:
             k: v
             for k, v in {
                 "name": name,
+                "alias": alias,
                 "project_id": project_id,
                 "graph_pipeline": graph_pipeline,
                 "description": description,
@@ -1504,6 +1520,7 @@ class Pipelines:
             graph_pipeline.list_conditions_nodes = parse_version_conditions(version)
             res = self.create_graph(
                 name=pipeline_name,
+                alias=pipeline_info["alias"],
                 project_id=project_id,
                 graph_pipeline=graph_pipeline,
                 description=pipeline_info["description"],
@@ -1779,13 +1796,15 @@ class Pipelines:
         logging.info("✅ Instances of pipeline [%s] successfully deleted", pipeline_id)
         return result
 
-    def duplicate(self, pipeline_id):
+    def duplicate(self, pipeline_id, duplicate_jobs: bool = False) -> Dict:
         """Duplicate a given pipeline
 
         Parameters
         ----------
         pipeline_id : str
             UUID of your pipeline (see README on how to find it)
+        duplicate_jobs : bool, optional
+            If True, duplicate the jobs of the pipeline, else only the pipeline
 
         Returns
         -------
