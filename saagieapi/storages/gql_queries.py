@@ -25,6 +25,9 @@ fragment volumeInformation on Volume {
             ...appVersionFieldInformation
         }
     }
+    originalVolumeId
+    duplicationStatus
+    isLocked
 }
 
 query projectQuery($id: UUID!, $minimal: Boolean!) {
@@ -51,6 +54,9 @@ mutation createVolumeMutation($volume: VolumeInput!) {
         linkedApp {
             id
         }
+        originalVolumeId
+        duplicationStatus
+        isLocked
     }
 }
 """
@@ -118,6 +124,21 @@ query volumeInfoQuery($volumeId: UUID!) {
                 ...appVersionFieldInformation
             }
         }
+        originalVolumeId
+        duplicationStatus
+        isLocked
+    }
+}
+"""
+
+GQL_DUPLICATE_STORAGE = """
+mutation duplicateVolume($volumeId: UUID!) {
+    duplicateVolume(originalVolumeId: $volumeId) {
+        id
+        name
+        originalVolumeId
+        duplicationStatus
+        isLocked
     }
 }
 """

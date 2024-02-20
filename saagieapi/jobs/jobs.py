@@ -581,6 +581,7 @@ class Jobs:
         resources: Dict = None,
         emails: List = None,
         status_list: List = None,
+        source_url: str = "",
     ) -> Dict:
         """Create job in given project
 
@@ -632,6 +633,8 @@ class Jobs:
             Receive an email when the job status change to a specific status
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
+        source_url: str, optional
+            URL of the source code used for the job (link to the commit for example)
 
         Returns
         -------
@@ -657,7 +660,8 @@ class Jobs:
         ...     schedule_timezone='Europe/Paris',
         ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
         ...     emails=['email1@saagie.io', 'email2@saagie.io'],
-        ...     status_list=["FAILED", "KILLED"]
+        ...     status_list=["FAILED", "KILLED"],
+        ...     source_url="",
         ... )
         {
             "data":{
@@ -722,6 +726,9 @@ class Jobs:
 
         if resources:
             params["resources"] = resources
+
+        if source_url:
+            params["source_url"] = source_url
 
         result = self.__launch_request(file, GQL_CREATE_JOB, params)
         logging.info("✅ Job [%s] successfully created", job_name)
@@ -869,6 +876,7 @@ class Jobs:
         release_note: str = "",
         extra_technology: str = None,
         extra_technology_version: str = None,
+        source_url: str = "",
     ) -> Dict:
         """Upgrade a job
 
@@ -893,6 +901,8 @@ class Jobs:
             None or the request will not work
         extra_technology_version: str (optional)
             Version of the extra technology. Leave to None when not needed
+        source_url: str (optional)
+            URL of the source code used for the job (link to the commit for example)
 
         Returns
         -------
@@ -952,6 +962,10 @@ class Jobs:
         # Add extra technology parameter if needed
         if extra_technology is not None:
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
+
+        if source_url:
+            params["sourceUrl"] = source_url
+
         result = self.__launch_request(file, GQL_UPGRADE_JOB, params)
         logging.info("✅ Job [%s] successfully upgraded", job_id)
         return result
@@ -967,6 +981,7 @@ class Jobs:
         release_note: str = None,
         extra_technology: str = None,
         extra_technology_version: str = None,
+        source_url: str = "",
     ) -> Dict:
         """Upgrade a job
 
@@ -990,6 +1005,8 @@ class Jobs:
             Extra technology when needed (spark jobs). If not needed, leave to None or the request will not work
         extra_technology_version: str (optional)
             Version of the extra technology. Leave to None when not needed
+        source_url: str (optional)
+            URL of the source code used for the job (link to the commit for example)
 
         Returns
         -------
@@ -1016,14 +1033,15 @@ class Jobs:
         }
         """
         return self.upgrade(
-            self.get_id(job_name, project_name),
-            file,
-            use_previous_artifact,
-            runtime_version,
-            command_line,
-            release_note,
-            extra_technology,
-            extra_technology_version,
+            job_id=self.get_id(job_name, project_name),
+            file=file,
+            use_previous_artifact=use_previous_artifact,
+            runtime_version=runtime_version,
+            command_line=command_line,
+            release_note=release_note,
+            extra_technology=extra_technology,
+            extra_technology_version=extra_technology_version,
+            source_url=source_url,
         )
 
     def create_or_upgrade(
@@ -1047,6 +1065,7 @@ class Jobs:
         resources: Dict = None,
         emails: List = None,
         status_list: List = None,
+        source_url: str = "",
     ) -> Dict:
         """Create or upgrade a job
 
@@ -1091,6 +1110,8 @@ class Jobs:
             Emails
         status_list: list (optional)
             Status list
+        source_url: str (optional)
+            URL of the source code used for the job (link to the commit for example)
 
         Returns
         -------
@@ -1118,7 +1139,8 @@ class Jobs:
         ...     schedule_timezone='Europe/Paris',
         ...     resources={"cpu": {"request": 0.5, "limit": 2.6}, "memory": {"request": 1.0}},
         ...     emails=['email1@saagie.io', 'email2@saagie.io'],
-        ...     status_list=["FAILED", "KILLED"]
+        ...     status_list=["FAILED", "KILLED"],
+        ...     source_url="",
         ... )
         {
             "data":{
@@ -1152,6 +1174,7 @@ class Jobs:
                     release_note=release_note,
                     extra_technology=extra_technology,
                     extra_technology_version=extra_technology_version,
+                    source_url=source_url,
                 )["data"]["addJobVersion"]
             }
 
@@ -1190,6 +1213,7 @@ class Jobs:
                 "resources": resources,
                 "emails": emails,
                 "status_list": status_list,
+                "source_url": source_url,
             }.items()
             if v is not None  # Remove None values from the dict
         }

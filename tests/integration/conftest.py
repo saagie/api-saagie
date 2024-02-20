@@ -164,6 +164,7 @@ def create_graph_pipeline(create_job, create_global_project):
     graph_pipeline.add_root_node(job_node1)
 
     name = "TEST_VIA_API"
+    alias = "ALIAS_TEST_VIA_API"
     description = "DESCRIPTION_TEST_VIA_API"
     cron_scheduling = "0 0 * * *"
     schedule_timezone = "Pacific/Fakaofo"
@@ -172,6 +173,7 @@ def create_graph_pipeline(create_job, create_global_project):
         project_id=conf.project_id,
         graph_pipeline=graph_pipeline,
         name=name,
+        alias=alias,
         description=description,
         cron_scheduling=cron_scheduling,
         schedule_timezone=schedule_timezone,

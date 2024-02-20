@@ -1,6 +1,7 @@
 {
     "id": "bd17ddcc-b932-4917-a2a4-17ea582bb3fe",
     "name": "Pipeline test without alerting",
+    "alias": "Pipeline_test_without_alerting",
     "description": "Description pipeline dev test",
     "alerting": null,
     "pipelineInstanceCount": 0,
