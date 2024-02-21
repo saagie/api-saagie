@@ -228,6 +228,11 @@ class TestEnvVars:
         with pytest.raises(ValueError):
             instance.create(scope="PIPELINE", name="env_var1", value="value1")
 
+    def test_create_project_env_vars_error(self, saagie_api_mock):
+        instance = EnvVars(saagie_api_mock)
+        with pytest.raises(ValueError):
+            instance.create(scope="PROJECT", name="env_var_proj_1", value="value1")
+
     # Test the `delete` method
     @patch("saagieapi.env_vars.env_vars.check_scope", return_value=True)
     @patch(
