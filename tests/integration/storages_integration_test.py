@@ -235,4 +235,8 @@ class TestIntegrationStorages:
 
         result = conf.saagie_api.storages.duplicate(storage_id=storage["id"])
 
+        time.sleep(15)
+
+        conf.saagie_api.storages.delete(result["duplicateVolume"]["id"], conf.project_id)
+
         assert result["duplicateVolume"]["originalVolumeId"] == storage["id"]

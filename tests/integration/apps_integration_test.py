@@ -1,6 +1,8 @@
+import json
 import os
 import time
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -31,18 +33,18 @@ class TestIntegrationApps:
         conf.saagie_api.apps.delete(app_id=app_id)
 
     @staticmethod
-    def test_create_app_from_scratch(create_app_from_scratch, create_global_project):
+    def test_create_app_from_scratch(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
-        app_id = create_app_from_scratch
+        app_id = create_then_delete_app_from_scratch
         app = conf.saagie_api.apps.get_info(app_id)
 
         assert app["app"]["description"] == "Be happy"
 
     @staticmethod
-    def test_upgrade_app_from_scratch(create_app_from_scratch, create_global_project):
+    def test_upgrade_app_from_scratch(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
 
-        app_id = create_app_from_scratch
+        app_id = create_then_delete_app_from_scratch
         app = conf.saagie_api.apps.get_info(app_id)["app"]
 
         app_upgraded = conf.saagie_api.apps.upgrade(app_id, "my new release note")
@@ -50,10 +52,10 @@ class TestIntegrationApps:
         assert app_upgraded["addAppVersion"]["number"] == app["currentVersion"]["number"] + 1
 
     @staticmethod
-    def test_upgrade_app_wrong_parameter(create_app_from_scratch, create_global_project):
+    def test_upgrade_app_wrong_parameter(create_then_delete_app_from_scratch, create_global_project):
         conf = create_global_project
 
-        app_id = create_app_from_scratch
+        app_id = create_then_delete_app_from_scratch
 
         with pytest.raises(ValueError) as vale:
             conf.saagie_api.apps.upgrade(
@@ -82,10 +84,22 @@ class TestIntegrationApps:
     def test_import_app_from_catalog(create_global_project):
         conf = create_global_project
 
+        json_path = conf.import_dir / "project" / "apps" / "from-catalog" / "app.json"
+
         result = conf.saagie_api.apps.import_from_json(
-            os.path.join(conf.import_dir, "project", "apps", "from-catalog", "app.json"),
-            conf.project_id,
+            json_file=json_path,
+            project_id=conf.project_id,
         )
+
+        with Path(json_path).open("r", encoding="utf-8") as file:
+            app_info = json.load(file)
+
+        app = conf.saagie_api.apps.get_info(conf.saagie_api.apps.get_id(app_info["name"], conf.project_name))
+
+        conf.saagie_api.apps.delete(app["app"]["id"])
+        # need to delete the storage linked
+        for storage in app["app"]["currentVersion"]["volumesWithPath"]:
+            conf.saagie_api.storages.delete(storage["volume"]["id"], conf.project_id)
 
         assert result is True
 
@@ -93,10 +107,22 @@ class TestIntegrationApps:
     def test_import_app_from_scratch(create_global_project):
         conf = create_global_project
 
+        json_path = conf.import_dir / "project" / "apps" / "from-scratch" / "app.json"
+
         result = conf.saagie_api.apps.import_from_json(
-            os.path.join(conf.import_dir, "project", "apps", "from-scratch", "app.json"),
-            conf.project_id,
+            json_file=json_path,
+            project_id=conf.project_id,
         )
+
+        with Path(json_path).open("r", encoding="utf-8") as file:
+            app_info = json.load(file)
+
+        app = conf.saagie_api.apps.get_info(conf.saagie_api.apps.get_id(app_info["name"], conf.project_name))
+
+        conf.saagie_api.apps.delete(app["app"]["id"])
+        # need to delete the storage linked
+        for storage in app["app"]["currentVersion"]["volumesWithPath"]:
+            conf.saagie_api.storages.delete(storage["volume"]["id"], conf.project_id)
 
         assert result is True
 
@@ -197,7 +223,9 @@ class TestIntegrationApps:
             context="7.15.1",
         )
 
-        return app["installApp"]["id"]
+        yield app["installApp"]["id"]
+
+        conf.saagie_api.apps.delete(app["installApp"]["id"])
 
     @pytest.fixture
     @staticmethod
@@ -209,7 +237,15 @@ class TestIntegrationApps:
             context="8.2",
         )
 
-        return app["installApp"]["id"]
+        yield app["installApp"]["id"]
+
+        app_info = conf.saagie_api.apps.get_info(app["installApp"]["id"])
+
+        conf.saagie_api.apps.delete(app["installApp"]["id"])
+
+        # need to delete the storage linked
+        for storage in app_info["app"]["currentVersion"]["volumesWithPath"]:
+            conf.saagie_api.storages.delete(storage["volume"]["id"], conf.project_id)
 
     @pytest.fixture
     @staticmethod
@@ -245,7 +281,7 @@ class TestIntegrationApps:
 
         app_name = "Grafana"
         output_app_id = conf.saagie_api.apps.get_id(app_name, conf.project_name)
-        conf.saagie_api.apps.delete(output_app_id)
+
         assert app_id == output_app_id
 
     @staticmethod
@@ -279,9 +315,9 @@ class TestIntegrationApps:
         assert "appStats" in result
 
     @staticmethod
-    def test_get_history_statuses(create_global_project, create_app_from_scratch):
+    def test_get_history_statuses(create_global_project, create_then_delete_app_from_scratch):
         conf = create_global_project
-        app_id = create_app_from_scratch
+        app_id = create_then_delete_app_from_scratch
 
         app_info = conf.saagie_api.apps.get_info(app_id=app_id)
 
@@ -296,9 +332,9 @@ class TestIntegrationApps:
         assert "appHistoryStatuses" in result
 
     @staticmethod
-    def test_count_history_statuses(create_global_project, create_app_from_scratch):
+    def test_count_history_statuses(create_global_project, create_then_delete_app_from_scratch):
         conf = create_global_project
-        app_id = create_app_from_scratch
+        app_id = create_then_delete_app_from_scratch
 
         app_info = conf.saagie_api.apps.get_info(app_id=app_id)
 

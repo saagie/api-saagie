@@ -105,7 +105,8 @@ def create_global_project(command_line_args):
 
     yield Conf
 
-    Conf.saagie_api.projects.delete(Conf.project_id)
+    if not command_line_args["project_id"]:
+        Conf.saagie_api.projects.delete(Conf.project_id)
 
     # Delete output directory if it wasn't present before
     if not Conf.output_dir_present:
