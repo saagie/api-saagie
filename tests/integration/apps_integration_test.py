@@ -258,9 +258,9 @@ class TestIntegrationApps:
         conf.saagie_api.apps.delete(app_id=app_id)
 
     @staticmethod
-    def test_create_app_from_catalog(create_app_from_catalog, create_global_project):
+    def test_create_app_from_catalog(create_then_delete_app_from_catalog, create_global_project):
         conf = create_global_project
-        app_id = create_app_from_catalog
+        app_id = create_then_delete_app_from_catalog
 
         app = conf.saagie_api.apps.get_info(app_id)
 
