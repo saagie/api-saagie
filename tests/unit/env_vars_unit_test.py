@@ -322,6 +322,39 @@ class TestEnvVars:
         env_list_mock.assert_called_with(scope, None, None, scope_only=True, pprint_result=False)
         assert "saveEnvironmentVariable" in result
 
+        # Test the `update` method
+
+    @patch("saagieapi.env_vars.env_vars.check_scope", return_value=True)
+    @patch(
+        "saagieapi.env_vars.env_vars.EnvVars.list",
+        return_value=[
+            {
+                "id": "env_var_id",
+                "name": "TEST_VARIABLE",
+                "value": "value1",
+                "description": "description1",
+                "scope": "GLOBAL",
+                "isPassword": True,
+            }
+        ],
+    )
+    def test_update_existing_global_password_variable(self, env_list_mock, check_scope_mock, saagie_api_mock):
+        instance = EnvVars(saagie_api_mock)
+        # Parameters
+        scope = "GLOBAL"
+        name = "TEST_VARIABLE"
+        value = "new value"
+
+        mock_env_vars = {"saveEnvironmentVariable": {"id": "env_var_id"}}
+        saagie_api_mock.client.execute.return_value = mock_env_vars
+
+        result = instance.update(scope=scope, name=name, value=value, is_password=True)
+
+        # Assert that the result is as expected
+        check_scope_mock.assert_called_with(scope, None, None)
+        env_list_mock.assert_called_with(scope, None, None, scope_only=True, pprint_result=False)
+        assert "saveEnvironmentVariable" in result
+
     @patch("saagieapi.env_vars.env_vars.check_scope", return_value=True)
     @patch(
         "saagieapi.env_vars.env_vars.EnvVars.list",
@@ -348,6 +381,42 @@ class TestEnvVars:
         saagie_api_mock.client.execute.return_value = mock_env_vars
         # Act
         result = instance.update(scope=scope, name=name, value=value, project_id=project_id)
+
+        # Assert that the result is as expected
+        check_scope_mock.assert_called_with(scope, project_id, None)
+        env_list_mock.assert_called_with(scope, project_id, None, scope_only=True, pprint_result=False)
+        assert "saveEnvironmentVariable" in result
+
+    @patch("saagieapi.env_vars.env_vars.check_scope", return_value=True)
+    @patch(
+        "saagieapi.env_vars.env_vars.EnvVars.list",
+        return_value=[
+            {
+                "id": "env_var_id",
+                "name": "TEST_VARIABLE",
+                "value": "value1",
+                "description": "description1",
+                "scope": "PROJECT",
+                "isPassword": False,
+            }
+        ],
+    )
+    def test_update_existing_project_variable_name(self, env_list_mock, check_scope_mock, saagie_api_mock):
+        instance = EnvVars(saagie_api_mock)
+        # Parameters
+        scope = "PROJECT"
+        name = "TEST_VARIABLE"
+        new_name = "NEW_TEST_VARIABLE"
+        value = "new value"
+        project_id = "MY_PROJECT_ID"
+        new_description = "new description for tests purpose"
+
+        mock_env_vars = {"saveEnvironmentVariable": {"id": "env_var_id"}}
+        saagie_api_mock.client.execute.return_value = mock_env_vars
+        # Act
+        result = instance.update(
+            scope=scope, name=name, value=value, project_id=project_id, new_name=new_name, description=new_description
+        )
 
         # Assert that the result is as expected
         check_scope_mock.assert_called_with(scope, project_id, None)

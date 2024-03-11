@@ -282,7 +282,8 @@ class Jobs:
         ... )
         "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"
         """
-        jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
+        # jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
+        jobs = self.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
         if job := next((j for j in jobs if j["name"] == job_name), None):
             return job["id"]
         raise NameError(f"❌ Job {job_name} does not exist.")
@@ -1158,7 +1159,7 @@ class Jobs:
         }
         """  # pylint: disable=line-too-long
 
-        job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
+        job_list = self.list_for_project_minimal(project_id)["jobs"]
 
         # If the job already exists, upgrade it
         if job_name in [job["name"] for job in job_list]:
