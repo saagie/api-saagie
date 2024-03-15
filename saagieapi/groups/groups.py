@@ -328,7 +328,54 @@ class Groups:
         )
         logging.info("✅ Successfully edit group permission [%s] on the platform", group_name)
         return True
+        
+    def edit_users(
+        self,
+        group_name: str,
+        users_to_add: Optional[list] = [],
+        users_to_remove: Optional[list] = [], 
+        verify_ssl: Optional[bool] = None
+        ) -> bool:
+        """Edit user of a group
+        NB: You can only edit group if you have the admin role on the platform
 
+        Parameters
+        ----------
+        group_name: str
+            Name of the group
+        user_to_add: Optional[List]
+            List of users to add to the group
+            if not filled, defaults to current value
+        user_to_remove: Optional[List]
+            List of users to remove to the group
+            if not filled, defaults to current value
+        verify_ssl: bool, optional
+            Enable or disable verification of SSL certification
+            By default, refers to saagie_api.verify_ssl
+
+        Returns
+        -------
+        bool
+            True if group's users successfully edited False otherwise
+        """
+
+        verify_ssl = verify_ssl if verify_ssl is not None else self.saagie_api.verify_ssl
+
+        params = {
+            "name": group_name,
+            "usersToAdd": users_to_add,
+            "usersToRemove": users_to_remove,
+        }
+
+        self.saagie_api.request_client.send(
+            method="PUT",
+            url=f"{self.saagie_api.url_saagie}auth/api/groups/{group_name}",
+            raise_for_status=True,
+            json_data=params,
+            verify_ssl=verify_ssl,
+        )
+        logging.info("✅ Successfully edit group [%s] on the platform", group_name)
+        return True
     def delete(self, group_name: str, verify_ssl: Optional[bool] = None) -> bool:
         """Delete a given group
 
