@@ -1533,7 +1533,7 @@ class Jobs:
             local_folder = output_folder / job_id / "version" / str(version["number"])
             create_folder(local_folder)
             req = requests.get(
-                remove_slash_folder_path(self.saagie_api.url_saagie) + version["packageInfo"]["downloadUrl"],
+                f'{remove_slash_folder_path(self.saagie_api.url_saagie)}{version["packageInfo"]["downloadUrl"]}',
                 auth=self.saagie_api.auth,
                 stream=True,
                 timeout=60,
@@ -1590,10 +1590,12 @@ class Jobs:
             job_name = job_info["name"]
 
             version = next(version for version in job_info["versions"] if version["isCurrent"])
+            version_path = json_file.parent / "version" / str(version["number"])
 
-            if path_to_package := next((json_file.parent / "version" / str(version["number"])).iterdir(), None):
-                os.chdir(path_to_package.parent)
-                file_name = path_to_package.name
+            if version_path.exists():
+                if path_to_package := next(version_path.iterdir(), None):
+                    os.chdir(path_to_package.parent)
+                    file_name = path_to_package.name
             else:
                 file_name = ""
 
@@ -1620,7 +1622,7 @@ class Jobs:
             logging.info("✅ Job [%s] successfully imported", job_name)
         except Exception as exception:
             return handle_log_error(
-                f"❌ Job [{job_name}] has not been successfully imported",
+                f"❌ Job [in the following file: {json_file}] has not been successfully imported",
                 exception,
             )
         return True

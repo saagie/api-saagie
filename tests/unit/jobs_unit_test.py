@@ -1,4 +1,7 @@
 # pylint: disable=attribute-defined-outside-init
+import json
+import logging
+from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -8,6 +11,18 @@ from saagieapi.jobs import Jobs
 from saagieapi.jobs.gql_queries import *
 
 from .saagie_api_unit_test import create_gql_client
+
+
+class MockResponse:
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
+
+    def json(self):
+        return self.json_data
+
+    def iter_content(self, chunk_size):
+        return self.json_data
 
 
 class TestJobs:
@@ -503,12 +518,13 @@ class TestJobs:
     def test_upgrade_job_gql(self):
         self.client.validate(gql(GQL_UPGRADE_JOB))
 
-    def test_upgrade_job(self, saagie_api_mock):
+    def test_upgrade_job(self, saagie_api_mock, caplog):
         saagie_api_mock.get_runtimes.return_value = {"technology": {"contexts": [{"id": "3.10", "available": True}]}}
         instance = Jobs(saagie_api_mock)
 
         job_params = {
             "job_id": "60f46dce-c869-40c3-a2e5-1d7765a806db",
+            "file": "/tmp/my_file.py",
             "source_url": "http://my.super.source.url",
         }
         # Mock the return value
@@ -517,7 +533,7 @@ class TestJobs:
         # Patch the self.__launch_request and self.get_info methods to avoid calling the API
         with patch.object(instance, "get_info") as get_info, patch.object(
             instance, "_Jobs__launch_request"
-        ) as launch_request:
+        ) as launch_request, caplog.at_level(logging.WARNING):
             get_info.return_value = {
                 "job": {
                     "id": "60f46dce-c869-40c3-a2e5-1d7765a806db",
@@ -540,6 +556,7 @@ class TestJobs:
             job_result = instance.upgrade(**job_params)
 
         assert job_result == return_value
+        assert "You can not specify a file and use the previous artifact." in caplog.text
 
     def test_upgrade_job_with_bad_runtime(self, saagie_api_mock):
         saagie_api_mock.get_runtimes.return_value = {"technology": {"contexts": [{"id": "3.9", "available": True}]}}
@@ -703,14 +720,49 @@ class TestJobs:
 
         assert job_result == return_value
 
-    def test_rollback_job(self):
+    def test_rollback_job_gql(self):
         self.client.validate(gql(GQL_ROLLBACK_JOB_VERSION))
 
-    def test_delete_job(self):
+    def test_rollback_job(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {
+            "rollbackJobVersion": {
+                "id": "58870149-5f1c-45e9-93dc-04b2b30a732c",
+                "versions": [{"number": 2, "isCurrent": False}, {"number": 1, "isCurrent": True}],
+            }
+        }
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.rollback(job_id="job_id", version_number="1")
+
+        assert job_result == return_value
+
+    def test_delete_job_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB))
 
-    def test_run_job(self):
+    def test_delete_job(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {"deleteJob": True}
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.delete(job_id="job_id")
+
+        assert job_result == return_value
+
+    def test_run_job_gql(self):
         self.client.validate(gql(GQL_RUN_JOB))
+
+    def test_run_job(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {"runJob": {"id": "5b9fc971-1c4e-4e45-a978-5851caef0162", "status": "REQUESTED"}}
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.run(job_id="job_id")
+
+        assert job_result == return_value
 
     def test_run_job_with_callback_succeeded(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
@@ -770,38 +822,370 @@ class TestJobs:
 
             instance.run_with_callback(**job_params)
 
-    def test_stop_job(self):
+    def test_stop_job_gql(self):
         self.client.validate(gql(GQL_STOP_JOB_INSTANCE))
 
-    # def test_export(self, saagie_api_mock):
-    #     saagie_api_mock.get_technology_name_by_id.return_value = ("Saagie", "Python")
-    #     instance = Jobs(saagie_api_mock)
+    def test_stop_job(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
 
-    #     job_params = {
-    #         "job_id": "5b9fc971-1c4e-4e45-a978-5851caef0162",
-    #         "output_folder": "/tmp",
-    #     }
+        return_value = {
+            "stopJobInstance": {
+                "id": "8e9b9f16-4a5d-4188-a967-1a96b88e4358",
+                "number": 17,
+                "status": "KILLING",
+                "history": {"currentStatus": {"status": "SUCCEEDED", "details": None, "reason": None}},
+                "startTime": "2022-04-29T08:38:49.344Z",
+                "endTime": None,
+                "jobId": "e92ed472-50d6-4041-bba9-098a8e16f444",
+            }
+        }
 
-    #     with patch.object(instance, "get_info") as get_info:
-    #         get_info.return_value = {
-    #             "job": {
-    #                 "id": "",
-    #                 "name": "test export job",
-    #                 "technology": {
-    #                     "id": ""
-    #                 }
-    #             }
-    #         }
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.stop(job_instance_id="job_id")
 
-    #         job_result = instance.export(**job_params)
+        assert job_result == return_value
 
-    #     assert job_result == True
+    # def test_launch_request(self, saagie_api_mock):
+    #     assert 1 == 0
 
-    def test_delete_instances(self):
+    # This method will be used by the mock to replace requests.get
+    # see Stackoverflow post : https://stackoverflow.com/a/28507806
+    def mocked_requests_get_success(self, *args, **kwargs):
+        return MockResponse([], 200)
+
+    def mocked_requests_get_error(self, *args, **kwargs):
+        return MockResponse([], 404)
+
+    @patch("requests.get", side_effect=mocked_requests_get_success)
+    def test_export_success(self, mock_get, saagie_api_mock, tmp_path):
+        saagie_api_mock.get_technology_name_by_id.return_value = ("Saagie", "Python")
+        instance = Jobs(saagie_api_mock)
+
+        job_id = "5b9fc971-1c4e-4e45-a978-5851caef0162"
+
+        job_params = {
+            "job_id": job_id,
+            "output_folder": tmp_path,
+        }
+
+        job_info = {
+            "job": {
+                "id": "",
+                "name": "test export job",
+                "technology": {"id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"},
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False,
+                    }
+                ],
+            }
+        }
+
+        with patch.object(instance, "get_info") as get_info, patch(
+            "saagieapi.utils.folder_functions.create_folder"
+        ) as create_folder, patch("saagieapi.utils.folder_functions.remove_slash_folder_path") as remove_slash_folder:
+            get_info.return_value = job_info
+            create_folder.side_effect = [
+                Path(tmp_path / job_id).mkdir(),
+                Path(tmp_path / job_id / "version" / "1").mkdir(parents=True),
+            ]
+            remove_slash_folder.return_value = "http://my.super.url"
+            # write_resp.side_effect = []
+
+            job_result = instance.export(**job_params)
+
+        assert job_result is True
+
+    def test_export_error_job_info(self, saagie_api_mock, tmp_path):
+        instance = Jobs(saagie_api_mock)
+
+        job_id = "5b9fc971-1c4e-4e45-a978-5851caef0162"
+
+        job_params = {
+            "job_id": job_id,
+            "output_folder": tmp_path,
+        }
+
+        job_info = {
+            "jobs": {
+                "id": "",
+                "name": "test export job",
+                "technology": {"id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"},
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False,
+                    }
+                ],
+            }
+        }
+
+        with patch.object(instance, "get_info") as get_info:
+            get_info.return_value = job_info
+
+            job_result = instance.export(**job_params)
+
+        assert job_result is False
+
+    def test_export_no_job_info(self, saagie_api_mock, tmp_path):
+        instance = Jobs(saagie_api_mock)
+
+        job_id = "5b9fc971-1c4e-4e45-a978-5851caef0162"
+
+        job_params = {
+            "job_id": job_id,
+            "output_folder": tmp_path,
+        }
+
+        job_info = {"job": {}}
+
+        with patch.object(instance, "get_info") as get_info:
+            get_info.return_value = job_info
+
+            job_result = instance.export(**job_params)
+
+        assert job_result is False
+
+    def test_export_no_repo_name(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.get_technology_name_by_id.return_value = ([], "Python")
+        instance = Jobs(saagie_api_mock)
+
+        job_id = "5b9fc971-1c4e-4e45-a978-5851caef0162"
+
+        job_params = {
+            "job_id": job_id,
+            "output_folder": tmp_path,
+        }
+
+        job_info = {
+            "job": {
+                "id": "",
+                "name": "test export job",
+                "technology": {"id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"},
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False,
+                    }
+                ],
+            }
+        }
+
+        with patch.object(instance, "get_info") as get_info:
+            get_info.return_value = job_info
+
+            job_result = instance.export(**job_params)
+
+        assert job_result is False
+
+    @patch("requests.get", side_effect=mocked_requests_get_error)
+    def test_export_error_bad_status_code(self, mock_get, saagie_api_mock, tmp_path):
+        saagie_api_mock.get_technology_name_by_id.return_value = ("Saagie", "Python")
+        instance = Jobs(saagie_api_mock)
+
+        job_id = "5b9fc971-1c4e-4e45-a978-5851caef0162"
+
+        job_params = {
+            "job_id": job_id,
+            "output_folder": tmp_path,
+        }
+
+        job_info = {
+            "job": {
+                "id": "",
+                "name": "test export job",
+                "technology": {"id": "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"},
+                "versions": [
+                    {
+                        "number": 1,
+                        "creationDate": "2022-04-26T08:16:20.681Z",
+                        "releaseNote": "",
+                        "runtimeVersion": "3.7",
+                        "commandLine": "python {file} arg1 arg2",
+                        "packageInfo": {
+                            "name": "test.py",
+                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                        },
+                        "dockerInfo": None,
+                        "extraTechnology": None,
+                        "isCurrent": True,
+                        "isMajor": False,
+                    }
+                ],
+            }
+        }
+
+        with patch.object(instance, "get_info") as get_info, patch(
+            "saagieapi.utils.folder_functions.create_folder"
+        ) as create_folder, patch("saagieapi.utils.folder_functions.remove_slash_folder_path") as remove_slash_folder:
+            get_info.return_value = job_info
+            create_folder.side_effect = [
+                Path(tmp_path / job_id).mkdir(),
+                Path(tmp_path / job_id / "version" / "1").mkdir(parents=True),
+            ]
+            remove_slash_folder.return_value = "http://my.super.url"
+            # write_resp.side_effect = []
+
+            job_result = instance.export(**job_params)
+
+        assert job_result is True
+
+    def test_import_from_json_succes_without_version_package(self, saagie_api_mock, tmp_path):
+        instance = Jobs(saagie_api_mock)
+
+        job_params = {
+            "project_id": "",
+            "path_to_folder": tmp_path,
+        }
+
+        cur_path = Path(__file__).parent
+        origin_path = cur_path.parent / "integration" / "resources" / "import" / "project" / "jobs" / "job" / "job.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "job.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(job_info, file, indent=4)
+
+        with patch.object(instance, "create") as create:
+            create.return_value = True
+            job_result = instance.import_from_json(**job_params)
+
+        assert job_result is True
+
+    def test_import_from_json_succes_with_version_package(self, saagie_api_mock, tmp_path):
+        instance = Jobs(saagie_api_mock)
+
+        job_params = {
+            "project_id": "",
+            "path_to_folder": tmp_path,
+        }
+
+        cur_path = Path(__file__).parent
+        origin_path = cur_path.parent / "integration" / "resources" / "import" / "project" / "jobs" / "job" / "job.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "job.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(job_info, file, indent=4)
+
+        version = next(version for version in job_info["versions"] if version["isCurrent"])
+        package_path = Path(tmp_path / "version" / str(version["number"]))
+        package_path.mkdir(parents=True)
+        (package_path / "filename.txt").write_text("This file corresponds to the job package.")
+
+        with patch.object(instance, "create") as create:
+            create.return_value = True
+            job_result = instance.import_from_json(**job_params)
+
+        assert job_result is True
+
+    def test_import_from_json_error_loading_json(self, saagie_api_mock, tmp_path):
+        instance = Jobs(saagie_api_mock)
+
+        job_params = {
+            "project_id": "",
+            "path_to_folder": tmp_path,
+        }
+
+        tmp_file = Path(tmp_path / "job.json")
+        tmp_file.write_text("This is not a json format.")
+
+        job_result = instance.import_from_json(**job_params)
+
+        assert job_result is False
+
+    def test_import_from_json_error_reading_json(self, saagie_api_mock, tmp_path):
+        instance = Jobs(saagie_api_mock)
+
+        job_params = {
+            "project_id": "",
+            "path_to_folder": tmp_path,
+        }
+
+        cur_path = Path(__file__).parent
+        origin_path = cur_path.parent / "integration" / "resources" / "import" / "project" / "jobs" / "job" / "job.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "job.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump({"job": job_info}, file, indent=4)
+
+        job_result = instance.import_from_json(**job_params)
+
+        assert job_result is False
+
+    def test_delete_instances_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB_INSTANCE))
 
-    def test_delete_instances_by_selector(self):
+    def test_delete_instances(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {
+            "deleteJobInstances": [
+                {"id": "7e5549cd-32aa-42c4-88b5-ddf5f3087502", "success": True},
+                {"id": "c8f156bc-78ab-4dda-acff-bbe828237fd9", "success": True},
+            ]
+        }
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.delete_instances(job_id="job_id", job_instances_id="job_instance_id")
+
+        assert job_result == return_value
+
+    def test_delete_instances_by_selector_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR))
+
+    def test_delete_instances_by_selector(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {
+            "deleteJobInstances": [
+                {"id": "7e5549cd-32aa-42c4-88b5-ddf5f3087502", "success": True},
+                {"id": "c8f156bc-78ab-4dda-acff-bbe828237fd9", "success": True},
+            ]
+        }
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.delete_instances_by_selector(job_id="job_id", selector="ALL")
+
+        assert job_result == return_value
 
     def test_delete_instances_by_date_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB_INSTANCES_BY_DATE))
@@ -829,22 +1213,57 @@ class TestJobs:
             "date_before": "20230601 00:00:00+01:00",
         }
 
-        # return_value = {"deleteJobInstancesByDate": 1}
-
-        # saagie_api_mock.client.execute.return_value = return_value
         with pytest.raises(ValueError):
             instance.delete_instances_by_date(**job_params)
 
-    def test_delete_versions(self):
+    def test_delete_versions_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB_VERSION))
 
-    def test_duplicate(self):
+    def test_delete_versions(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {"deleteJobVersions": [{"number": 1, "success": True}]}
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.delete_versions(job_id="job_id", versions=["1"])
+
+        assert job_result == return_value
+
+    def test_duplicate_gql(self):
         self.client.validate(gql(GQL_DUPLICATE_JOB))
 
-    def test_count_deletable_instances_by_status(self):
+    def test_duplicate(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {"duplicateJob": {"id": "29cf1b80-6b9c-47bc-a06c-c20897257097", "name": "Copy of my_job 2"}}
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.duplicate(job_id="job_id")
+
+        assert job_result == return_value
+
+    def test_count_deletable_instances_by_status_gql(self):
         self.client.validate(gql(GQL_COUNT_INSTANCES_BY_SELECTOR))
 
-    def test_count_deletable_instances_by_date(self):
+    def test_count_deletable_instances_by_status(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {
+            "countJobInstancesBySelector": [
+                {"selector": "ALL", "count": 0},
+                {"selector": "SUCCEEDED", "count": 0},
+                {"selector": "FAILED", "count": 0},
+                {"selector": "STOPPED", "count": 0},
+                {"selector": "UNKNOWN", "count": 0},
+            ]
+        }
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.count_deletable_instances_by_status(job_id="job_id")
+
+        assert job_result == return_value
+
+    def test_count_deletable_instances_by_date_gql(self):
         self.client.validate(gql(GQL_COUNT_INSTANCES_BY_DATE))
 
     def test_count_deletable_instances_by_date_correct_format(self, saagie_api_mock):
@@ -873,8 +1292,36 @@ class TestJobs:
         with pytest.raises(ValueError):
             instance.count_deletable_instances_by_date(**job_params)
 
-    def test_move_job(self):
+    def test_move_job_gql(self):
         self.client.validate(gql(GQL_MOVE_JOB))
 
-    def test_generate_description_by_ai(self):
+    def test_move_job(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {
+            "moveJob": "29cf1b80-6b9c-47bc-a06c-c20897257097",
+        }
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.move_job(job_id="job_id", target_platform_id=1, target_project_id="project_id")
+
+        assert job_result == return_value
+
+    def test_generate_description_by_ai_gql(self):
         self.client.validate(gql(GQL_GENERATE_JOB_DESCRIPTION))
+
+    def test_generate_description_by_ai(self, saagie_api_mock):
+        instance = Jobs(saagie_api_mock)
+
+        return_value = {
+            "editJobWithAiGeneratedDescription": {
+                "id": "bfa25e4a-1796-4ebb-8c3d-138f74146973",
+                "description": 'The purpose of this code is to display the message "Hello World" on the screen.',
+                "aiDescriptionVersionNumber": 1,
+            }
+        }
+
+        saagie_api_mock.client.execute.return_value = return_value
+        job_result = instance.generate_description_by_ai(job_id="job_id")
+
+        assert job_result == return_value
