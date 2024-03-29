@@ -378,7 +378,7 @@ class Pipelines:
                 "name": "Pipeline A",
                 "alias": "Pipeline_A",
                 "description": "My Pipeline A",
-                "alerting": "NULL",
+                "alerting": None,
                 "pipelineInstanceCount": 0,
                 "instances": [
                     {
@@ -835,12 +835,12 @@ class Pipelines:
         }
 
         if cron_scheduling:
-            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
+            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
         else:
             params["isScheduled"] = False
 
         if emails:
-            params = self.saagie_api.check_alerting(emails, params, status_list)
+            params.update(self.saagie_api.check_alerting(emails, status_list))
 
         if has_execution_variables_enabled:
             params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
@@ -1049,7 +1049,7 @@ class Pipelines:
 
         # cases test : True, False and None
         if is_scheduled:
-            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
+            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
         elif is_scheduled == False:
             params["isScheduled"] = False
         else:
@@ -1058,7 +1058,7 @@ class Pipelines:
 
         # cases test : List non empty, List empty, None
         if isinstance(emails, List) and emails:
-            params = self.saagie_api.check_alerting(emails, params, status_list)
+            params.update(self.saagie_api.check_alerting(emails, status_list))
         elif isinstance(emails, List):
             params["alerting"] = None
         elif previous_alerting := previous_pipeline_info["alerting"]:
@@ -1168,7 +1168,7 @@ class Pipelines:
             }
         }
         """
-        pipeline_list = self.saagie_api.pipelines.list_for_project_minimal(project_id)["project"]["pipelines"]
+        pipeline_list = self.list_for_project_minimal(project_id)["project"]["pipelines"]
 
         if name in [pipeline["name"] for pipeline in pipeline_list]:
             pipeline_id = next(pipeline["id"] for pipeline in pipeline_list if pipeline["name"] == name)

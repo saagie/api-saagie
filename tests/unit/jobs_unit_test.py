@@ -30,13 +30,6 @@ class TestJobs:
     def saagie_api_mock(self):
         saagie_api_mock = Mock()
 
-        # saagie_api_mock.projects.get_id.return_value = "project_id"
-        # saagie_api_mock.projects.get_jobs_technologies.return_value = {
-        #     "technologiesByCategory": [{"jobCategory": "Processing", "technologies": [{"id": "python"}, {"id": "spark"}]}]
-        # }
-        # saagie_api_mock.get_runtimes.return_value = {"technology": {"contexts": [{"id": "3.10", "available": True}]}}
-        # saagie_api_mock.check_technology.return_value = {"technologyId": "1234"}
-        # saagie_api_mock.__launch_request.return_value = {"data": {"createJob": {"job": {"name": "test_job"}}}}
         saagie_api_mock.client.execute = MagicMock()
         return saagie_api_mock
 
@@ -175,8 +168,16 @@ class TestJobs:
         }
         saagie_api_mock.get_runtimes.return_value = {"technology": {"contexts": [{"id": "3.10", "available": True}]}}
         saagie_api_mock.check_technology.return_value = {"technologyId": "1234"}
-        # saagie_api_mock.check_alerting.return_value = {"alerting": {"emails": ["e.mail@test.com"], "statusList": ["FAILED", "KILLED"]}}
-        # saagie_api_mock.check_scheduling.return_value = {"alerting": {"emails": ["e.mail@test.com"], "statusList": ["FAILED", "KILLED"]}}
+        saagie_api_mock.check_scheduling.return_value = {
+            "isScheduled": True,
+            "cronScheduling": "0 0 * * *",
+            "scheduleTimezone": "Europe/Paris",
+        }
+        saagie_api_mock.check_alerting.return_value = {
+            "emails": ["e.mail@test.com"],
+            "statusList": ["FAILED", "KILLED"],
+        }
+
         instance = Jobs(saagie_api_mock)
         job_params = {
             "job_name": "test_job",
@@ -279,6 +280,15 @@ class TestJobs:
         self.client.validate(gql(GQL_EDIT_JOB))
 
     def test_edit_job(self, saagie_api_mock):
+        saagie_api_mock.check_scheduling.return_value = {
+            "isScheduled": True,
+            "cronScheduling": "0 0 * * *",
+            "scheduleTimezone": "Europe/Paris",
+        }
+        saagie_api_mock.check_alerting.return_value = {
+            "emails": ["email1@saagie.io"],
+            "statusList": ["FAILED", "QUEUED"],
+        }
         instance = Jobs(saagie_api_mock)
 
         job_params = {
@@ -343,6 +353,10 @@ class TestJobs:
             instance.edit(**job_params)
 
     def test_edit_job_without_scheduled(self, saagie_api_mock):
+        saagie_api_mock.check_alerting.return_value = {
+            "emails": ["email1@saagie.io"],
+            "statusList": ["FAILED", "QUEUED"],
+        }
         instance = Jobs(saagie_api_mock)
 
         job_params = {
@@ -384,6 +398,10 @@ class TestJobs:
         assert job_result == return_value
 
     def test_edit_job_with_no_scheduled_update(self, saagie_api_mock):
+        saagie_api_mock.check_alerting.return_value = {
+            "emails": ["email1@saagie.io"],
+            "statusList": ["FAILED", "QUEUED"],
+        }
         instance = Jobs(saagie_api_mock)
 
         job_params = {
