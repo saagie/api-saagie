@@ -1408,6 +1408,7 @@ class Pipelines:
             Whether to only fetch the current version of each pipeline
         env_var_scope : str, optional
             Scope of the environment variables to export. Can be "GLOBAL", "PROJECT" or "PIPELINE"
+            Default value is "PIPELINE".
 
         Returns
         -------
@@ -1499,11 +1500,11 @@ class Pipelines:
         try:
             pipeline_name = pipeline_info["name"]
 
-            jobs_target_pj = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
-
             version = next((version for version in pipeline_info["versions"] if version["isCurrent"]), None)
             if not version:
                 return handle_error("❌ Current version not found", pipeline_name)
+
+            jobs_target_pj = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
 
             jobs_not_found, jobs_found = parse_version_jobs(jobs_target_pj, version)
 
@@ -1822,7 +1823,8 @@ class Pipelines:
         }
         """
         result = self.saagie_api.client.execute(
-            query=gql(GQL_DUPLICATE_PIPELINE), variable_values={"pipelineId": pipeline_id}
+            query=gql(GQL_DUPLICATE_PIPELINE),
+            variable_values={"pipelineId": pipeline_id, "duplicateJobs": duplicate_jobs},
         )
         logging.info("✅ Pipeline [%s] successfully duplicated", pipeline_id)
         return result

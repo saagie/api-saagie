@@ -1,4 +1,6 @@
 # pylint: disable=attribute-defined-outside-init
+import json
+from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -754,34 +756,684 @@ class TestPipelines:
 
         saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
+    def test_run_pipeline_with_callback_succeeded(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        run = {"runPipeline": {"id": "975253ea-1b91-4633-acdf-dd9b09d53b18", "status": "REQUESTED"}}
+
+        inst = [
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "RUNNING",
+                }
+            },
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "SUCCEEDED",
+                }
+            },
+        ]
+
+        with patch.object(pipeline, "run") as p_run, patch.object(pipeline, "get_instance") as p_inst:
+            p_run.return_value = run
+            p_inst.side_effect = inst
+            res = pipeline.run_with_callback(pipeline_id=pipeline_id, freq=1)
+
+        assert res == ("SUCCEEDED", "975253ea-1b91-4633-acdf-dd9b09d53b18")
+
+    def test_run_pipeline_with_callback_failed(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        run = {"runPipeline": {"id": "975253ea-1b91-4633-acdf-dd9b09d53b18", "status": "REQUESTED"}}
+
+        inst = [
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "RUNNING",
+                }
+            },
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "FAILED",
+                }
+            },
+        ]
+
+        with patch.object(pipeline, "run") as p_run, patch.object(pipeline, "get_instance") as p_inst:
+            p_run.return_value = run
+            p_inst.side_effect = inst
+            res = pipeline.run_with_callback(pipeline_id=pipeline_id, freq=1)
+
+        assert res == ("FAILED", "975253ea-1b91-4633-acdf-dd9b09d53b18")
+
+    def test_run_pipeline_with_callback_timeout(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        run = {"runPipeline": {"id": "975253ea-1b91-4633-acdf-dd9b09d53b18", "status": "REQUESTED"}}
+
+        inst = [
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "RUNNING",
+                }
+            },
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "RUNNING",
+                }
+            },
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "RUNNING",
+                }
+            },
+            {
+                "pipelineInstance": {
+                    "id": "975253ea-1b91-4633-acdf-dd9b09d53b18",
+                    "status": "FAILED",
+                }
+            },
+        ]
+
+        with patch.object(pipeline, "run") as p_run, patch.object(pipeline, "get_instance") as p_inst, pytest.raises(
+            TimeoutError
+        ):
+            p_run.return_value = run
+            p_inst.side_effect = inst
+            pipeline.run_with_callback(pipeline_id=pipeline_id, freq=1, timeout=2)
+
     def test_stop_pipeline_instance_gql(self):
         query = gql(GQL_STOP_PIPELINE_INSTANCE)
         self.client.validate(query)
+
+    def test_stop_pipeline_instance(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_instance_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline.stop(pipeline_instance_id=pipeline_instance_id)
+
+        expected_query = gql(GQL_STOP_PIPELINE_INSTANCE)
+
+        params = {"pipelineInstanceId": pipeline_instance_id}
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
+    def test_export_success(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.env_vars.list.return_value = [
+            {
+                "id": "334c2e0e-e8ea-4639-911e-757bf36bc91b",
+                "name": "TEST_PASSWORD",
+                "scope": "PIPELINE",
+                "value": None,
+                "description": "This is a password",
+                "isPassword": True,
+                "isValid": True,
+                "overriddenValues": [],
+                "invalidReasons": None,
+            },
+        ]
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline_params = {
+            "pipeline_id": pipeline_id,
+            "output_folder": tmp_path,
+        }
+
+        pipeline_info = {
+            "graphPipeline": {
+                "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                "name": "Pipeline A",
+                "alias": "Pipeline_A",
+                "description": "My Pipeline A",
+                "alerting": None,
+                "pipelineInstanceCount": 0,
+                "versions": [
+                    {
+                        "number": 1,
+                        "releaseNote": None,
+                        "graph": {
+                            "jobNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000000",
+                                    "job": {"id": "6f56e714-37e4-4596-ae20-7016a1d954e9", "name": "Spark 2.4 java"},
+                                    "position": None,
+                                    "nextNodes": ["00000000-0000-0000-0000-000000000001"],
+                                },
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "job": {"id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a", "name": "bash"},
+                                    "position": None,
+                                    "nextNodes": [],
+                                },
+                            ],
+                            "conditionNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "position": {"x": 310.00092, "y": 75},
+                                    "nextNodesSuccess": ["00000000-0000-0000-0000-000000000002"],
+                                    "nextNodesFailure": [],
+                                    "condition": {
+                                        "toString": 'ConditionExpression(expression="tube_name.contains("Tube") || double(diameter) > 1.0")'
+                                    },
+                                }
+                            ],
+                        },
+                        "creationDate": "2022-01-31T10:36:42.327Z",
+                        "creator": "john.doe",
+                        "isCurrent": True,
+                        "isMajor": False,
+                    }
+                ],
+                "creationDate": "2022-01-31T10:36:42.327Z",
+                "creator": "john.doe",
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isLegacyPipeline": False,
+            }
+        }
+
+        with patch.object(pipeline, "get_info") as get_info, patch(
+            "saagieapi.utils.folder_functions.create_folder"
+        ) as create_folder:
+            get_info.return_value = pipeline_info
+            create_folder.side_effect = [
+                Path(tmp_path / pipeline_id).mkdir(),
+                Path(tmp_path / pipeline_id / "env_vars" / "TEST_PASSWORD").mkdir(parents=True),
+            ]
+            res = pipeline.export(**pipeline_params)
+
+        assert res is True
+
+    def test_export_error(self, saagie_api_mock, tmp_path):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline_params = {
+            "pipeline_id": pipeline_id,
+            "output_folder": tmp_path,
+        }
+
+        pipeline_info = {
+            "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+            "name": "Pipeline A",
+            "alias": "Pipeline_A",
+            "description": "My Pipeline A",
+            "alerting": None,
+            "pipelineInstanceCount": 0,
+            "versions": [
+                {
+                    "number": 1,
+                    "releaseNote": None,
+                    "graph": {
+                        "jobNodes": [
+                            {
+                                "id": "00000000-0000-0000-0000-000000000000",
+                                "job": {"id": "6f56e714-37e4-4596-ae20-7016a1d954e9", "name": "Spark 2.4 java"},
+                                "position": None,
+                                "nextNodes": ["00000000-0000-0000-0000-000000000001"],
+                            },
+                            {
+                                "id": "00000000-0000-0000-0000-000000000001",
+                                "job": {"id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a", "name": "bash"},
+                                "position": None,
+                                "nextNodes": [],
+                            },
+                        ],
+                        "conditionNodes": [
+                            {
+                                "id": "00000000-0000-0000-0000-000000000001",
+                                "position": {"x": 310.00092, "y": 75},
+                                "nextNodesSuccess": ["00000000-0000-0000-0000-000000000002"],
+                                "nextNodesFailure": [],
+                                "condition": {
+                                    "toString": 'ConditionExpression(expression="tube_name.contains("Tube") || double(diameter) > 1.0")'
+                                },
+                            }
+                        ],
+                    },
+                    "creationDate": "2022-01-31T10:36:42.327Z",
+                    "creator": "john.doe",
+                    "isCurrent": True,
+                    "isMajor": False,
+                }
+            ],
+            "creationDate": "2022-01-31T10:36:42.327Z",
+            "creator": "john.doe",
+            "isScheduled": False,
+            "cronScheduling": None,
+            "scheduleStatus": None,
+            "scheduleTimezone": "UTC",
+            "isLegacyPipeline": False,
+        }
+
+        with patch.object(pipeline, "get_info") as get_info:
+            get_info.return_value = pipeline_info
+            res = pipeline.export(**pipeline_params)
+
+        assert res is False
+
+    def test_export_raises(self, saagie_api_mock, tmp_path):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline_params = {
+            "pipeline_id": pipeline_id,
+            "output_folder": tmp_path,
+            "env_var_scope": "OTHER",
+        }
+
+        pipeline_info = {
+            "graphPipeline": {
+                "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                "name": "Pipeline A",
+                "alias": "Pipeline_A",
+                "description": "My Pipeline A",
+                "alerting": None,
+                "pipelineInstanceCount": 0,
+                "versions": [
+                    {
+                        "number": 1,
+                        "releaseNote": None,
+                        "graph": {
+                            "jobNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000000",
+                                    "job": {"id": "6f56e714-37e4-4596-ae20-7016a1d954e9", "name": "Spark 2.4 java"},
+                                    "position": None,
+                                    "nextNodes": ["00000000-0000-0000-0000-000000000001"],
+                                },
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "job": {"id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a", "name": "bash"},
+                                    "position": None,
+                                    "nextNodes": [],
+                                },
+                            ],
+                            "conditionNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "position": {"x": 310.00092, "y": 75},
+                                    "nextNodesSuccess": ["00000000-0000-0000-0000-000000000002"],
+                                    "nextNodesFailure": [],
+                                    "condition": {
+                                        "toString": 'ConditionExpression(expression="tube_name.contains("Tube") || double(diameter) > 1.0")'
+                                    },
+                                }
+                            ],
+                        },
+                        "creationDate": "2022-01-31T10:36:42.327Z",
+                        "creator": "john.doe",
+                        "isCurrent": True,
+                        "isMajor": False,
+                    }
+                ],
+                "creationDate": "2022-01-31T10:36:42.327Z",
+                "creator": "john.doe",
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isLegacyPipeline": False,
+            }
+        }
+
+        with patch.object(pipeline, "get_info") as get_info, patch(
+            "saagieapi.utils.folder_functions.create_folder"
+        ) as create_folder:
+            get_info.return_value = pipeline_info
+            create_folder.side_effect = [Path(tmp_path / pipeline_id).mkdir()]
+            res = pipeline.export(**pipeline_params)
+
+        # can't test the raise by itself because it goes inside the except
+        assert res is False
+
+    def test_import_success(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.jobs.list_for_project_minimal.return_value = {
+            "jobs": [
+                {"id": "9d488144-a9d0-4183-8422-a343a8efd4ed", "name": "test_job_python", "alias": "test_job_python"},
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2",
+                },
+            ]
+        }
+        pipeline = Pipelines(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        origin_path = (
+            cur_path.parent
+            / "integration"
+            / "resources"
+            / "import"
+            / "project"
+            / "pipelines"
+            / "with-existing-jobs"
+            / "pipeline.json"
+        )
+        with origin_path.open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "pipeline.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(pipeline_info, file, indent=4)
+
+        pipeline_params = {
+            "json_file": tmp_file,
+            "project_id": "",
+        }
+
+        with patch.object(pipeline, "create_graph") as create:
+            create.return_value = {"createGraphPipeline": {"id": "ca79c5c8-2e57-4a35-bcfc-5065f0ee901c"}}
+            result = pipeline.import_from_json(**pipeline_params)
+
+        assert result is True
+
+    def test_import_error_reading_json(self, saagie_api_mock, tmp_path):
+        pipeline = Pipelines(saagie_api_mock)
+
+        tmp_file = Path(tmp_path / "pipeline.json")
+        tmp_file.write_text("This is not a json format.")
+
+        pipeline_params = {
+            "json_file": tmp_file,
+            "project_id": "",
+        }
+
+        result = pipeline.import_from_json(**pipeline_params)
+
+        assert result is False
+
+    def test_import_error_no_current_version(self, saagie_api_mock, tmp_path):
+        pipeline = Pipelines(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        origin_path = (
+            cur_path.parent
+            / "integration"
+            / "resources"
+            / "import"
+            / "project"
+            / "pipelines"
+            / "with-existing-jobs"
+            / "pipeline.json"
+        )
+        with origin_path.open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        for version in pipeline_info["versions"]:
+            if version["isCurrent"]:
+                version["isCurrent"] = False
+
+        tmp_file = Path(tmp_path / "pipeline.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(pipeline_info, file, indent=4)
+
+        pipeline_params = {
+            "json_file": tmp_file,
+            "project_id": "",
+        }
+
+        result = pipeline.import_from_json(**pipeline_params)
+
+        assert result is False
+
+    def test_import_error_no_job_to_import(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.jobs.list_for_project_minimal.return_value = {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "alias": "Python_test_job_1",
+                },
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2",
+                },
+            ]
+        }
+        pipeline = Pipelines(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        origin_path = (
+            cur_path.parent
+            / "integration"
+            / "resources"
+            / "import"
+            / "project"
+            / "pipelines"
+            / "with-existing-jobs"
+            / "pipeline.json"
+        )
+        with origin_path.open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "pipeline.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(pipeline_info, file, indent=4)
+
+        pipeline_params = {
+            "json_file": tmp_file,
+            "project_id": "",
+        }
+
+        result = pipeline.import_from_json(**pipeline_params)
+
+        assert result is False
+
+    def test_import_error_create_pipeline(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.jobs.list_for_project_minimal.return_value = {
+            "jobs": [
+                {"id": "9d488144-a9d0-4183-8422-a343a8efd4ed", "name": "test_job_python", "alias": "test_job_python"},
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2",
+                },
+            ]
+        }
+        pipeline = Pipelines(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        origin_path = (
+            cur_path.parent
+            / "integration"
+            / "resources"
+            / "import"
+            / "project"
+            / "pipelines"
+            / "with-existing-jobs"
+            / "pipeline.json"
+        )
+        with origin_path.open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "pipeline.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(pipeline_info, file, indent=4)
+
+        pipeline_params = {
+            "json_file": tmp_file,
+            "project_id": "",
+        }
+
+        with patch.object(pipeline, "create_graph") as create:
+            create.return_value = {"createGraphPipeline": None}
+            result = pipeline.import_from_json(**pipeline_params)
+
+        assert result is False
 
     def test_count_deletable_instances_by_status_gql(self):
         query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_STATUS)
         self.client.validate(query)
 
+    def test_count_deletable_instances_by_status(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline.count_deletable_instances_by_status(pipeline_id=pipeline_id)
+
+        expected_query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_STATUS)
+
+        params = {"pipelineId": pipeline_id}
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
     def test_count_deletable_instances_by_date_gql(self):
         query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE)
         self.client.validate(query)
+
+    def test_count_deletable_instances_by_date_good_format(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        date_before = "2023-10-01T00:00:00+01:00"
+
+        pipeline.count_deletable_instances_by_date(pipeline_id=pipeline_id, date_before=date_before)
+
+        expected_query = gql(GQL_COUNT_DELETABLE_PIPELINE_INSTANCE_BY_DATE)
+
+        params = {"pipelineId": pipeline_id, "beforeAt": date_before}
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
+    def test_count_deletable_instances_by_date_bad_format(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        date_before = "2023-10-01 00:00:00"
+
+        with pytest.raises(ValueError):
+            pipeline.count_deletable_instances_by_date(pipeline_id=pipeline_id, date_before=date_before)
 
     def test_delete_versions_gql(self):
         query = gql(GQL_DELETE_PIPELINE_VERSION)
         self.client.validate(query)
 
+    def test_delete_versions(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        versions = [1]
+
+        pipeline.delete_versions(pipeline_id=pipeline_id, versions=versions)
+
+        expected_query = gql(GQL_DELETE_PIPELINE_VERSION)
+
+        params = {"pipelineId": pipeline_id, "versions": versions}
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
     def test_delete_instances_gql(self):
         query = gql(GQL_DELETE_PIPELINE_INSTANCE)
         self.client.validate(query)
+
+    def test_delete_instances(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        instance_id = ["860b8dc8-e634-4c98-b2e7-f9ec32ab4771"]
+
+        pipeline.delete_instances(pipeline_id=pipeline_id, pipeline_instances_id=instance_id)
+
+        expected_query = gql(GQL_DELETE_PIPELINE_INSTANCE)
+
+        params = {"pipelineId": pipeline_id, "pipelineInstancesId": instance_id}
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_delete_instances_by_selector_gql(self):
         query = gql(GQL_DELETE_PIPELINE_INSTANCE_BY_SELECTOR)
         self.client.validate(query)
 
+    def test_delete_instances_by_selector(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline.delete_instances_by_selector(pipeline_id=pipeline_id, selector="FAILED")
+
+        expected_query = gql(GQL_DELETE_PIPELINE_INSTANCE_BY_SELECTOR)
+
+        params = {
+            "pipelineId": pipeline_id,
+            "selector": "FAILED",
+            "excludePipelineInstanceId": [],
+            "includePipelineInstanceId": [],
+        }
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
     def test_delete_instances_by_date_gql(self):
         query = gql(GQL_DELETE_PIPELINE_INSTANCE_BY_DATE)
         self.client.validate(query)
 
+    def test_delete_instances_by_date_good_format(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        date_before = "2023-10-01T00:00:00+01:00"
+
+        pipeline.delete_instances_by_date(pipeline_id=pipeline_id, date_before=date_before)
+
+        expected_query = gql(GQL_DELETE_PIPELINE_INSTANCE_BY_DATE)
+
+        params = {
+            "pipelineId": pipeline_id,
+            "beforeAt": date_before,
+            "excludePipelineInstanceId": [],
+            "includePipelineInstanceId": [],
+        }
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
+    def test_delete_instances_by_date_bad_format(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        date_before = "2023-10-01 00:00:00"
+
+        with pytest.raises(ValueError):
+            pipeline.delete_instances_by_date(pipeline_id=pipeline_id, date_before=date_before)
+
     def test_duplicate_pipeline_gql(self):
         query = gql(GQL_DUPLICATE_PIPELINE)
         self.client.validate(query)
+
+    def test_duplicate_pipeline(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        pipeline.duplicate(pipeline_id=pipeline_id)
+
+        expected_query = gql(GQL_DUPLICATE_PIPELINE)
+
+        params = {
+            "pipelineId": pipeline_id,
+            "duplicateJobs": False,
+        }
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
