@@ -42,17 +42,22 @@ class TestJobs:
     def test_list_project_jobs(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "jobs": [
-                {"name": "job1", "id": 1, "alias": "job1_alias"},
-                {"name": "job2", "id": 2, "alias": "job2_alias"},
-            ]
+        project_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "projectId": project_id,
+            "instancesLimit": None,
+            "versionsLimit": None,
+            "versionsOnlyCurrent": False,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.list_for_project(project_id="project_id")
+        expected_query = gql(GQL_LIST_JOBS_FOR_PROJECT)
 
-        assert job_result == return_value
+        instance.list_for_project(project_id=project_id)
+
+        saagie_api_mock.client.execute.assert_called_with(
+            query=expected_query, variable_values=params, pprint_result=None
+        )
 
     def test_list_project_jobs_minimal_gql(self):
         self.client.validate(gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL))
@@ -60,17 +65,17 @@ class TestJobs:
     def test_list_project_jobs_minimal(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "jobs": [
-                {"name": "job1", "id": 1, "alias": "job1_alias"},
-                {"name": "job2", "id": 2, "alias": "job2_alias"},
-            ]
+        project_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "projectId": project_id,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.list_for_project_minimal(project_id="project_id")
+        expected_query = gql(GQL_LIST_JOBS_FOR_PROJECT_MINIMAL)
 
-        assert job_result == return_value
+        instance.list_for_project_minimal(project_id=project_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_get_job_instance_gql(self):
         self.client.validate(gql(GQL_GET_JOB_INSTANCE))
@@ -78,14 +83,19 @@ class TestJobs:
     def test_get_job_instance(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "jobInstance": {"id": "befe73b2-81ab-418f-bc2f-9d012102a895", "number": 1, "status": "SUCCEEDED"},
+        instance_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "jobInstanceId": instance_id,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.get_instance(job_instance_id="project_id")
+        expected_query = gql(GQL_GET_JOB_INSTANCE)
 
-        assert job_result == return_value
+        instance.get_instance(job_instance_id=instance_id)
+
+        saagie_api_mock.client.execute.assert_called_with(
+            query=expected_query, variable_values=params, pprint_result=None
+        )
 
     def test_get_id_job_exists(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
@@ -125,18 +135,22 @@ class TestJobs:
     def test_gql_get_info_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "job": {
-                "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
-                "name": "Python test job",
-                "description": "Amazing python job",
-            },
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "jobId": job_id,
+            "instancesLimit": None,
+            "versionsLimit": None,
+            "versionsOnlyCurrent": False,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.get_info(job_id="job_id")
+        expected_query = gql(GQL_GET_JOB_INFO)
 
-        assert job_result == return_value
+        instance.get_info(job_id=job_id)
+
+        saagie_api_mock.client.execute.assert_called_with(
+            query=expected_query, variable_values=params, pprint_result=None
+        )
 
     def test_get_info_job_by_alias_gql(self):
         self.client.validate(gql(GQL_GET_JOB_INFO_BY_ALIAS))
@@ -144,18 +158,24 @@ class TestJobs:
     def test_get_info_job_by_alias(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "jobByAlias": {
-                "id": "befe73b2-81ab-418f-bc2f-9d012102a895",
-                "name": "Python test job",
-                "description": "Amazing python job",
-            },
+        project_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        alias = "job_alias"
+
+        params = {
+            "projectId": project_id,
+            "alias": alias,
+            "instancesLimit": None,
+            "versionsLimit": None,
+            "versionsOnlyCurrent": False,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.get_info_by_alias(project_id="project_id", job_alias="alias")
+        expected_query = gql(GQL_GET_JOB_INFO_BY_ALIAS)
 
-        assert job_result == return_value
+        instance.get_info_by_alias(project_id=project_id, job_alias=alias)
+
+        saagie_api_mock.client.execute.assert_called_with(
+            query=expected_query, variable_values=params, pprint_result=None
+        )
 
     def test_create_job_gql(self):
         self.client.validate(gql(GQL_CREATE_JOB))
@@ -282,12 +302,14 @@ class TestJobs:
     def test_edit_job(self, saagie_api_mock):
         saagie_api_mock.check_scheduling.return_value = {
             "isScheduled": True,
-            "cronScheduling": "0 0 * * *",
+            "cronScheduling": "0 * * * *",
             "scheduleTimezone": "Europe/Paris",
         }
         saagie_api_mock.check_alerting.return_value = {
-            "emails": ["email1@saagie.io"],
-            "statusList": ["FAILED", "QUEUED"],
+            "alerting": {
+                "emails": ["email1@saagie.io"],
+                "statusList": ["FAILED", "QUEUED"],
+            }
         }
         instance = Jobs(saagie_api_mock)
 
@@ -302,22 +324,7 @@ class TestJobs:
             "emails": ["email1@saagie.io"],
             "status_list": ["FAILED", "QUEUED"],
         }
-        # Mock the return value
-        return_value = {
-            "editJob": {
-                "id": job_params["job_id"],
-                "name": job_params["job_name"],
-                "alias": job_params["job_name"],
-                "description": job_params["description"],
-                "isScheduled": job_params["is_scheduled"],
-                "cronScheduling": job_params["cron_scheduling"],
-                "scheduleTimezone": job_params["schedule_timezone"],
-                "resources": job_params["resources"],
-                "alerting": {"emails": job_params["emails"], "statusList": job_params["status_list"]},
-            }
-        }
-        saagie_api_mock.client.execute.return_value = return_value
-        # Patch the self.__launch_request and self.get_info methods to avoid calling the API
+
         with patch.object(instance, "get_info") as get_info:
             get_info.return_value = {
                 "job": {
@@ -329,9 +336,25 @@ class TestJobs:
                     "alerting": "",
                 }
             }
-            job_result = instance.edit(**job_params)
+            instance.edit(**job_params)
 
-        assert job_result == return_value
+        expected_query = gql(GQL_EDIT_JOB)
+
+        params = {
+            "jobId": job_params["job_id"],
+            "name": job_params["job_name"],
+            "description": job_params["description"],
+            "resources": job_params["resources"],
+            "isScheduled": True,
+            "cronScheduling": job_params["cron_scheduling"],
+            "scheduleTimezone": job_params["schedule_timezone"],
+            "alerting": {
+                "emails": job_params["emails"],
+                "statusList": job_params["status_list"],
+            },
+        }
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_edit_non_existing_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
@@ -354,8 +377,10 @@ class TestJobs:
 
     def test_edit_job_without_scheduled(self, saagie_api_mock):
         saagie_api_mock.check_alerting.return_value = {
-            "emails": ["email1@saagie.io"],
-            "statusList": ["FAILED", "QUEUED"],
+            "alerting": {
+                "emails": ["email1@saagie.io"],
+                "statusList": ["FAILED", "QUEUED"],
+            }
         }
         instance = Jobs(saagie_api_mock)
 
@@ -368,19 +393,6 @@ class TestJobs:
             "emails": ["email1@saagie.io"],
             "status_list": ["FAILED", "QUEUED"],
         }
-        # Mock the return value
-        return_value = {
-            "editJob": {
-                "id": job_params["job_id"],
-                "name": job_params["job_name"],
-                "alias": job_params["job_name"],
-                "description": job_params["description"],
-                "isScheduled": job_params["is_scheduled"],
-                "resources": job_params["resources"],
-                "alerting": {"emails": job_params["emails"], "statusList": job_params["status_list"]},
-            }
-        }
-        saagie_api_mock.client.execute.return_value = return_value
 
         with patch.object(instance, "get_info") as get_info:
             get_info.return_value = {
@@ -393,14 +405,32 @@ class TestJobs:
                     "alerting": "",
                 }
             }
-            job_result = instance.edit(**job_params)
+            instance.edit(**job_params)
 
-        assert job_result == return_value
+        expected_query = gql(GQL_EDIT_JOB)
+
+        params = {
+            "jobId": job_params["job_id"],
+            "name": job_params["job_name"],
+            "description": job_params["description"],
+            "resources": job_params["resources"],
+            "isScheduled": False,
+            # "cronScheduling": job_params["cron_scheduling"],
+            # "scheduleTimezone": job_params["schedule_timezone"],
+            "alerting": {
+                "emails": job_params["emails"],
+                "statusList": job_params["status_list"],
+            },
+        }
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_edit_job_with_no_scheduled_update(self, saagie_api_mock):
         saagie_api_mock.check_alerting.return_value = {
-            "emails": ["email1@saagie.io"],
-            "statusList": ["FAILED", "QUEUED"],
+            "alerting": {
+                "emails": ["email1@saagie.io"],
+                "statusList": ["FAILED", "QUEUED"],
+            }
         }
         instance = Jobs(saagie_api_mock)
 
@@ -412,18 +442,6 @@ class TestJobs:
             "emails": ["email1@saagie.io"],
             "status_list": ["FAILED", "QUEUED"],
         }
-        # Mock the return value
-        return_value = {
-            "editJob": {
-                "id": job_params["job_id"],
-                "name": job_params["job_name"],
-                "alias": job_params["job_name"],
-                "description": job_params["description"],
-                "resources": job_params["resources"],
-                "alerting": {"emails": job_params["emails"], "statusList": job_params["status_list"]},
-            }
-        }
-        saagie_api_mock.client.execute.return_value = return_value
 
         with patch.object(instance, "get_info") as get_info:
             get_info.return_value = {
@@ -438,24 +456,32 @@ class TestJobs:
                     "alerting": "",
                 }
             }
-            job_result = instance.edit(**job_params)
+            instance.edit(**job_params)
 
-        assert job_result == return_value
+        expected_query = gql(GQL_EDIT_JOB)
 
-    @patch(
-        "saagieapi.jobs.jobs.Jobs.get_info",
-        return_value={
-            "job": {
-                "name": "Test name",
-                "description": "Test job",
-                "resources": "1",
-                "isScheduled": False,
-                "emails": "",
-                "alerting": "",
-            }
-        },
-    )
+        params = {
+            "jobId": job_params["job_id"],
+            "name": job_params["job_name"],
+            "description": job_params["description"],
+            "resources": job_params["resources"],
+            "isScheduled": True,
+            "cronScheduling": "0 * * * *",
+            "scheduleTimezone": "Europe/Paris",
+            "alerting": {
+                "emails": job_params["emails"],
+                "statusList": job_params["status_list"],
+            },
+        }
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
+
     def test_edit_job_without_email(self, saagie_api_mock):
+        saagie_api_mock.check_scheduling.return_value = {
+            "isScheduled": True,
+            "cronScheduling": "0 * * * *",
+            "scheduleTimezone": "Europe/Paris",
+        }
         instance = Jobs(saagie_api_mock)
 
         job_params = {
@@ -469,39 +495,40 @@ class TestJobs:
             "emails": [],
             "status_list": ["FAILED", "QUEUED"],
         }
-        # Mock the return value
-        return_value = {
-            "editJob": {
-                "id": job_params["job_id"],
-                "name": job_params["job_name"],
-                "alias": job_params["job_name"],
-                "description": job_params["description"],
-                "isScheduled": job_params["is_scheduled"],
-                "cronScheduling": job_params["cron_scheduling"],
-                "scheduleTimezone": job_params["schedule_timezone"],
-                "resources": job_params["resources"],
+
+        with patch.object(instance, "get_info") as get_info:
+            get_info.return_value = {
+                "job": {
+                    "name": "Test name",
+                    "description": "Test job",
+                    "resources": "1",
+                    "isScheduled": False,
+                    "emails": "",
+                    "alerting": "",
+                }
             }
+            instance.edit(**job_params)
+        expected_query = gql(GQL_EDIT_JOB)
+
+        params = {
+            "jobId": job_params["job_id"],
+            "name": job_params["job_name"],
+            "description": job_params["description"],
+            "resources": job_params["resources"],
+            "isScheduled": True,
+            "cronScheduling": "0 * * * *",
+            "scheduleTimezone": "Europe/Paris",
+            "alerting": None,
         }
-        saagie_api_mock.client.execute.return_value = return_value
 
-        job_result = instance.edit(**job_params)
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
-        assert job_result == return_value
-
-    @patch(
-        "saagieapi.jobs.jobs.Jobs.get_info",
-        return_value={
-            "job": {
-                "name": "Test name",
-                "description": "Test job",
-                "resources": "1",
-                "isScheduled": False,
-                "emails": "",
-                "alerting": {"emails": ["my.super@email.com"], "loginEmails": [], "statusList": ["FAILED"]},
-            }
-        },
-    )
     def test_edit_job_with_no_email_update(self, saagie_api_mock):
+        saagie_api_mock.check_scheduling.return_value = {
+            "isScheduled": True,
+            "cronScheduling": "0 * * * *",
+            "scheduleTimezone": "Europe/Paris",
+        }
         instance = Jobs(saagie_api_mock)
 
         job_params = {
@@ -514,24 +541,33 @@ class TestJobs:
             "resources": {"cpu": {"request": 1.5, "limit": 2.2}, "memory": {"request": 2.0}},
             "status_list": ["FAILED", "QUEUED"],
         }
-        # Mock the return value
-        return_value = {
-            "editJob": {
-                "id": job_params["job_id"],
-                "name": job_params["job_name"],
-                "alias": job_params["job_name"],
-                "description": job_params["description"],
-                "isScheduled": job_params["is_scheduled"],
-                "cronScheduling": job_params["cron_scheduling"],
-                "scheduleTimezone": job_params["schedule_timezone"],
-                "resources": job_params["resources"],
+
+        with patch.object(instance, "get_info") as get_info:
+            get_info.return_value = {
+                "job": {
+                    "name": "Test name",
+                    "description": "Test job",
+                    "resources": "1",
+                    "isScheduled": False,
+                    "emails": "",
+                    "alerting": {"emails": ["my.super@email.com"], "loginEmails": [], "statusList": ["FAILED"]},
+                }
             }
+            instance.edit(**job_params)
+        expected_query = gql(GQL_EDIT_JOB)
+
+        params = {
+            "jobId": job_params["job_id"],
+            "name": job_params["job_name"],
+            "description": job_params["description"],
+            "resources": job_params["resources"],
+            "isScheduled": True,
+            "cronScheduling": "0 * * * *",
+            "scheduleTimezone": "Europe/Paris",
+            "alerting": {"emails": ["my.super@email.com"], "statusList": ["FAILED"]},
         }
-        saagie_api_mock.client.execute.return_value = return_value
 
-        job_result = instance.edit(**job_params)
-
-        assert job_result == return_value
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_upgrade_job_gql(self):
         self.client.validate(gql(GQL_UPGRADE_JOB))
@@ -744,17 +780,18 @@ class TestJobs:
     def test_rollback_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "rollbackJobVersion": {
-                "id": "58870149-5f1c-45e9-93dc-04b2b30a732c",
-                "versions": [{"number": 2, "isCurrent": False}, {"number": 1, "isCurrent": True}],
-            }
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "jobId": job_id,
+            "versionNumber": "1",
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.rollback(job_id="job_id", version_number="1")
+        expected_query = gql(GQL_ROLLBACK_JOB_VERSION)
 
-        assert job_result == return_value
+        instance.rollback(job_id=job_id, version_number="1")
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_delete_job_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB))
@@ -762,12 +799,17 @@ class TestJobs:
     def test_delete_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {"deleteJob": True}
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.delete(job_id="job_id")
+        params = {
+            "jobId": job_id,
+        }
 
-        assert job_result == return_value
+        expected_query = gql(GQL_DELETE_JOB)
+
+        instance.delete(job_id=job_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_run_job_gql(self):
         self.client.validate(gql(GQL_RUN_JOB))
@@ -775,12 +817,17 @@ class TestJobs:
     def test_run_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {"runJob": {"id": "5b9fc971-1c4e-4e45-a978-5851caef0162", "status": "REQUESTED"}}
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.run(job_id="job_id")
+        params = {
+            "jobId": job_id,
+        }
 
-        assert job_result == return_value
+        expected_query = gql(GQL_RUN_JOB)
+
+        instance.run(job_id=job_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_run_job_with_callback_succeeded(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
@@ -846,25 +893,17 @@ class TestJobs:
     def test_stop_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "stopJobInstance": {
-                "id": "8e9b9f16-4a5d-4188-a967-1a96b88e4358",
-                "number": 17,
-                "status": "KILLING",
-                "history": {"currentStatus": {"status": "SUCCEEDED", "details": None, "reason": None}},
-                "startTime": "2022-04-29T08:38:49.344Z",
-                "endTime": None,
-                "jobId": "e92ed472-50d6-4041-bba9-098a8e16f444",
-            }
+        instance_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "jobInstanceId": instance_id,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.stop(job_instance_id="job_id")
+        expected_query = gql(GQL_STOP_JOB_INSTANCE)
 
-        assert job_result == return_value
+        instance.stop(job_instance_id=instance_id)
 
-    # def test_launch_request(self, saagie_api_mock):
-    #     assert 1 == 0
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     # This method will be used by the mock to replace requests.get
     # see Stackoverflow post : https://stackoverflow.com/a/28507806
@@ -1175,17 +1214,19 @@ class TestJobs:
     def test_delete_instances(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "deleteJobInstances": [
-                {"id": "7e5549cd-32aa-42c4-88b5-ddf5f3087502", "success": True},
-                {"id": "c8f156bc-78ab-4dda-acff-bbe828237fd9", "success": True},
-            ]
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        instance_id = ["860b8dc8-e634-4c98-b2e7-f9ec32ab4771"]
+
+        params = {
+            "jobId": job_id,
+            "jobInstancesId": instance_id,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.delete_instances(job_id="job_id", job_instances_id="job_instance_id")
+        expected_query = gql(GQL_DELETE_JOB_INSTANCE)
 
-        assert job_result == return_value
+        instance.delete_instances(job_id=job_id, job_instances_id=instance_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_delete_instances_by_selector_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR))
@@ -1193,17 +1234,20 @@ class TestJobs:
     def test_delete_instances_by_selector(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "deleteJobInstances": [
-                {"id": "7e5549cd-32aa-42c4-88b5-ddf5f3087502", "success": True},
-                {"id": "c8f156bc-78ab-4dda-acff-bbe828237fd9", "success": True},
-            ]
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "jobId": job_id,
+            "selector": "ALL",
+            "excludeJobInstanceId": [],
+            "includeJobInstanceId": [],
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.delete_instances_by_selector(job_id="job_id", selector="ALL")
+        expected_query = gql(GQL_DELETE_JOB_INSTANCES_BY_SELECTOR)
 
-        assert job_result == return_value
+        instance.delete_instances_by_selector(job_id=job_id, selector="ALL")
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_delete_instances_by_date_gql(self):
         self.client.validate(gql(GQL_DELETE_JOB_INSTANCES_BY_DATE))
@@ -1216,12 +1260,18 @@ class TestJobs:
             "date_before": "2023-06-01T00:00:00+01:00",
         }
 
-        return_value = {"deleteJobInstancesByDate": 1}
+        params = {
+            "jobId": job_params["job_id"],
+            "beforeAt": job_params["date_before"],
+            "excludeJobInstanceId": [],
+            "includeJobInstanceId": [],
+        }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.delete_instances_by_date(**job_params)
+        expected_query = gql(GQL_DELETE_JOB_INSTANCES_BY_DATE)
 
-        assert job_result == return_value
+        instance.delete_instances_by_date(**job_params)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_delete_instances_by_date_incorrect_format(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
@@ -1240,12 +1290,18 @@ class TestJobs:
     def test_delete_versions(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {"deleteJobVersions": [{"number": 1, "success": True}]}
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.delete_versions(job_id="job_id", versions=["1"])
+        params = {
+            "jobId": job_id,
+            "jobVersionsNumber": ["1"],
+        }
 
-        assert job_result == return_value
+        expected_query = gql(GQL_DELETE_JOB_VERSION)
+
+        instance.delete_versions(job_id=job_id, versions=["1"])
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_duplicate_gql(self):
         self.client.validate(gql(GQL_DUPLICATE_JOB))
@@ -1253,12 +1309,17 @@ class TestJobs:
     def test_duplicate(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {"duplicateJob": {"id": "29cf1b80-6b9c-47bc-a06c-c20897257097", "name": "Copy of my_job 2"}}
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.duplicate(job_id="job_id")
+        params = {
+            "jobId": job_id,
+        }
 
-        assert job_result == return_value
+        expected_query = gql(GQL_DUPLICATE_JOB)
+
+        instance.duplicate(job_id=job_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_count_deletable_instances_by_status_gql(self):
         self.client.validate(gql(GQL_COUNT_INSTANCES_BY_SELECTOR))
@@ -1266,20 +1327,17 @@ class TestJobs:
     def test_count_deletable_instances_by_status(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "countJobInstancesBySelector": [
-                {"selector": "ALL", "count": 0},
-                {"selector": "SUCCEEDED", "count": 0},
-                {"selector": "FAILED", "count": 0},
-                {"selector": "STOPPED", "count": 0},
-                {"selector": "UNKNOWN", "count": 0},
-            ]
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+
+        params = {
+            "jobId": job_id,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.count_deletable_instances_by_status(job_id="job_id")
+        expected_query = gql(GQL_COUNT_INSTANCES_BY_SELECTOR)
 
-        assert job_result == return_value
+        instance.count_deletable_instances_by_status(job_id=job_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_count_deletable_instances_by_date_gql(self):
         self.client.validate(gql(GQL_COUNT_INSTANCES_BY_DATE))
@@ -1292,12 +1350,13 @@ class TestJobs:
             "date_before": "2023-06-01T00:00:00+01:00",
         }
 
-        return_value = {"countJobInstancesByDate": 1}
+        params = {"jobId": job_params["job_id"], "beforeAt": job_params["date_before"]}
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.count_deletable_instances_by_date(**job_params)
+        expected_query = gql(GQL_COUNT_INSTANCES_BY_DATE)
 
-        assert job_result == return_value
+        instance.count_deletable_instances_by_date(**job_params)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_count_deletable_instances_by_date_incorrect_format(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
@@ -1316,14 +1375,23 @@ class TestJobs:
     def test_move_job(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "moveJob": "29cf1b80-6b9c-47bc-a06c-c20897257097",
+        job_params = {
+            "job_id": "5b9fc971-1c4e-4e45-a978-5851caef0162",
+            "target_platform_id": 1,
+            "target_project_id": "860b8dc8-e634-4c98-b2e7-f9ec32ab4771",
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.move_job(job_id="job_id", target_platform_id=1, target_project_id="project_id")
+        params = {
+            "jobId": job_params["job_id"],
+            "targetPlatformId": job_params["target_platform_id"],
+            "targetProjectId": job_params["target_project_id"],
+        }
 
-        assert job_result == return_value
+        expected_query = gql(GQL_MOVE_JOB)
+
+        instance.move_job(**job_params)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
     def test_generate_description_by_ai_gql(self):
         self.client.validate(gql(GQL_GENERATE_JOB_DESCRIPTION))
@@ -1331,15 +1399,13 @@ class TestJobs:
     def test_generate_description_by_ai(self, saagie_api_mock):
         instance = Jobs(saagie_api_mock)
 
-        return_value = {
-            "editJobWithAiGeneratedDescription": {
-                "id": "bfa25e4a-1796-4ebb-8c3d-138f74146973",
-                "description": 'The purpose of this code is to display the message "Hello World" on the screen.',
-                "aiDescriptionVersionNumber": 1,
-            }
+        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        params = {
+            "jobId": job_id,
         }
 
-        saagie_api_mock.client.execute.return_value = return_value
-        job_result = instance.generate_description_by_ai(job_id="job_id")
+        expected_query = gql(GQL_GENERATE_JOB_DESCRIPTION)
 
-        assert job_result == return_value
+        instance.generate_description_by_ai(job_id=job_id)
+
+        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
