@@ -293,12 +293,8 @@ class TestProjects:
                     {
                         "jobCategory": "Extraction",
                         "technologies": [
-                            {
-                                "id": "9bb75cad-69a5-4a9d-b059-811c6cde589e",
-                            },
-                            {
-                                "id": "f267085d-cc52-4ae8-ad9e-af8721c81127",
-                            },
+                            {"id": "9bb75cad-69a5-4a9d-b059-811c6cde589e"},
+                            {"id": "f267085d-cc52-4ae8-ad9e-af8721c81127"},
                         ],
                     }
                 ]
@@ -337,9 +333,194 @@ class TestProjects:
 
         saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
 
-    # def test_export(self, saagie_api_mock):
+    def test_export_project(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.get_technology_name_by_id.side_effect = [
+            {"Saagie", "python"},
+            {"Saagie", "spark"},
+            {"Saagie", "Jupyter Notebook"},
+            {"Saagie", "RStudio"},
+        ]
+        saagie_api_mock.env_vars.export.side_effect = [True]
+        saagie_api_mock.jobs.list_for_project_minimal.return_value = {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "alias": "Python_test_job_1",
+                },
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2",
+                },
+            ]
+        }
+        saagie_api_mock.jobs.export.side_effect = [True, True]
+        saagie_api_mock.pipelines.list_for_project_minimal.return_value = {
+            "project": {
+                "pipelines": [
+                    {"id": "5d1999f5-fa70-47d9-9f41-55ad48333629", "name": "Pipeline A"},
+                    {"id": "9a2642df-550c-4c69-814f-1008f177b0e1", "name": "Pipeline B"},
+                ]
+            }
+        }
+        saagie_api_mock.pipelines.export.side_effect = [True, True]
+        saagie_api_mock.apps.list_for_project_minimal.return_value = {
+            "project": {"apps": [{"id": "d0d6a466-10d9-4120-8101-56e46563e05a", "name": "Jupyter Notebook"}]}
+        }
+        saagie_api_mock.apps.export.side_effect = [True]
 
-    #     assert False
+        project = Projects(saagie_api_mock)
+
+        project_id = "8321e13c-892a-4481-8552-5be4d6cc5df4"
+
+        project_params = {
+            "project_id": project_id,
+            "output_folder": tmp_path,
+        }
+
+        with patch("saagieapi.utils.folder_functions.create_folder") as create_folder, patch.object(
+            project, "get_info"
+        ) as info, patch.object(project, "get_jobs_technologies") as jobs, patch.object(
+            project, "get_apps_technologies"
+        ) as apps, patch.object(
+            project, "get_rights"
+        ) as rights:
+            create_folder.side_effect = [
+                Path(tmp_path / project_id).mkdir(),
+            ]
+            info.return_value = {
+                "project": {
+                    "name": "Project A",
+                    "creator": "john.doe",
+                    "description": "My project A",
+                    "jobsCount": 49,
+                    "status": "READY",
+                }
+            }
+            jobs.return_value = {
+                "technologiesByCategory": [
+                    {
+                        "jobCategory": "Extraction",
+                        "technologies": [
+                            {"id": "9bb75cad-69a5-4a9d-b059-811c6cde589e"},
+                            {"id": "f267085d-cc52-4ae8-ad9e-af8721c81127"},
+                        ],
+                    }
+                ]
+            }
+            apps.return_value = {
+                "appTechnologies": [
+                    {"id": "11d63963-0a74-4821-b17b-8fcec4882863"},
+                    {"id": "56ad4996-7285-49a6-aece-b9525c57c619"},
+                ]
+            }
+            rights.return_value = {
+                "rights": [
+                    {"name": "group1", "role": "ROLE_PROJECT_MANAGER", "isAllProjects": True},
+                ]
+            }
+
+            project_result = project.export(**project_params)
+
+        assert project_result is True
+
+    def test_export_project_error(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.get_technology_name_by_id.side_effect = [
+            {"Saagie", "python"},
+            {"Saagie", "spark"},
+            {"Saagie", "Jupyter Notebook"},
+            {"Saagie", "RStudio"},
+        ]
+        saagie_api_mock.env_vars.export.side_effect = [False]
+        saagie_api_mock.jobs.list_for_project_minimal.return_value = {
+            "jobs": [
+                {
+                    "id": "fc7b6f52-5c3e-45bb-9a5f-a34bcea0fc10",
+                    "name": "Python test job 1",
+                    "alias": "Python_test_job_1",
+                },
+                {
+                    "id": "e92ed170-50d6-4041-bba9-098a8e16f444",
+                    "name": "Python test job 2",
+                    "alias": "Python_test_job_2",
+                },
+            ]
+        }
+        saagie_api_mock.jobs.export.side_effect = [True, False]
+        saagie_api_mock.pipelines.list_for_project_minimal.return_value = {
+            "project": {
+                "pipelines": [
+                    {"id": "5d1999f5-fa70-47d9-9f41-55ad48333629", "name": "Pipeline A"},
+                    {"id": "9a2642df-550c-4c69-814f-1008f177b0e1", "name": "Pipeline B"},
+                ]
+            }
+        }
+        saagie_api_mock.pipelines.export.side_effect = [True, False]
+        saagie_api_mock.apps.list_for_project_minimal.return_value = {
+            "project": {"apps": [{"id": "d0d6a466-10d9-4120-8101-56e46563e05a", "name": "Jupyter Notebook"}]}
+        }
+        saagie_api_mock.apps.export.side_effect = [False]
+
+        project = Projects(saagie_api_mock)
+
+        project_id = "8321e13c-892a-4481-8552-5be4d6cc5df4"
+
+        project_params = {
+            "project_id": project_id,
+            "output_folder": tmp_path,
+        }
+
+        with patch("saagieapi.utils.folder_functions.create_folder") as create_folder, patch.object(
+            project, "get_info"
+        ) as info, patch.object(project, "get_jobs_technologies") as jobs, patch.object(
+            project, "get_apps_technologies"
+        ) as apps, patch.object(
+            project, "get_rights"
+        ) as rights:
+            create_folder.side_effect = [
+                Path(tmp_path / project_id).mkdir(),
+            ]
+            info.return_value = {
+                "project": {
+                    "name": "Project A",
+                    "creator": "john.doe",
+                    "description": "My project A",
+                    "jobsCount": 49,
+                    "status": "READY",
+                }
+            }
+            jobs.return_value = {
+                "technologiesByCategory": [
+                    {
+                        "jobCategory": "Extraction",
+                        "technologies": [
+                            {"id": "9bb75cad-69a5-4a9d-b059-811c6cde589e"},
+                            {"id": "f267085d-cc52-4ae8-ad9e-af8721c81127"},
+                        ],
+                    }
+                ]
+            }
+            apps.return_value = {
+                "appTechnologies": [
+                    {"id": "11d63963-0a74-4821-b17b-8fcec4882863"},
+                    {"id": "56ad4996-7285-49a6-aece-b9525c57c619"},
+                ]
+            }
+            rights.return_value = {
+                "rights": [
+                    {"name": "group1", "role": "ROLE_PROJECT_MANAGER", "isAllProjects": True},
+                ]
+            }
+
+            project_result = project.export(**project_params)
+
+        assert project_result is False
+
+    # def test_import_project(self, saagie_api_mock):
+    #     project = Projects(saagie_api_mock)
+
+    #     assert project_result is False
 
     @staticmethod
     def test_create_groupe_role_one_group():

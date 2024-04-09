@@ -667,7 +667,6 @@ class Projects:
 
         project_info["jobs_technologies"] = job_tech_dict or None
 
-        app_tech_dict = {}
         app_tech_dict = defaultdict(list)
         for tech in self.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
