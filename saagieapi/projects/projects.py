@@ -37,7 +37,7 @@ class Projects:
 
     @staticmethod
     def _create_groupe_role(
-        params: Dict,
+        # params: Dict,
         group: Optional[str],
         role: Optional[str],
         groups_and_roles: Optional[List[Dict]],
@@ -48,27 +48,30 @@ class Projects:
                 "or multiple groups and roles with groups_and_roles"
             )
 
-        if groups_and_roles:
-            group_block = [
-                {"name": g, "role": Projects.__map_role(r)} for mydict in groups_and_roles for g, r in mydict.items()
-            ]
-
-            params["authorizedGroups"] = group_block
-            return params
-
-        if group and role:
-            saagie_role = Projects.__map_role(role)
-            group_block = [{"name": group, "role": saagie_role}]
-            params["authorizedGroups"] = group_block
-            return params
-
         if (group and role is None) or (group is None and role):
             raise RuntimeError(
                 "❌ Too few arguments, specify either a group and role, "
                 "or multiple groups and roles with groups_and_roles"
             )
 
-        return params
+        if groups_and_roles:
+            group_block = [
+                {"name": g, "role": Projects.__map_role(r)} for mydict in groups_and_roles for g, r in mydict.items()
+            ]
+
+            # params["authorizedGroups"] = group_block
+            # return params
+            return {"authorizedGroups": group_block}
+
+        if group and role:
+            saagie_role = Projects.__map_role(role)
+            group_block = [{"name": group, "role": saagie_role}]
+            # params["authorizedGroups"] = group_block
+            # return params
+            return {"authorizedGroups": group_block}
+
+        # return params
+        return {}
 
     def list(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get information for all projects (id, name, creator, description,
@@ -363,7 +366,7 @@ class Projects:
 
         # Create the params of the query
         params = {"name": name}
-        params = self._create_groupe_role(params, group, role, groups_and_roles)
+        params.update(self._create_groupe_role(group, role, groups_and_roles))
         if description:
             params["description"] = description
 
@@ -551,7 +554,7 @@ class Projects:
 
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        params = self._create_groupe_role(params, group, role, groups_and_roles)
+        params.update(self._create_groupe_role(group, role, groups_and_roles))
 
         if not group and not role and not groups_and_roles:
             params["authorizedGroups"] = [
