@@ -607,7 +607,6 @@ class TestProjects:
 
         assert project_result is False
 
-    # can't test it now because there is no way to reduce the timeout
     def test_import_project_error_getting_project_ready(self, saagie_api_mock, tmp_path):
         project = Projects(saagie_api_mock)
 

@@ -88,7 +88,7 @@ class Repositories:
             "lastSynchronization": last_synchronization,
         }
         query = gql(GQL_LIST_REPOSITORIES)
-        return self.saagie_api.client_gateway.execute(query, variable_values=params, pprint_result=pprint_result)
+        return self.saagie_api.client_gateway.execute(query=query, variable_values=params, pprint_result=pprint_result)
 
     def get_info(
         self,
