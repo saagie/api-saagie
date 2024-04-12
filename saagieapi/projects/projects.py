@@ -37,7 +37,6 @@ class Projects:
 
     @staticmethod
     def _create_groupe_role(
-        # params: Dict,
         group: Optional[str],
         role: Optional[str],
         groups_and_roles: Optional[List[Dict]],
@@ -785,20 +784,12 @@ class Projects:
                 description=config_dict["description"],
             )["createProject"]["id"]
 
-            # Waiting for the project to be ready
-            project_status = self.get_info(project_id=new_project_id)["project"]["status"]
-            waiting_time = 0
-
-            # Safety: wait for 5min max for project initialisation
-            project_creation_timeout = 400
-            while project_status != "READY" and waiting_time <= project_creation_timeout:
-                time.sleep(10)
-                project_status = self.get_info(new_project_id)["project"]["status"]
-                waiting_time += 10
+            # # Safety: wait for 5min max for project initialisation
+            timeout = 400
+            project_status = self.get_status_with_callback(project_id=new_project_id, freq=10, timeout=timeout)
             if project_status != "READY":
                 raise TimeoutError(
-                    f"Project creation is taking longer than usual, "
-                    f"Aborting project import after {project_creation_timeout} seconds"
+                    f"Project creation is taking longer than usual, " f"Aborting project import after {timeout} seconds"
                 )
         except Exception as exception:
             logging.warning("❌ Project [%s] has not been successfully imported", project_name)
@@ -840,3 +831,13 @@ class Projects:
         if not status:
             logging.error("Something went wrong during project import %s", list_failed)
         return status
+
+    def get_status_with_callback(self, project_id: str, freq: int = 10, timeout: int = -1):
+        project_status = self.get_info(project_id=project_id)["project"]["status"]
+        waiting_time = 0
+
+        while project_status != "READY" and waiting_time <= timeout:
+            time.sleep(freq)
+            project_status = self.get_info(project_id)["project"]["status"]
+            waiting_time += freq
+        return project_status

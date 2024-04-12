@@ -517,10 +517,177 @@ class TestProjects:
 
         assert project_result is False
 
-    # def test_import_project(self, saagie_api_mock):
-    #     project = Projects(saagie_api_mock)
+    def test_import_project_success(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.jobs.import_from_json.return_value = True
+        saagie_api_mock.pipelines.import_from_json.return_value = True
+        saagie_api_mock.apps.import_from_json.return_value = True
+        saagie_api_mock.env_vars.import_from_json.return_value = True
+        project = Projects(saagie_api_mock)
 
-    #     assert project_result is False
+        cur_path = Path(__file__).parent
+        cur_path = cur_path.parent / "integration" / "resources" / "import" / "project"
+        origin_path = cur_path / "project.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            project_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "project.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(project_info, file, indent=4)
+
+        origin_path = cur_path / "jobs" / "job" / "job.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "jobs" / "job" / "job.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(job_info, file, indent=4)
+
+        origin_path = cur_path / "pipelines" / "with-existing-jobs" / "pipeline.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "pipelines" / "pipeline" / "pipeline.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(pipeline_info, file, indent=4)
+
+        origin_path = cur_path / "apps" / "from-catalog" / "app.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "apps" / "app" / "app.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(job_info, file, indent=4)
+
+        origin_path = cur_path / "env_vars" / "PROJECT" / "variable.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            env_var_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "env_vars" / "PROJECT" / "env_var.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(env_var_info, file, indent=4)
+
+        with patch.object(project, "create") as create, patch.object(project, "get_status_with_callback") as info:
+            create.return_value = {"createProject": {"id": "8321e13c-892a-4481-8552-5be4d6cc5df4"}}
+            info.return_value = "READY"
+            project_result = project.import_from_json(path_to_folder=tmp_path)
+
+        assert project_result is True
+
+    def test_import_project_error_reading_project_json(self, saagie_api_mock, tmp_path):
+        project = Projects(saagie_api_mock)
+
+        tmp_file = Path(tmp_path / "project.json")
+        tmp_file.write_text("This is not a json format.")
+
+        project_result = project.import_from_json(path_to_folder=tmp_path)
+
+        assert project_result is False
+
+    def test_import_project_error_creating_project(self, saagie_api_mock, tmp_path):
+        project = Projects(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        cur_path = cur_path.parent / "integration" / "resources" / "import" / "project"
+        origin_path = cur_path / "project.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            project_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "project.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(project_info, file, indent=4)
+
+        with patch.object(project, "create") as create:
+            create.return_value = {"createProjects": {"id": "8321e13c-892a-4481-8552-5be4d6cc5df4"}}
+
+            project_result = project.import_from_json(path_to_folder=tmp_path)
+
+        assert project_result is False
+
+    # can't test it now because there is no way to reduce the timeout
+    def test_import_project_error_getting_project_ready(self, saagie_api_mock, tmp_path):
+        project = Projects(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        cur_path = cur_path.parent / "integration" / "resources" / "import" / "project"
+        origin_path = cur_path / "project.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            project_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "project.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(project_info, file, indent=4)
+
+        with patch.object(project, "create") as create, patch.object(project, "get_status_with_callback") as info:
+            create.return_value = {"createProject": {"id": "8321e13c-892a-4481-8552-5be4d6cc5df4"}}
+            info.return_value = "CREATING"
+
+            project_result = project.import_from_json(path_to_folder=tmp_path)
+
+        assert project_result is False
+
+    def test_import_project_error_importing_subelements(self, saagie_api_mock, tmp_path):
+        saagie_api_mock.jobs.import_from_json.return_value = False
+        saagie_api_mock.pipelines.import_from_json.return_value = False
+        saagie_api_mock.apps.import_from_json.return_value = False
+        saagie_api_mock.env_vars.import_from_json.return_value = False
+        project = Projects(saagie_api_mock)
+
+        cur_path = Path(__file__).parent
+        cur_path = cur_path.parent / "integration" / "resources" / "import" / "project"
+        origin_path = cur_path / "project.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            project_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "project.json")
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(project_info, file, indent=4)
+
+        origin_path = cur_path / "jobs" / "job" / "job.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "jobs" / "job" / "job.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(job_info, file, indent=4)
+
+        origin_path = cur_path / "pipelines" / "with-existing-jobs" / "pipeline.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "pipelines" / "pipeline" / "pipeline.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(pipeline_info, file, indent=4)
+
+        origin_path = cur_path / "apps" / "from-catalog" / "app.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "apps" / "app" / "app.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(job_info, file, indent=4)
+
+        origin_path = cur_path / "env_vars" / "PROJECT" / "variable.json"
+        with origin_path.open("r", encoding="utf-8") as file:
+            env_var_info = json.load(file)
+
+        tmp_file = Path(tmp_path / "env_vars" / "PROJECT" / "env_var.json")
+        tmp_file.parent.mkdir(parents=True)
+        with tmp_file.open("w", encoding="utf-8") as file:
+            json.dump(env_var_info, file, indent=4)
+
+        with patch.object(project, "create") as create, patch.object(project, "get_status_with_callback") as info:
+            create.return_value = {"createProject": {"id": "8321e13c-892a-4481-8552-5be4d6cc5df4"}}
+            info.return_value = "READY"
+            project_result = project.import_from_json(path_to_folder=tmp_path)
+
+        assert project_result is False
 
     @staticmethod
     def test_create_groupe_role_one_group():
@@ -581,3 +748,16 @@ class TestProjects:
             str(rte.value) == "❌ Too few arguments, specify either a group and role, "
             "or multiple groups and roles with groups_and_roles"
         )
+
+    def test_get_status_with_callback(self, saagie_api_mock):
+        project = Projects(saagie_api_mock)
+
+        project_id = "8321e13c-892a-4481-8552-5be4d6cc5df4"
+        with patch.object(project, "get_info") as get_info:
+            get_info.side_effect = [
+                {"project": {"status": "CREATING"}},
+                {"project": {"status": "READY"}},
+            ]
+            status = project.get_status_with_callback(project_id=project_id, freq=1, timeout=2)
+
+        assert status == "READY"
