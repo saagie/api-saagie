@@ -1,4 +1,4 @@
-# pylint: disable=attribute-defined-outside-init
+# pylint: disable=attribute-defined-outside-init,unspecified-encoding
 import json
 import logging
 from pathlib import Path
@@ -584,7 +584,6 @@ class TestJobs:
         # Mock the return value
         return_value = {"data": {"addJobVersion": {"number": 2, "__typename": "JobVersion"}}}
         saagie_api_mock.client.execute.return_value = return_value
-        # Patch the self.__launch_request and self.get_info methods to avoid calling the API
         with patch.object(instance, "get_info") as get_info, patch.object(
             instance, "_Jobs__launch_request"
         ) as launch_request, caplog.at_level(logging.WARNING):
@@ -600,7 +599,6 @@ class TestJobs:
                             "commandLine": "python {file} arg1 arg2",
                             "packageInfo": {
                                 "name": "test.py",
-                                "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
                             },
                         }
                     ],
@@ -620,7 +618,6 @@ class TestJobs:
         # Mock the return value
         return_value = {"data": {"addJobVersion": {"number": 2, "__typename": "JobVersion"}}}
         saagie_api_mock.client.execute.return_value = return_value
-        # Patch the self.__launch_request and self.get_info methods to avoid calling the API
         with patch.object(instance, "get_info") as get_info, pytest.raises(RuntimeError):
             get_info.return_value = {
                 "job": {
@@ -634,7 +631,6 @@ class TestJobs:
                             "commandLine": "python {file} arg1 arg2",
                             "packageInfo": {
                                 "name": "test.py",
-                                "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
                             },
                         }
                     ],
@@ -664,7 +660,6 @@ class TestJobs:
         # Mock the return value
         return_value = {"data": {"addJobVersion": {"number": 2, "__typename": "JobVersion"}}}
         saagie_api_mock.client.execute.return_value = return_value
-        # Patch the self.__launch_request and self.get_info methods to avoid calling the API
         with patch.object(instance, "get_info") as get_info, patch.object(
             instance, "_Jobs__launch_request"
         ) as launch_request:
@@ -680,7 +675,6 @@ class TestJobs:
                             "commandLine": "python {file} arg1 arg2",
                             "packageInfo": {
                                 "name": "test.py",
-                                "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
                             },
                         }
                     ],
@@ -939,7 +933,7 @@ class TestJobs:
                         "commandLine": "python {file} arg1 arg2",
                         "packageInfo": {
                             "name": "test.py",
-                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                            "downloadUrl": "version/1/artifact/test.py",
                         },
                         "dockerInfo": None,
                         "extraTechnology": None,
@@ -959,7 +953,6 @@ class TestJobs:
                 Path(tmp_path / job_id / "version" / "1").mkdir(parents=True),
             ]
             remove_slash_folder.return_value = "http://my.super.url"
-            # write_resp.side_effect = []
 
             job_result = instance.export(**job_params)
 
@@ -989,7 +982,6 @@ class TestJobs:
                         "commandLine": "python {file} arg1 arg2",
                         "packageInfo": {
                             "name": "test.py",
-                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
                         },
                         "dockerInfo": None,
                         "extraTechnology": None,
@@ -1051,7 +1043,7 @@ class TestJobs:
                         "commandLine": "python {file} arg1 arg2",
                         "packageInfo": {
                             "name": "test.py",
-                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                            "downloadUrl": "version/1/artifact/test.py",
                         },
                         "dockerInfo": None,
                         "extraTechnology": None,
@@ -1095,7 +1087,7 @@ class TestJobs:
                         "commandLine": "python {file} arg1 arg2",
                         "packageInfo": {
                             "name": "test.py",
-                            "downloadUrl": "/projects/api/platform/6/project/860b8dc8-e634-4c98-b2e7-f9ec32ab4771/job/f5fce22d-2152-4a01-8c6a-4c2eb4808b6d/version/1/artifact/test.py",
+                            "downloadUrl": "version/1/artifact/test.py",
                         },
                         "dockerInfo": None,
                         "extraTechnology": None,

@@ -1,4 +1,4 @@
-# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access
+# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access,redefined-builtin,unspecified-encoding
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -282,7 +282,7 @@ class TestProjects:
         with pytest.raises(Exception):
             repository._Repositories__launch_request(file=tmp_file, url="", payload_str="request", params={})
 
-    def test_launch_request_with_url_success(self, saagie_api_mock, tmp_path):
+    def test_launch_request_with_url_success(self, saagie_api_mock):
         saagie_api_mock.client_gateway.execute.return_value = True
         repository = Repositories(saagie_api_mock)
 
@@ -294,7 +294,7 @@ class TestProjects:
 
         assert res is True
 
-    def test_launch_request_with_url_exception(self, saagie_api_mock, tmp_path):
+    def test_launch_request_with_url_exception(self, saagie_api_mock):
         repository = Repositories(saagie_api_mock)
 
         with pytest.raises(Exception):
@@ -302,7 +302,7 @@ class TestProjects:
                 file=None, url="url", payload_str="request", params={"repositoryInput": {}}
             )
 
-    def test_launch_request_without_file_and_url(self, saagie_api_mock, tmp_path):
+    def test_launch_request_without_file_and_url(self, saagie_api_mock):
         repository = Repositories(saagie_api_mock)
 
         with pytest.raises(ValueError):

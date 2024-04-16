@@ -1,4 +1,4 @@
-# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access
+# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access,unspecified-encoding,redefined-outer-name
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest

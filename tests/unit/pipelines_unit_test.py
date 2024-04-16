@@ -7,7 +7,7 @@ import pytest
 from gql import gql
 
 from saagieapi.pipelines.gql_queries import *
-from saagieapi.pipelines.graph_pipeline import ConditionExpressionNode, ConditionStatusNode, GraphPipeline, JobNode
+from saagieapi.pipelines.graph_pipeline import ConditionStatusNode, GraphPipeline, JobNode
 from saagieapi.pipelines.pipelines import Pipelines
 
 from .saagie_api_unit_test import create_gql_client
@@ -121,7 +121,7 @@ class TestPipelines:
 
         with patch.object(pipeline, "list_for_project") as l_proj, pytest.raises(NameError):
             l_proj.return_value = list_project
-            pipeline_id = pipeline.get_id(pipeline_name="Pipeline C", project_name="name")
+            pipeline.get_id(pipeline_name="Pipeline C", project_name="name")
 
     def test_get_pipeline_gql(self):
         query = gql(GQL_GET_PIPELINE)
@@ -229,7 +229,7 @@ class TestPipelines:
         graph_pipeline = GraphPipeline()
         graph_pipeline.add_root_node(job_node1)
 
-        pipeline_id = pipeline.create_graph(
+        pipeline.create_graph(
             project_id=project_id,
             graph_pipeline=graph_pipeline,
             name=name,
@@ -929,7 +929,7 @@ class TestPipelines:
                                     "nextNodesSuccess": ["00000000-0000-0000-0000-000000000002"],
                                     "nextNodesFailure": [],
                                     "condition": {
-                                        "toString": 'ConditionExpression(expression="tube_name.contains("Tube") || double(diameter) > 1.0")'
+                                        "toString": 'ConditionExpression(expression="tube_name.contains("Tube")")'
                                     },
                                 }
                             ],
@@ -1005,7 +1005,7 @@ class TestPipelines:
                                 "nextNodesSuccess": ["00000000-0000-0000-0000-000000000002"],
                                 "nextNodesFailure": [],
                                 "condition": {
-                                    "toString": 'ConditionExpression(expression="tube_name.contains("Tube") || double(diameter) > 1.0")'
+                                    "toString": 'ConditionExpression(expression="tube_name.contains("Tube")")'
                                 },
                             }
                         ],
@@ -1076,7 +1076,7 @@ class TestPipelines:
                                     "nextNodesSuccess": ["00000000-0000-0000-0000-000000000002"],
                                     "nextNodesFailure": [],
                                     "condition": {
-                                        "toString": 'ConditionExpression(expression="tube_name.contains("Tube") || double(diameter) > 1.0")'
+                                        "toString": 'ConditionExpression(expression="tube_name.contains("Tube")")'
                                     },
                                 }
                             ],

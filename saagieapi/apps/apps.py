@@ -520,6 +520,14 @@ class Apps:
         if exposed_ports is None:
             exposed_ports = []
 
+        check_format_exposed_port = self.check_exposed_ports(exposed_ports)
+
+        if not check_format_exposed_port:
+            raise ValueError(
+                "❌ The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'number'."
+                f"All accept key of each dict is: '{LIST_EXPOSED_PORT_FIELD}'"
+            )
+
         for storage in (s for s in storage_paths if "volume" in s):
             result = self.saagie_api.storages.create(
                 project_id,
@@ -556,19 +564,11 @@ class Apps:
             techno_id = next(techno["id"] for techno in repos if techno["label"] == "Docker image")
         params["technologyId"] = techno_id
 
-        check_format_exposed_port = self.check_exposed_ports(exposed_ports)
-
-        if not check_format_exposed_port:
-            raise ValueError(
-                "❌ The parameter 'exposed_ports' should be a list of dict. Each dict should contains the key 'number'."
-                f"All accept key of each dict is: '{LIST_EXPOSED_PORT_FIELD}'"
-            )
-
         if docker_credentials_id:
             params["version"]["dockerInfo"]["dockerCredentialsId"] = docker_credentials_id
 
         if emails or logins or status_list:
-            params["alerting"] = self.check_alerting({}, emails, logins, status_list)
+            params["alerting"] = self.check_alerting(emails, logins, status_list)
 
         if resources:
             params["resources"] = resources
@@ -639,15 +639,6 @@ class Apps:
             technology_id = self.saagie_api.check_technology(
                 params, technology_name, technology_catalog, techs_project
             )["technologyId"]
-
-            # Check if technology is is available in our project
-            techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
-            app_is_available = [app["id"] for app in techno_app["appTechnologies"] if app["id"] == technology_id]
-            if not app_is_available:
-                raise ValueError(
-                    f"❌ App '{technology_name}' is not available in the project: '{project_id}'. "
-                    "Check your project settings"
-                )
 
         # Get different runtimes of app
         runtimes = self.saagie_api.get_runtimes(technology_id)["technology"]["appContexts"]
@@ -735,7 +726,7 @@ class Apps:
 
         params["alerting"] = self.get_info(app_id)["app"]["alerting"]
         if emails or logins or status_list:
-            params["alerting"] = self.check_alerting({}, emails, logins, status_list)
+            params["alerting"] = self.check_alerting(emails, logins, status_list)
 
         params = {"app": params}
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_APP), variable_values=params)
@@ -869,17 +860,13 @@ class Apps:
         )
 
     @staticmethod
-    def check_alerting(
-        alerting: Dict = None, emails: List = None, logins: List = None, status_list: List = None
-    ) -> Dict:
+    def check_alerting(emails: List = None, logins: List = None, status_list: List = None) -> Dict:
         """
         Check if the alerting is enabled for the given app and if so, check alerting and status_list.
         If any parameter is missing, it will be set to the current value.
 
         Parameters
         ----------
-        alerting : dict, optional
-            dict containing the alerting informations
         emails : list, optional
             List of emails to send the alert
         logins : list, optional
@@ -910,11 +897,10 @@ class Apps:
             "FAILED",
         ]
 
-        if alerting is None:
-            alerting = {}
+        alerting = {}
 
-        if "loginEmails" in alerting:
-            del alerting["loginEmails"]
+        # if "loginEmails" in alerting:
+        #     del alerting["loginEmails"]
 
         if status_list:
             wrong_status_list = [item for item in status_list if item not in valid_status_list]
@@ -943,6 +929,7 @@ class Apps:
 
         return alerting
 
+    # doublenous with the saagie_api.get_runtime_label_by_id method
     def get_runtime_label_by_id(self, technology_id: str, runtime_id: str) -> str:
         """Get the label of runtime
 
@@ -1291,12 +1278,12 @@ class Apps:
                 )
                 technology_id = params["technologyId"]
 
-                techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
-                if all(app["id"] != technology_id for app in techno_app["appTechnologies"]):
-                    raise ValueError(
-                        f"❌ App '{app_technology_name}' is not available in the project: '{project_id}'. "
-                        "Check your project settings"
-                    )
+                # techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
+                # if all(app["id"] != technology_id for app in techno_app["appTechnologies"]):
+                #     raise ValueError(
+                #         f"❌ App '{app_technology_name}' is not available in the project: '{project_id}'. "
+                #         "Check your project settings"
+                #     )
 
                 runtimes = self.saagie_api.get_runtimes(technology_id)["technology"]["appContexts"]
                 available_runtimes = [app for app in runtimes if app["available"]]
@@ -1358,7 +1345,7 @@ class Apps:
         "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
         """
         project_id = self.saagie_api.projects.get_id(project_name)
-        apps = self.saagie_api.apps.list_for_project_minimal(project_id)["project"]["apps"]
+        apps = self.list_for_project_minimal(project_id)["project"]["apps"]
         if app := next((app for app in apps if app["name"] == app_name), None):
             return app["id"]
         raise NameError(f"❌ App {app_name} does not exist.")
@@ -1383,9 +1370,9 @@ class Apps:
         Examples
         --------
         >>> saagieapi.apps.get_stats(
-        ...     history_id="history_app_id",
-        ...     version_number="version_number",
-        ...     start_time="start_date"
+        ...     history_id="55943477-c41b-4dfe-a8ca-c110909d9204",
+        ...     version_number=2,
+        ...     start_time="2024-04-10T14:26:27.073Z"
         ... )
         {
             'appStats': {
@@ -1423,9 +1410,9 @@ class Apps:
         Examples
         --------
         >>> saagieapi.apps.get_history_statuses(
-        ...     history_id="history_app_id",
-        ...     version_number="version_number",
-        ...     start_time="start_date"
+        ...     history_id="55943477-c41b-4dfe-a8ca-c110909d9204",
+        ...     version_number=2,
+        ...     start_time="2023-07-31T14:26:27.073Z"
         ... )
         {
             'appHistoryStatuses': [
@@ -1466,9 +1453,9 @@ class Apps:
         Examples
         --------
         >>> saagieapi.apps.count_history_statuses(
-        ...     history_id="history_app_id",
-        ...     version_number="version_number",
-        ...     start_time="start_date"
+        ...     history_id="55943477-c41b-4dfe-a8ca-c110909d9204",
+        ...     version_number=2,
+        ...     start_time="2024-04-10T14:26:27.073Z"
         ... )
         {
             'countAppHistoryStatuses': 6
