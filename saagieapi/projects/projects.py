@@ -359,7 +359,7 @@ class Projects:
 
         # Create the params of the query
         params = {"name": name}
-        params |= self._create_groupe_role(group, role, groups_and_roles)
+        params.update(self._create_groupe_role(group, role, groups_and_roles))
         if description:
             params["description"] = description
 
@@ -547,7 +547,7 @@ class Projects:
 
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        params |= self._create_groupe_role(group, role, groups_and_roles)
+        params.update(self._create_groupe_role(group, role, groups_and_roles))
 
         if not group and not role and not groups_and_roles:
             params["authorizedGroups"] = [

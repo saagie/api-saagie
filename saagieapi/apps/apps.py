@@ -1196,7 +1196,7 @@ class Apps:
             app_info = self.get_info(app_id=app_id, versions_only_current=versions_only_current)["app"]
             app_techno_id = app_info["technology"]["id"]
             repo_name, techno_name = self.saagie_api.get_technology_name_by_id(app_techno_id)
-            app_info["technology"] |= {"name": techno_name, "technology_catalog": repo_name}
+            app_info["technology"].update({"name": techno_name, "technology_catalog": repo_name})
 
             if not versions_only_current:
                 for version in app_info["versions"]:

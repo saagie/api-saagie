@@ -717,10 +717,10 @@ class Jobs:
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
-            params |= self.saagie_api.check_alerting(emails, status_list)
+            params.update(self.saagie_api.check_alerting(emails, status_list))
 
         if cron_scheduling:
-            params |= self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone)
+            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
         else:
             params["isScheduled"] = False
 
@@ -844,7 +844,7 @@ class Jobs:
         }
 
         if is_scheduled:
-            params |= self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone)
+            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
         elif is_scheduled == False:
             params["isScheduled"] = False
         else:
@@ -853,7 +853,7 @@ class Jobs:
             params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
         if emails:
-            params |= self.saagie_api.check_alerting(emails, status_list)
+            params.update(self.saagie_api.check_alerting(emails, status_list))
         elif isinstance(emails, List):
             params["alerting"] = None
         elif previous_alerting := previous_job_version["alerting"]:
