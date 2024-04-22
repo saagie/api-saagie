@@ -13,6 +13,19 @@ from saagieapi import SaagieApi
 from saagieapi.pipelines.graph_pipeline import ConditionExpressionNode, ConditionStatusNode, GraphPipeline, JobNode
 
 
+def pytest_addoption(parser):
+    parser.addoption("--projectname", action="store", default="", help="Project name to use for the tests")
+    parser.addoption("--projectid", action="store", default="", help="Project id to use for the tests")
+
+
+@pytest.fixture(scope="package")
+def command_line_args(request):
+    return {
+        "project_name": request.config.getoption("--projectname"),
+        "project_id": request.config.getoption("--projectid"),
+    }
+
+
 class Conf:
     pass
 
@@ -23,7 +36,7 @@ def my_fixture():
 
 
 @pytest.fixture(scope="package")
-def create_global_project():
+def create_global_project(command_line_args):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     Conf.url_saagie = os.environ["URL_TEST_SAAGIE"]
     Conf.id_platform = os.environ["ID_PLATFORM_TEST_SAAGIE"]
@@ -47,31 +60,36 @@ def create_global_project():
     # Create a test project
     Conf.group = os.environ["USER_GROUP_TEST_SAAGIE"]
     Conf.project_name = f"Integration_test_Saagie_API {datetime.timestamp(datetime.now())}"
+    if command_line_args["project_name"]:
+        Conf.project_name = command_line_args["project_name"]
 
-    result = Conf.saagie_api.projects.create(
-        name=Conf.project_name,
-        group=Conf.group,
-        role="Manager",
-        description="For integration test",
-        jobs_technologies_allowed={"saagie": ["python", "spark", "bash"]},
-    )
-    Conf.project_id = result["createProject"]["id"]
-
-    # Waiting for the project to be ready
-    project_status = Conf.saagie_api.projects.get_info(project_id=Conf.project_id)["project"]["status"]
-    waiting_time = 0
-
-    # Safety: wait for 5min max for project initialisation
-    project_creation_timeout = 400
-    while project_status != "READY" and waiting_time <= project_creation_timeout:
-        time.sleep(10)
-        project_status = Conf.saagie_api.projects.get_info(Conf.project_id)["project"]["status"]
-        waiting_time += 10
-    if project_status != "READY":
-        raise TimeoutError(
-            f"Project creation is taking longer than usual, "
-            f"aborting integration tests after {project_creation_timeout} seconds"
+    if command_line_args["project_id"]:
+        Conf.project_id = command_line_args["project_id"]
+    else:
+        result = Conf.saagie_api.projects.create(
+            name=Conf.project_name,
+            group=Conf.group,
+            role="Manager",
+            description="For integration test",
+            jobs_technologies_allowed={"saagie": ["python", "spark", "bash"]},
         )
+        Conf.project_id = result["createProject"]["id"]
+
+        # Waiting for the project to be ready
+        project_status = Conf.saagie_api.projects.get_info(project_id=Conf.project_id)["project"]["status"]
+        waiting_time = 0
+
+        # Safety: wait for 5min max for project initialisation
+        project_creation_timeout = 400
+        while project_status != "READY" and waiting_time <= project_creation_timeout:
+            time.sleep(10)
+            project_status = Conf.saagie_api.projects.get_info(Conf.project_id)["project"]["status"]
+            waiting_time += 10
+        if project_status != "READY":
+            raise TimeoutError(
+                f"Project creation is taking longer than usual, "
+                f"aborting integration tests after {project_creation_timeout} seconds"
+            )
 
     @staticmethod
     def delete_test_global_env_var(conf):
@@ -87,7 +105,8 @@ def create_global_project():
 
     yield Conf
 
-    Conf.saagie_api.projects.delete(Conf.project_id)
+    if not command_line_args["project_id"]:
+        Conf.saagie_api.projects.delete(Conf.project_id)
 
     # Delete output directory if it wasn't present before
     if not Conf.output_dir_present:

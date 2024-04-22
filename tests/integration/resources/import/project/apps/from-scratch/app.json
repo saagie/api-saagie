@@ -1,6 +1,6 @@
 {
     "id": "c7b2b5ea-834a-4e0e-bfa4-f3303477b9e5",
-    "name": "test_app",
+    "name": "test_app import from scratch",
     "creationDate": "2022-08-29T08:20:28.485Z",
     "technology": {
         "id": "36912c68-d084-43b9-9fda-b5ded8eb7b13",
@@ -146,7 +146,7 @@
                     "path": "/data",
                     "volume": {
                         "id": "905d8441-8955-444f-a333-19d7c6fe6274",
-                        "name": "test",
+                        "name": "test import from scratch",
                         "creator": "guillaume.prevost",
                         "description": "test description",
                         "size": "1 GB",
@@ -154,7 +154,7 @@
                         "creationDate": "2022-08-29T08:02:11.811Z",
                         "linkedApp": {
                             "id": "c7b2b5ea-834a-4e0e-bfa4-f3303477b9e5",
-                            "name": "test_app"
+                            "name": "test_app import from scratch"
                         }
                     }
                 }
@@ -187,7 +187,7 @@
                 "path": "/data",
                 "volume": {
                     "id": "905d8441-8955-444f-a333-19d7c6fe6274",
-                    "name": "test",
+                    "name": "test import from scratch",
                     "creator": "guillaume.prevost",
                     "description": "test description",
                     "size": "1 GB",
@@ -195,7 +195,7 @@
                     "creationDate": "2022-08-29T08:02:11.811Z",
                     "linkedApp": {
                         "id": "c7b2b5ea-834a-4e0e-bfa4-f3303477b9e5",
-                        "name": "test_app"
+                        "name": "test_app import from scratch"
                     }
                 }
             }

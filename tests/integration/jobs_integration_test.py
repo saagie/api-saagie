@@ -1,5 +1,7 @@
 # pylint: disable=attribute-defined-outside-init
+import json
 import time
+from pathlib import Path
 
 import pytest
 
@@ -152,9 +154,21 @@ class TestIntegrationJobs:
     @staticmethod
     def test_import_job_from_json(create_global_project):
         conf = create_global_project
+
+        path_to_json = conf.import_dir / "project" / "jobs" / "job"
+
         result = conf.saagie_api.jobs.import_from_json(
             project_id=conf.project_id,
-            path_to_folder=conf.import_dir / "project" / "jobs" / "job",
+            path_to_folder=path_to_json,
+        )
+
+        json_file = Path(path_to_json / "job.json")
+
+        with json_file.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        conf.saagie_api.jobs.delete(
+            job_id=conf.saagie_api.jobs.get_id(job_name=job_info["name"], project_name=conf.project_name)
         )
 
         assert result
@@ -165,6 +179,15 @@ class TestIntegrationJobs:
         result = conf.saagie_api.jobs.import_from_json(
             project_id=conf.project_id,
             path_to_folder=conf.import_dir / "project" / "jobs" / "job_spark",
+        )
+
+        json_file = Path(conf.import_dir / "project" / "jobs" / "job_spark" / "job.json")
+
+        with json_file.open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+
+        conf.saagie_api.jobs.delete(
+            job_id=conf.saagie_api.jobs.get_id(job_name=job_info["name"], project_name=conf.project_name)
         )
 
         assert result
@@ -375,6 +398,8 @@ class TestIntegrationJobs:
         result = conf.saagie_api.jobs.duplicate(job_id=job_id)
 
         jobs_list = conf.saagie_api.jobs.list_for_project_minimal(project_id=conf.project_id)
+
+        conf.saagie_api.jobs.delete(job_id=result["duplicateJob"]["id"])
 
         assert result["duplicateJob"]["id"] in [job["id"] for job in jobs_list["jobs"]]
 

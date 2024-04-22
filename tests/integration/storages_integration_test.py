@@ -96,18 +96,32 @@ class TestIntegrationStorages:
 
         assert result == {"deleteVolume": {"id": storage["id"], "name": storage["name"]}}
 
+    @pytest.fixture
     @staticmethod
-    def test_delete_used_storage(create_global_project):
+    def create_app_from_catalog(create_global_project):
         conf = create_global_project
-        # need to create an app with a storage, upgrage the app to associated another storage then unlink the first one
+
         create_app = conf.saagie_api.apps.create_from_catalog(
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
             context="JupyterLab+GenAI 4.0 Python 3.10",
         )
-
         app_id = create_app["installApp"]["id"]
+
+        yield app_id
+
+        app_info = conf.saagie_api.apps.get_info(app_id)
+        conf.saagie_api.apps.delete(app_id)
+
+        for storage in app_info["app"]["currentVersion"]["volumesWithPath"]:
+            conf.saagie_api.storages.delete(storage["volume"]["id"], conf.project_id)
+
+    @staticmethod
+    def test_delete_used_storage(create_global_project, create_app_from_catalog):
+        conf = create_global_project
+        # need to create an app with a storage, upgrage the app to associated another storage then unlink the first one
+        app_id = create_app_from_catalog
         app_info = conf.saagie_api.apps.get_info(app_id)
 
         for volume in app_info["app"]["currentVersion"]["volumesWithPath"]:
@@ -118,17 +132,11 @@ class TestIntegrationStorages:
         assert str(vale.value).startswith(f"❌ Storage '{storage_id}' is currently used by an App. Deletion impossible.")
 
     @staticmethod
-    def test_unlink_unused_storage(create_storage, create_global_project):
+    def test_unlink_unused_storage(create_global_project, create_storage, create_app_from_catalog):
         conf = create_global_project
 
         # need to create an app with a storage, upgrage the app to associated another storage then unlink the first one
-        create_app = conf.saagie_api.apps.create_from_catalog(
-            project_id=conf.project_id,
-            technology_catalog="Saagie",
-            technology_name="Jupyter Notebook",
-            context="JupyterLab+GenAI 4.0 Python 3.10",
-        )
-        app_id = create_app["installApp"]["id"]
+        app_id = create_app_from_catalog
         app_info = conf.saagie_api.apps.get_info(app_id)
 
         storage2 = create_storage
@@ -145,20 +153,15 @@ class TestIntegrationStorages:
 
         unlink_storage = conf.saagie_api.storages.unlink(storage_id, conf.project_id)
 
+        conf.saagie_api.storages.delete(storage_id, conf.project_id)
+
         assert unlink_storage == {"unlinkVolume": {"id": storage_id, "name": storage_name}}
 
     @staticmethod
-    def test_unlink_used_storage(create_global_project):
+    def test_unlink_used_storage(create_global_project, create_app_from_catalog):
         conf = create_global_project
 
-        create_app = conf.saagie_api.apps.create_from_catalog(
-            project_id=conf.project_id,
-            technology_catalog="Saagie",
-            technology_name="Jupyter Notebook",
-            context="JupyterLab+GenAI 4.0 Python 3.10",
-        )
-
-        app_id = create_app["installApp"]["id"]
+        app_id = create_app_from_catalog
         app_info = conf.saagie_api.apps.get_info(app_id)
 
         for volume in app_info["app"]["currentVersion"]["volumesWithPath"]:
@@ -234,5 +237,9 @@ class TestIntegrationStorages:
         time.sleep(5)
 
         result = conf.saagie_api.storages.duplicate(storage_id=storage["id"])
+
+        time.sleep(15)
+
+        conf.saagie_api.storages.delete(result["duplicateVolume"]["id"], conf.project_id)
 
         assert result["duplicateVolume"]["originalVolumeId"] == storage["id"]

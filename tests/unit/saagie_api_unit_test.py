@@ -57,32 +57,32 @@ class TestGQLTemplate:
 
     @staticmethod
     def test_check_scheduling():
-        result = SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="Pacific/Fakaofo")
+        result = SaagieApi.check_scheduling(cron_scheduling="* * * * *", schedule_timezone="Pacific/Fakaofo")
         assert result["isScheduled"] is True
         assert result["cronScheduling"] == "* * * * *"
 
     @staticmethod
     def test_check_scheduling_bad_timezone():
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_scheduling(cron_scheduling="* * * * *", params={}, schedule_timezone="")
+            SaagieApi.check_scheduling(cron_scheduling="* * * * *", schedule_timezone="")
         assert str(rte.value) == "❌ Please specify a correct timezone"
 
     @staticmethod
     def test_check_scheduling_bad_cronexpression():
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_scheduling(cron_scheduling="xx", params={}, schedule_timezone="Pacific/Fakaofo")
+            SaagieApi.check_scheduling(cron_scheduling="xx", schedule_timezone="Pacific/Fakaofo")
         assert str(rte.value) == "❌ xx is not valid cron format"
 
     @staticmethod
     def test_check_alerting():
-        result = SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["FAILED"])
+        result = SaagieApi.check_alerting(emails=["mail1", "mail2"], status_list=["FAILED"])
         assert result["alerting"]["emails"] == ["mail1", "mail2"]
         assert result["alerting"]["statusList"] == ["FAILED"]
 
     @staticmethod
     def test_check_alerting_bad_status_list():
         with pytest.raises(RuntimeError) as rte:
-            SaagieApi.check_alerting(emails=["mail1", "mail2"], params={}, status_list=["failure"])
+            SaagieApi.check_alerting(emails=["mail1", "mail2"], status_list=["failure"])
         assert "The following status are not valid" in str(rte.value)
 
     @staticmethod

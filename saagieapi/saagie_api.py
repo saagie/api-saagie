@@ -125,15 +125,13 @@ class SaagieApi:
         return cls(url_saagie, id_platform, user, password, realm)
 
     @staticmethod
-    def check_alerting(emails: List, params: Dict, status_list: List) -> Dict:
+    def check_alerting(emails: List, status_list: List) -> Dict:
         """
         Check if the alerting is enabled for the given project and if so, check params and status_list.
         Parameters
         ----------
         emails : list
             List of emails to send the alert
-        params : dict
-            dict containing the params of the alert
         status_list : list
             status list of the alert
 
@@ -171,19 +169,16 @@ class SaagieApi:
                 f"'FAILED', 'KILLED', 'KILLING', 'SUCCEEDED', 'UNKNOWN', 'AWAITING', 'SKIPPED'"
             )
 
-        params["alerting"] = {"emails": emails, "statusList": status_list}
-        return params
+        return {"alerting": {"emails": emails, "statusList": status_list}}
 
     @staticmethod
-    def check_scheduling(cron_scheduling: str, params: Dict, schedule_timezone: str) -> Dict:
+    def check_scheduling(cron_scheduling: str, schedule_timezone: str) -> Dict:
         """
         Check if the cron_scheduling is valid and if it is, add it to the params.
         Parameters
         ----------
         cron_scheduling : str
             cronjob expression
-        params : dict
-            dict containing the params of the alert
         schedule_timezone : str
             timezone of the schedule
 
@@ -197,16 +192,16 @@ class SaagieApi:
         RunTimeError
             When the cronjob expression is invalid of the timezone does not exist
         """
-        params["isScheduled"] = True
+        schedule_dict = {"isScheduled": True}
         if cron_scheduling and croniter.is_valid(cron_scheduling):
-            params["cronScheduling"] = cron_scheduling
+            schedule_dict["cronScheduling"] = cron_scheduling
         else:
             raise RuntimeError(f"❌ {cron_scheduling} is not valid cron format")
         if schedule_timezone in list(pytz.all_timezones):
-            params["scheduleTimezone"] = schedule_timezone
+            schedule_dict["scheduleTimezone"] = schedule_timezone
         else:
             raise RuntimeError("❌ Please specify a correct timezone")
-        return params
+        return schedule_dict
 
     # ##########################################################
     # ###                    cluster                        ####

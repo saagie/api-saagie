@@ -37,7 +37,6 @@ class Projects:
 
     @staticmethod
     def _create_groupe_role(
-        params: Dict,
         group: Optional[str],
         role: Optional[str],
         groups_and_roles: Optional[List[Dict]],
@@ -48,27 +47,24 @@ class Projects:
                 "or multiple groups and roles with groups_and_roles"
             )
 
-        if groups_and_roles:
-            group_block = [
-                {"name": g, "role": Projects.__map_role(r)} for mydict in groups_and_roles for g, r in mydict.items()
-            ]
-
-            params["authorizedGroups"] = group_block
-            return params
-
-        if group and role:
-            saagie_role = Projects.__map_role(role)
-            group_block = [{"name": group, "role": saagie_role}]
-            params["authorizedGroups"] = group_block
-            return params
-
         if (group and role is None) or (group is None and role):
             raise RuntimeError(
                 "❌ Too few arguments, specify either a group and role, "
                 "or multiple groups and roles with groups_and_roles"
             )
 
-        return params
+        if groups_and_roles:
+            group_block = [
+                {"name": g, "role": Projects.__map_role(r)} for mydict in groups_and_roles for g, r in mydict.items()
+            ]
+
+            return {"authorizedGroups": group_block}
+
+        if group and role:
+            saagie_role = Projects.__map_role(role)
+            group_block = [{"name": group, "role": saagie_role}]
+            return {"authorizedGroups": group_block}
+        return {}
 
     def list(self, pprint_result: Optional[bool] = None) -> Dict:
         """Get information for all projects (id, name, creator, description,
@@ -363,7 +359,7 @@ class Projects:
 
         # Create the params of the query
         params = {"name": name}
-        params = self._create_groupe_role(params, group, role, groups_and_roles)
+        params.update(self._create_groupe_role(group, role, groups_and_roles))
         if description:
             params["description"] = description
 
@@ -551,7 +547,7 @@ class Projects:
 
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        params = self._create_groupe_role(params, group, role, groups_and_roles)
+        params.update(self._create_groupe_role(group, role, groups_and_roles))
 
         if not group and not role and not groups_and_roles:
             params["authorizedGroups"] = [
@@ -664,7 +660,6 @@ class Projects:
 
         project_info["jobs_technologies"] = job_tech_dict or None
 
-        app_tech_dict = {}
         app_tech_dict = defaultdict(list)
         for tech in self.get_apps_technologies(project_id=project_id)["appTechnologies"]:
             catalog, techno = self.saagie_api.get_technology_name_by_id(tech["id"])
@@ -783,20 +778,12 @@ class Projects:
                 description=config_dict["description"],
             )["createProject"]["id"]
 
-            # Waiting for the project to be ready
-            project_status = self.get_info(project_id=new_project_id)["project"]["status"]
-            waiting_time = 0
-
-            # Safety: wait for 5min max for project initialisation
-            project_creation_timeout = 400
-            while project_status != "READY" and waiting_time <= project_creation_timeout:
-                time.sleep(10)
-                project_status = self.get_info(new_project_id)["project"]["status"]
-                waiting_time += 10
+            # # Safety: wait for 5min max for project initialisation
+            timeout = 400
+            project_status = self.get_status_with_callback(project_id=new_project_id, freq=10, timeout=timeout)
             if project_status != "READY":
                 raise TimeoutError(
-                    f"Project creation is taking longer than usual, "
-                    f"Aborting project import after {project_creation_timeout} seconds"
+                    f"Project creation is taking longer than usual, " f"Aborting project import after {timeout} seconds"
                 )
         except Exception as exception:
             logging.warning("❌ Project [%s] has not been successfully imported", project_name)
@@ -838,3 +825,13 @@ class Projects:
         if not status:
             logging.error("Something went wrong during project import %s", list_failed)
         return status
+
+    def get_status_with_callback(self, project_id: str, freq: int = 10, timeout: int = -1):
+        project_status = self.get_info(project_id=project_id)["project"]["status"]
+        waiting_time = 0
+
+        while project_status != "READY" and waiting_time <= timeout:
+            time.sleep(freq)
+            project_status = self.get_info(project_id)["project"]["status"]
+            waiting_time += freq
+        return project_status

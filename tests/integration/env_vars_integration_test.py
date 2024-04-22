@@ -1,6 +1,8 @@
 # pylint: disable=attribute-defined-outside-init
+import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -421,6 +423,9 @@ class TestIntegrationEnvVars:
     @staticmethod
     def test_import_global_env_var_from_json(create_global_project):
         conf = create_global_project
+
+        json_path = conf.import_dir / "env_vars" / "GLOBAL" / "variable.json"
+
         path = os.path.join(conf.import_dir, "env_vars", "GLOBAL", "variable.json")
         conf.delete_test_global_env_var(conf)
 
@@ -429,15 +434,28 @@ class TestIntegrationEnvVars:
             conf.project_id,
         )
 
+        with Path(json_path).open("r", encoding="utf-8") as file:
+            env_var_info = json.load(file)
+
+        conf.saagie_api.env_vars.delete(scope="GLOBAL", name=env_var_info["name"])
+
         assert result
 
     @staticmethod
     def test_import_project_env_var_from_json(create_global_project):
         conf = create_global_project
+
+        json_path = conf.import_dir / "project" / "env_vars" / "PROJECT" / "variable.json"
+
         result = conf.saagie_api.env_vars.import_from_json(
-            os.path.join(conf.import_dir, "project", "env_vars", "PROJECT", "variable.json"),
+            json_path,
             conf.project_id,
         )
+
+        with Path(json_path).open("r", encoding="utf-8") as file:
+            env_var_info = json.load(file)
+
+        conf.saagie_api.env_vars.delete(scope="PROJECT", project_id=conf.project_id, name=env_var_info["name"])
 
         assert result
 

@@ -384,14 +384,14 @@ class Storages:
         logging.info("✅ Storage [%s] successfully edited", storage_id)
         return result
 
-    def delete(self, storage_id: str, project_id: str) -> Dict:
+    def delete(self, storage_id: str, project_id: str = None) -> Dict:
         """Delete a given storage (not currently used)
 
         Parameters
         ----------
         storage_id : str
             UUID of your storage
-        project_id : str
+        project_id : str, optional
             UUID of your storage project
 
         Returns
@@ -427,14 +427,14 @@ class Storages:
         logging.info("✅ Storage [%s] successfully deleted", storage_id)
         return result
 
-    def unlink(self, storage_id: str, project_id: str) -> Dict:
+    def unlink(self, storage_id: str, project_id: str = None) -> Dict:
         """Unlink a given storage (not currently used) to the associated app
 
         Parameters
         ----------
         storage_id : str
             UUID of your storage
-        project_id : str
+        project_id : str, optional
             UUID of your storage project
 
         Returns

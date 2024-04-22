@@ -39,7 +39,7 @@ class TestIntegrationProject:
         conf = create_global_project
         project_input = {
             "description": "new description",
-            "jobs_technologies_allowed": {"saagie": ["python", "spark", "r"]},
+            "jobs_technologies_allowed": {"saagie": ["python", "spark", "r", "bash"]},
         }
 
         conf.saagie_api.projects.edit(
@@ -58,7 +58,7 @@ class TestIntegrationProject:
         }
 
         assert project_input["description"] == to_validate["description"]
-        assert len(technologies_allowed["technologies"]) == 3  # R and Spark and Python for extraction
+        assert len(technologies_allowed["technologies"]) == 4  # R and Spark and Python and Bash for extraction
 
     @staticmethod
     def test_export_project(create_global_project):

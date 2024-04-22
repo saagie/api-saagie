@@ -1,4 +1,6 @@
+import json
 import os
+from pathlib import Path
 
 import pytest
 
@@ -133,37 +135,66 @@ class TestIntegrationPipelines:
     @staticmethod
     def test_import_pipeline_from_json_with_existing_jobs(create_global_project):
         conf = create_global_project
-        job_name = "test_job_python"
+        job_json_path = conf.import_dir / "project" / "jobs" / "job"
+        with Path(job_json_path / "job.json").open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+        job_name = job_info["name"]
+
         jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         if not job:
             conf.saagie_api.jobs.import_from_json(
                 project_id=conf.project_id,
-                path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job"),
+                path_to_folder=job_json_path,
             )
 
+        pipeline_json_path = conf.import_dir / "project" / "pipelines" / "with-existing-jobs" / "pipeline.json"
+
         result = conf.saagie_api.pipelines.import_from_json(
-            os.path.join(conf.import_dir, "project", "pipelines", "with-existing-jobs", "pipeline.json"),
-            conf.project_id,
+            json_file=pipeline_json_path,
+            project_id=conf.project_id,
         )
+
+        with Path(pipeline_json_path).open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        conf.saagie_api.pipelines.delete(
+            pipeline_id=conf.saagie_api.pipelines.get_id(pipeline_info["name"], conf.project_name)
+        )
+        conf.saagie_api.jobs.delete(job_id=conf.saagie_api.jobs.get_id(job_name, conf.project_name))
+
         assert result
 
     @staticmethod
     def test_import_pipeline_from_json_without_alerting(create_global_project):
         conf = create_global_project
-        job_name = "test_job_python"
+        job_json_path = conf.import_dir / "project" / "jobs" / "job"
+        with Path(job_json_path / "job.json").open("r", encoding="utf-8") as file:
+            job_info = json.load(file)
+        job_name = job_info["name"]
         jobs = conf.saagie_api.jobs.list_for_project_minimal(conf.project_id)["jobs"]
         job = list(filter(lambda j: j["name"] == job_name, jobs))
         if not job:
             conf.saagie_api.jobs.import_from_json(
                 project_id=conf.project_id,
-                path_to_folder=os.path.join(conf.import_dir, "project", "jobs", "job"),
+                path_to_folder=job_json_path,
             )
 
+        json_path = conf.import_dir / "project" / "pipelines" / "without-alerting" / "pipeline.json"
+
         result = conf.saagie_api.pipelines.import_from_json(
-            os.path.join(conf.import_dir, "project", "pipelines", "without-alerting", "pipeline.json"),
-            conf.project_id,
+            json_file=json_path,
+            project_id=conf.project_id,
         )
+
+        with Path(json_path).open("r", encoding="utf-8") as file:
+            pipeline_info = json.load(file)
+
+        conf.saagie_api.pipelines.delete(
+            pipeline_id=conf.saagie_api.pipelines.get_id(pipeline_info["name"], conf.project_name)
+        )
+        conf.saagie_api.jobs.delete(job_id=conf.saagie_api.jobs.get_id(job_name, conf.project_name))
+
         assert result
 
     @staticmethod

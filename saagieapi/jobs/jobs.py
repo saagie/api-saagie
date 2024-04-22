@@ -282,7 +282,7 @@ class Jobs:
         ... )
         "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"
         """
-        jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
+        jobs = self.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
         if job := next((j for j in jobs if j["name"] == job_name), None):
             return job["id"]
         raise NameError(f"❌ Job {job_name} does not exist.")
@@ -717,10 +717,10 @@ class Jobs:
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
-            params = self.saagie_api.check_alerting(emails, params, status_list)
+            params.update(self.saagie_api.check_alerting(emails, status_list))
 
         if cron_scheduling:
-            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
+            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
         else:
             params["isScheduled"] = False
 
@@ -844,7 +844,7 @@ class Jobs:
         }
 
         if is_scheduled:
-            params = self.saagie_api.check_scheduling(cron_scheduling, params, schedule_timezone)
+            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
         elif is_scheduled == False:
             params["isScheduled"] = False
         else:
@@ -853,7 +853,7 @@ class Jobs:
             params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
         if emails:
-            params = self.saagie_api.check_alerting(emails, params, status_list)
+            params.update(self.saagie_api.check_alerting(emails, status_list))
         elif isinstance(emails, List):
             params["alerting"] = None
         elif previous_alerting := previous_job_version["alerting"]:
@@ -1158,7 +1158,7 @@ class Jobs:
         }
         """  # pylint: disable=line-too-long
 
-        job_list = self.saagie_api.jobs.list_for_project_minimal(project_id)["jobs"]
+        job_list = self.list_for_project_minimal(project_id)["jobs"]
 
         # If the job already exists, upgrade it
         if job_name in [job["name"] for job in job_list]:
@@ -1532,7 +1532,7 @@ class Jobs:
             local_folder = output_folder / job_id / "version" / str(version["number"])
             create_folder(local_folder)
             req = requests.get(
-                remove_slash_folder_path(self.saagie_api.url_saagie) + version["packageInfo"]["downloadUrl"],
+                f'{remove_slash_folder_path(self.saagie_api.url_saagie)}{version["packageInfo"]["downloadUrl"]}',
                 auth=self.saagie_api.auth,
                 stream=True,
                 timeout=60,
@@ -1589,10 +1589,12 @@ class Jobs:
             job_name = job_info["name"]
 
             version = next(version for version in job_info["versions"] if version["isCurrent"])
+            version_path = json_file.parent / "version" / str(version["number"])
 
-            if path_to_package := next((json_file.parent / "version" / str(version["number"])).iterdir(), None):
-                os.chdir(path_to_package.parent)
-                file_name = path_to_package.name
+            if version_path.exists():
+                if path_to_package := next(version_path.iterdir(), None):
+                    os.chdir(path_to_package.parent)
+                    file_name = path_to_package.name
             else:
                 file_name = ""
 
@@ -1619,7 +1621,7 @@ class Jobs:
             logging.info("✅ Job [%s] successfully imported", job_name)
         except Exception as exception:
             return handle_log_error(
-                f"❌ Job [{job_name}] has not been successfully imported",
+                f"❌ Job [in the following file: {json_file}] has not been successfully imported",
                 exception,
             )
         return True
