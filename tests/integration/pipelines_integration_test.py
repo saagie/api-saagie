@@ -135,7 +135,6 @@ class TestIntegrationPipelines:
     @staticmethod
     def test_import_pipeline_from_json_with_existing_jobs(create_global_project):
         conf = create_global_project
-        # job_name = "test_job_python"
         job_json_path = conf.import_dir / "project" / "jobs" / "job"
         with Path(job_json_path / "job.json").open("r", encoding="utf-8") as file:
             job_info = json.load(file)
@@ -169,7 +168,6 @@ class TestIntegrationPipelines:
     @staticmethod
     def test_import_pipeline_from_json_without_alerting(create_global_project):
         conf = create_global_project
-        # job_name = "test_job_python"
         job_json_path = conf.import_dir / "project" / "jobs" / "job"
         with Path(job_json_path / "job.json").open("r", encoding="utf-8") as file:
             job_info = json.load(file)

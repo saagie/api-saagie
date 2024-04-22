@@ -1,4 +1,4 @@
-# pylint: disable=attribute-defined-outside-init,unspecified-encoding
+# pylint: disable=attribute-defined-outside-init
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from gql import gql
 
-from saagieapi.apps.apps import Apps
+from saagieapi.apps import Apps
 from saagieapi.apps.gql_queries import *
 
 from .saagie_api_unit_test import create_gql_client
@@ -698,7 +698,7 @@ class TestApps:
         app = Apps(saagie_api_mock)
 
         tmp_file = Path(tmp_path / "app.json")
-        tmp_file.write_text("This is not a json format.")
+        tmp_file.write_text("This is not a json format.", encoding="utf-8")
 
         app_result = app.import_from_json(json_file=tmp_file, project_id="project_id")
 

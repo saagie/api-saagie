@@ -1,4 +1,4 @@
-# pylint: disable=attribute-defined-outside-init,unspecified-encoding
+# pylint: disable=attribute-defined-outside-init
 import json
 import logging
 from pathlib import Path
@@ -22,6 +22,7 @@ class MockResponse:
         return self.json_data
 
     def iter_content(self, chunk_size):
+        _ = chunk_size
         return self.json_data
 
 
@@ -415,8 +416,6 @@ class TestJobs:
             "description": job_params["description"],
             "resources": job_params["resources"],
             "isScheduled": False,
-            # "cronScheduling": job_params["cron_scheduling"],
-            # "scheduleTimezone": job_params["schedule_timezone"],
             "alerting": {
                 "emails": job_params["emails"],
                 "statusList": job_params["status_list"],
@@ -902,13 +901,16 @@ class TestJobs:
     # This method will be used by the mock to replace requests.get
     # see Stackoverflow post : https://stackoverflow.com/a/28507806
     def mocked_requests_get_success(self, *args, **kwargs):
+        _ = (args, kwargs)
         return MockResponse([], 200)
 
     def mocked_requests_get_error(self, *args, **kwargs):
+        _ = (args, kwargs)
         return MockResponse([], 404)
 
     @patch("requests.get", side_effect=mocked_requests_get_success)
     def test_export_success(self, mock_get, saagie_api_mock, tmp_path):
+        _ = mock_get
         saagie_api_mock.get_technology_name_by_id.return_value = ("Saagie", "Python")
         instance = Jobs(saagie_api_mock)
 
@@ -1063,6 +1065,7 @@ class TestJobs:
 
     @patch("requests.get", side_effect=mocked_requests_get_error)
     def test_export_error_bad_status_code(self, mock_get, saagie_api_mock, tmp_path):
+        _ = mock_get
         saagie_api_mock.get_technology_name_by_id.return_value = ("Saagie", "Python")
         instance = Jobs(saagie_api_mock)
 
@@ -1172,8 +1175,8 @@ class TestJobs:
             "path_to_folder": tmp_path,
         }
 
-        tmp_file = Path(tmp_path / "job.json")
-        tmp_file.write_text("This is not a json format.")
+        tmp_file = Path(tmp_path / "job.json", encoding="utf-8")
+        tmp_file.write_text("This is not a json format.", encoding="utf-8")
 
         job_result = instance.import_from_json(**job_params)
 

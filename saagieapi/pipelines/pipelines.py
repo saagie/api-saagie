@@ -835,12 +835,12 @@ class Pipelines:
         }
 
         if cron_scheduling:
-            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
+            params |= self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone)
         else:
             params["isScheduled"] = False
 
         if emails:
-            params.update(self.saagie_api.check_alerting(emails, status_list))
+            params |= self.saagie_api.check_alerting(emails, status_list)
 
         if has_execution_variables_enabled:
             params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
@@ -1049,7 +1049,7 @@ class Pipelines:
 
         # cases test : True, False and None
         if is_scheduled:
-            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
+            params |= self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone)
         elif is_scheduled == False:
             params["isScheduled"] = False
         else:
@@ -1058,7 +1058,7 @@ class Pipelines:
 
         # cases test : List non empty, List empty, None
         if isinstance(emails, List) and emails:
-            params.update(self.saagie_api.check_alerting(emails, status_list))
+            params |= self.saagie_api.check_alerting(emails, status_list)
         elif isinstance(emails, List):
             params["alerting"] = None
         elif previous_alerting := previous_pipeline_info["alerting"]:

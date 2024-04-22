@@ -20,10 +20,10 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="package")
 def command_line_args(request):
-    args = {}
-    args["project_name"] = request.config.getoption("--projectname")
-    args["project_id"] = request.config.getoption("--projectid")
-    return args
+    return {
+        "project_name": request.config.getoption("--projectname"),
+        "project_id": request.config.getoption("--projectid"),
+    }
 
 
 class Conf:

@@ -58,18 +58,12 @@ class Projects:
                 {"name": g, "role": Projects.__map_role(r)} for mydict in groups_and_roles for g, r in mydict.items()
             ]
 
-            # params["authorizedGroups"] = group_block
-            # return params
             return {"authorizedGroups": group_block}
 
         if group and role:
             saagie_role = Projects.__map_role(role)
             group_block = [{"name": group, "role": saagie_role}]
-            # params["authorizedGroups"] = group_block
-            # return params
             return {"authorizedGroups": group_block}
-
-        # return params
         return {}
 
     def list(self, pprint_result: Optional[bool] = None) -> Dict:
@@ -365,7 +359,7 @@ class Projects:
 
         # Create the params of the query
         params = {"name": name}
-        params.update(self._create_groupe_role(group, role, groups_and_roles))
+        params |= self._create_groupe_role(group, role, groups_and_roles)
         if description:
             params["description"] = description
 
@@ -553,7 +547,7 @@ class Projects:
 
         params = {"projectId": project_id}
         previous_project_version = self.get_info(project_id)["project"]
-        params.update(self._create_groupe_role(group, role, groups_and_roles))
+        params |= self._create_groupe_role(group, role, groups_and_roles)
 
         if not group and not role and not groups_and_roles:
             params["authorizedGroups"] = [

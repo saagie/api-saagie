@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from gql import gql
 
+from saagieapi.pipelines import Pipelines
 from saagieapi.pipelines.gql_queries import *
 from saagieapi.pipelines.graph_pipeline import ConditionStatusNode, GraphPipeline, JobNode
-from saagieapi.pipelines.pipelines import Pipelines
 
 from .saagie_api_unit_test import create_gql_client
 
@@ -1153,7 +1153,7 @@ class TestPipelines:
         pipeline = Pipelines(saagie_api_mock)
 
         tmp_file = Path(tmp_path / "pipeline.json")
-        tmp_file.write_text("This is not a json format.")
+        tmp_file.write_text("This is not a json format.", encoding="utf-8")
 
         pipeline_params = {
             "json_file": tmp_file,

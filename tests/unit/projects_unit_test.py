@@ -1,11 +1,13 @@
-# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access,unspecified-encoding,redefined-outer-name
+# pylint: disable=attribute-defined-outside-init,protected-access
+import json
+from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 from gql import gql
 
+from saagieapi.projects import Projects
 from saagieapi.projects.gql_queries import *
-from saagieapi.projects.projects import *
 
 from .saagie_api_unit_test import create_gql_client
 
@@ -581,7 +583,7 @@ class TestProjects:
         project = Projects(saagie_api_mock)
 
         tmp_file = Path(tmp_path / "project.json")
-        tmp_file.write_text("This is not a json format.")
+        tmp_file.write_text("This is not a json format.", encoding="utf-8")
 
         project_result = project.import_from_json(path_to_folder=tmp_path)
 

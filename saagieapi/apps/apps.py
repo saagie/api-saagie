@@ -899,9 +899,6 @@ class Apps:
 
         alerting = {}
 
-        # if "loginEmails" in alerting:
-        #     del alerting["loginEmails"]
-
         if status_list:
             wrong_status_list = [item for item in status_list if item not in valid_status_list]
             alerting["statusList"] = status_list
@@ -1199,7 +1196,7 @@ class Apps:
             app_info = self.get_info(app_id=app_id, versions_only_current=versions_only_current)["app"]
             app_techno_id = app_info["technology"]["id"]
             repo_name, techno_name = self.saagie_api.get_technology_name_by_id(app_techno_id)
-            app_info["technology"].update({"name": techno_name, "technology_catalog": repo_name})
+            app_info["technology"] |= {"name": techno_name, "technology_catalog": repo_name}
 
             if not versions_only_current:
                 for version in app_info["versions"]:
@@ -1277,13 +1274,6 @@ class Apps:
                     params, app_technology_name, app_technology_catalog, [tech["id"] for tech in techs_project]
                 )
                 technology_id = params["technologyId"]
-
-                # techno_app = self.saagie_api.projects.get_apps_technologies(project_id=project_id)
-                # if all(app["id"] != technology_id for app in techno_app["appTechnologies"]):
-                #     raise ValueError(
-                #         f"❌ App '{app_technology_name}' is not available in the project: '{project_id}'. "
-                #         "Check your project settings"
-                #     )
 
                 runtimes = self.saagie_api.get_runtimes(technology_id)["technology"]["appContexts"]
                 available_runtimes = [app for app in runtimes if app["available"]]

@@ -1,9 +1,12 @@
-# pylint: disable=attribute-defined-outside-init,unused-wildcard-import,protected-access,redefined-builtin,unspecified-encoding
+# pylint: disable=attribute-defined-outside-init,protected-access,redefined-builtin
+from pathlib import Path
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
+from gql import gql
 
-from saagieapi.repositories.repositories import *
+from saagieapi.repositories import Repositories
+from saagieapi.repositories.gql_queries import *
 
 from .saagie_api_unit_test import create_gql_client
 
@@ -265,7 +268,7 @@ class TestProjects:
         repository = Repositories(saagie_api_mock)
 
         tmp_file = Path(tmp_path / "file.txt")
-        tmp_file.write_text("This is a test file.")
+        tmp_file.write_text("This is a test file.", encoding="utf-8")
 
         request = GQL_DELETE_REPOSITORY
 
@@ -277,7 +280,7 @@ class TestProjects:
         repository = Repositories(saagie_api_mock)
 
         tmp_file = Path(tmp_path / "file.txt")
-        tmp_file.write_text("This is a test file.")
+        tmp_file.write_text("This is a test file.", encoding="utf-8")
 
         with pytest.raises(Exception):
             repository._Repositories__launch_request(file=tmp_file, url="", payload_str="request", params={})

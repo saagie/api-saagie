@@ -282,7 +282,6 @@ class Jobs:
         ... )
         "f5fce22d-2152-4a01-8c6a-4c2eb4808b6d"
         """
-        # jobs = self.saagie_api.jobs.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
         jobs = self.list_for_project_minimal(self.saagie_api.projects.get_id(project_name))["jobs"]
         if job := next((j for j in jobs if j["name"] == job_name), None):
             return job["id"]
@@ -718,10 +717,10 @@ class Jobs:
             params["extraTechnology"] = {"language": extra_technology, "version": extra_technology_version}
 
         if emails:
-            params.update(self.saagie_api.check_alerting(emails, status_list))
+            params |= self.saagie_api.check_alerting(emails, status_list)
 
         if cron_scheduling:
-            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
+            params |= self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone)
         else:
             params["isScheduled"] = False
 
@@ -845,7 +844,7 @@ class Jobs:
         }
 
         if is_scheduled:
-            params.update(self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone))
+            params |= self.saagie_api.check_scheduling(cron_scheduling, schedule_timezone)
         elif is_scheduled == False:
             params["isScheduled"] = False
         else:
@@ -854,7 +853,7 @@ class Jobs:
             params["scheduleTimezone"] = previous_job_version["scheduleTimezone"]
 
         if emails:
-            params.update(self.saagie_api.check_alerting(emails, status_list))
+            params |= self.saagie_api.check_alerting(emails, status_list)
         elif isinstance(emails, List):
             params["alerting"] = None
         elif previous_alerting := previous_job_version["alerting"]:
