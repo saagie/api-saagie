@@ -87,6 +87,7 @@ query projectPipelinesQuery($projectId: UUID!,
                 creator
                 isCurrent
                 isMajor
+                sourceUrl
             }
             creationDate
             creator
@@ -178,6 +179,7 @@ query graphPipelineQuery($id: UUID!,
             creator
             isCurrent
             isMajor
+            sourceUrl
         }
         creationDate
         creator
@@ -272,6 +274,102 @@ query graphPipelineByNameQuery(
             creator
             isCurrent
             isMajor
+            sourceUrl
+        }
+        creationDate
+        creator
+        isScheduled
+        cronScheduling
+        scheduleStatus
+        scheduleTimezone
+        isLegacyPipeline
+        hasExecutionVariablesEnabled
+    }
+}
+"""
+
+GQL_GET_PIPELINE_BY_ALIAS = """
+query graphPipelineByAliasQuery(
+    $projectId: UUID!, 
+    $pipelineAlias: String!,
+    $instancesLimit: Int, 
+    $versionsLimit: Int, 
+    $versionsOnlyCurrent: Boolean
+) {
+    graphPipelineByAlias(projectId: $projectId, alias: $pipelineAlias) {
+        id
+        name
+        alias
+        description
+        alerting{
+            emails
+            loginEmails{
+                login
+                email
+            }
+            statusList
+        }
+        pipelineInstanceCount
+        instances(limit: $instancesLimit){
+            id
+            status
+            startTime
+            endTime
+            runWithExecutionVariables
+            initialExecutionVariables{
+                key
+                value
+                isPassword
+            }
+            jobsInstance{
+                id
+                jobId
+                number
+                startTime
+                endTime
+            }
+            conditionsInstance{
+                id
+                conditionNodeId
+                isSuccess
+                startTime
+                endTime
+            }
+        }
+        versions(limit: $versionsLimit, onlyCurrent: $versionsOnlyCurrent) {
+            number
+            releaseNote
+            graph{
+                jobNodes{
+                    id
+                    job{
+                        id
+                        name
+                    }
+                    position{
+                        x
+                        y
+                    }
+                    nextNodes
+                }
+                conditionNodes{
+                    id
+                    position{
+                        x
+                        y
+                    }
+                    nextNodesSuccess
+                    nextNodesFailure
+                    condition {
+                        toString
+                    }
+                }
+            }
+            creationDate
+            creator
+            isCurrent
+            isMajor
+            sourceUrl
         }
         creationDate
         creator
@@ -388,7 +486,8 @@ mutation createGraphPipelineMutation($name: String!,
                                      $scheduleTimezone:TimeZone,
                                      $jobNodes: [JobNodeInput!], 
                                      $conditionNodes: [ConditionNodeInput!],
-                                     $alias: String!) {
+                                     $alias: String!,
+                                     $sourceUrl: String) {
     createGraphPipeline(
         pipeline: {
             name: $name
@@ -404,6 +503,7 @@ mutation createGraphPipelineMutation($name: String!,
                 conditionNodes: $conditionNodes
             }
             alias: $alias
+            sourceUrl: $sourceUrl
         }
     ) {
         id
@@ -423,14 +523,16 @@ GQL_UPGRADE_PIPELINE = """
 mutation($id: UUID!, 
 		 $jobNodes: [JobNodeInput!], 
          $conditionNodes: [ConditionNodeInput!], 
-         $releaseNote: String){
+         $releaseNote: String,
+         $sourceUrl: String){
     addGraphPipelineVersion(
         pipelineId: $id,
         graph: {
             jobNodes: $jobNodes,
             conditionNodes: $conditionNodes
         },
-        releaseNote: $releaseNote
+        releaseNote: $releaseNote,
+        sourceUrl: $sourceUrl
     ){
         number,
         releaseNote,

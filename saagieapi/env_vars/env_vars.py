@@ -16,15 +16,18 @@ def handle_error(msg, project_id):
     return False
 
 
-def check_scope(scope, project_id, pipeline_id):
-    if scope not in ("GLOBAL", "PROJECT", "PIPELINE"):
-        raise ValueError("❌ 'scope' must be one of GLOBAL, PROJECT or PIPELINE")
+def check_scope(scope, project_id, pipeline_id, app_id):
+    if scope not in ("GLOBAL", "PROJECT", "PIPELINE", "APP"):
+        raise ValueError("❌ 'scope' must be one of GLOBAL, PROJECT, PIPELINE or APP")
 
     if scope == "PROJECT" and project_id is None:
         raise ValueError("❌ 'project_id' must be provided for scope PROJECT")
 
     if scope == "PIPELINE" and pipeline_id is None:
         raise ValueError("❌ 'pipeline_id' must be provided for scope PIPELINE")
+
+    if scope == "APP" and app_id is None:
+        raise ValueError("❌ 'app_id' must be provided for scope APP")
 
 
 class EnvVars:
@@ -977,6 +980,7 @@ class EnvVars:
         scope: str,
         project_id: str = None,
         pipeline_id: str = None,
+        app_id: str = None,
         scope_only: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -992,6 +996,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        app_id : str, optional
+            UUID of your app (see README on how to find it)
         scope_only : bool, optional
             Whether to return only the environment variables of the given scope
         pprint_result : bool, optional
@@ -1031,7 +1037,7 @@ class EnvVars:
             }
         ]
         """
-        check_scope(scope, project_id, pipeline_id)
+        check_scope(scope, project_id, pipeline_id, app_id)
 
         if scope == "GLOBAL":
             res = self.saagie_api.client.execute(query=gql(GQL_LIST_GLOBAL_ENV_VARS), pprint_result=pprint_result)[
@@ -1049,6 +1055,12 @@ class EnvVars:
                 variable_values={"pipelineId": pipeline_id},
                 pprint_result=pprint_result,
             )["pipelineEnvironmentVariables"]
+        elif scope == "APP":
+            res = self.saagie_api.client.execute(
+                query=gql(GQL_LIST_APP_ENV_VARS),
+                variable_values={"appId": app_id},
+                pprint_result=pprint_result,
+            )["appEnvironmentVariables"]
 
         return [env for env in res if env["scope"] == scope] if scope_only else res
 
@@ -1058,6 +1070,7 @@ class EnvVars:
         name: str,
         project_id: str = None,
         pipeline_id: str = None,
+        app_id: str = None,
         scope_only: bool = False,
         pprint_result: Optional[bool] = None,
     ) -> Dict:
@@ -1076,6 +1089,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        app_id : str, optional
+            UUID of your app (see README on how to find it)
         scope_only : bool, optional
             Whether to return only the environment variables of the given scope
         pprint_result : bool, optional
@@ -1101,9 +1116,9 @@ class EnvVars:
             'invalidReasons': None
         }
         """
-        check_scope(scope, project_id, pipeline_id)
+        check_scope(scope, project_id, pipeline_id, app_id)
 
-        env_vars = self.list(scope, project_id, pipeline_id, scope_only, pprint_result)
+        env_vars = self.list(scope, project_id, pipeline_id, app_id, scope_only, pprint_result)
 
         return next((d for d in env_vars if d["name"] == name), None)
 
@@ -1116,6 +1131,7 @@ class EnvVars:
         is_password: bool = False,
         project_id: str = None,
         pipeline_id: str = None,
+        app_id: str = None,
     ) -> Dict:
         """Create an environment variable in a given scope
 
@@ -1135,6 +1151,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        app_id : str, optional
+            UUID of your app (see README on how to find it)
 
         Returns
         -------
@@ -1158,7 +1176,7 @@ class EnvVars:
         }
         """
 
-        check_scope(scope, project_id, pipeline_id)
+        check_scope(scope, project_id, pipeline_id, app_id)
 
         params = {
             "envVar": {
@@ -1170,10 +1188,12 @@ class EnvVars:
             },
         }
 
-        if scope == "PIPELINE":
-            params["entityId"] = pipeline_id
-        elif scope == "PROJECT":
+        if scope == "PROJECT":
             params["entityId"] = project_id
+        elif scope == "PIPELINE":
+            params["entityId"] = pipeline_id
+        elif scope == "APP":
+            params["entityId"] = app_id
 
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_ENV_VAR), variable_values=params)
         logging.info("✅ Environment variable [%s] successfully created", name)
@@ -1189,6 +1209,7 @@ class EnvVars:
         is_password: bool = None,
         project_id: str = None,
         pipeline_id: str = None,
+        app_id: str = None,
     ) -> Dict:
         """
         Update environment variable with provided function variables if it exists
@@ -1211,6 +1232,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        app_id : str, optional
+            UUID of your app (see README on how to find it)
 
         Returns
         -------
@@ -1239,9 +1262,9 @@ class EnvVars:
         }
         """
 
-        check_scope(scope, project_id, pipeline_id)
+        check_scope(scope, project_id, pipeline_id, app_id)
 
-        existing_env_var = self.list(scope, project_id, pipeline_id, scope_only=True, pprint_result=False)
+        existing_env_var = self.list(scope, project_id, pipeline_id, app_id, scope_only=True, pprint_result=False)
 
         var = next((d for d in existing_env_var if d["name"] == name), None)
         if var is None:
@@ -1255,6 +1278,8 @@ class EnvVars:
             params["entityId"] = project_id
         elif scope == "PIPELINE":
             params["entityId"] = pipeline_id
+        elif scope == "APP":
+            params["entityId"] = app_id
 
         params["envVar"].pop("isValid", None)
         params["envVar"].pop("overriddenValues", None)
@@ -1282,6 +1307,7 @@ class EnvVars:
         is_password: bool = None,
         project_id: str = None,
         pipeline_id: str = None,
+        app_id: str = None,
     ) -> Dict:
         """
         Create a new environment variable or update it if it already exists
@@ -1302,6 +1328,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        app_id : str, optional
+            UUID of your app (see README on how to find it)
 
         Returns
         -------
@@ -1324,9 +1352,9 @@ class EnvVars:
         }
         """
 
-        check_scope(scope, project_id, pipeline_id)
+        check_scope(scope, project_id, pipeline_id, app_id)
 
-        existing_env_var = self.list(scope, project_id, pipeline_id, scope_only=True, pprint_result=False)
+        existing_env_var = self.list(scope, project_id, pipeline_id, app_id, scope_only=True, pprint_result=False)
 
         var = next((d for d in existing_env_var if d["name"] == name), None)
 
@@ -1340,6 +1368,7 @@ class EnvVars:
                 "is_password": is_password,
                 "project_id": project_id,
                 "pipeline_id": pipeline_id,
+                "app_id": app_id,
             }
             args2 = {k: v for k, v in args.items() if v is not None}
             return self.create(**args2)
@@ -1352,6 +1381,7 @@ class EnvVars:
             is_password=is_password,
             project_id=project_id,
             pipeline_id=pipeline_id,
+            app_id=app_id,
         )
 
     def delete(
@@ -1360,6 +1390,7 @@ class EnvVars:
         name: str,
         project_id: str = None,
         pipeline_id: str = None,
+        app_id: str = None,
     ) -> Dict:
         """Delete a given environment variable inside a given scope
 
@@ -1373,6 +1404,8 @@ class EnvVars:
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
             UUID of your pipeline (see README on how to find it)
+        app_id : str, optional
+            UUID of your app (see README on how to find it)
 
         Returns
         -------
@@ -1392,9 +1425,9 @@ class EnvVars:
             "deleteEnvironmentVariable": True
         }
         """
-        check_scope(scope, project_id, pipeline_id)
+        check_scope(scope, project_id, pipeline_id, app_id)
 
-        existing_env_var = self.list(scope, project_id, pipeline_id, scope_only=True, pprint_result=False)
+        existing_env_var = self.list(scope, project_id, pipeline_id, app_id, scope_only=True, pprint_result=False)
 
         var = next((d for d in existing_env_var if d["name"] == name), None)
         if var is None:
