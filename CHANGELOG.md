@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.12.0 (2024-04-26)
+### :sparkles:
+* :sparkles: Feat/2024.02 ([#217](https://github.com/saagie/api-saagie/issues/217)) ([`3466c85`](https://github.com/saagie/api-saagie/commit/3466c85ff6b405c27ea8d7297b2708f924ee4636))
+
 ## v2.11.0 (2024-02-20)
 ### :sparkles:
 * :sparkles: Feat/product 2024 01 ([#208](https://github.com/saagie/api-saagie/issues/208)) ([`e4e14c7`](https://github.com/saagie/api-saagie/commit/e4e14c772c29b316478654320d0c1f5e024c51bb))
