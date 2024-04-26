@@ -183,6 +183,32 @@ class TestPipelines:
             query=expected_query, variable_values=params, pprint_result=None
         )
 
+    def test_get_pipeline_by_alias_gql(self):
+        query = gql(GQL_GET_PIPELINE_BY_ALIAS)
+        self.client.validate(query)
+
+    def test_get_pipeline_by_alias(self, saagie_api_mock):
+        pipeline = Pipelines(saagie_api_mock)
+
+        project_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        pipeline_alias = "pipeline_alias"
+
+        params = {
+            "projectId": project_id,
+            "pipelineAlias": pipeline_alias,
+            "instancesLimit": None,
+            "versionsLimit": None,
+            "versionsOnlyCurrent": False,
+        }
+
+        expected_query = gql(GQL_GET_PIPELINE_BY_ALIAS)
+
+        pipeline.get_info_by_alias(project_id=project_id, pipeline_alias=pipeline_alias)
+
+        saagie_api_mock.client.execute.assert_called_with(
+            query=expected_query, variable_values=params, pprint_result=None
+        )
+
     def test_get_pipeline_instance_gql(self):
         query = gql(GQL_GET_PIPELINE_INSTANCE)
         self.client.validate(query)
@@ -216,6 +242,7 @@ class TestPipelines:
         name = "Amazing Pipeline"
         alias = "amazing_pipeline"
         desc = "new pipeline"
+        source_url = "https://my.super.link"
 
         job_node1 = JobNode("5d1999f5-fa70-47d9-9f41-55ad48333629")
         job_node2 = JobNode("5d1999f5-fa70-47d9-9f41-55ad48333629")
@@ -235,6 +262,7 @@ class TestPipelines:
             name=name,
             alias=alias,
             description=desc,
+            source_url=source_url,
         )
 
         expected_query = gql(GQL_CREATE_GRAPH_PIPELINE)
@@ -250,6 +278,7 @@ class TestPipelines:
             "conditionNodes": graph_pipeline.list_conditions_nodes,
             "alias": alias,
             "isScheduled": False,
+            "sourceUrl": source_url,
         }
 
         saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
@@ -350,6 +379,7 @@ class TestPipelines:
         pipeline = Pipelines(saagie_api_mock)
 
         pipeline_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
+        source_url = "https://my.super.link"
 
         job_node1 = JobNode("5d1999f5-fa70-47d9-9f41-55ad48333629")
         job_node2 = JobNode("5d1999f5-fa70-47d9-9f41-55ad48333629")
@@ -363,10 +393,7 @@ class TestPipelines:
         graph_pipeline = GraphPipeline()
         graph_pipeline.add_root_node(job_node1)
 
-        pipeline.upgrade(
-            pipeline_id=pipeline_id,
-            graph_pipeline=graph_pipeline,
-        )
+        pipeline.upgrade(pipeline_id=pipeline_id, graph_pipeline=graph_pipeline, source_url=source_url)
 
         expected_query = gql(GQL_UPGRADE_PIPELINE)
 
@@ -377,6 +404,7 @@ class TestPipelines:
             "jobNodes": graph_pipeline.list_job_nodes,
             "conditionNodes": graph_pipeline.list_conditions_nodes,
             "releaseNote": "",
+            "sourceUrl": source_url,
         }
 
         saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)

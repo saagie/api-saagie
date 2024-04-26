@@ -660,6 +660,170 @@ class Pipelines:
             query=gql(GQL_GET_PIPELINE_BY_NAME), variable_values=params, pprint_result=pprint_result
         )
 
+    def get_info_by_alias(
+        self,
+        project_id: str,
+        pipeline_alias: str,
+        instances_limit: Optional[int] = None,
+        versions_limit: Optional[int] = None,
+        versions_only_current: bool = False,
+        pprint_result: Optional[bool] = None,
+    ) -> Dict:
+        """Get a given pipeline information by giving its alias
+
+        Parameters
+        ----------
+        project_id : str
+            UUID of your pipeline  (see README on how to find it)
+        pipeline_alias : str
+            Alias of your pipeline
+        instances_limit : int, optional
+            Maximum limit of instances to fetch per job. Fetch from most recent
+            to the oldest
+        versions_limit : int, optional
+            Maximum limit of versions to fetch per pipeline. Fetch from most recent
+            to the oldest
+        versions_only_current : bool, optional
+            Whether to only fetch the current version of each pipeline
+        pprint_result : bool, optional
+            Whether to pretty print the result of the query, default to
+            saagie_api.pprint_global
+
+        Returns
+        -------
+        dict
+            Dict of pipeline's information
+
+        Examples
+        --------
+        >>> saagieapi.pipelines.get_info_by_alias(
+        ...     project_id=""8321e13c-892a-4481-8552-5be4d6cc5df4",
+        ...     pipeline_id="Pipeline A"
+        ... )
+        {
+            "graphPipelineByAlias": {
+                "id": "5d1999f5-fa70-47d9-9f41-55ad48333629",
+                "name": "Pipeline A",
+                "description": "My Pipeline A",
+                "alerting": "NULL",
+                "pipelineInstanceCount": 0,
+                "instances": [
+                    {
+                        "id": "cc11c32a-66c5-43ad-b176-444cee7079ff",
+                        "status": "SUCCEEDED",
+                        "startTime": "2022-03-15T11:42:07.559Z",
+                        "endTime": "2022-03-15T11:43:17.716Z",
+                        "runWithExecutionVariables": True,
+                        "initialExecutionVariables": [
+                            {
+                                "key": "TEST_PASSWORD",
+                                "value": None,
+                                "isPassword": True
+                            },
+                            {
+                                "key": "TEST_PROJECT",
+                                "value": "TEST_PROJECT",
+                                "isPassword": False
+                            }
+                        ],
+                        "jobsInstance": [
+                            {
+                                "id": "f8e77fc3-9c4d-450b-8efd-9d3080b38edb",
+                                "jobId": "9a71afa4-aed4-4061-87d2-b279a3adf8c3",
+                                "number": 80,
+                                "startTime": "2022-03-15T11:42:07.559Z",
+                                "endTime": "2022-03-15T11:43:17.716Z"
+                            }
+                        ],
+                        "conditionsInstance": [
+                            {
+                                "id": "2292a535-affb-4b1c-973d-690c185d949e",
+                                "conditionNodeId": "c2f23720-e361-11ed-894d-6b696861cc8f",
+                                "isSuccess": true,
+                                "startTime": "2022-03-15T11:42:30.559Z",
+                                "endTime": "2022-03-15T11:42:45.559Z"
+                            }
+                        ],
+                    },
+                    {
+                        "id": "d7aba110-3bd9-4505-b70c-84c4d212345",
+                        "status": "SUCCEEDED",
+                        "startTime": "2022-02-04T00:00:00.062Z",
+                        "endTime": "2022-02-04T00:00:27.249Z",
+                        "runWithExecutionVariables": False,
+                        "initialExecutionVariables": [],
+                        "jobsInstance": [],
+                        "conditionsInstance": [],
+                    }
+                ],
+                "versions": [
+                    {
+                        "number": 1,
+                        "releaseNote": None,
+                        "graph": {
+                            "jobNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000000",
+                                    "job": {
+                                        "id": "6f56e714-37e4-4596-ae20-7016a1d954e9",
+                                        "name": "Spark 2.4 java"
+                                    },
+                                    "position": None,
+                                    "nextNodes": ["00000000-0000-0000-0000-000000000001"]
+                                },
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "job": {
+                                        "id": "6ea1b022-db8b-4af7-885b-56ddc9ba764a", "name": "bash"
+                                    },
+                                    "position": None,
+                                    "nextNodes": []
+                                }
+                            ],
+                            "conditionNodes": [
+                                {
+                                    "id": "00000000-0000-0000-0000-000000000001",
+                                    "position": {
+                                        "x": 310.00092,
+                                        "y": 75
+                                    },
+                                    "nextNodesSuccess": [
+                                        "00000000-0000-0000-0000-000000000002"
+                                    ],
+                                    "nextNodesFailure": [],
+                                    "condition": {
+                                        "toString": "ConditionExpression(expression=\"tube_name.contains(\"Tube\") || double(diameter) > 1.0\")"
+                                    }
+                                }
+                            ]
+                        },
+                        "creationDate": "2022-01-31T10:36:42.327Z",
+                        "creator": "john.doe",
+                        "isCurrent": True,
+                        "isMajor": False
+                    }
+                ],
+                "creationDate": "2022-01-31T10:36:42.327Z",
+                "creator": "john.doe",
+                "isScheduled": False,
+                "cronScheduling": None,
+                "scheduleStatus": None,
+                "scheduleTimezone": "UTC",
+                "isLegacyPipeline": False
+            }
+        }
+        """  # pylint: disable=line-too-long
+        params = {
+            "projectId": project_id,
+            "pipelineAlias": pipeline_alias,
+            "instancesLimit": instances_limit,
+            "versionsLimit": versions_limit,
+            "versionsOnlyCurrent": versions_only_current,
+        }
+        return self.saagie_api.client.execute(
+            query=gql(GQL_GET_PIPELINE_BY_ALIAS), variable_values=params, pprint_result=pprint_result
+        )
+
     def get_instance(self, pipeline_instance_id: str, pprint_result: Optional[bool] = None) -> Dict:
         """
         Get the information of a given pipeline instance id
@@ -739,6 +903,7 @@ class Pipelines:
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         has_execution_variables_enabled: bool = None,
+        source_url: str = "",
     ) -> Dict:
         """
         Create a pipeline in a given project
@@ -764,9 +929,9 @@ class Pipelines:
         release_note: str, optional
             Release note of the pipeline
         emails: List[String], optional
-            Emails to receive alerts for the job, each item should be a valid email,
+            Emails to receive alerts for the pipeline, each item should be a valid email,
         status_list: List[String], optional
-            Receive an email when the job status change to a specific status
+            Receive an email when the pipeline status change to a specific status
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
         cron_scheduling : str, optional
@@ -775,6 +940,8 @@ class Pipelines:
             Timezone of the scheduling
         has_execution_variables_enabled: bool, optional
             Boolean to activate or desactivate the execution variables
+        source_url: str, optional
+            URL of the source code used for the pipeline (link to the commit for example)
 
         Returns
         -------
@@ -845,6 +1012,9 @@ class Pipelines:
         if has_execution_variables_enabled:
             params["hasExecutionVariablesEnabled"] = has_execution_variables_enabled
 
+        if source_url:
+            params["sourceUrl"] = source_url
+
         result = self.saagie_api.client.execute(query=gql(GQL_CREATE_GRAPH_PIPELINE), variable_values=params)
         logging.info("✅ Pipeline [%s] successfully created", name)
         return result
@@ -874,16 +1044,21 @@ class Pipelines:
         logging.info("✅ Pipeline [%s] successfully deleted", pipeline_id)
         return result
 
-    def upgrade(self, pipeline_id: str, graph_pipeline: GraphPipeline, release_note: str = "") -> Dict:
+    def upgrade(
+        self, pipeline_id: str, graph_pipeline: GraphPipeline, release_note: str = "", source_url: str = ""
+    ) -> Dict:
         """
         Upgrade a pipeline in a given project
 
         Parameters
         ----------
-        pipeline_id: str, ID of pipeline
+        pipeline_id: str,
+            UUID of pipeline
         graph_pipeline : GraphPipeline
         release_note: str, optional
             Release note of the pipeline
+        source_url: str, optional
+            URL of the source code used for the pipeline (link to the commit for example)
 
         Returns
         -------
@@ -956,6 +1131,9 @@ class Pipelines:
             "conditionNodes": graph_pipeline.list_conditions_nodes,
             "releaseNote": release_note,
         }
+
+        if source_url:
+            params["sourceUrl"] = source_url
 
         result = self.saagie_api.client.execute(query=gql(GQL_UPGRADE_PIPELINE), variable_values=params)
         logging.info("✅ Pipeline [%s] successfully upgraded", pipeline_id)
@@ -1090,6 +1268,7 @@ class Pipelines:
         cron_scheduling: str = None,
         schedule_timezone: str = "UTC",
         has_execution_variables_enabled: bool = None,
+        source_url: str = None,
     ) -> Dict:
         """Create or upgrade a pipeline in a given project
 
@@ -1115,11 +1294,11 @@ class Pipelines:
         release_note: str, optional
             Release note of the pipeline
         emails: List[String], optional
-            Emails to receive alerts for the job, each item should be a valid email,
+            Emails to receive alerts for the pipeline, each item should be a valid email,
             If you want to remove alerting, please set emails to [] or list()
             if not filled, defaults to current value
         status_list: List[String], optional
-            Receive an email when the job status change to a specific status
+            Receive an email when the pipeline status change to a specific status
             Each item of the list should be one of these following values: "REQUESTED", "QUEUED",
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
         is_scheduled : bool, optional
@@ -1134,6 +1313,8 @@ class Pipelines:
             Example: "UTC", "Pacific/Pago_Pago"
         has_execution_variables_enabled: bool, optional
             Boolean to activate or desactivate the execution variables
+        source_url: str, optional
+            URL of the source code used for the pipeline (link to the commit for example)
 
         Returns
         -------
@@ -1187,7 +1368,7 @@ class Pipelines:
                     has_execution_variables_enabled=has_execution_variables_enabled,
                 )["editPipeline"]
             }
-            responses["addGraphPipelineVersion"] = self.upgrade(pipeline_id, graph_pipeline, release_note)[
+            responses["addGraphPipelineVersion"] = self.upgrade(pipeline_id, graph_pipeline, release_note, source_url)[
                 "addGraphPipelineVersion"
             ]
 
@@ -1207,6 +1388,7 @@ class Pipelines:
                 "cron_scheduling": cron_scheduling,
                 "schedule_timezone": schedule_timezone,
                 "has_execution_variables_enabled": has_execution_variables_enabled,
+                "source_url": source_url,
             }.items()
             if v is not None  # Remove None values from the dict
         }

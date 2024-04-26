@@ -728,7 +728,7 @@ class Jobs:
             params["resources"] = resources
 
         if source_url:
-            params["source_url"] = source_url
+            params["sourceUrl"] = source_url
 
         result = self.__launch_request(file, GQL_CREATE_JOB, params)
         logging.info("✅ Job [%s] successfully created", job_name)

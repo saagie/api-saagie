@@ -103,6 +103,35 @@ query pipelineEnvironmentVariablesQuery($pipelineId: UUID!,
 }
 """
 
+GQL_LIST_APP_ENV_VARS = """
+query appEnvironmentVariablesQuery($appId: UUID!, 
+                                   $scopeFilter: EnvVarScope) {  
+    appEnvironmentVariables(appId: $appId, 
+                            scope: $scopeFilter
+    ) {    
+        id
+        scope
+        name
+        value
+        description
+        isPassword
+        isValid
+        overriddenValues {
+            id
+            scope
+            value
+            description
+            isPassword
+        }
+        invalidReasons{
+            type
+            concernedProperty
+            message
+        }
+    }
+}
+"""
+
 GQL_CREATE_PIPELINE_ENV_VAR = """
 mutation replaceEnvironmentVariablesByRawForScope($entityId: UUID, 
                                                   $scope: EnvVarScope!, 
