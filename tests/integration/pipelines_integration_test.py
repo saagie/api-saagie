@@ -454,3 +454,14 @@ class TestIntegrationPipelines:
         conf.saagie_api.pipelines.delete(pipeline_id=result["duplicatePipeline"]["id"])
 
         assert "duplicatePipeline" in result
+
+    @staticmethod
+    def test_get_info_by_alias(create_global_project, create_then_delete_graph_pipeline):
+        conf = create_global_project
+        pipeline_id, _ = create_then_delete_graph_pipeline
+
+        result = conf.saagie_api.pipelines.get_info_by_alias(
+            pipeline_alias="ALIAS_TEST_VIA_API", project_id=conf.project_id
+        )
+
+        assert result["graphPipelineByAlias"]["id"] == pipeline_id

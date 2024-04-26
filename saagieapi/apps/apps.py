@@ -668,6 +668,7 @@ class Apps:
         emails: List = None,
         logins: List = None,
         status_list: List = None,
+        resources: Dict = None,
     ) -> Dict:
         """Edit an app. \
         Each optional parameter can be set to change the value of the corresponding field.
@@ -694,6 +695,8 @@ class Apps:
             Receive an email when the app status change to a specific status.
             Each item of the list should be one of these following values: "STARTING","STARTED",
             "ROLLING_BACK","UPGRADING","RECOVERING","RESTARTING","STOPPING","STOPPED","FAILED"
+        resources : dict, optional
+            Resources CPU, RAM & GPU limited and guaranteed for the app.
 
         Returns
         -------
@@ -727,6 +730,9 @@ class Apps:
         params["alerting"] = self.get_info(app_id)["app"]["alerting"]
         if emails or logins or status_list:
             params["alerting"] = self.check_alerting(emails, logins, status_list)
+
+        if resources:
+            params["resources"] = resources
 
         params = {"app": params}
         result = self.saagie_api.client.execute(query=gql(GQL_EDIT_APP), variable_values=params)
@@ -1458,3 +1464,87 @@ class Apps:
         }
 
         return self.saagie_api.client.execute(query=gql(GQL_COUNT_HISTORY_APP_STATUS), variable_values=params)
+
+    def get_logs(
+        self,
+        app_id: str,
+        app_execution_id: str,
+        limit: int = None,
+        skip: int = None,
+        log_stream: str = None,
+        start_at: str = None,
+    ):
+        """Get logs of the app
+
+        Parameters
+        ----------
+        app_id : str
+            UUID of your app
+        app_execution_id : str
+            UUID of the execution of your app
+        limit : int, optional
+            Number of log lines to retrieve
+        skip : int, optional
+            Number of log lines to skip
+        log_stream: str, optional
+            Stream of logs to follow. Values accepted :
+            [ENVVARS_STDOUT, ENVVARS_STDERR, ORCHESTRATION_STDOUT, ORCHESTRATION_STDERR, STDERR, STDOUT]
+            By default, all the streams are retrieved
+        start_at: str, optional
+            Get logs since a specific datetime.
+            Following formats accepted : "2024-04-09 10:00:00" and "2024-04-09T10:00:00"
+
+        Returns
+        -------
+        dict
+            Logs of the app
+
+        Examples
+        --------
+        >>> saagieapi.apps.get_logs(
+        ...     app_id="70e85ade-d6cc-4a90-8d7d-639adbd25e5d",
+        ...     app_execution_id="e3e31074-4a12-450e-96e4-0eae7801dfca",
+        ...     limit=2,
+        ...     skip=5,
+        ...     start_at="2024-04-09 10:00:00"
+        ... )
+        {
+            "appLogs": {
+                "count": 25,
+                "content": [
+                    {
+                        "index": 5,
+                        "value": "[I 2024-04-09 13:38:36.982 ServerApp] jupyterlab_git | extension was successfully linked.",
+                        "containerId": "d7104fa7371c5ed6ef540fa8b0620a654a0e02c57136e29f0fcc03d16e36d74f",
+                        "stream": "STDERR",
+                        "recordAt": "2024-04-09T13:38:36.982473892Z"
+                    },
+                    {
+                        "index": 6,
+                        "value": "[W 2024-04-09 13:38:36.987 NotebookApp] 'ip' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.",
+                        "containerId": "d7104fa7371c5ed6ef540fa8b0620a654a0e02c57136e29f0fcc03d16e36d74f",
+                        "stream": "STDERR",
+                        "recordAt": "2024-04-09T13:38:36.987400105Z"
+                    }
+                ]
+            }
+        }
+        """
+        params = {
+            "appId": app_id,
+            "appExecutionId": app_execution_id,
+        }
+
+        if limit:
+            params["limit"] = limit
+
+        if skip:
+            params["skip"] = skip
+
+        if log_stream:
+            params["stream"] = log_stream
+
+        if start_at:
+            params["recordAt"] = start_at
+
+        return self.saagie_api.client.execute(query=gql(GQL_GET_APP_LOG), variable_values=params)
