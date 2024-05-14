@@ -2,7 +2,7 @@ Apps
 ====
 
 
-.. automodule:: saagieapi.apps
+.. automodule:: apps
     :members:
     :undoc-members:
     :show-inheritance:
