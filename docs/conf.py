@@ -12,7 +12,8 @@ version = "0.1.0"
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
+current_dir = os.path.dirname(__file__)
+sys.path.append(os.path.abspath(os.path.join(current_dir, "..")))
 
 # -- General configuration
 
