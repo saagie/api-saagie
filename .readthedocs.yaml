@@ -15,6 +15,7 @@ build:
       - pip install poetry
       - poetry config virtualenvs.create false
     post_install:
+      - pip install sphinx_book_theme==1.1.2
       - poetry install
 
 # Build documentation in the docs/ directory with Sphinx
