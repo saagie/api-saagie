@@ -1082,7 +1082,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to get. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to get. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         name : str
             Name of the environment variable to get
         project_id : str, optional
