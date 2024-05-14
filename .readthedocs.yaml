@@ -12,6 +12,9 @@ build:
     python: "3.11"
   jobs:
     post_create_environment:
+      - which python
+      - source $READTHEDOCS_VIRTUALENV_PATH/bin/activate
+      - which python
       - pip install poetry
       - poetry config virtualenvs.create false
     post_install:
