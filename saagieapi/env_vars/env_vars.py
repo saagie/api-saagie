@@ -991,7 +991,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to list. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to list. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         project_id : str, optional
             UUID of your project (see README on how to find it)
         pipeline_id : str, optional
@@ -1082,7 +1082,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to get. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to get. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         name : str
             Name of the environment variable to get
         project_id : str, optional
@@ -1138,7 +1138,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to create. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to create. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         name : str
             Name of the environment variable to create
         value : str
@@ -1217,7 +1217,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to update. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to update. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         name : str
             Name of the environment variable to upgrade
         new_name : str, optional
@@ -1315,7 +1315,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to create. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to create. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         name: str
             Unique name of the environment variable to create or modify
         value: str
@@ -1397,7 +1397,7 @@ class EnvVars:
         Parameters
         ----------
         scope : str
-            Scope of the environment variable to delete. Must be one of GLOBAL, PROJECT or PIPELINE
+            Scope of the environment variable to delete. Must be one of GLOBAL, PROJECT, PIPELINE or APP
         name : str
             Name of the environment variable to delete inside the given scope
         project_id : str, optional
