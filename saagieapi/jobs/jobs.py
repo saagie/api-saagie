@@ -582,6 +582,7 @@ class Jobs:
         emails: List = None,
         status_list: List = None,
         source_url: str = "",
+        docker_info: Dict = None,
     ) -> Dict:
         """Create job in given project
 
@@ -635,6 +636,9 @@ class Jobs:
             "RUNNING", "FAILED", "KILLED", "KILLING", "SUCCEEDED", "UNKNOWN", "AWAITING", "SKIPPED"
         source_url: str, optional
             URL of the source code used for the job (link to the commit for example)
+        docker_info: dict (optional)
+            Docker information for the job
+            Example: {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIALS_ID"}
 
         Returns
         -------
@@ -729,6 +733,9 @@ class Jobs:
 
         if source_url:
             params["sourceUrl"] = source_url
+
+        if docker_info:
+            params["dockerInfo"] = docker_info
 
         result = self.__launch_request(file, GQL_CREATE_JOB, params)
         logging.info("✅ Job [%s] successfully created", job_name)
@@ -877,6 +884,7 @@ class Jobs:
         extra_technology: str = None,
         extra_technology_version: str = None,
         source_url: str = "",
+        docker_info: dict = None,
     ) -> Dict:
         """Upgrade a job
 
@@ -903,6 +911,9 @@ class Jobs:
             Version of the extra technology. Leave to None when not needed
         source_url: str (optional)
             URL of the source code used for the job (link to the commit for example)
+        docker_info: dict (optional)
+            Docker information for the job
+            Example: {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIALS_ID"}
 
         Returns
         -------
@@ -957,6 +968,7 @@ class Jobs:
             "runtimeVersion": runtime_version or job_info["versions"][0]["runtimeVersion"],
             "commandLine": command_line or job_info["versions"][0]["commandLine"],
             "usePreviousArtifact": bool(use_previous_artifact and job_info["versions"][0]["packageInfo"]),
+            "dockerInfo": docker_info or job_info["versions"][0]["dockerInfo"],
         }
 
         # Add extra technology parameter if needed
@@ -1066,6 +1078,7 @@ class Jobs:
         emails: List = None,
         status_list: List = None,
         source_url: str = "",
+        docker_info: dict = None,
     ) -> Dict:
         """Create or upgrade a job
 
@@ -1112,6 +1125,9 @@ class Jobs:
             Status list
         source_url: str (optional)
             URL of the source code used for the job (link to the commit for example)
+        docker_info: dict (optional)
+            Docker information for the job
+            Example: {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIALS_ID"}
 
         Returns
         -------
@@ -1141,6 +1157,7 @@ class Jobs:
         ...     emails=['email1@saagie.io', 'email2@saagie.io'],
         ...     status_list=["FAILED", "KILLED"],
         ...     source_url="",
+        ...     docker_info=None
         ... )
         {
             "data":{
@@ -1175,6 +1192,7 @@ class Jobs:
                     extra_technology=extra_technology,
                     extra_technology_version=extra_technology_version,
                     source_url=source_url,
+                    docker_info=docker_info,
                 )["data"]["addJobVersion"]
             }
 
@@ -1214,6 +1232,7 @@ class Jobs:
                 "emails": emails,
                 "status_list": status_list,
                 "source_url": source_url,
+                "docker_info": docker_info,
             }.items()
             if v is not None  # Remove None values from the dict
         }
