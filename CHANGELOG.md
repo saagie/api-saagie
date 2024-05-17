@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.12.1 (2024-05-17)
+### :bug:
+* :bug: fix job with docker information upgrade ([#219](https://github.com/saagie/api-saagie/issues/219)) ([`3407c70`](https://github.com/saagie/api-saagie/commit/3407c706cb958c625549b3e53a5b2a4b0e5bb6ed))
+
 ## v2.12.0 (2024-04-26)
 ### :sparkles:
 * :sparkles: Feat/2024.02 ([#217](https://github.com/saagie/api-saagie/issues/217)) ([`3466c85`](https://github.com/saagie/api-saagie/commit/3466c85ff6b405c27ea8d7297b2708f924ee4636))
