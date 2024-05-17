@@ -213,6 +213,7 @@ class TestJobs:
             "status_list": ["FAILED", "KILLED"],
             "cron_scheduling": "0 0 * * *",
             "schedule_timezone": "Europe/Paris",
+            "docker_info": {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIAL_UUID"},
         }
         # Patch the self.__launch_request method to avoid calling the API
         with patch.object(instance, "_Jobs__launch_request") as launch_request:
@@ -288,6 +289,7 @@ class TestJobs:
             "release_note": "Initial version",
             "extra_technology": "python",
             "extra_technology_version": "3.9",
+            "docker_info": {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIAL_UUID"},
         }
 
         with patch.object(instance, "_Jobs__launch_request") as launch_request:
@@ -579,6 +581,7 @@ class TestJobs:
             "job_id": "60f46dce-c869-40c3-a2e5-1d7765a806db",
             "file": "/tmp/my_file.py",
             "source_url": "http://my.super.source.url",
+            "docker_info": {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIAL_UUID"},
         }
         # Mock the return value
         return_value = {"data": {"addJobVersion": {"number": 2, "__typename": "JobVersion"}}}
@@ -655,6 +658,7 @@ class TestJobs:
             "source_url": "http://my.super.source.url",
             "extra_technology": "python",
             "extra_technology_version": "3.9",
+            "docker_info": {"image": "my_image", "dockerCredentialsId": "MY_CREDENTIAL_UUID"},
         }
         # Mock the return value
         return_value = {"data": {"addJobVersion": {"number": 2, "__typename": "JobVersion"}}}
