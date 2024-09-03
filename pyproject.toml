@@ -8,7 +8,7 @@ readme = "README.md"
 repository = "https://github.com/saagie/api-saagie"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 requests = "2.29.0"
 gql = "^3.0.0"
 pytz = ">=2021.1"

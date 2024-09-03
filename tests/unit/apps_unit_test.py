@@ -638,9 +638,9 @@ class TestApps:
             "technology": {
                 "appContexts": [
                     {
-                        "id": "JupyterLab+GenAI 4.0 Python 3.10",
+                        "id": "JupyterLab+GenAI 4.0 Python 3.11",
                         "available": True,
-                        "label": "JupyterLab+GenAI 4.0 Python 3.10",
+                        "label": "JupyterLab+GenAI 4.0 Python 3.11",
                     }
                 ]
             }
@@ -678,9 +678,9 @@ class TestApps:
             "technology": {
                 "appContexts": [
                     {
-                        "id": "JupyterLab+GenAI 4.0 Python 3.10",
+                        "id": "JupyterLab+GenAI 4.0 Python 3.11",
                         "available": False,
-                        "label": "JupyterLab+GenAI 4.0 Python 3.10",
+                        "label": "JupyterLab+GenAI 4.0 Python 3.11",
                     }
                 ]
             }

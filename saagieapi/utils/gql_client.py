@@ -12,12 +12,14 @@ from .rich_console import console
 
 
 class GqlClient:
-    def __init__(self, api_endpoint: str, auth: BearerAuth, retries: int = 0):
+    def __init__(self, api_endpoint: str, auth: BearerAuth, timeout: int, retries: int = 0):
         self.auth = auth
         self._transport = RequestsHTTPTransport(
-            url=api_endpoint, auth=auth, use_json=True, verify=False, retries=retries, timeout=10
+            url=api_endpoint, auth=auth, use_json=True, verify=False, retries=retries, timeout=timeout
         )
-        self.client: Client = Client(transport=self._transport, fetch_schema_from_transport=True)
+        self.client: Client = Client(
+            transport=self._transport, fetch_schema_from_transport=True, execute_timeout=timeout
+        )
 
     def execute(
         self,

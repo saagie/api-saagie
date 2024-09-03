@@ -105,7 +105,7 @@ class TestIntegrationStorages:
             project_id=conf.project_id,
             technology_catalog="Saagie",
             technology_name="Jupyter Notebook",
-            context="JupyterLab+GenAI 4.0 Python 3.10",
+            context="JupyterLab+GenAI 4.0 Python 3.11",
         )
         app_id = create_app["installApp"]["id"]
 
