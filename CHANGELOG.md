@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.13.0 (2024-09-04)
+### :sparkles:
+* :sparkles: Add Timeout param for requests ([#222](https://github.com/saagie/api-saagie/issues/222)) ([`ac5b6a9`](https://github.com/saagie/api-saagie/commit/ac5b6a9f7aee68ba719a886cdd0bc9ff441240e1))
+
 ## v2.12.1 (2024-05-17)
 ### :bug:
 * :bug: fix job with docker information upgrade ([#219](https://github.com/saagie/api-saagie/issues/219)) ([`3407c70`](https://github.com/saagie/api-saagie/commit/3407c706cb958c625549b3e53a5b2a4b0e5bb6ed))
