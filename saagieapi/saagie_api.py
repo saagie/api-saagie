@@ -45,6 +45,7 @@ class SaagieApi:
         realm: str,
         retries: int = 0,
         pprint_global: bool = False,
+        timeout: int = 10,
     ):
         """
         Parameters
@@ -63,6 +64,8 @@ class SaagieApi:
             Pre-setup of the requests’ Session for performing retries
         pprint_global : bool
             Change the default pprint of all the requests made with this client
+        timeout: int
+            Pre-setup of the requests' Session Timeout, default to 10 seconds
         """
         if not url_saagie.endswith("/"):
             url_saagie += "/"
@@ -74,10 +77,10 @@ class SaagieApi:
         )
         logging.info("✅ Successfully connected to your platform %s", self.url_saagie)
         url_api = f"{self.url_saagie}projects/api/platform/{id_platform}/graphql"
-        self.client = GqlClient(auth=self.auth, api_endpoint=url_api, retries=retries)
+        self.client = GqlClient(auth=self.auth, api_endpoint=url_api, timeout=timeout, retries=retries)
 
         url_gateway = f"{self.url_saagie}gateway/api/graphql"
-        self.client_gateway = GqlClient(auth=self.auth, api_endpoint=url_gateway, retries=retries)
+        self.client_gateway = GqlClient(auth=self.auth, api_endpoint=url_gateway, timeout=timeout, retries=retries)
 
         self.projects = Projects(self)
         self.jobs = Jobs(self)
