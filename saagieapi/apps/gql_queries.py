@@ -452,19 +452,3 @@ query countAppHistoryStatuses($appHistoryId: UUID!, $versionNumber: Int!, $start
     countAppHistoryStatuses(appHistoryId: $appHistoryId, versionNumber: $versionNumber, startTime: $startTime) 
 }
 """
-
-GQL_GET_APP_LOG = """
-query appLogs($appId: UUID!, $appExecutionId: UUID!, $limit: Int, $skip: Int, $stream: LogStream, $recordAt: String) {
-    appLogs(appId: $appId, appExecutionId: $appExecutionId, limit: $limit, skip: $skip, stream: $stream, recordAt: $recordAt) 
-    {
-        count
-      	content {
-          index
-          value
-          containerId
-          stream
-          recordAt
-        }
-    }
-}
-"""

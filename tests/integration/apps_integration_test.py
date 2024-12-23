@@ -351,14 +351,15 @@ class TestIntegrationApps:
     @staticmethod
     def test_get_app_logs(create_global_project, create_then_delete_app_from_scratch):
         conf = create_global_project
+        project_id = conf.project_id
+
         app_id = create_then_delete_app_from_scratch
 
         app_info = conf.saagie_api.apps.run(app_id=app_id)
 
         app_info = conf.saagie_api.apps.get_info(app_id=app_id)
-
         app_execution_id = app_info["app"]["history"]["currentExecutionId"]
 
-        result = conf.saagie_api.apps.get_logs(app_id=app_id, app_execution_id=app_execution_id)
+        result = conf.saagie_api.apps.get_logs(project_id=project_id, app_id=app_id, app_execution_id=app_execution_id)
 
-        assert "appLogs" in result
+        assert "logs" in result
