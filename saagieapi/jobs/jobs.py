@@ -1457,10 +1457,8 @@ class Jobs:
             Dict of the request response
         """
         if file:
-            file_info = Path(file)
-            os.chdir(file_info.parent)
-            file = Path(file_info.name)
-            with file.open(mode="rb") as file_content:
+            file_info = Path(file).absolute()
+            with file_info.open(mode="rb") as file_content:
                 params["file"] = file_content
                 try:
                     req = self.saagie_api.client.execute(
@@ -1612,8 +1610,7 @@ class Jobs:
 
             if version_path.exists():
                 if path_to_package := next(version_path.iterdir(), None):
-                    os.chdir(path_to_package.parent)
-                    file_name = path_to_package.name
+                    file_name = path_to_package.absolute()
             else:
                 file_name = ""
 
