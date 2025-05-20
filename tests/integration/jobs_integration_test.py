@@ -110,6 +110,8 @@ class TestIntegrationJobs:
 
         job_instance_status = conf.saagie_api.jobs.get_instance(job_instance_id)["jobInstance"]["status"]
 
+        time.sleep(30)
+
         assert job_instance_status in ("KILLED", "KILLING")
 
     @staticmethod

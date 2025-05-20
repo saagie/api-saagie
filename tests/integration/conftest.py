@@ -109,7 +109,7 @@ def create_global_project(command_line_args):
         Conf.saagie_api.projects.delete(Conf.project_id)
 
     # Delete output directory if it wasn't present before
-    if not Conf.output_dir_present:
+    if Conf.output_dir_present:
         shutil.rmtree(Conf.output_dir)
 
     # Delete global environment variable
