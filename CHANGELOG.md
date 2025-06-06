@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v2.13.1 (2025-06-06)
+### :bug:
+* :bug: fix version ([#230](https://github.com/saagie/api-saagie/issues/230)) ([`c0b4666`](https://github.com/saagie/api-saagie/commit/c0b4666e5a9af8f435b51b6a8cc02c5740fe8e59))
+
 ## v2.13.0 (2024-09-04)
 ### :sparkles:
 * :sparkles: Add Timeout param for requests ([#222](https://github.com/saagie/api-saagie/issues/222)) ([`ac5b6a9`](https://github.com/saagie/api-saagie/commit/ac5b6a9f7aee68ba719a886cdd0bc9ff441240e1))
