@@ -599,13 +599,3 @@ mutation migrateJobsMutation($jobId: UUID!, $targetPlatformId: Int!, $targetProj
     moveJob(jobId: $jobId, targetPlatformId: $targetPlatformId, targetProjectId: $targetProjectId)
 }
 """
-
-GQL_GENERATE_JOB_DESCRIPTION = """
-mutation editJobWithAiGeneratedDescriptionMutation($jobId: UUID!) {
-    editJobWithAiGeneratedDescription(jobId: $jobId) {
-        id
-        description
-        aiDescriptionVersionNumber
-    }
-}
-"""

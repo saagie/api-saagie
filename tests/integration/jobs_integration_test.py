@@ -470,16 +470,6 @@ class TestIntegrationJobs:
         assert job_init["job"]["name"] == job_after["job"]["name"]
 
     @staticmethod
-    def test_generate_description_by_ai(create_then_delete_job, create_global_project):
-        conf = create_global_project
-        job_id = create_then_delete_job
-
-        result = conf.saagie_api.jobs.generate_description_by_ai(job_id=job_id)
-
-        assert "editJobWithAiGeneratedDescription" in result
-        assert result["editJobWithAiGeneratedDescription"]["id"] == job_id
-
-    @staticmethod
     def test_get_info_by_alias(create_global_project, create_then_delete_job):
         conf = create_global_project
         job_id = create_then_delete_job

@@ -1391,20 +1391,3 @@ class TestJobs:
         instance.move_job(**job_params)
 
         saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
-
-    def test_generate_description_by_ai_gql(self):
-        self.client.validate(gql(GQL_GENERATE_JOB_DESCRIPTION))
-
-    def test_generate_description_by_ai(self, saagie_api_mock):
-        instance = Jobs(saagie_api_mock)
-
-        job_id = "860b8dc8-e634-4c98-b2e7-f9ec32ab4771"
-        params = {
-            "jobId": job_id,
-        }
-
-        expected_query = gql(GQL_GENERATE_JOB_DESCRIPTION)
-
-        instance.generate_description_by_ai(job_id=job_id)
-
-        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
