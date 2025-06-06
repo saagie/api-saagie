@@ -11,10 +11,7 @@ from .docker_credentials import DockerCredentials
 from .env_vars import EnvVars
 from .gql_queries import (
     GQL_CHECK_CUSTOM_EXPRESSION,
-    GQL_COUNT_CONDITION_LOGS,
     GQL_GET_CLUSTER_INFO,
-    GQL_GET_CONDITION_LOGS_BY_CONDITION,
-    GQL_GET_CONDITION_LOGS_BY_INSTANCE,
     GQL_GET_PLATFORM_INFO,
     GQL_GET_REPOSITORIES_INFO,
     GQL_GET_RUNTIMES,
@@ -72,6 +69,7 @@ class SaagieApi:
 
         self.url_saagie = url_saagie
         self.realm = realm
+        self.platform = id_platform
         self.auth = BearerAuth(
             realm=self.realm, url=self.url_saagie, platform=id_platform, login=user, password=password
         )
@@ -702,7 +700,12 @@ class SaagieApi:
         }
         return self.client.execute(query=gql(GQL_CHECK_CUSTOM_EXPRESSION), variable_values=params)
 
-    def count_condition_logs(self, condition_instance_id: str, project_id: str, streams: List[str]) -> Dict:
+    def count_condition_logs(
+        self,
+        condition_instance_id: str,
+        project_id: str,
+        streams: List[str],
+    ) -> Dict:
         """Get number of logs line for an instance of a condition on Environment Variable
 
         Parameters
@@ -712,7 +715,7 @@ class SaagieApi:
         project_id : str
             UUID of the project
         streams : List[str]
-            List of logs files name to see (example : STDERR, STDOUT)
+            List of logs files name to see (example : ENVVARS_STDOUT, ENVVARS_STDERR, ORCHESTRATION_STDOUT, ORCHESTRATION_STDERR, STDOUT, STDERR)
 
         Returns
         -------
@@ -726,99 +729,21 @@ class SaagieApi:
         ...     project_id="your_project_id",
         ...     streams=["STDOUT"]
         ... )
+
         {
-            "data": {
-                "conditionPipelineCountFilteredLogs": 4
-            }
+          "logs": [
+          ],
+          "limit": 1,
+          "total": 5,
+          "order": "asc",
+          "source": "elastic"
         }
         """
+        log_stream = ",".join(streams)
+        url = f"{self.url_saagie}log-proxy/api/logs/{self.realm}/platform/{self.platform}/project/{project_id}/condition_instance/{condition_instance_id}?limit=1&skip=0&streams={log_stream}"
+        response = self.request_client.send(method="GET", url=url, raise_for_status=True)
 
-        params = {"conditionInstanceId": condition_instance_id, "projectID": project_id, "streams": streams}
-
-        return self.client.execute(query=gql(GQL_COUNT_CONDITION_LOGS), variable_values=params)
-
-    def get_condition_instance_logs_by_condition(
-        self,
-        condition_id: str,
-        project_id: str,
-        pipeline_instance_id: str,
-        streams: List[str],
-        limit: int = None,
-        skip: int = None,
-    ) -> Dict:
-        """Get logs for a condition on Environment Variable of a pipeline instance
-
-        Parameters
-        ----------
-        condition_id : str
-            UUID of the condition
-        project_id : str
-            UUID of the project
-        pipeline_instance_id ! str
-            UUID of the pipeline instance
-        streams : List[str]
-            List of logs files name to see (example : STDERR, STDOUT)
-        limit : int
-            Number of logs lines to return from the beginning
-        skip : int
-            Number of logs lines to doesn't display from the beginning
-
-        Returns
-        -------
-        dict
-            Dict of logs lines
-
-        Examples
-        --------
-        >>> saagieapi.get_condition_instance_logs_by_condition(
-        ...     condition_id="condition_node_id",
-        ...     project_id="project_id",
-        ...     pipeline_instance_id="pipeline_instance_id",
-        ...     streams=["STDOUT"]
-        ... )
-        {
-            "data": {
-                "conditionPipelineByNodeIdFilteredLogs": {
-                    "count": 4,
-                    "content": [
-                        {
-                            "index": 0,
-                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition: 'tube_name.contains(\"Tube\") ||",
-                            "stream": "STDOUT"
-                        },
-                        {
-                            "index": 1,
-                            "value": "double(diameter) > 1.0'",
-                            "stream": "STDOUT"
-                        },
-                        {
-                            "index": 2,
-                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition evaluation took: 4.736725ms",
-                            "stream": "STDOUT"
-                        },
-                        {
-                            "index": 3,
-                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Result: true",
-                            "stream": "STDOUT"
-                        }
-                    ]
-                }
-            }
-        }
-        """  # pylint: disable=line-too-long
-        params = {
-            "conditionNodeID": condition_id,
-            "projectID": project_id,
-            "pipelineInstanceID": pipeline_instance_id,
-            "streams": streams,
-        }
-        if limit:
-            params["limit"] = limit
-
-        if skip:
-            params["skip"] = skip
-
-        return self.client.execute(query=gql(GQL_GET_CONDITION_LOGS_BY_CONDITION), variable_values=params)
+        return response.json()
 
     def get_condition_instance_logs_by_instance(
         self,
@@ -837,7 +762,7 @@ class SaagieApi:
         project_id : str
             UUID of the project
         streams : List[str]
-            List of logs files name to see (example : STDERR, STDOUT)
+            List of logs files name to see (example : ENVVARS_STDOUT, ENVVARS_STDERR, ORCHESTRATION_STDOUT, ORCHESTRATION_STDERR, STDOUT, STDERR)
         limit : int
             Number of logs lines to return from the beginning
         skip : int
@@ -855,44 +780,27 @@ class SaagieApi:
         ...     project_id="project_id"
         ... )
         {
-            "data": {
-                "conditionPipelineByNodeIdFilteredLogs": {
-                    "count": 4,
-                    "content": [
-                        {
-                            "index": 0,
-                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition: 'tube_name.contains(\"Tube\") ||",
-                            "stream": "STDOUT"
-                        },
-                        {
-                            "index": 1,
-                            "value": "double(diameter) > 1.0'",
-                            "stream": "STDOUT"
-                        },
-                        {
-                            "index": 2,
-                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition evaluation took: 4.736725ms",
-                            "stream": "STDOUT"
-                        },
-                        {
-                            "index": 3,
-                            "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Result: true",
-                            "stream": "STDOUT"
-                        }
-                    ]
+            "logs": [
+                {
+                    "index": 0,
+                    "value": "2023/05/15 12:55:19 INFO [evaluate_condition] Condition: 'tube_name.contains(\"Tube\") ||",
+                    "stream": "STDOUT"
                 }
-            }
+            ],
+            "limit": 1,
+            "total": 1,
+            "order": "asc",
+            "source": "elastic"
         }
         """  # pylint: disable=line-too-long
-        params = {
-            "conditionInstanceId": condition_instance_id,
-            "projectId": project_id,
-            "streams": streams,
-        }
-        if limit:
-            params["limit"] = limit
 
-        if skip:
-            params["skip"] = skip
+        if limit is None:
+            limit = 10000
+        if skip is None:
+            skip = 0
+        log_stream = ",".join(streams)
 
-        return self.client.execute(query=gql(GQL_GET_CONDITION_LOGS_BY_INSTANCE), variable_values=params)
+        url = f"{self.url_saagie}log-proxy/api/logs/{self.realm}/platform/{self.platform}/project/{project_id}/condition_instance/{condition_instance_id}?limit={limit}&skip={skip}&streams={log_stream}"
+        response = self.request_client.send(method="GET", url=url, raise_for_status=True)
+
+        return response.json()

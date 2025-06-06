@@ -1467,17 +1467,19 @@ class Apps:
 
     def get_logs(
         self,
+        project_id: str,
         app_id: str,
         app_execution_id: str,
         limit: int = None,
         skip: int = None,
         log_stream: str = None,
-        start_at: str = None,
     ):
         """Get logs of the app
 
         Parameters
         ----------
+        project_id : str
+            UUID of your project
         app_id : str
             UUID of your app
         app_execution_id : str
@@ -1490,9 +1492,6 @@ class Apps:
             Stream of logs to follow. Values accepted :
             [ENVVARS_STDOUT, ENVVARS_STDERR, ORCHESTRATION_STDOUT, ORCHESTRATION_STDERR, STDERR, STDOUT]
             By default, all the streams are retrieved
-        start_at: str, optional
-            Get logs since a specific datetime.
-            Following formats accepted : "2024-04-09 10:00:00" and "2024-04-09T10:00:00"
 
         Returns
         -------
@@ -1508,43 +1507,35 @@ class Apps:
         ...     skip=5,
         ...     start_at="2024-04-09 10:00:00"
         ... )
+
         {
-            "appLogs": {
-                "count": 25,
-                "content": [
-                    {
-                        "index": 5,
-                        "value": "[I 2024-04-09 13:38:36.982 ServerApp] jupyterlab_git | extension was successfully linked.",
-                        "containerId": "d7104fa7371c5ed6ef540fa8b0620a654a0e02c57136e29f0fcc03d16e36d74f",
-                        "stream": "STDERR",
-                        "recordAt": "2024-04-09T13:38:36.982473892Z"
-                    },
-                    {
-                        "index": 6,
-                        "value": "[W 2024-04-09 13:38:36.987 NotebookApp] 'ip' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.",
-                        "containerId": "d7104fa7371c5ed6ef540fa8b0620a654a0e02c57136e29f0fcc03d16e36d74f",
-                        "stream": "STDERR",
-                        "recordAt": "2024-04-09T13:38:36.987400105Z"
-                    }
-                ]
+          "logs": [
+            {
+              "index": 0,
+              "stream": "STDERR",
+              "time": "2024-12-11T14:27:42.858298425Z",
+              "value": "[I 2024-04-09 13:38:36.982 ServerApp] jupyterlab_git | extension was successfully linked.",
+            },
+            {
+              "index": 1,
+              "stream": "STDERR",
+              "time": "2024-12-11T14:27:42.859697094Z",
+              "value": "AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 10.4.3.20. Set the 'ServerName' directive globally to suppress this message"
             }
+          ],
+          "limit": 10000,
+          "total": 5,
+          "order": "asc",
+          "source": "elastic"
         }
         """
-        params = {
-            "appId": app_id,
-            "appExecutionId": app_execution_id,
-        }
+        if limit is None:
+            limit = 10000
+        if skip is None:
+            skip = 0
+        if log_stream is None:
+            log_stream = "ENVVARS_STDOUT,ENVVARS_STDERR,ORCHESTRATION_STDOUT,ORCHESTRATION_STDERR,STDERR,STDOUT"
+        url = f"{self.saagie_api.url_saagie}log-proxy/api/logs/{self.saagie_api.realm}/platform/{self.saagie_api.platform}/project/{project_id}/app_execution/{app_execution_id}?limit={limit}&skip={skip}&streams={log_stream}"
+        response = self.saagie_api.request_client.send(method="GET", url=url, raise_for_status=True)
 
-        if limit:
-            params["limit"] = limit
-
-        if skip:
-            params["skip"] = skip
-
-        if log_stream:
-            params["stream"] = log_stream
-
-        if start_at:
-            params["recordAt"] = start_at
-
-        return self.saagie_api.client.execute(query=gql(GQL_GET_APP_LOG), variable_values=params)
+        return response.json()

@@ -785,39 +785,3 @@ class TestApps:
         app.count_history_statuses(history_id=history_id, version_number=1, start_time="2024-04-10T14:26:27.073Z")
 
         saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)
-
-    def test_get_app_logs_gql(self):
-        query = gql(GQL_GET_APP_LOG)
-        self.client.validate(query)
-
-    def test_get_app_logs(self, saagie_api_mock):
-        app = Apps(saagie_api_mock)
-
-        app_id = "70e85ade-d6cc-4a90-8d7d-639adbd25e5d"
-        app_execution_id = "e3e31074-4a12-450e-96e4-0eae7801dfca"
-        limit = 2
-        skip = 5
-        stream = "STDERR"
-        start_at = "2024-04-09 10:00:00"
-
-        params = {
-            "appId": app_id,
-            "appExecutionId": app_execution_id,
-            "limit": limit,
-            "skip": skip,
-            "stream": stream,
-            "recordAt": start_at,
-        }
-
-        expected_query = gql(GQL_GET_APP_LOG)
-
-        app.get_logs(
-            app_id=app_id,
-            app_execution_id=app_execution_id,
-            limit=limit,
-            skip=skip,
-            log_stream=stream,
-            start_at=start_at,
-        )
-
-        saagie_api_mock.client.execute.assert_called_with(query=expected_query, variable_values=params)

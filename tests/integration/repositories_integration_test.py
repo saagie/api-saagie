@@ -61,8 +61,8 @@ class TestIntegrationRepository:
         conf = create_global_project
         repository_id = create_then_delete_repository_from_zip
 
-        repository_input = {"file_name": "new_technologies.zip"}
-        file_path = os.path.join(conf.dir_path, "resources", "repositories", repository_input["file_name"])
+        file_path = os.path.join(conf.dir_path, "resources", "repositories", "new_technologies.zip")
+        repository_input = {"file_name": file_path}
 
         conf.saagie_api.repositories.synchronize(repository_id, file=file_path)
         repository_info = conf.saagie_api.repositories.get_info(repository_id)
@@ -95,9 +95,8 @@ class TestIntegrationRepository:
     def test_revert_last_synchronization_from_zip(create_then_delete_repository_from_zip, create_global_project):
         conf = create_global_project
         repository_id = create_then_delete_repository_from_zip
-        previous_zip_name = "technologies.zip"
-        new_zip_name = "new_technologies.zip"
-        new_file_path = os.path.join(conf.dir_path, "resources", "repositories", new_zip_name)
+        previous_zip_path = os.path.join(conf.dir_path, "resources", "repositories", "technologies.zip")
+        new_file_path = os.path.join(conf.dir_path, "resources", "repositories", "new_technologies.zip")
 
         conf.saagie_api.repositories.synchronize(repository_id, file=new_file_path)
         new_repository_info = conf.saagie_api.repositories.get_info(repository_id)
@@ -105,8 +104,8 @@ class TestIntegrationRepository:
         conf.saagie_api.repositories.revert_last_synchronization(repository_id)
         repository_info = conf.saagie_api.repositories.get_info(repository_id)
 
-        assert new_repository_info["repository"]["source"]["name"] == new_zip_name
-        assert repository_info["repository"]["source"]["name"] == previous_zip_name
+        assert new_repository_info["repository"]["source"]["name"] == new_file_path
+        assert repository_info["repository"]["source"]["name"] == previous_zip_path
 
     @staticmethod
     def test_create_repository_from_zip(create_then_delete_repository_from_zip, create_global_project):

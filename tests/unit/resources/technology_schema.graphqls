@@ -4,12 +4,6 @@ schema {
 }
 
 type Query {
-  "Get a connection type details by repository UUID and connectionTypeId"
-  connectionType(connectionTypeId: String!, repositoryId: UUID!): ConnectionType!
-  "Get the list of connection Types"
-  connectionTypes: [ConnectionType!]!
-  "Get multiple connection Types details by providing their UUID"
-  connectionTypesByIds(ids: [UUID!]!): [ConnectionType!]!
   "Get all enabled facets"
   facets: [Facet!]!
   "List all repositories"
@@ -39,8 +33,6 @@ type Mutation {
 
 "Represents a repository with at least one technology to synchronize"
 type Repository {
-  "List of connection types of the repository"
-  connectionTypes: [ConnectionType!]!
   "Date of creation of the repository"
   creationDate: Instant!
   "Creator of the repository"
@@ -130,22 +122,6 @@ type SparkTechnology implements Technology {
   defaultResources: ResourceSettings!
 }
 
-type ExtJobTechnology implements Technology {
-  available: Boolean!
-  contexts: [ExtJobContext!]!
-  customFlags: [Flag!]!
-  description: String
-  facets: [String!]!
-  icon: String
-  iconUrl: String
-  id: UUID!
-  label: String!
-  lastUpdate: Instant!
-  missingFacets: [String!]!
-  repositoryId: UUID!
-  technologyId: String!
-}
-
 interface Context {
   available: Boolean!
   deprecationDate: Instant
@@ -221,24 +197,6 @@ type SparkJobContext implements Context {
   trustLevel: TrustLevel!
   defaultResources: ResourceSettings!
 }
-
-type ExtJobContext implements Context {
-  actions: ExtJobActions!
-  available: Boolean!
-  connectionTypeId: String!
-  connectionTypeUUID: UUID!
-  deprecationDate: Instant
-  description: String
-  facets: [String!]!
-  id: String!
-  label: String!
-  lastUpdate: Instant
-  missingFacets: [String!]!
-  parameters: [ExtJobParameter!]!
-  recommended: Boolean!
-  trustLevel: TrustLevel!
-}
-
 
 type ResourceSettings {
   cpu: CpuResourceSettings!
@@ -318,41 +276,9 @@ type VolumeInfo {
   size: DataSize!
 }
 
-type ExtJobActions {
-  getLogs: ScriptCall
-  getStatus: ScriptCall!
-  start: ScriptCall!
-  stop: ScriptCall
-}
-
-type ExtJobParameter {
-  comment: String
-  defaultValue: String
-  dependsOn: [String!]
-  dynamicValues: ScriptCall
-  id: String!
-  label: String!
-  mandatory: Boolean!
-  staticValues: [ExtJobParameterStaticValue!]
-  type: ExtFeatureType!
-}
-
 type ScriptCall {
   function: String!
   scriptId: UUID!
-}
-
-type ExtJobParameterStaticValue {
-  id: String!
-  label: String!
-}
-
-enum ExtFeatureType {
-  DYNAMIC_SELECT
-  PASSWORD
-  STATIC_SELECT
-  TEXT
-  TOGGLE
 }
 
 type Script {
@@ -413,8 +339,6 @@ enum SynchronizationTriggerType {
 }
 
 type SuccessfulSynchronization implements SynchronizationReport {
-  "List of connection types synchronization report"
-  connectionTypeReports: [ConnectionTypeSynchronizationReport!]!
   "Date of synchronization end"
   endedAt: Instant!
   "Unique identifier (UUID format: see [RFC 4122](https://tools.ietf.org/html/rfc4122))"
@@ -490,17 +414,6 @@ type ContextSynchronizationReport {
   status: SynchronizationStatus!
 }
 
-type ConnectionTypeSynchronizationReport {
-  "Connection type ID"
-  connectionTypeId: String!
-  "Connection type label"
-  connectionTypeLabel: String!
-  "Details on the Connection type synchronization status, including the details of the failure if applicable"
-  message: String
-  "Connection type synchronization status: Created, Updated, Deleted or Failed"
-  status: SynchronizationStatus!
-}
-
 enum SynchronizationStatus {
   "Created"
   CREATED
@@ -522,69 +435,8 @@ type Manual {
   uselessField: Boolean
 }
 
-"Represent a connection Type that could be used with an external technology"
-type ConnectionType {
-  "The actions associated with the connection"
-  actions: ConnectionTypeActions
-  "The connection Type id"
-  connectionTypeId: String!
-  "The connection Type database unique id"
-  id: UUID!
-  "The connection Type label"
-  label: String!
-  "The last time the connection was updated"
-  lastUpdate: Instant
-  "The connection Type list of parameters"
-  parameters: [ConnectionTypeParameter!]!
-  "The connection Type repository id"
-  repositoryId: UUID!
-}
-
-"The actions of a connection type"
-type ConnectionTypeActions {
-  checkConnection: ScriptCall
-}
-
-"Represent an item describing available parameter for a connection"
-type ConnectionTypeParameter {
-  "Comment of the parameter"
-  comment: String
-  "Default value of the parameter"
-  defaultValue: String
-  "Link to another depending parameters, via names"
-  dependsOn: [String!]
-  "Id of the parameter"
-  id: String!
-  "Label of the parameter"
-  label: String!
-  "Mandatory true/false of this parameter"
-  mandatory: Boolean!
-  "Possible values of the parameter"
-  staticValues: [ConnectionTypeParameterStaticValue!]
-  "Type of the parameter: TEXT, PASSWORD, STATIC_SELECT or TOGGLE"
-  type: ConnectionTypeParameterEnum!
-}
-
-"Type of the parameter : TEXT, PASSWORD, STATIC_SELECT or TOGGLE"
-enum ConnectionTypeParameterEnum {
-  PASSWORD
-  STATIC_SELECT
-  TEXT
-  TOGGLE
-}
-
-"A value for a static select"
-type ConnectionTypeParameterStaticValue {
-  "The id used in the scripts"
-  id: String!
-  "The human readable description of the value"
-  label: String!
-}
-
 "Represents a repository that have just been deleted"
 type DeletedRepository {
-  "List of connection type of the repository"
-  connectionTypes: [ConnectionType!]!
   "Date of creation of the repository"
   creationDate: Instant!
   "Creator of the repository"

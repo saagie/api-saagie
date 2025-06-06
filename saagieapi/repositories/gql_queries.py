@@ -206,15 +206,6 @@ query RepositoryQuery($id: UUID!, $withReverted: Boolean, $lastSynchronization: 
             }
             lastReversibleId
         }
-        connectionTypes {
-            id
-            label
-            actions {
-                checkConnection {
-                    scriptId
-                }
-            }
-        }
         technologies {
             id
             technologyId
@@ -256,35 +247,6 @@ query RepositoryQuery($id: UUID!, $withReverted: Boolean, $lastSynchronization: 
                     trustLevel
                     deprecationDate
                     lastUpdate
-                }
-            }
-            ... on ExtJobTechnology {
-                iconUrl
-                contexts {
-                    id
-                    label
-                    available
-                    missingFacets
-                    description
-                    recommended
-                    trustLevel
-                    deprecationDate
-                    lastUpdate
-                    connectionTypeUUID
-                    actions {
-                        getStatus {
-                            scriptId
-                        }
-                        start {
-                            scriptId
-                        }
-                        stop {
-                            scriptId
-                        }
-                        getLogs {
-                            scriptId
-                        }
-                    }
                 }
             }
             ... on SparkTechnology {

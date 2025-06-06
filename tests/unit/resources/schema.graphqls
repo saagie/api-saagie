@@ -330,20 +330,6 @@ type Query {
 
   # List job and pipeline instances across all accessible projects in a timeframe.
   projectReports(timeSlot: Int!, limit: Int!, skip: Int!): ProjectReports!
-
-  # Get connections related to a project.
-  getConnectionsByProject(projectId: UUID!): [Connection]!
-
-  # Get a connection's details from its UUID.
-  #
-  # You can only get a connection's details if you have at least the viewer role in the project associated to the connection or in all projects.
-  connection(id: UUID!): Connection
-
-  # Get Ext-Job values for a given param.
-  getExtJobParamValues(connectionId: UUID!, technologyId: UUID!, contextId: String!, paramId: String!, additionalContext: [EntryInput]!): ExtJobParamValueCallResult!
-
-  # Check if the connection is properly configured.
-  checkConnection(projectId: UUID!, connectionId: UUID, repositoryId: UUID!, connectionTypeId: String!, parameters: [EntryInput]!): CheckConnectionCallResult!
 }
 
 type Mutation {
@@ -769,25 +755,6 @@ type Mutation {
   #
   # You can only duplicate a volume if you have at least role editor on the project associated to the volume or on all projects.
   duplicateVolume(originalVolumeId: UUID!): Volume!
-
-  # Create a Connection related to a project.
-  # **Fields validation:**
-  # - name: must be unique (case insensitive) in the project, shorter than 255 characters and cannot be empty.
-  # - project: must exists. Use 'projects' query to list all projects.
-  # - connectionType: must exists in Technology-Catalog.
-  # - Values: must comply with Connection Type
-  createProjectConnection(connectionInput: ConnectionInput): Connection!
-
-  # Edit a Connection related to a project.
-  # **Fields validation:**
-  # - name: must be unique (case insensitive) in the project, shorter than 255 characters and cannot be empty.
-  # - project: must exists. Use 'projects' query to list all projects.
-  # - connectionType: must exists in Technology-Catalog.
-  # - Values: must comply with Connection Type
-  editProjectConnection(connectionInput: ConnectionEditionInput!): Connection!
-
-  # Delete a batch of Connections related to one project.
-  deleteProjectConnections(connectionIds: [UUID!]!): Boolean!
 }
 
 input ProjectInput {
@@ -868,16 +835,9 @@ input JobVersionInput {
   extraTechnology: ExtraTechnologyInput
   # DEPRECATED. Use JobInput.doesUseGPU instead.
   doesUseGPU: Boolean
-  connectionId: UUID
-  externalJobParams: [ExternalJobParamInput!]
 
   # Version reference url (http or https) pushed only by API
   sourceUrl: String
-}
-
-input ExternalJobParamInput {
-  id: String!
-  value: String
 }
 
 input JobPackageInput {
@@ -1581,8 +1541,6 @@ type JobVersion {
   deletableState: JobVersionDeletableState
   creator: String!
   doesUseGPU: Boolean @deprecated(reason: "Use Job.doesUseGPU instead")
-  connectionId: UUID
-  externalJobParams: [ExternalJobParam!]
 
   # Version reference url (http or https) pushed only by API.
   sourceUrl: String
@@ -1591,11 +1549,6 @@ type JobVersion {
 type JobVersionDeletableState {
   deletable: Boolean!
   reasons: [JobVersionDeletableStateReason!]
-}
-
-type ExternalJobParam {
-  id: String!
-  value: String!
 }
 
 type JobPackage {
@@ -1966,65 +1919,6 @@ type PipelineInstanceReport {
   jobInstances: [JobInstanceReport!]!
   startTime: DateTime!
   status: InstanceStatus!
-}
-
-input ConnectionInput {
-  projectId: UUID!,
-  repositoryId: UUID!,
-  connectionTypeId: String!,
-  name: String!,
-  parameters: [ConnectionParamValueInput!]!
-}
-
-input ConnectionEditionInput {
-  id: UUID!,
-  name: String!,
-  parameters: [ConnectionParamValueInput!]!
-}
-
-input ConnectionParamValueInput {
-  id: String!
-  value: String
-  isPassword: Boolean!
-}
-
-type Connection {
-  id: UUID!
-  projectId: UUID!,
-  name: String,
-  repositoryId: UUID!,
-  connectionTypeId: String!,
-  parameters: [ConnectionParamValue!]!,
-  creator: String!,
-  creationDate: DateTime,
-  lastUpdate: DateTime,
-  jobs: [Job!]
-}
-
-type ConnectionParamValue {
-  id: String!
-  value: String
-  isPassword: Boolean!
-}
-
-type ExtJobParamValueCallResult {
-  result: [ExtJobParamValue!]
-  error: String
-}
-
-type ExtJobParamValue {
-  id: String!
-  label: String!
-}
-
-type CheckConnectionCallResult {
-  result: CheckConnectionResult
-  error: String
-}
-
-type CheckConnectionResult {
-  ok: Boolean!
-  message: String
 }
 
 type Entry {

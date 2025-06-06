@@ -10,4 +10,6 @@ _build
 venv
 .vscode
 .coverage
-cov.xml
+api-saagie.iml
+out/
+.env
